@@ -136,7 +136,7 @@ const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, desc, mul, levels }) =>
 export const UPGRADES = [...CASH, ...EXOTIC, ...PART_UNLOCKS, ...PA_UPGRADES, ...CELL_UPGRADES];
 export const UPGRADE_BY_ID = new Map(UPGRADES.map((u) => [u.id, u]));
 
-const maxLevel = (u) => u.levels ?? DEFAULT_MAX_LEVEL;
+export const maxLevel = (u) => u.levels ?? DEFAULT_MAX_LEVEL;
 
 /** What the next level costs. Exotic-part unlocks get pricier as you buy them. */
 export function costOf(s, u) {
@@ -150,7 +150,7 @@ export function costOf(s, u) {
 	return u.cost * (u.mul ?? 1) ** level;
 }
 
-const isUnlocked = (s, u) =>
+export const isUnlocked = (s, u) =>
 	(!u.requires || s.levels[u.requires] > 0) && (!u.ecost || u.id === "laboratory" || s.levels.laboratory > 0);
 
 /** Buy one level. Returns true if it happened. */
