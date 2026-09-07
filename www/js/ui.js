@@ -407,6 +407,11 @@ function renderUpgrades(dom, s) {
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
 
+		// An upgrade already owned stays on the list at every level, so the price
+		// has to say when the next one is out of reach - otherwise buying level 1
+		// leaves level 2 looking just as affordable at twenty times the cost.
+		button.classList.toggle("poor", !affordable && lv < maxLevel(u));
+
 		const shown = unlocked && (owned || affordable);
 		button.hidden = !shown;
 		button.classList.toggle("preview", false);
