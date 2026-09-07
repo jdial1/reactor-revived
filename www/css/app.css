@@ -61,12 +61,14 @@ a { color: var(--power); }
 
 .meter {
 	display: grid;
-	grid-template-columns: 16px 1fr auto;
+	grid-template-columns: 20px 1fr auto;
 	align-items: center;
 	gap: 6px;
 }
+/* Centred on the bar it belongs to, not floated above it. */
+.meter .icon.stat { width: 20px; height: 20px; justify-self: center; }
 .meter .bar {
-	height: 8px;
+	height: 16px;
 	background: #0007;
 	border: 1px solid var(--edge);
 	overflow: hidden;
@@ -241,9 +243,18 @@ footer {
 
 /* Twice the height of the old button strip: the readout it absorbed sits on
    top of the controls. */
-#actions { display: grid; gap: 3px; padding: 4px; }
-#actions .readout { display: grid; gap: 2px; padding: 0 2px; }
-#actions .controls, #dock-tabs { display: flex; gap: 3px; }
+#actions { display: flex; gap: 6px; padding: 4px; }
+/* The controls stack down the left, one per readout row beside them. */
+#actions .controls {
+	flex: none;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	width: 88px;
+}
+#actions .controls button { min-height: 26px; }
+#actions .readout { flex: 1; display: grid; align-content: center; gap: 4px; }
+#dock-tabs { display: flex; gap: 3px; }
 #actions button, #dock-tabs button {
 	display: flex;
 	align-items: center;

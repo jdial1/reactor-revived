@@ -150,11 +150,11 @@ export function buildUI(game) {
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
 	dom.pause = h("button", { onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 	dom.actions = h("div", { id: "actions" },
-		dom.readout,
 		h("div", { className: "controls" },
 			h("button", { onclick: game.sellAll }, icon("cash"), h("span", { textContent: "Sell" })),
 			h("button", { onclick: game.ventHeat }, icon("vent"), h("span", { textContent: "Vent" })),
-			dom.pause));
+			dom.pause),
+		dom.readout);
 	// The bar stays put on every page - the readout in it is most wanted on the
 	// Upgrades page, where the money is being spent. Only the parts hide.
 	dom.dock = h("div", { id: "dock" });
