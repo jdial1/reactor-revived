@@ -438,6 +438,8 @@ dialog::backdrop { background: #000a; }
 dialog h2 { margin: 0 0 2px; font-size: 15px; }
 dialog i { color: var(--dim); font-style: normal; font-size: 11px; }
 dialog p { margin: 0 0 12px; }
+.sheet-actions { display: grid; gap: 6px; margin-bottom: 8px; }
+.sheet-actions button { padding: 10px; }
 dialog .row { display: flex; gap: 8px; }
 dialog .row button { flex: 1; padding: 10px; }
 

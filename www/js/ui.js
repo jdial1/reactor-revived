@@ -232,8 +232,10 @@ export function ask(question, onYes) {
 }
 
 /** What a placed part is doing right now, plus a way to sell it. */
-export function inspect(s, t, onSell) {
+export function inspect(s, t, sell) {
 	const p = s.stats.get(t.id);
+	const placed = [...activeTiles(s)].filter((x) => x.id);
+	const sameKind = placed.filter((x) => x.id === t.id).length;
 	const rows = [
 		["Sells for", `$${fmt(p.cost)}`],
 		["Power", t.power ? fmt(t.power) : null],
@@ -250,9 +252,15 @@ export function inspect(s, t, onSell) {
 		h("h2", { textContent: p.title }),
 		h("i", { textContent: p.desc ?? "" }),
 		h("dl", {}, rows.filter(([, v]) => v !== null).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
+		// Selling one at a time is fine for a mistake; clearing a whole kind, or
+		// the whole board, is what you want when the layout is wrong.
+		h("div", { className: "sheet-actions" }, [
+			h("button", { className: "danger", textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
+			sameKind > 1 && h("button", { className: "danger", textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
+			placed.length > sameKind && h("button", { className: "danger", textContent: `Sell everything (${placed.length} parts)`, onclick: () => { dialog.close(); sell.sellAll(); } }),
+		].filter(Boolean)),
 		h("div", { className: "row" },
-			h("button", { textContent: "Close", onclick: () => dialog.close() }),
-			h("button", { className: "danger", textContent: "Sell", onclick: () => { dialog.close(); onSell(); } })));
+			h("button", { textContent: "Close", onclick: () => dialog.close() })));
 	dialog.addEventListener("close", () => dialog.remove());
 	document.body.append(dialog);
 	dialog.showModal();

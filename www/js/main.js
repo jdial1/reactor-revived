@@ -2,7 +2,7 @@
 // The original ran the same four chained setTimeouts; there is nothing wrong
 // with that, and it keeps the sim on a fixed 1s beat independent of frame rate.
 import { load, save, newState, place, exportSave as saveText, deserialize } from "./state.js";
-import { compile, tick, tileAt, remove } from "./sim.js";
+import { compile, tick, tileAt, remove, activeTiles } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives } from "./objectives.js";
@@ -29,11 +29,20 @@ function placeAt(r, c) {
 }
 
 /** Take a part off a tile, refunding it if it was paid for. */
-function sellAt(r, c) {
-	const t = tileAt(s, r, c);
+function sellTile(t) {
 	if (!t.id) return;
 	if (t.activated) s.money += s.stats.get(t.id).cost;
 	remove(s, t);
+}
+
+function sellAt(r, c) {
+	sellTile(tileAt(s, r, c));
+	compile(s);
+}
+
+/** Clear every tile the test matches, recompiling once at the end. */
+function sellEvery(match) {
+	for (const t of activeTiles(s)) if (t.id && match(t)) sellTile(t);
 	compile(s);
 }
 
@@ -58,8 +67,16 @@ const game = {
 
 	// A tap places on empty ground and inspects what is already there.
 	onTap(r, c) {
-		if (tileAt(s, r, c).id) inspect(s, tileAt(s, r, c), () => sellAt(r, c));
-		else placeAt(r, c);
+		const t = tileAt(s, r, c);
+		if (!t.id) return placeAt(r, c);
+		// Hold the id, not the tile: selling clears t.id, and a test that reads
+		// it as it goes stops matching after the first tile it removes.
+		const kind = t.id;
+		inspect(s, t, {
+			sell: () => sellAt(r, c),
+			sellKind: () => sellEvery((x) => x.id === kind),
+			sellAll: () => sellEvery(() => true),
+		});
 	},
 
 	// A long press sells, the touch equivalent of the original's right-click.
