@@ -132,7 +132,7 @@ export function buildUI(game) {
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '
 				+ 'itself based on <a href="http://www.kongregate.com/games/Cael/reactor-incremental">Reactor Incremental</a> by Cael. '
-				+ 'All artwork here is generated at runtime.' })),
+				+ 'Part artwork belongs to those games and to Reactor Revival. The generated pack is drawn at runtime.' })),
 	);
 
 	// ---- dock and tabs -----------------------------------------------------

@@ -25,9 +25,8 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **The game can run with no image files at all.** Every one of the 75 part
   icons can be drawn at runtime from geometry, and every interface icon is
-  inline SVG. It ships with one artwork pack as well &mdash; see below &mdash;
-  but the generated art is always there as a fallback and as the zero-asset
-  option.
+  inline SVG. Four artwork packs ship as well &mdash; see below &mdash; but the
+  generated art is always there as a fallback and as the zero-asset option.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,000 lines of game code and a 100-line Android shell.
@@ -98,20 +97,27 @@ Every game in the lineage draws the same components, so any of them can skin
 this one. Options &rarr; Part artwork switches between the installed packs, and
 the choice is saved.
 
-Two ship: **Reactor Revival** (the default, this project's own art) and
-**Generated** (drawn from geometry, no files). Three more are supported but not
-bundled, because they are other people's work &mdash; Knockoff is unlicensed,
-and Incremental and Redux are commercial games whose sprites have to be pulled
-out of a Unity bundle:
+Five options: **Generated** (drawn from geometry, no files), **Reactor
+Revival** (the default, this project's own art), **Reactor Knockoff**,
+**Reactor Incremental** and **Reactor Redux**. Everything but the first two is
+other people's work, kept here so the lineage can be seen side by side.
+
+Where a pack has no art for a part &mdash; neither Cael game has a particle
+accelerator or a tier-6 vent, and none of them has seven fuels &mdash; that
+part falls back to the generated sprite. `parts/packs.json` lists what each
+pack actually has, so the game never asks for a file that is not there.
+
+To rebuild the packs from their sources:
 
 ```bash
 python docs/extract_unity_sprites.py                       # for the two Cael games
 python docs/install_art_packs.py revival knockoff incremental redux
 ```
 
-Where a pack has no art for a part &mdash; neither Cael game has a particle
-accelerator, and none of them has seven fuels &mdash; that part falls back to
-the generated sprite.
+Installed art is repacked losslessly on the way in &mdash; the sprites are
+32-bit RGBA but use at most a couple of hundred colours, so `docs/optimize_art.py`
+re-encodes them as palette PNGs and verifies every file pixel for pixel. That
+takes about a third off; the four packs together are 119 KB.
 
 ## Balance parity
 
@@ -165,4 +171,7 @@ generation since has kept that asymmetry, including this one.
 ## Credits
 
 Original game by **cwmonkey**. Based on **Reactor Incremental** by **Cael**.
-All artwork here is generated at runtime and is original.
+
+The generated pack is original and drawn at runtime. The other packs are the
+artwork of the games they are named for and belong to their authors; they are
+included so this game can be played in the style of the ones it came from.

@@ -7,8 +7,8 @@ writes the named part sprites out as PNGs for study.
     pip install UnityPy
     python docs/extract_unity_sprites.py
 
-Output goes to docs/reference/, which is gitignored - these are someone else's
-sprites and are not redistributed with the game.
+Output goes to docs/reference/; run docs/install_art_packs.py afterwards to
+turn it into a playable pack under www/parts/.
 """
 
 import gzip
@@ -19,6 +19,8 @@ import urllib.request
 
 import UnityPy
 
+from install_art_packs import names
+
 REF = "docs/reference"
 
 GAMES = {
@@ -26,22 +28,10 @@ GAMES = {
     "redux": "https://game299615.konggames.com/gamez/0029/9615/live/Build/WebGL%202.2c.data.unityweb",
 }
 
-# The sprites the comparison sheet uses. Incremental packs fuel as -1/-2/-4
-# (single, dual, quad); Redux renamed the quad to -3.
-WANTED = {
-    "incremental": [
-        "Fuel1-1", "Fuel1-2", "Fuel1-4", "Vent1", "Vent3", "Vent5",
-        "Exchanger1", "Exchanger3", "Inlet1", "Outlet1",
-        "Coolant1", "Coolant3", "Reflector1", "Reflector3",
-        "Plate1", "Plate3", "Capacitor1", "Capacitor3",
-    ],
-    "redux": [
-        "Fuel1-1", "Fuel1-2", "Fuel1-3", "Vent1", "Vent3", "Vent5",
-        "Exchanger1", "Exchanger3", "Inlet1", "Outlet1",
-        "Coolant1", "Coolant3", "Reflector1", "Reflector3",
-        "Plate1", "Plate3", "Capacitor1", "Capacitor3",
-    ],
-}
+# Which sprites to pull is exactly the pack's filename list, so the two scripts
+# cannot drift apart. Incremental packs fuel as -1/-2/-4 (single, dual, quad);
+# Redux renamed the quad to -3, which names() already knows.
+WANTED = {name: set(names(name)) for name in GAMES}
 
 
 def bundle(name, url):

@@ -7,8 +7,10 @@
 // template.
 //
 // "generated" is the built-in pack: no files at all, drawn from geometry at
-// runtime. Which packs are actually installed is listed in parts/packs.json,
-// written by docs/install_art_packs.py.
+// runtime. parts/packs.json, written by docs/install_art_packs.py, lists which
+// packs are installed and which sprites each one actually has - the older games
+// stop at tier 5 for several categories, and none of them has a particle
+// accelerator, so every pack has gaps that fall back to generated art.
 import { spriteFor } from "./sprites.js";
 
 // The order fuels appear in the catalog; the older games number their cell art
@@ -63,16 +65,21 @@ export const PACKS = {
 
 export const DEFAULT_PACK = "revival";
 
-// Populated at boot from parts/packs.json; "generated" always works.
-let installed = ["generated"];
+// Pack id to the set of sprite names it ships, filled in at boot from
+// parts/packs.json. "generated" needs no files and so is always available.
+let installed = { generated: null };
 
-export const availablePacks = () => installed.filter((id) => PACKS[id]);
+export const availablePacks = () => Object.keys(installed).filter((id) => PACKS[id]);
 
 /** Read which packs shipped with this build. Falls back to generated only. */
 export async function loadPacks() {
 	try {
 		const res = await fetch("parts/packs.json");
-		if (res.ok) installed = ["generated", ...(await res.json())];
+		if (res.ok) {
+			for (const [id, names] of Object.entries(await res.json())) {
+				installed[id] = new Set(names);
+			}
+		}
 	} catch {
 		// No packs installed; the generated art is always there.
 	}
@@ -80,13 +87,14 @@ export async function loadPacks() {
 }
 
 /**
- * The image for one part in one pack. Falls back to the generated sprite when
- * a pack has no art for that part - Cael's games have no particle accelerator,
- * and no game but ours has seven fuels.
+ * The image for one part in one pack. Falls back to the generated sprite for
+ * anything the pack does not have - Cael's games have no particle accelerator,
+ * no game but ours has seven fuels, and several categories stop at tier 5.
  */
 export function artFor(part, pack) {
 	const spec = PACKS[pack];
-	if (!spec?.file || !installed.includes(pack)) return spriteFor(part);
+	const have = installed[pack];
+	if (!spec?.file || !have) return spriteFor(part);
 	const name = spec.file(part);
-	return name ? `parts/${pack}/${name}.png` : spriteFor(part);
+	return name && have.has(name) ? `parts/${pack}/${name}.png` : spriteFor(part);
 }

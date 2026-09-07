@@ -6,6 +6,8 @@ import { PART_BY_ID, PARTS, isPartVisible, UNLOCK_AFTER } from "../www/js/parts.
 import { UPGRADES, buy, applyUpgrades, reboot, costOf, UPGRADE_BY_ID } from "../www/js/upgrades.js";
 import { checkObjectives, OBJECTIVES } from "../www/js/objectives.js";
 import { fmt } from "../www/js/fmt.js";
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 
 // Deterministic states: no Math.random anywhere in a test.
 const fresh = (rolls = 1) => newState(() => rolls);
@@ -819,4 +821,40 @@ test("a meltdown reports every tile it destroys", () => {
 	tick(s);
 	assert.ok(s.hasMeltedDown);
 	assert.equal(s.exploded.length, 2, "both parts reported");
+});
+
+test("every pack promises only art it actually ships", async () => {
+	const packs = JSON.parse(await readFile("www/parts/packs.json", "utf8"));
+	for (const [pack, names] of Object.entries(packs)) {
+		for (const name of names) {
+			assert.ok(existsSync(`www/parts/${pack}/${name}.png`), `${pack}/${name}.png is listed but missing`);
+		}
+	}
+});
+
+test("a pack with gaps falls back to generated art", async () => {
+	// sprites.js paints into a canvas; the fallback only needs it to exist.
+	globalThis.document = {
+		createElement: () => ({ getContext: () => ({ fillRect() {} }), toDataURL: () => "data:," }),
+	};
+	const { PACKS, artFor, loadPacks } = await import("../www/js/art.js");
+	const packs = JSON.parse(await readFile("www/parts/packs.json", "utf8"));
+	globalThis.fetch = async () => ({ ok: true, json: async () => packs });
+	const available = await loadPacks();
+
+	assert.deepEqual(available, ["generated", ...Object.keys(packs)]);
+	// Neither of Cael's games has a particle accelerator or a tier-6 plating,
+	// and none of them has our seventh fuel.
+	for (const pack of ["incremental", "redux"]) {
+		for (const part of PARTS.filter((p) => p.category === "particle_accelerator" || p.type === "protium")) {
+			assert.ok(artFor(part, pack).startsWith("data:"), `${pack} should generate ${part.id}`);
+		}
+	}
+	// Everything a pack does claim must resolve to a file that exists.
+	for (const pack of Object.keys(packs)) {
+		for (const part of PARTS) {
+			const url = artFor(part, pack);
+			assert.ok(url.startsWith("data:") || existsSync(`www/${url}`), `${pack}: ${url} missing`);
+		}
+	}
 });

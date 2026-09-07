@@ -2,12 +2,11 @@
 build/
 local.properties
 
-# Third-party sprites and the sheet built from them. Regenerate with
-# docs/build_sprite_sheet.py; they are deliberately not redistributed.
+# Working files for the reference tooling: downloaded Unity bundles, extracted
+# sprites, the comparison sheet. Regenerate with docs/extract_unity_sprites.py
+# and docs/build_sprite_sheet.py.
 docs/reference/
 
-# Art packs belonging to other projects. Install them locally with
-# docs/install_art_packs.py; only Reactor Revival's own art is committed.
-www/parts/knockoff/
-www/parts/incremental/
-www/parts/redux/
+
+# Python bytecode from the docs tooling.
+__pycache__/

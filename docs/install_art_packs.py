@@ -83,21 +83,24 @@ def install(pack):
                 shutil.copy(src, target)
                 got += 1
 
-    saved = [rewrite(f"{dst}/{n}.png") for n in wanted if os.path.exists(f"{dst}/{n}.png")]
-    print(f"{pack}: {sum(a for a, _ in saved) // 1024} KB of art packed down to"
-          f" {sum(b for _, b in saved) // 1024} KB")
-    print(f"{pack}: {got}/{len(wanted)} sprites"
-          + ("" if got == len(wanted) else "  (missing ones fall back to generated art)"))
-    return got > 0
+    have = [n for n in wanted if os.path.exists(f"{dst}/{n}.png")]
+    saved = [rewrite(f"{dst}/{n}.png") for n in have]
+    print(f"{pack}: {len(have)}/{len(wanted)} sprites, "
+          f"{sum(a for a, _ in saved) // 1024} KB packed down to"
+          f" {sum(b for _, b in saved) // 1024} KB"
+          + ("" if len(have) == len(wanted) else "  (the rest fall back to generated art)"))
+    return have
 
 
 def main():
     packs = sys.argv[1:] or ["revival"]
-    installed = [p for p in packs if install(p)]
+    # Each pack maps to the sprites it actually has, so the game knows what to
+    # fall back on rather than asking for a file that is not there.
+    installed = {p: have for p in packs if (have := install(p))}
     os.makedirs(OUT, exist_ok=True)
     with open(f"{OUT}/packs.json", "w", encoding="utf-8") as f:
-        json.dump(installed, f)
-    print("installed packs:", installed)
+        json.dump(installed, f, separators=(",", ":"))
+    print("installed packs:", list(installed))
 
 
 if __name__ == "__main__":
