@@ -23,9 +23,11 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   transpiler. `www/` is what runs, in the browser and in the APK.
 - **No Gradle dependencies.** The `app` module has no `dependencies` block at
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
-- **No image files.** Every one of the 75 part icons is drawn at runtime from
-  geometry, and every interface icon is inline SVG. The original shipped ~140
-  GIFs that weighed more than this whole game.
+- **The game can run with no image files at all.** Every one of the 75 part
+  icons can be drawn at runtime from geometry, and every interface icon is
+  inline SVG. It ships with one artwork pack as well &mdash; see below &mdash;
+  but the generated art is always there as a fallback and as the zero-asset
+  option.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,000 lines of game code and a 100-line Android shell.
@@ -89,6 +91,27 @@ round forms come out accurate.
 real `https://` origin (a modern WebView gives `file://` an opaque origin,
 which kills both `localStorage` and ES modules), and it opens the document
 picker for save export and import.
+
+## Part artwork
+
+Every game in the lineage draws the same components, so any of them can skin
+this one. Options &rarr; Part artwork switches between the installed packs, and
+the choice is saved.
+
+Two ship: **Reactor Revival** (the default, this project's own art) and
+**Generated** (drawn from geometry, no files). Three more are supported but not
+bundled, because they are other people's work &mdash; Knockoff is unlicensed,
+and Incremental and Redux are commercial games whose sprites have to be pulled
+out of a Unity bundle:
+
+```bash
+python docs/extract_unity_sprites.py                       # for the two Cael games
+python docs/install_art_packs.py revival knockoff incremental redux
+```
+
+Where a pack has no art for a part &mdash; neither Cael game has a particle
+accelerator, and none of them has seven fuels &mdash; that part falls back to
+the generated sprite.
 
 ## Balance parity
 

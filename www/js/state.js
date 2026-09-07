@@ -2,6 +2,7 @@
 import { MAX_ROWS, MAX_COLS, compile, tileAt, countPlaced } from "./sim.js";
 import { PART_BY_ID } from "./parts.js";
 import { UPGRADES, applyUpgrades } from "./upgrades.js";
+import { DEFAULT_PACK } from "./art.js";
 
 const SAVE_KEY = "reactor-revived";
 export const SAVE_VERSION = 1;
@@ -23,6 +24,8 @@ const BASE = {
 	autoSellDisabled: false,
 	autoBuyDisabled: false,
 	heatControlled: false,
+	// Which game's artwork the parts are drawn with.
+	artPack: DEFAULT_PACK,
 };
 
 // The whole 32x35 grid always exists; `rows`/`cols` say how much of it is in
@@ -73,6 +76,7 @@ export function serialize(s) {
 		autoSellDisabled: s.autoSellDisabled,
 		autoBuyDisabled: s.autoBuyDisabled,
 		heatControlled: s.heatControlled,
+		artPack: s.artPack,
 		levels: s.levels,
 		placed: s.placed,
 		tiles: [...s.tiles].map((t) =>

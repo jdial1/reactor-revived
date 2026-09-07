@@ -5,7 +5,7 @@ import { fmt } from "./fmt.js";
 import { PARTS, isPartVisible } from "./parts.js";
 import { UPGRADES, costOf, isUnlocked, maxLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
-import { spriteFor } from "./sprites.js";
+import { artFor, availablePacks, PACKS } from "./art.js";
 import { icon } from "./icons.js";
 import { activeTiles } from "./sim.js";
 
@@ -112,8 +112,16 @@ export function buildUI(game) {
 		dom.experimentList,
 	);
 
+	// Any game in the lineage can skin this one; the packs that shipped with
+	// this build are listed in parts/packs.json.
+	dom.artPack = h("select", { className: "wide", onchange: (e) => game.setArtPack(e.target.value) });
+	for (const id of availablePacks()) {
+		dom.artPack.append(h("option", { value: id, textContent: PACKS[id].label }));
+	}
+
 	dom.pages.options.append(
 		h("div", { className: "options" },
+			h("label", { className: "field" }, h("span", { textContent: "Part artwork" }), dom.artPack),
 			// Only Android can open a file picker, so in a browser these would
 			// be two buttons that do nothing.
 			...(game.canTransfer ? [
@@ -182,7 +190,7 @@ function buildDock(dom, game) {
 				className: "part",
 				title: part.title,
 				onclick: () => game.select(part.id),
-			}, h("i", { style: `background-image:url(${spriteFor(part)})` }),
+			}, h("i", { style: `background-image:url(${artFor(part, game.pack)})` }),
 				h("em", { textContent: part.short }),
 				h("u", { textContent: fmt(part.cost) }));
 			row.append(button);
@@ -325,11 +333,11 @@ export function render(dom, s, game) {
 		const p = t.id ? s.stats.get(t.id) : null;
 		const heat = p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
-		const sig = `${t.id}|${t.activated}|${heat}|${life}`;
+		const sig = `${t.id}|${t.activated}|${heat}|${life}|${s.artPack}`;
 		if (sig === row.sig) continue;
 		row.sig = sig;
 
-		row.cell.style.backgroundImage = p ? `url(${spriteFor(p)})` : "";
+		row.cell.style.backgroundImage = p ? `url(${artFor(p, s.artPack)})` : "";
 		row.cell.classList.toggle("queued", Boolean(t.id) && !t.activated);
 		row.cell.classList.toggle("spent", Boolean(p) && p.category === "cell" && !t.ticks);
 		row.heat.style.width = `${heat}%`;
@@ -350,6 +358,7 @@ export function render(dom, s, game) {
 function renderPage(dom, s) {
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
 	if (dom.page === "objectives") renderObjectives(dom, s);
+	if (dom.page === "options") dom.artPack.value = s.artPack;
 	if (dom.page === "experiments") {
 		dom.epStatus.textContent = s.exoticParticles
 			? `${fmt(s.currentExoticParticles)} EP to spend, ${fmt(s.exoticParticles)} pending - reboot to bank them.`

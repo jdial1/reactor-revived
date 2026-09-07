@@ -5,3 +5,9 @@ local.properties
 # Third-party sprites and the sheet built from them. Regenerate with
 # docs/build_sprite_sheet.py; they are deliberately not redistributed.
 docs/reference/
+
+# Art packs belonging to other projects. Install them locally with
+# docs/install_art_packs.py; only Reactor Revival's own art is committed.
+www/parts/knockoff/
+www/parts/incremental/
+www/parts/redux/

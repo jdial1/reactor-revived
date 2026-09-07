@@ -216,6 +216,16 @@ main { overflow: hidden; position: relative; }
 }
 
 .options, .reboot { display: grid; gap: 6px; margin-bottom: 10px; }
+.field { display: grid; gap: 3px; }
+.field span { color: var(--dim); font-size: 11px; }
+select.wide {
+	font: inherit;
+	color: var(--ink);
+	background: var(--panel);
+	border: 1px solid var(--edge);
+	border-radius: 4px;
+	padding: 9px;
+}
 .wide { width: 100%; padding: 10px; }
 .danger { color: #d87a7a; }
 .credit { color: var(--dim); font-size: 11px; line-height: 1.5; }
