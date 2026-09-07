@@ -87,7 +87,8 @@ export function buildUI(game) {
 	// The readout sits with the buttons that change it, at the bottom where a
 	// thumb already is. All the top of the screen owes the player is what to
 	// aim for next.
-	dom.purse = h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox);
+	// The coin says "money"; the number does not need a currency symbol too.
+	dom.purse = h("div", { className: "purse" }, icon("cash", "icon coin"), h("span", { className: "cash" }, dom.money), dom.epBox);
 
 	// Pause is the only control left that acts on nothing in particular, so it
 	// goes in the corner rather than taking a row of its own.
@@ -315,7 +316,7 @@ const quant = (n) => Math.round(n / 4) * 4;
 
 /** Patch the whole interface to match the state. Cheap enough to run at 10fps. */
 export function render(dom, s, game) {
-	dom.money.textContent = `$${fmt(s.money)}`;
+	dom.money.textContent = fmt(s.money);
 	// Pending particles are shown alongside the spendable ones, because they are
 	// only worth anything once a reboot banks them.
 	dom.ep.textContent = s.exoticParticles

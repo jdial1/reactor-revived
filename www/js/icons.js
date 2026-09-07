@@ -40,6 +40,18 @@ const BOLT = [
 	"####....",
 ];
 
+// From img/icon_cash.gif: a coin, not a dollar sign.
+const COIN = [
+	"...##...",
+	"..#AA#..",
+	".#AAAA#.",
+	".#AA##..",
+	"..#AAA#.",
+	".#AAAA#.",
+	"..#AA#..",
+	"...##...",
+];
+
 // From img/icon_heat.gif: wide and forked at the top, tapering to a point at
 // the bottom - a fire seen head on rather than a symmetrical teardrop.
 const FLAME = [
@@ -65,8 +77,7 @@ const ICONS = {
 		[grid(FLAME, "D"), "#ffff00"],
 	],
 
-	// A dollar sign, for selling power.
-	cash: [["M7 0 h2 v2 h4 v3 h-3 v-1 h-4 v2 h5 v1 h2 v6 h-4 v2 h-2 v-2 h-4 v-3 h3 v1 h4 v-2 h-5 v-1 h-2 v-6 h4 z", "#5ec269"]],
+	cash: [[grid(COIN, "#"), OUTLINE], [grid(COIN, "A"), "#00c000"]],
 
 	// The four-way fan of a heat vent.
 	vent: [["M6 0 h4 v4 l3 -1 l1 3 l-3 1 v2 l3 1 l-1 3 l-3 -1 v4 h-4 v-4 l-3 1 l-1 -3 l3 -1 v-2 l-3 -1 l1 -3 l3 1 z", "#8fd3e0"]],

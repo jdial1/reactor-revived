@@ -139,6 +139,9 @@ a { color: var(--power); }
 	white-space: nowrap;
 }
 .cash { color: var(--cash); }
+/* The money is the number worth reading on this row, so it is the biggest. */
+.purse .cash { font-size: 19px; }
+.purse .icon.coin { width: 19px; height: 19px; }
 .ep { color: var(--ep); }
 
 /* The reactor visibly runs hot before it kills you. */
