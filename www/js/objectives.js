@@ -1,7 +1,7 @@
 // A linear list of goals. The original re-implemented the same nested board
 // scan in six of these, and one of them hand-inlined its own adjacency test;
 // here every check is one line over three shared helpers.
-import { activeTiles, tileAt } from "./sim.js";
+import { ROWS, COLS, activeTiles, tileAt } from "./sim.js";
 import { fmt } from "./fmt.js";
 import { UPGRADE_BY_ID } from "./upgrades.js";
 
@@ -31,7 +31,7 @@ function adjacentToCell(s, match) {
 		for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
 			const r = t.r + dr;
 			const c = t.c + dc;
-			if (r < 0 || c < 0 || r >= s.rows || c >= s.cols) continue;
+			if (r < 0 || c < 0 || r >= ROWS || c >= COLS) continue;
 			const n = tileAt(s, r, c);
 			if (n.activated && n.id && match(s.stats.get(n.id))) return true;
 		}
@@ -80,8 +80,9 @@ export const OBJECTIVES = [
 	  check: (s) => Math.ceil(s.maxPower * s.autoSellMul) >= 500 },
 	{ title: "Have at least 5 active Quad Plutonium Cells in your reactor", reward: 1e6,
 	  check: (s) => count(s, liveCells("plutonium3")) >= 5 },
-	{ title: "Expand your reactor 4 times in either direction", reward: 1e8,
-	  check: (s) => s.levels.expand_reactor_rows >= 4 || s.levels.expand_reactor_cols >= 4 },
+	// Was "expand your reactor 4 times", which a fixed grid cannot ask for.
+	{ title: "Fill every tile in the reactor", reward: 1e8,
+	  check: (s) => [...activeTiles(s)].every((t) => t.id) },
 	{ title: "Have at least 5 active Quad Thorium Cells in your reactor", reward: 1e8,
 	  check: (s) => count(s, liveCells("thorium3")) >= 5 },
 	{ title: `Have at least $${fmt(1e10)} total`, reward: 1e10,

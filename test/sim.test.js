@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize, place, exportSave } from "../www/js/state.js";
-import { compile, tick, tileAt, activeTiles, MAX_ROWS, MAX_COLS } from "../www/js/sim.js";
+import { compile, tick, tileAt, activeTiles, ROWS, COLS } from "../www/js/sim.js";
 import { PART_BY_ID, PARTS, isPartVisible, UNLOCK_AFTER } from "../www/js/parts.js";
 import { UPGRADES, buy, applyUpgrades, reboot, costOf, UPGRADE_BY_ID } from "../www/js/upgrades.js";
 import { checkObjectives, OBJECTIVES } from "../www/js/objectives.js";
@@ -244,16 +244,11 @@ test("the tick is deterministic", () => {
 	assert.deepEqual(run(), run());
 });
 
-test("a fully expanded reactor still fits the grid", () => {
+test("every tile the grid can reach exists", () => {
 	const s = rich();
-	s.levels.expand_reactor_rows = 20;
-	s.levels.expand_reactor_cols = 20;
-	applyUpgrades(s);
-	assert.ok(s.rows <= MAX_ROWS, `${s.rows} rows`);
-	assert.ok(s.cols <= MAX_COLS, `${s.cols} cols`);
-	// Every tile the grid can reach must actually exist.
 	compile(s);
-	assert.equal([...activeTiles(s)].length, s.rows * s.cols);
+	assert.equal([...activeTiles(s)].length, ROWS * COLS);
+	assert.equal(s.tiles.length, ROWS * COLS);
 });
 
 test("upgrades are pure functions of their levels", () => {
@@ -300,10 +295,10 @@ test("upgrade cost grows with level and stops at the cap", () => {
 	s.levels.improved_heat_vents = 2;
 	assert.equal(costOf(s, u), 250 * 100 ** 2);
 
-	const capped = UPGRADE_BY_ID.get("expand_reactor_rows");
-	s.levels.expand_reactor_rows = 20;
+	const capped = UPGRADE_BY_ID.get("heat_control_operator"); // a one-level upgrade
+	s.levels.heat_control_operator = 1;
 	assert.equal(costOf(s, capped), Infinity);
-	assert.equal(buy(s, "expand_reactor_rows"), false);
+	assert.equal(buy(s, "heat_control_operator"), false);
 });
 
 test("experimental part unlocks get pricier as you buy them", () => {
@@ -316,13 +311,11 @@ test("experimental part unlocks get pricier as you buy them", () => {
 	assert.equal(costOf(s, u), 20000);
 });
 
-test("expanding the reactor grows the playable grid", () => {
-	const s = rich();
-	// Sized so the whole reactor fits a phone screen at once.
-	assert.deepEqual([s.rows, s.cols], [12, 8]);
-	buy(s, "expand_reactor_rows");
-	buy(s, "expand_reactor_cols");
-	assert.deepEqual([s.rows, s.cols], [13, 9]);
+test("the reactor is a fixed size with no upgrade that changes it", () => {
+	// Sized so the whole reactor fits a phone screen at once, and stays that
+	// way - the expansion upgrades are gone, not merely unreachable.
+	assert.deepEqual([ROWS, COLS], [12, 8]);
+	assert.equal(UPGRADES.some((u) => /expand/.test(u.id)), false);
 });
 
 test("replaying upgrade levels equals buying them one at a time", () => {
@@ -372,7 +365,6 @@ test("a refund also clears exotic upgrades and returns every particle", () => {
 test("a save round-trips exactly", () => {
 	const s = rich(12345);
 	buy(s, "improved_heat_vents");
-	buy(s, "expand_reactor_rows");
 	put(s, 3, 4, "uranium2");
 	put(s, 3, 5, "vent1");
 	compile(s);
@@ -384,9 +376,8 @@ test("a save round-trips exactly", () => {
 	assert.equal(back.heat, s.heat);
 	assert.equal(back.power, s.power);
 	assert.deepEqual(back.levels, s.levels);
-	assert.deepEqual([back.rows, back.cols], [s.rows, s.cols]);
 	for (const t of s.tiles) {
-		const b = back.tiles[t.r * MAX_COLS + t.c];
+		const b = back.tiles[t.r * COLS + t.c];
 		assert.equal(b.id, t.id);
 		assert.equal(b.ticks, t.ticks);
 		assert.equal(b.heatContained, t.heatContained);
@@ -809,7 +800,7 @@ test("the sim reports what exploded so the UI can animate it", () => {
 	assert.ok(boomTick, "the vent blew up and said so");
 	assert.equal(vent.id, null);
 	// The index is the tile's position in the fixed grid.
-	assert.ok(s.exploded.includes(5 * MAX_COLS + 6));
+	assert.ok(s.exploded.includes(5 * COLS + 6));
 });
 
 test("a meltdown reports every tile it destroys", () => {

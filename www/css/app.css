@@ -98,7 +98,14 @@ a { color: var(--power); }
 	text-shadow: 0 1px 2px #000a;
 }
 
-.purse { display: flex; justify-content: space-between; }
+.purse {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	white-space: nowrap;
+}
 .cash { color: var(--cash); }
 .ep { color: var(--ep); }
 
@@ -201,6 +208,18 @@ main { overflow: hidden; position: relative; }
 .upgrade s { text-decoration: none; color: var(--dim); }
 .upgrade.poor u { color: #8c5b5b; }
 
+/* What the next level moves this to: the new figure is the one worth reading. */
+.upgrade .delta { display: flex; align-items: center; gap: 5px; font-style: normal; font-size: 11px; }
+.upgrade .delta s { text-decoration: none; color: var(--dim); }
+.upgrade .delta s::after { content: " \2192  "; color: var(--dim); }
+.upgrade .delta b {
+	color: var(--power);
+	background: #1c2a20;
+	border: 1px solid #2c4433;
+	border-radius: 3px;
+	padding: 0 5px;
+}
+
 /* Out of reach, but close enough to be worth saving for: dithered rather than
    hidden, so the list stays short without hiding the next goal. */
 .upgrade.preview {
@@ -258,17 +277,12 @@ footer {
 
 /* Twice the height of the old button strip: the readout it absorbed sits on
    top of the controls. */
-#actions { display: flex; gap: 6px; padding: 4px; }
-/* The controls stack down the left, one per readout row beside them. */
-#actions .controls {
-	flex: none;
-	display: flex;
-	flex-direction: column;
-	gap: 3px;
-	width: 88px;
-}
-#actions .controls button { min-height: 26px; }
-#actions .readout { flex: 1; display: grid; align-content: center; gap: 4px; }
+#actions { display: grid; gap: 4px; padding: 4px; }
+#actions .controls { display: flex; gap: 3px; }
+#actions .controls button { flex: 1; }
+/* Both meters share the second row, so each takes half the width. */
+#actions .readout { display: flex; gap: 4px; }
+#actions .readout .meter { flex: 1; min-width: 0; }
 #dock-tabs { display: flex; gap: 3px; }
 #actions button, #dock-tabs button {
 	display: flex;

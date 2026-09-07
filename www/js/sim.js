@@ -3,18 +3,22 @@
 // thing is testable under `node --test` with no harness.
 import { applyUpgrades } from "./upgrades.js";
 // Room for the base grid plus the twenty levels of each expansion upgrade.
-export const MAX_ROWS = 32;
-export const MAX_COLS = 28;
+// The reactor is a fixed 12x8. The original grew from 11x14 to 32x35 through
+// two upgrades, but that was a desktop game: on a phone the whole board has to
+// be visible at once with tiles big enough to hit, and 12x8 already fills the
+// screen. There is no room to expand into, so there is no expansion.
+export const ROWS = 12;
+export const COLS = 8;
 
-export const tileAt = (s, r, c) => s.tiles[r * MAX_COLS + c];
-const inGrid = (s, r, c) => r >= 0 && c >= 0 && r < s.rows && c < s.cols;
+export const tileAt = (s, r, c) => s.tiles[r * COLS + c];
+const inGrid = (s, r, c) => r >= 0 && c >= 0 && r < ROWS && c < COLS;
 // Part stats live on the state, not on the catalog: upgrades change them, and
 // a pure sim must not mutate module-level data shared with every other state.
 const partOf = (s, t) => (t.activated && t.id ? s.stats.get(t.id) : null);
 
 /** Every tile inside the playable grid, row-major. */
 export function* activeTiles(s) {
-	for (let r = 0; r < s.rows; r++) for (let c = 0; c < s.cols; c++) yield tileAt(s, r, c);
+	for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) yield tileAt(s, r, c);
 }
 
 /** Diamond (Manhattan) neighbourhood of radius `range`, excluding the tile itself. */
@@ -31,7 +35,7 @@ function* neighbours(s, t, range) {
 /** heat_exchanger6 reaches its whole row plus the tile above and below. */
 function* rowRange(s, t) {
 	if (inGrid(s, t.r - 1, t.c)) yield tileAt(s, t.r - 1, t.c);
-	for (let c = 0; c < s.cols; c++) if (c !== t.c) yield tileAt(s, t.r, c);
+	for (let c = 0; c < COLS; c++) if (c !== t.c) yield tileAt(s, t.r, c);
 	if (inGrid(s, t.r + 1, t.c)) yield tileAt(s, t.r + 1, t.c);
 }
 
@@ -237,7 +241,7 @@ export function tick(s) {
 		let reduce = trickle;
 		if (s.heat > s.maxHeat) {
 			reduce = Math.max((s.heat - s.maxHeat) / 20, trickle);
-			const per = reduce / (s.rows * s.cols);
+			const per = reduce / (ROWS * COLS);
 			for (const t of activeTiles(s)) {
 				const p = partOf(s, t);
 				if (p?.containment) powerAdd += absorb(t, p, per);
@@ -417,7 +421,7 @@ function explode(s, t, p) {
 		return;
 	}
 	if (p.category === "particle_accelerator") s.meltdown = true;
-	s.exploded.push(t.r * MAX_COLS + t.c);
+	s.exploded.push(t.r * COLS + t.c);
 	remove(s, t);
 }
 
@@ -442,7 +446,7 @@ function meltdown(s) {
 	s.hasMeltedDown = true;
 	for (const t of activeTiles(s)) {
 		if (!t.id) continue;
-		s.exploded.push(t.r * MAX_COLS + t.c);
+		s.exploded.push(t.r * COLS + t.c);
 		remove(s, t);
 	}
 }

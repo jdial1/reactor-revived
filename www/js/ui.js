@@ -3,11 +3,11 @@
 // 1120 tiles every 100ms regardless.
 import { fmt } from "./fmt.js";
 import { PARTS, isPartVisible } from "./parts.js";
-import { UPGRADES, costOf, isUnlocked, maxLevel } from "./upgrades.js";
+import { UPGRADES, costOf, isUnlocked, maxLevel, nextLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { artFor, availablePacks, PACKS } from "./art.js";
 import { icon } from "./icons.js";
-import { activeTiles } from "./sim.js";
+import { ROWS, COLS, activeTiles } from "./sim.js";
 
 /** Make an element, set properties, append children. */
 function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -86,10 +86,8 @@ export function buildUI(game) {
 	// The readout sits with the buttons that change it, at the bottom where a
 	// thumb already is. All the top of the screen owes the player is what to
 	// aim for next.
-	dom.readout = h("div", { className: "readout" },
-		meter("power", "power"),
-		meter("heat", "heat"),
-		h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox));
+	dom.purse = h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox);
+	dom.readout = h("div", { className: "readout" }, meter("power", "power"), meter("heat", "heat"));
 
 	dom.objective = h("p", { className: "objective" });
 	root.append(h("header", { id: "goal" }, dom.objective));
@@ -152,11 +150,14 @@ export function buildUI(game) {
 	dom.pauseLabel = h("span", {});
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
 	dom.pause = h("button", { onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
+	// Row one is what you press and what you have; row two is the reactor's two
+	// numbers, side by side.
 	dom.actions = h("div", { id: "actions" },
 		h("div", { className: "controls" },
 			h("button", { onclick: game.sellAll }, icon("cash"), h("span", { textContent: "Sell" })),
 			h("button", { onclick: game.ventHeat }, icon("vent"), h("span", { textContent: "Vent" })),
-			dom.pause),
+			dom.pause,
+			dom.purse),
 		dom.readout);
 	// The bar stays put on every page - the readout in it is most wanted on the
 	// Upgrades page, where the money is being spent. Only the parts hide.
@@ -259,14 +260,20 @@ export function inspect(s, t, onSell) {
 
 function buildUpgrades(dom, game) {
 	dom.upgradeRows = [];
+	dom.upgradeOrder = {};
 	for (const u of UPGRADES) {
 		const cost = h("u", {});
 		const level = h("s", {});
+		// What the next level moves this from and to, filled in by the renderer.
+		const was = h("s", {});
+		const now = h("b", {});
+		const delta = h("em", { className: "delta" }, was, now);
 		const button = h("button", { className: "upgrade", onclick: () => game.buy(u.id) },
 			h("b", { textContent: u.title }),
 			h("i", { textContent: u.desc }),
+			delta,
 			h("span", {}, cost, level));
-		dom.upgradeRows.push({ u, button, cost, level });
+		dom.upgradeRows.push({ u, button, cost, level, delta, was, now });
 		(u.ecost ? dom.experimentList : dom.upgradeList).append(button);
 	}
 }
@@ -280,11 +287,11 @@ function buildObjectiveList(dom) {
 	});
 }
 
-/** Rebuild the tile grid. Only needed when the reactor's size changes. */
+/** Build the tile grid. The reactor never resizes, so this runs once. */
 function buildGrid(dom, s) {
 	dom.grid.replaceChildren();
-	dom.grid.style.setProperty("--cols", s.cols);
-	dom.grid.style.setProperty("--rows", s.rows);
+	dom.grid.style.setProperty("--cols", COLS);
+	dom.grid.style.setProperty("--rows", ROWS);
 	dom.tiles = [];
 	for (const t of activeTiles(s)) {
 		const heat = h("i", { className: "heat" });
@@ -295,7 +302,6 @@ function buildGrid(dom, s) {
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
-	dom.gridSize = `${s.rows}x${s.cols}`;
 }
 
 const pct = (n, d) => (d > 0 ? Math.min(100, (n / d) * 100) : 0);
@@ -324,7 +330,7 @@ export function render(dom, s, game) {
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
-	if (dom.gridSize !== `${s.rows}x${s.cols}`) buildGrid(dom, s);
+	if (!dom.tiles) buildGrid(dom, s);
 
 	// Only the visible page is worth patching; the tile loop below is the one
 	// that always runs, because the reactor is what the player watches.
@@ -393,11 +399,13 @@ const PREVIEW_COUNT = 3;
 function renderUpgrades(dom, s) {
 	const onThisPage = ({ u }) => Boolean(u.ecost) === (dom.page === "experiments");
 	const outOfReach = [];
+	const buyable = [];
+	const rest = [];
 
 	for (const row of dom.upgradeRows) {
 		// The other tab's rows are not on screen; leave them until they are.
 		if (!onThisPage(row)) continue;
-		const { u, button, cost, level } = row;
+		const { u, button, cost, level, delta, was, now } = row;
 		const lv = s.levels[u.id];
 		const price = costOf(s, u);
 		const owned = lv > 0;
@@ -406,6 +414,15 @@ function renderUpgrades(dom, s) {
 
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
+
+		// What the next level buys, measured against this one. The upgrades that
+		// only switch something on have nothing to show and say so by absence.
+		const step = nextLevel(s, u);
+		delta.hidden = !step;
+		if (step) {
+			was.textContent = step.from;
+			now.textContent = step.to;
+		}
 
 		// An upgrade already owned stays on the list at every level, so the price
 		// has to say when the next one is out of reach - otherwise buying level 1
@@ -416,12 +433,23 @@ function renderUpgrades(dom, s) {
 		button.hidden = !shown;
 		button.classList.toggle("preview", false);
 		if (!shown && unlocked) outOfReach.push({ row, price });
+		(affordable && lv < maxLevel(u) ? buyable : rest).push(row);
 	}
 
 	outOfReach.sort((a, b) => a.price - b.price);
 	for (const { row } of outOfReach.slice(0, PREVIEW_COUNT)) {
 		row.button.hidden = false;
 		row.button.classList.add("preview");
+	}
+
+	// What you can buy right now floats to the top, everything else keeps its
+	// catalog order. Re-appending moves the nodes, so only do it when the order
+	// actually changes rather than every hundred milliseconds.
+	const ordered = [...buyable, ...rest];
+	const sig = ordered.map((r) => r.u.id).join();
+	if (dom.upgradeOrder[dom.page] !== sig) {
+		dom.upgradeOrder[dom.page] = sig;
+		(dom.page === "experiments" ? dom.experimentList : dom.upgradeList).append(...ordered.map((r) => r.button));
 	}
 }
 

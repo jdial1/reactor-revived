@@ -5,13 +5,8 @@
 // applyUpgrades() recomputes everything derived from them, so load, reboot and
 // refund all fall out for free.
 import { PARTS, CELLS_WITH_UPGRADES } from "./parts.js";
+import { fmt } from "./fmt.js";
 
-// The original was 11 rows by 14 columns - landscape, because it was a desktop
-// game. This is 12 by 8: fewer tiles, but the whole reactor is visible at once
-// on a phone with tiles big enough to hit, which matters more than matching a
-// tile count. The expansion upgrades still grow it to 32 by 28.
-const BASE_ROWS = 12;
-const BASE_COLS = 8;
 const BASE_MAX_POWER = 100;
 const BASE_MAX_HEAT = 1000;
 const BASE_LOOP_WAIT = 1000;
@@ -59,10 +54,6 @@ const CASH = [
 	  desc: "Each plating adds 1% vent throughput per level." },
 	{ id: "active_venting", group: "vents", title: "Active Venting", cost: 1000, mul: 100,
 	  desc: "Each capacitor adds 1% vent throughput per level." },
-	{ id: "expand_reactor_rows", group: "other", title: "Expand Reactor Rows", cost: 100, mul: 100, levels: 20,
-	  desc: "Adds one row to the reactor per level." },
-	{ id: "expand_reactor_cols", group: "other", title: "Expand Reactor Cols", cost: 100, mul: 100, levels: 20,
-	  desc: "Adds one column to the reactor per level." },
 ];
 
 // Exotic-particle upgrades. `laboratory` gates the rest.
@@ -197,8 +188,6 @@ export function applyUpgrades(s) {
 	s.ventPlatingMul = L("improved_heatsinks");
 	s.ventCapacitorMul = L("active_venting");
 	s.perpetualCapacitors = L("perpetual_capacitors") > 0;
-	s.rows = BASE_ROWS + L("expand_reactor_rows");
-	s.cols = BASE_COLS + L("expand_reactor_cols");
 	s.baseMaxPower = BASE_MAX_POWER * 4 ** L("phlembotinum_core");
 	s.baseMaxHeat = BASE_MAX_HEAT * 4 ** L("phlembotinum_core");
 
@@ -268,4 +257,77 @@ export function reboot(s, refund = false) {
 
 	applyUpgrades(s);
 	return s;
+}
+
+// ---- "what does the next level actually buy me" ----------------------------
+//
+// Rather than restate every upgrade's numbers as display data - 63 chances to
+// drift from the sim - the effect is measured: run applyUpgrades at this level
+// and at the next and compare. Whatever changed is what the level buys.
+
+/** The scalar fields applyUpgrades derives, in the order they are worth showing. */
+const SCALARS = [
+	"loopWait", "autoSellMul", "manualHeatReduce", "heatPowerMul",
+	"baseMaxPower", "baseMaxHeat", "transferPlatingMul", "transferCapacitorMul",
+	"ventPlatingMul", "ventCapacitorMul",
+];
+
+/** The part fields worth showing, in the order a row should prefer them. */
+const STAT_FIELDS = ["basePower", "baseHeat", "vent", "transfer", "reactorPower", "reactorHeat", "containment", "powerIncrease", "epHeat", "ticks"];
+
+const PERCENT = new Set(["autoSellMul", "transferPlatingMul", "transferCapacitorMul", "ventPlatingMul", "ventCapacitorMul"]);
+
+/** The one-off switches, which have no number to show - only a state. */
+const SWITCHES = ["heatControlOperator", "heatOutletControlled", "perpetualCapacitors"];
+
+// fmt() drops the decimals below 1000, which is right for money and wrong for
+// a vent going 4 -> 4.5, so small numbers are written out instead.
+const num = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 100) / 100) : fmt(v));
+
+/** Show a field the way the upgrade's own description talks about it. */
+function show(field, v) {
+	if (field === "loopWait") return `${num(1000 / v)}/s`;
+	if (field === "manualHeatReduce") return `${num(v)}x`;
+	if (PERCENT.has(field)) return `${num(field === "autoSellMul" ? v * 100 : v)}%`;
+	return num(v);
+}
+
+/** Levels are the only input applyUpgrades needs, so a shell is enough. */
+const derive = (s, id, level) =>
+	applyUpgrades({ levels: { ...s.levels, [id]: level }, protiumParticles: s.protiumParticles });
+
+/**
+ * What buying the next level changes, as `{ from, to }` strings - or null when
+ * nothing measurable moves (the one-off switches, and anything already maxed).
+ */
+export function nextLevel(s, u) {
+	const lv = s.levels[u.id] ?? 0;
+	if (lv >= maxLevel(u)) return null;
+
+	const now = derive(s, u.id, lv);
+	const next = derive(s, u.id, lv + 1);
+
+	// A field whose reading does not visibly move is no use on screen, so keep
+	// looking rather than printing "5 -> 5".
+	const moved = (field, a, b) => {
+		const from = show(field, a);
+		const to = show(field, b);
+		return from === to ? null : { from, to };
+	};
+
+	for (const field of SCALARS) {
+		const d = now[field] !== next[field] && moved(field, now[field], next[field]);
+		if (d) return d;
+	}
+	for (const field of STAT_FIELDS) {
+		for (const [id, p] of now.stats) {
+			const q = next.stats.get(id);
+			const d = p[field] !== q[field] && moved(field, p[field], q[field]);
+			if (d) return d;
+		}
+	}
+	for (const field of SWITCHES) {
+		if (now[field] !== next[field]) return { from: "off", to: "on" };
+	}
+	return null;
 }

@@ -7,16 +7,62 @@
 
 const OUTLINE = "#07090c";
 
+/**
+ * A pixel grid to one path, each run of matching cells becoming a rectangle.
+ *
+ * The power and heat icons are traced from Reactor Knockoff's own 8x8 art, and
+ * a grid is how that art is legible in source - a hand-written path for a
+ * fifteen-step zigzag is neither readable nor checkable against the original.
+ * Cells are 2 units, so an 8x8 grid fills the 16-unit box like everything else.
+ */
+const grid = (rows, ch) => rows.flatMap((row, y) => {
+	const runs = [];
+	for (let x = 0; x < row.length;) {
+		if (row[x] !== ch) { x++; continue; }
+		let w = 0;
+		while (row[x + w] === ch) w++;
+		runs.push(`M${x * 2} ${y * 2} h${w * 2} v2 h-${w * 2} z`);
+		x += w;
+	}
+	return runs;
+}).join(" ");
+
+// Traced pixel for pixel from Knockoff's img/icon_power.gif: a zigzag ribbon
+// with the outline cut flat at the top right and bottom left.
+const BOLT = [
+	"...####.",
+	"..#AA#..",
+	".#AA#...",
+	"#AA#....",
+	".#AA#...",
+	"..#AA#..",
+	".#AA#...",
+	"####....",
+];
+
+// From img/icon_heat.gif: wide and forked at the top, tapering to a point at
+// the bottom - a fire seen head on rather than a symmetrical teardrop.
+const FLAME = [
+	"..#.....",
+	".#A#.#..",
+	"#AAA#A#.",
+	"#ABBBBB#",
+	".#BCCB#.",
+	".#CDDC#.",
+	"..#DD#..",
+	"...##...",
+];
+
 // [path, fill]. A fill of null means "inherit from the text colour".
 const ICONS = {
-	// A lightning bolt, as in the original's power readout.
-	power: [["M10 0 L3 9 h4 l-1 7 l8 -10 h-4 z", "#f2c53d"]],
-
-	// A flame: red at the edges, yellow at the core.
+	// Knockoff's bolt and flame, in Knockoff's colours.
+	power: [[grid(BOLT, "#"), OUTLINE], [grid(BOLT, "A"), "#ffff00"]],
 	heat: [
-		["M8 0 L11 4 L11 7 L13 10 L13 12 L10 16 L6 16 L3 12 L3 9 L6 5 L7 8 Z", "#e0452a"],
-		["M8 5 L10 9 L10 12 L8 15 L6 12 L6 10 Z", "#f5a623"],
-		["M8 9 L9 11 L9 13 L8 15 L7 13 L7 11 Z", "#f7e05a"],
+		[grid(FLAME, "#"), OUTLINE],
+		[grid(FLAME, "A"), "#ff0000"],
+		[grid(FLAME, "B"), "#ff4e00"],
+		[grid(FLAME, "C"), "#ff8a00"],
+		[grid(FLAME, "D"), "#ffff00"],
 	],
 
 	// A dollar sign, for selling power.
@@ -52,11 +98,15 @@ export function icon(name, className = "icon") {
 	svg.setAttribute("class", className);
 	svg.setAttribute("aria-hidden", "true");
 
+	// An icon that draws its own outline pixels must not also be stroked, or the
+	// stroke swallows the shape.
+	const selfOutlined = ICONS[name].some(([, f]) => f === OUTLINE);
+
 	for (const [d, fill] of ICONS[name]) {
 		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 		path.setAttribute("d", d);
 		path.setAttribute("fill", fill ?? "currentColor");
-		if (fill) {
+		if (fill && !selfOutlined) {
 			// Outline behind the fill, the way the sprite art does it.
 			path.setAttribute("stroke", OUTLINE);
 			path.setAttribute("stroke-width", "1.5");
