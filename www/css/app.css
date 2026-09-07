@@ -329,8 +329,10 @@ footer {
 	gap: 4px;
 	/* One tier tall plus a quarter of the next, so the peek says "scroll me"
 	   and unlocking tier 6 gives the column more to scroll rather than making
-	   the dock taller. */
-	max-height: calc(var(--part-h) * 1.25 + 4px);
+	   the dock taller. A fixed height, not a maximum: with a max, the first
+	   column is one tier tall until a second tier unlocks and then everything
+	   above it jumps. The gap under a lone part is the price of never moving. */
+	height: calc(var(--part-h) * 1.25 + 4px);
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
