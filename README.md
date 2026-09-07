@@ -1,0 +1,123 @@
+# Reactor Revived
+
+An Android port of [Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)
+by cwmonkey — itself a fan clone of
+[Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)
+by Cael.
+
+Build a grid of fuel cells, vents and heat exchangers. Cells make power, but
+neighbouring cells pulse into each other: power grows linearly with the number
+of neighbours and heat grows with the *square* of it. Density is what kills
+you. Sell power, buy upgrades, and eventually turn heat into Exotic Particles
+and start over stronger.
+
+## Why it exists
+
+The original is a 2013 browser game: `index.html`, some CSS, and 156 KB of raw
+JavaScript in ten IIFEs that talk to each other through `window`. No build
+step, no package manager, no framework. That constraint *is* the aesthetic.
+
+This is a clean-room rewrite of that game for a phone, keeping the constraint:
+
+- **No JavaScript dependencies.** Not one. No framework, no bundler, no
+  transpiler. `www/` is what runs, in the browser and in the APK.
+- **No Gradle dependencies.** The `app` module has no `dependencies` block at
+  all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
+- **No image files.** Every one of the 75 part icons is drawn at runtime from
+  geometry. The original shipped ~140 GIFs that weighed more than this whole
+  game.
+- **No network access.** Nothing is fetched, ever.
+
+The result is about 2,000 lines of game code and a 100-line Android shell.
+
+## Layout
+
+```
+www/            the game - open index.html in any browser
+  js/sim.js     pure simulation: compile() and tick(), no DOM
+  js/parts.js   the part catalog, as data
+  js/upgrades.js  upgrades as data; one function derives every stat from levels
+  js/sprites.js procedural sprites - shapes from primitives, not pixel grids
+  js/ui.js      build the DOM once, then patch what changed
+  js/input.js   touch gestures
+test/           node --test, no test framework
+tools/serve.js  a 12-line dev server
+app/            the Android module; one Activity, one WebView
+```
+
+Gradle points the APK's assets at `../www`, so the browser and the phone run
+byte-identical files.
+
+## Running it
+
+```bash
+node tools/serve.js      # then open http://localhost:8080
+```
+
+```bash
+npm test                 # node --test, zero dependencies
+```
+
+```bash
+./gradlew installDebug   # needs an Android SDK and a device or emulator
+```
+
+## How it works
+
+**The simulation is pure.** `compile(state)` rebuilds adjacency and per-cell
+output whenever the layout changes; `tick(state)` advances one second. Neither
+touches the DOM, reads a global, or sets a timer — so the tests drive them
+directly with no harness. `sim`, `state`, `parts`, `upgrades` and `objectives`
+contain zero DOM references, and a test asserts it.
+
+**Upgrades are data.** The original gave each of its ~60 upgrades an `onclick`
+closure that reached into the game and mutated part objects in place, which
+made loading and prestige a matter of replaying every closure in the right
+order. Here, levels are the only stored truth and one `applyUpgrades()`
+recomputes everything derived from them — so load, reboot and refund fall out
+for free.
+
+**Sprites are computed.** A part's look comes from three things: a steel body
+with a derived black outline, a tier colour shared across every category
+(plain, gold, green, blue, red, violet), and a function colour that never
+changes with tier — orange where heat moves, cyan for coolant, the element's
+own colour for fuel. Higher tiers accumulate rivets and panel lines. Shapes are
+built from segments, discs and rings rather than typed-out pixel grids, so
+round forms come out accurate.
+
+**The Android shell does two things** the web cannot: it serves `www/` from a
+real `https://` origin (a modern WebView gives `file://` an opaque origin,
+which kills both `localStorage` and ES modules), and it opens the document
+picker for save export and import.
+
+## Balance parity
+
+The numbers are checked against the *running* original at
+[cwmonkey.github.io/reactor-knockoff](https://cwmonkey.github.io/reactor-knockoff/),
+not against its source. Two adjacent uranium cells report 4 power and 8 heat
+there and here; part costs, containments, vent rates and tick counts match
+across tiers. Those observations are permanent tests, so the balance cannot
+quietly drift.
+
+Where the original's code and its own text disagree, the code wins: Perpetual
+Reflectors promises a 1.5x replacement cost but charges list price, and a
+reactor sitting just over twice its heat ceiling does *not* melt down, because
+passive cooling runs first.
+
+## Differences from the original
+
+- Portrait: the same 154 starting tiles, turned from 11x14 to 14x11.
+- Touch instead of a mouse. Tap to place, tap a placed part to inspect it,
+  long press to sell, drag to paint, pinch to zoom. The original's six
+  modifier-key macros are gone; dragging covers what they were for.
+- Parts reveal progressively — each stays hidden until ten of the one before it
+  have been placed — so the dock opens with ten buttons instead of seventy-five.
+- Upgrades show only what you own or can afford, plus the three nearest to
+  affordable, dithered.
+- The Google Drive save integration is gone. Saves live in `localStorage`, with
+  export and import through Android's document picker.
+
+## Credits
+
+Original game by **cwmonkey**. Based on **Reactor Incremental** by **Cael**.
+All artwork here is generated at runtime and is original.

@@ -75,7 +75,7 @@ test("adjacent cells pulse: power grows linearly, heat quadratically", () => {
 test("that heat/power gap is what punishes dense layouts", () => {
 	const sparse = fresh();
 	put(sparse, 2, 2, "uranium1");
-	put(sparse, 8, 8, "uranium1");
+	put(sparse, 12, 5, "uranium1"); // far apart, and inside a narrow reactor
 	compile(sparse);
 
 	const dense = fresh();
@@ -316,11 +316,11 @@ test("experimental part unlocks get pricier as you buy them", () => {
 
 test("expanding the reactor grows the playable grid", () => {
 	const s = rich();
-	// Portrait: the original's 11x14 turned on its side to suit a phone.
-	assert.deepEqual([s.rows, s.cols], [14, 11]);
+	// Tall and narrow, to suit a phone held upright.
+	assert.deepEqual([s.rows, s.cols], [19, 8]);
 	buy(s, "expand_reactor_rows");
 	buy(s, "expand_reactor_cols");
-	assert.deepEqual([s.rows, s.cols], [15, 12]);
+	assert.deepEqual([s.rows, s.cols], [20, 9]);
 });
 
 test("replaying upgrade levels equals buying them one at a time", () => {
@@ -791,4 +791,32 @@ test("importing junk is refused rather than destroying the game", () => {
 		assert.equal(s.money, 10, junk);
 		assert.equal([...s.tiles].filter((t) => t.id).length, 0, junk);
 	}
+});
+
+test("the sim reports what exploded so the UI can animate it", () => {
+	const s = fresh();
+	put(s, 5, 5, "uranium3");
+	const vent = put(s, 5, 6, "vent1");
+	compile(s);
+
+	let boomTick = 0;
+	for (let i = 0; i < 10 && !boomTick; i++) {
+		tick(s);
+		if (s.exploded.length) boomTick = i + 1;
+	}
+	assert.ok(boomTick, "the vent blew up and said so");
+	assert.equal(vent.id, null);
+	// The index is the tile's position in the fixed grid.
+	assert.ok(s.exploded.includes(5 * MAX_COLS + 6));
+});
+
+test("a meltdown reports every tile it destroys", () => {
+	const s = fresh();
+	put(s, 4, 4, "uranium1");
+	put(s, 6, 6, "uranium1");
+	compile(s);
+	s.heat = s.maxHeat * 4;
+	tick(s);
+	assert.ok(s.hasMeltedDown);
+	assert.equal(s.exploded.length, 2, "both parts reported");
 });

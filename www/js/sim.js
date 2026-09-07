@@ -3,8 +3,8 @@
 // thing is testable under `node --test` with no harness.
 import { applyUpgrades } from "./upgrades.js";
 // Room for the base grid plus the twenty levels of each expansion upgrade.
-export const MAX_ROWS = 35;
-export const MAX_COLS = 32;
+export const MAX_ROWS = 39;
+export const MAX_COLS = 28;
 
 export const tileAt = (s, r, c) => s.tiles[r * MAX_COLS + c];
 const inGrid = (s, r, c) => r >= 0 && c >= 0 && r < s.rows && c < s.cols;
@@ -164,6 +164,9 @@ export function tick(s) {
 	s.heatAddNextTick = 0;
 	s.dirty = false;
 	s.meltdown = false;
+	// Tiles that blew up this tick, for the UI to animate. The renderer empties
+	// it; the sim only ever appends.
+	s.exploded = [];
 
 	const inlets = [];
 	const exchangers = [];
@@ -414,6 +417,7 @@ function explode(s, t, p) {
 		return;
 	}
 	if (p.category === "particle_accelerator") s.meltdown = true;
+	s.exploded.push(t.r * MAX_COLS + t.c);
 	remove(s, t);
 }
 
@@ -436,7 +440,11 @@ function sell(s, extremeCapacitors) {
 
 function meltdown(s) {
 	s.hasMeltedDown = true;
-	for (const t of activeTiles(s)) if (t.id) remove(s, t);
+	for (const t of activeTiles(s)) {
+		if (!t.id) continue;
+		s.exploded.push(t.r * MAX_COLS + t.c);
+		remove(s, t);
+	}
 }
 
 /** Record that a part was bought. Only ever goes up; selling does not undo it. */

@@ -26,8 +26,10 @@ function tabStrip(id, items, onPick) {
 	for (const [value, label] of items) {
 		el.append(h("button", { textContent: label, dataset: { value }, onclick: () => onPick(value) }));
 	}
-	el.select = (value) => {
+	/** Light up one button and show its matching page. */
+	el.select = (value, pages) => {
 		for (const b of el.children) b.classList.toggle("on", b.dataset.value === value);
+		for (const [key, page] of Object.entries(pages)) page.classList.toggle("showing", key === value);
 	};
 	return el;
 }
@@ -141,8 +143,7 @@ export function buildUI(game) {
 
 function showPage(dom, id) {
 	dom.page = id;
-	for (const [pid] of PAGES) dom.pages[pid].classList.toggle("showing", pid === id);
-	dom.tabs.select(id);
+	dom.tabs.select(id, dom.pages);
 	// The part dock is only useful while looking at the reactor.
 	dom.dock.hidden = id !== "reactor";
 }
@@ -186,11 +187,7 @@ function buildDock(dom, game) {
 	showDock(dom, DOCK_TABS[0][0]);
 }
 
-function showDock(dom, label) {
-	dom.dockTab = label;
-	for (const [name] of DOCK_TABS) dom.dockPages[name].classList.toggle("showing", name === label);
-	dom.dockTabs.select(label);
-}
+const showDock = (dom, label) => dom.dockTabs.select(label, dom.dockPages);
 
 /** A modal question. Replaces confirm(), which Android renders as a system dialog. */
 export function ask(question, onYes) {
@@ -267,6 +264,8 @@ function buildGrid(dom, s) {
 		dom.grid.append(cell);
 		dom.tiles.push({ t, cell, heat, life, sig: "" });
 	}
+	// animationend bubbles, so one listener covers every tile.
+	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
 	dom.gridSize = `${s.rows}x${s.cols}`;
 }
 
@@ -299,6 +298,16 @@ export function render(dom, s, game) {
 	if (dom.page !== "reactor") {
 		renderPage(dom, s);
 		return;
+	}
+
+	// Play the explosions the last tick produced, then clear them so each one
+	// animates exactly once however often the renderer runs.
+	for (const i of s.exploded.splice(0)) {
+		const cell = dom.tiles[i]?.cell;
+		if (!cell) continue;
+		cell.classList.remove("exploding");
+		void cell.offsetWidth; // restart the animation if it is already running
+		cell.classList.add("exploding");
 	}
 
 	for (const row of dom.tiles) {

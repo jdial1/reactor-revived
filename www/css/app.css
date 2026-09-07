@@ -111,7 +111,7 @@ main { overflow: hidden; position: relative; }
 #board {
 	overflow: auto;
 	display: grid;
-	place-content: center;
+	place-content: safe center;
 	height: 100%;
 	touch-action: pan-x pan-y;
 	/* Makes cqw/cqh below mean "of the board", so the grid can size itself to
@@ -119,12 +119,12 @@ main { overflow: hidden; position: relative; }
 	container-type: size;
 }
 #grid {
-	/* Fill the board in whichever direction runs out first, then let pinch-zoom
-	   scale up from there for the late-game grid. */
+	/* Fill the width exactly - columns never scroll sideways - and let the rows
+	   run off the bottom, where scrolling is natural. Pinch-zoom scales up from
+	   there. The cap stops tiles becoming absurd on a tablet. */
 	--tile: calc(var(--zoom, 1) * min(
-		calc((100cqw - 6px) / var(--cols) - var(--gap)),
-		calc((100cqh - 6px) / var(--rows) - var(--gap)),
-		44px
+		calc((100cqw - 2px) / var(--cols) - var(--gap)),
+		72px
 	));
 	/* Gestures on the grid are ours; the board around it still scrolls. */
 	touch-action: none;
@@ -146,6 +146,15 @@ main { overflow: hidden; position: relative; }
 	image-rendering: pixelated;
 }
 .tile.queued { opacity: 0.45; border-style: dashed; }
+
+/* A part that blew up. Four hard steps rather than a smooth fade, to match the
+   pixel art. */
+.tile.exploding { animation: boom 320ms steps(4); }
+@keyframes boom {
+	0% { background-color: #fff; box-shadow: 0 0 0 0 #ffb347; }
+	60% { background-color: var(--heat); box-shadow: 0 0 10px 3px #ff8c2e; }
+	100% { background-color: #0f1318; box-shadow: none; }
+}
 .tile.spent { filter: grayscale(1) brightness(0.6); }
 
 /* Heat fills from the bottom, cell life drains along the top. */
