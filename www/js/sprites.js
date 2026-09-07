@@ -47,18 +47,21 @@ const armTips = any(rect(6, 0, 9, 2), rect(6, 13, 9, 15), rect(0, 6, 2, 9), rect
 // Each is a list of [region, material]; later entries paint over earlier ones.
 // Materials: "steel", "tier" (the tier colour), "core" (the function colour).
 
-// A fuel rod: a steel capsule with the element's colour glowing inside.
+// A fuel rod: a steel capsule with the element's colour glowing inside. Packs
+// of two and four are the same rod repeated on a 2x1 or 2x2 grid, sitting
+// close enough that only the outline separates them - the way the original
+// draws bundled fuel.
 const rod = (cx, cy, half, r) => [
 	[seg(cx, cy - half, cx, cy + half, r), "steel"],
 	[seg(cx, cy - half, cx, cy + half, r - 1.2), "core"],
 ];
 
 const SHAPES = {
-	cell1: rod(7.5, 7.5, 4, 3.4),
-	cell2: [...rod(4.2, 7.5, 4.5, 2.4), ...rod(10.8, 7.5, 4.5, 2.4)],
+	cell1: rod(7.5, 7.5, 4.4, 3.4),
+	cell2: [...rod(4.1, 7.5, 4.4, 3.4), ...rod(11.9, 7.5, 4.4, 3.4)],
 	cell4: [
-		...rod(4.2, 4, 1.9, 2.2), ...rod(10.8, 4, 1.9, 2.2),
-		...rod(4.2, 11, 1.9, 2.2), ...rod(10.8, 11, 1.9, 2.2),
+		...rod(4.4, 4.3, 0.5, 3.2), ...rod(11.6, 4.3, 0.5, 3.2),
+		...rod(4.4, 11.7, 0.5, 3.2), ...rod(11.6, 11.7, 0.5, 3.2),
 	],
 
 	// A capsule with a tier band across its middle.
@@ -132,15 +135,30 @@ const SHAPES = {
 	],
 };
 
-// Higher tiers are visibly busier, the way the original's are: rivets first,
-// then etched panel lines, then trim. Each pattern only recolours steel, so the
-// fuel cores and tier bands underneath stay readable.
+// Each tier wears different hardware, so a tier is recognisable by shape as
+// well as by colour - the way the original turns a round fan into an X, then a
+// louvred grille, then a caged one. Indexed by level - 1; tier 1 is bare.
+const TIER_TRIM = [
+	null,
+	// 2: rails down both sides
+	any(rect(0, 4, 1, 11), rect(14, 4, 15, 11)),
+	// 3: corner brackets
+	any(
+		rect(0, 0, 4, 1), rect(0, 0, 1, 4), rect(11, 0, 15, 1), rect(14, 0, 15, 4),
+		rect(0, 14, 4, 15), rect(0, 11, 1, 15), rect(11, 14, 15, 15), rect(14, 11, 15, 15),
+	),
+	// 4: a containment ring
+	ring(7.5, 7.5, 6.4, 7.6),
+	// 5: louvres across the face
+	any(rect(1, 1, 14, 2), rect(1, 7, 14, 8), rect(1, 13, 14, 14)),
+	// 6: a full cage
+	(x, y) => !rect(2, 2, 13, 13)(x, y),
+];
+
+// A little surface texture on top, so the higher tiers read as busier.
 const GREEBLES = [
-	[2, (x, y) => x % 6 === 2 && y % 6 === 2, "tier"],
-	[3, (x, y) => y === 3 || y === 12, "shadow"],
-	[4, (x, y) => x === 3 || x === 12, "shadow"],
-	[5, (x, y) => (x + y) % 7 === 3, "tier"],
-	[6, (x, y) => (x + 2 * y) % 5 === 0, "tier"],
+	[4, (x, y) => x % 6 === 2 && y % 6 === 2, "shadow"],
+	[6, (x, y) => (x + 2 * y) % 5 === 0, "shadow"],
 ];
 
 // The tier ramp, shared by every category so a tier reads at a glance. Tier 1
@@ -200,7 +218,13 @@ export function spriteFor(part) {
 	};
 
 	const material = new Array(SIZE * SIZE).fill(null);
-	for (const [region, kind] of SHAPES[shapeKey(part)]) {
+	// Fuel is identified by its element, so packs stay bare; everything else
+	// wears its tier's hardware. The trim is laid down first so the body sits
+	// on top of it - otherwise a louvre or a cage just erases the part.
+	const trim = part.category === "cell" ? null : TIER_TRIM[part.level - 1];
+	const layers = trim ? [[trim, "tier"], ...SHAPES[shapeKey(part)]] : SHAPES[shapeKey(part)];
+
+	for (const [region, kind] of layers) {
 		for (let y = 0; y < SIZE; y++) {
 			for (let x = 0; x < SIZE; x++) if (region(x, y)) material[y * SIZE + x] = kind;
 		}
