@@ -14,6 +14,7 @@
 	--ep: #b06fd8;
 	--gap: 1px;
 	--part-h: 56px;   /* one dock tier; the dock's height is derived from it */
+	--bar-h: 16px;    /* a meter bar, and the icon that labels it */
 }
 
 * { box-sizing: border-box; }
@@ -61,14 +62,15 @@ a { color: var(--power); }
 
 .meter {
 	display: grid;
-	grid-template-columns: 20px 1fr auto;
+	grid-template-columns: var(--bar-h) 1fr auto;
 	align-items: center;
 	gap: 6px;
 }
-/* Centred on the bar it belongs to, not floated above it. */
-.meter .icon.stat { width: 20px; height: 20px; justify-self: center; }
+/* Both glyphs fill their 16-unit box top to bottom, so matching the bar's
+   height is what squares them up with it - anything larger overhangs. */
+.meter .icon.stat { width: var(--bar-h); height: var(--bar-h); }
 .meter .bar {
-	height: 16px;
+	height: var(--bar-h);
 	background: #0007;
 	border: 1px solid var(--edge);
 	overflow: hidden;
