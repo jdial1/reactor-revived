@@ -70,14 +70,15 @@ export function buildUI(game) {
 	root.replaceChildren();
 
 	// ---- stat bar ----------------------------------------------------------
-	const meter = (id, glyph) => {
+	const meter = (id, glyph, onclick, title) => {
 		const fill = h("i", { className: "fill" });
 		const text = h("b", {});
 		dom[id] = { fill, text };
-		// Glyph and reading both sit inside the bar, painted over the fill, so
-		// the bar takes the whole width with nothing in a column beside it.
-		return h("div", { className: `meter ${id}` },
-			h("div", { className: "bar" }, fill, icon(glyph, "icon stat"), text));
+		// The bar is the button: glyph and reading sit inside it, painted over
+		// the fill. Two bars this size are a better target than two small
+		// buttons were, and the thing you press is the thing it acts on.
+		return h("button", { className: `meter ${id}`, onclick, title },
+			fill, icon(glyph, "icon stat"), text);
 	};
 
 	dom.money = h("b", {});
@@ -87,10 +88,15 @@ export function buildUI(game) {
 	// thumb already is. All the top of the screen owes the player is what to
 	// aim for next.
 	dom.purse = h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox);
-	dom.readout = h("div", { className: "readout" }, meter("power", "power"), meter("heat", "heat"));
+
+	// Pause is the only control left that acts on nothing in particular, so it
+	// goes in the corner rather than taking a row of its own.
+	dom.pauseLabel = h("span", {});
+	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
+	dom.pause = h("button", { className: "pause", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 
 	dom.objective = h("p", { className: "objective" });
-	root.append(h("header", { id: "goal" }, dom.objective));
+	root.append(h("header", { id: "goal" }, dom.objective, dom.pause));
 
 	// ---- pages -------------------------------------------------------------
 	const main = h("main", {});
@@ -145,20 +151,12 @@ export function buildUI(game) {
 	);
 
 	// ---- dock and tabs -----------------------------------------------------
-	// The three controls worth reaching for mid-game sit above the parts, where
-	// a thumb already is.
-	dom.pauseLabel = h("span", {});
-	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
-	dom.pause = h("button", { onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
-	// Row one is what you press and what you have; row two is the reactor's two
-	// numbers, side by side.
+	// Power, what it earned, and heat - in that order, so the money sits
+	// between the bar that makes it and the bar that threatens it.
 	dom.actions = h("div", { id: "actions" },
-		h("div", { className: "controls" },
-			h("button", { onclick: game.sellAll }, icon("cash"), h("span", { textContent: "Sell" })),
-			h("button", { onclick: game.ventHeat }, icon("vent"), h("span", { textContent: "Vent" })),
-			dom.pause,
-			dom.purse),
-		dom.readout);
+		meter("power", "power", game.sellAll, "Sell all power"),
+		dom.purse,
+		meter("heat", "heat", game.ventHeat, "Vent heat"));
 	// The bar stays put on every page - the readout in it is most wanted on the
 	// Upgrades page, where the money is being spent. Only the parts hide.
 	dom.dock = h("div", { id: "dock" });
