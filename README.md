@@ -126,6 +126,11 @@ IndustrialCraft&sup2;'s nuclear reactor in Minecraft: a component reference with
 IC&sup2;'s published figures, and a table mapping each of its parts to the part it
 became here. Rebuild it with `python docs/build_lineage_chart.py`.
 
+`docs/build_sprite_sheet.py` builds a companion sprite sheet showing the same
+component drawn by all four generations side by side. It fetches the other
+games' sprites into `docs/reference/`, which is gitignored &mdash; the point of
+generating our own art was to not redistribute anyone else's.
+
 The short version: IC&sup2;'s fuel rods make `5 x n` power and `2n(n+1)` heat,
 where `n` counts the rod and its neighbours. Power linear, heat quadratic. Every
 generation since has kept that asymmetry, including this one.

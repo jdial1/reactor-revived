@@ -1,3 +1,7 @@
 .gradle/
 build/
 local.properties
+
+# Third-party sprites and the sheet built from them. Regenerate with
+# docs/build_sprite_sheet.py; they are deliberately not redistributed.
+docs/reference/
