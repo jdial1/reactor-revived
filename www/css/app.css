@@ -62,14 +62,24 @@ a { color: var(--power); }
 
 .meter {
 	display: grid;
-	grid-template-columns: var(--bar-h) 1fr auto;
+	grid-template-columns: 1fr auto;
 	align-items: center;
 	gap: 6px;
 }
-/* Both glyphs fill their 16-unit box top to bottom, so matching the bar's
-   height is what squares them up with it - anything larger overhangs. */
-.meter .icon.stat { width: var(--bar-h); height: var(--bar-h); }
+/* A watermark centred on the bar, over the fill. Both glyphs fill their
+   16-unit box top to bottom, so the bar's own height is the size that sits
+   inside it without overhanging. */
+.meter .icon.stat {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: var(--bar-h);
+	height: var(--bar-h);
+	opacity: 0.4;
+}
 .meter .bar {
+	position: relative;
 	height: var(--bar-h);
 	background: #0007;
 	border: 1px solid var(--edge);
