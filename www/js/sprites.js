@@ -4,22 +4,24 @@
 // once:
 //
 //   * a steel body with a hard black outline and a light source at top left
-//   * a TIER colour, the same across every category - plain steel, gold,
-//     green, blue, red, violet - so you can tell a tier-4 anything at a glance
+//   * a TIER colour and a piece of TIER HARDWARE, the same across every
+//     category - bare, rails, brackets, ring, louvres, cage - so a tier is
+//     recognisable by shape as well as by colour
 //   * a FUNCTION colour that never changes with tier: orange wherever heat is
-//     being moved, cyan for coolant, and the element's own colour for fuel
+//     being moved, cyan for coolant, the element's own colour for fuel
 //
-// That is the vocabulary these shapes reproduce. They are built from
-// primitives rather than typed out as pixel grids - discs and diagonal
-// capsules come out accurate instead of approximated, and the whole vocabulary
-// is a dozen lines instead of two hundred rows of string. The black outline is
-// derived, not drawn: any empty pixel touching a painted one becomes it.
+// Drawn on a 32x32 grid, which is what it takes for a vent to read as a fan
+// and a fuel cell to read as a fuel rod rather than as coloured blobs. Shapes
+// are built from primitives rather than typed out as pixel grids, so discs,
+// capsules and fan blades come out accurate instead of approximated. The black
+// outline is derived, not drawn: any empty pixel touching a painted one
+// becomes it.
 
-const SIZE = 16;
+const SIZE = 32;
 const OUTLINE = "#07090c";
 // Steel: the shaded side and the lit side, plus an etched-line dark.
 const STEEL = ["#5c656f", "#939da8"];
-const SHADOW = ["#3a4149", "#3a4149"];
+const SHADOW = ["#333a42", "#333a42"];
 
 // ---- primitives: each returns a (x, y) => boolean --------------------------
 
@@ -37,134 +39,165 @@ const ring = (cx, cy, inner, outer) => (x, y) => disc(cx, cy, outer)(x, y) && !d
 const rect = (x0, y0, x1, y1) => (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
 const diamond = (cx, cy, r) => (x, y) => Math.abs(x - cx) + Math.abs(y - cy) <= r;
 const any = (...tests) => (x, y) => tests.some((t) => t(x, y));
-/** A shape stippled every other pixel, the way the original draws coolant. */
-const stipple = (test) => (x, y) => test(x, y) && (x + y) % 2 === 0;
-const corners = any(rect(0, 0, 4, 4), rect(11, 0, 15, 4), rect(0, 11, 4, 15), rect(11, 11, 15, 15));
-/** The four tips of a plus, so colouring them keeps the plus silhouette. */
-const armTips = any(rect(6, 0, 9, 2), rect(6, 13, 9, 15), rect(0, 6, 2, 9), rect(13, 6, 15, 9));
+const not = (test) => (x, y) => !test(x, y);
+
+/** A slice of an annulus - the shape of a fan blade or a magnet pole. */
+const wedge = (cx, cy, r0, r1, from, span) => (x, y) => {
+	const d = Math.hypot(x - cx, y - cy);
+	if (d < r0 || d > r1) return false;
+	const a = ((((Math.atan2(y - cy, x - cx) * 180) / Math.PI) % 360) + 360) % 360;
+	return (a - (((from % 360) + 360) % 360) + 360) % 360 <= span;
+};
+
+/** Four of the same wedge, spaced round the centre. */
+const blades = (cx, cy, r0, r1, span, offset = 0) =>
+	any(...[0, 90, 180, 270].map((a) => wedge(cx, cy, r0, r1, a + offset, span)));
+
+/** A shape in a 2px checker, the way the original draws coolant. */
+const stipple = (test) => (x, y) => test(x, y) && (Math.floor(x / 2) + Math.floor(y / 2)) % 2 === 0;
 
 // ---- the parts -------------------------------------------------------------
 // Each is a list of [region, material]; later entries paint over earlier ones.
-// Materials: "steel", "tier" (the tier colour), "core" (the function colour).
+// Materials: "steel", "tier", "core" (the function colour), "shadow" (an
+// etched line), "shine" (a highlight).
 
-// A fuel rod: a steel capsule with the element's colour glowing inside. Packs
-// of two and four are the same rod repeated on a 2x1 or 2x2 grid, sitting
-// close enough that only the outline separates them - the way the original
-// draws bundled fuel.
-const rod = (cx, cy, half, r) => [
-	[seg(cx, cy - half, cx, cy + half, r), "steel"],
-	[seg(cx, cy - half, cx, cy + half, r - 1.2), "core"],
-];
+/**
+ * A fuel rod: metal end caps around a glowing core, like a battery. Packs of
+ * two and four are this same rod on a 2x1 or 2x2 grid, close enough that only
+ * the outline separates them.
+ */
+const fuelRod = (cx, cy, half, r) => {
+	const cap = Math.max(2, r * 0.75);
+	return [
+		[seg(cx, cy - half, cx, cy + half, r), "steel"],
+		[seg(cx, cy - half + cap, cx, cy + half - cap, r - 1.5), "core"],
+		// A highlight down the lit side of the core.
+		[seg(cx - r * 0.35, cy - half + cap + 1, cx - r * 0.35, cy + half - cap - 1, r * 0.2), "coreLit"],
+		// The contact nub on top.
+		[rect(cx - r * 0.45, cy - half - r - 1.5, cx + r * 0.45, cy - half - r + 0.5), "steel"],
+	];
+};
 
 const SHAPES = {
-	cell1: rod(7.5, 7.5, 4.4, 3.4),
-	cell2: [...rod(4.1, 7.5, 4.4, 3.4), ...rod(11.9, 7.5, 4.4, 3.4)],
+	cell1: fuelRod(16, 16, 8, 7),
+	cell2: [...fuelRod(8.3, 16, 8, 6.4), ...fuelRod(23.7, 16, 8, 6.4)],
 	cell4: [
-		...rod(4.4, 4.3, 0.5, 3.2), ...rod(11.6, 4.3, 0.5, 3.2),
-		...rod(4.4, 11.7, 0.5, 3.2), ...rod(11.6, 11.7, 0.5, 3.2),
+		...fuelRod(8.6, 9, 1.5, 6.2), ...fuelRod(23.4, 9, 1.5, 6.2),
+		...fuelRod(8.6, 23.4, 1.5, 6.2), ...fuelRod(23.4, 23.4, 1.5, 6.2),
 	],
 
-	// A capsule with a tier band across its middle.
+	// A capsule with a mirrored face and a tier band.
 	reflector: [
-		[seg(7.5, 3.5, 7.5, 12.5, 3.4), "steel"],
-		[rect(4, 7, 11, 9), "tier"],
+		[seg(16, 9, 16, 23, 7.5), "steel"],
+		[rect(7, 13, 25, 19), "tier"],
+		// The mirror: a bright streak down the lit side.
+		[seg(12.5, 5, 12.5, 27, 1.6), "shine"],
 	],
 
-	// A block with two terminals on top.
+	// A cell with two terminals on top and a charged window.
 	capacitor: [
-		[rect(4, 1, 6, 4), "steel"],
-		[rect(9, 1, 11, 4), "steel"],
-		[seg(7.5, 9.5, 7.5, 10.5, 4.5), "steel"],
-		[rect(5, 8, 10, 13), "tier"],
+		[rect(8, 1, 13, 9), "steel"],
+		[rect(19, 1, 24, 9), "steel"],
+		[seg(16, 18, 16, 22, 10), "steel"],
+		[rect(10, 13, 22, 27), "tier"],
+		[rect(12, 15, 20, 17), "shadow"],
 	],
 
-	// A round housing whose fan blades carry the tier colour.
+	// A bladed fan in a round housing - the thing a vent most needs to look like.
 	vent: [
-		[disc(7.5, 7.5, 6.6), "steel"],
-		[seg(3.5, 3.5, 11.5, 11.5, 1.5), "tier"],
-		[seg(11.5, 3.5, 3.5, 11.5, 1.5), "tier"],
-		[disc(7.5, 7.5, 2.1), "steel"],
+		[disc(16, 16, 14), "steel"],
+		[ring(16, 16, 12, 14), "shadow"],
+		[blades(16, 16, 4, 12, 62, 12), "tier"],
+		[disc(16, 16, 4.5), "steel"],
+		[disc(16, 16, 2), "shadow"],
 	],
 
-	// A fat plus with tier-coloured arm tips and the orange hub heat moves
-	// through. Colouring the tips rather than the corners keeps the plus
-	// silhouette, so a tier-1 exchanger still reads differently from a plate.
+	// A cross of pipes with an orange hub: heat passing through a junction.
 	heat_exchanger: [
-		[any(rect(6, 0, 9, 15), rect(0, 6, 15, 9)), "steel"],
-		[armTips, "tier"],
-		[diamond(7.5, 7.5, 3.2), "core"],
+		[any(rect(11, 0, 20, 31), rect(0, 11, 31, 20)), "steel"],
+		[any(rect(13, 0, 14, 31), rect(0, 13, 31, 14)), "shadow"],
+		[disc(16, 16, 10), "steel"],
+		[ring(16, 16, 8.5, 10), "shadow"],
+		[diamond(16, 16, 7), "core"],
 	],
 
-	// A T of pipe drawing heat up out of its neighbours.
+	// A funnel drawing heat up out of the parts around it.
 	heat_inlet: [
-		[rect(2, 2, 13, 5), "steel"],
-		[seg(7.5, 5, 7.5, 13.5, 2.4), "steel"],
-		[any(rect(1, 2, 3, 6), rect(12, 2, 14, 6)), "tier"],
-		[seg(7.5, 6, 7.5, 13, 1.1), "core"],
-		[rect(5, 3, 10, 4), "core"],
+		[rect(3, 4, 28, 11), "steel"],
+		[rect(3, 9, 28, 11), "shadow"],
+		[seg(16, 13, 16, 26, 5), "steel"],
+		[seg(16, 14, 16, 27, 2.4), "core"],
+		// The arrowhead, pointing up into the bar.
+		[diamond(16, 6, 5), "core"],
 	],
 
-	// The same pipe inverted, pushing heat down into them.
+	// The same funnel inverted, pushing heat down into them.
 	heat_outlet: [
-		[rect(2, 10, 13, 13), "steel"],
-		[seg(7.5, 2.5, 7.5, 10, 2.4), "steel"],
-		[any(rect(1, 9, 3, 13), rect(12, 9, 14, 13)), "tier"],
-		[seg(7.5, 3, 7.5, 9, 1.1), "core"],
-		[rect(5, 11, 10, 12), "core"],
+		[rect(3, 20, 28, 27), "steel"],
+		[rect(3, 20, 28, 22), "shadow"],
+		[seg(16, 5, 16, 18, 5), "steel"],
+		[seg(16, 4, 16, 17, 2.4), "core"],
+		[diamond(16, 25, 5), "core"],
 	],
 
-	// A capsule of stippled coolant between tier rails.
+	// A canister of stippled coolant behind a window.
 	coolant_cell: [
-		[seg(7.5, 3.5, 7.5, 12.5, 3.4), "steel"],
-		[any(rect(4, 4, 5, 12), rect(10, 4, 11, 12)), "tier"],
-		[stipple(rect(6, 4, 9, 12)), "core"],
+		[seg(16, 9, 16, 23, 7.5), "steel"],
+		[rect(10, 6, 22, 26), "shadow"],
+		[stipple(rect(10, 6, 22, 26)), "core"],
+		[any(rect(7, 4, 10, 28), rect(22, 4, 25, 28)), "tier"],
 	],
 
-	// A bevelled armour plate with tier corners.
+	// A bevelled armour plate with bolts at its corners.
 	reactor_plating: [
-		[rect(1, 1, 14, 14), "steel"],
-		[corners, "tier"],
-		[diamond(7.5, 7.5, 4), "steel"],
+		[rect(2, 2, 29, 29), "steel"],
+		[rect(5, 5, 26, 26), "shadow"],
+		[rect(7, 7, 24, 24), "steel"],
+		[any(disc(6, 6, 2.4), disc(25, 6, 2.4), disc(6, 25, 2.4), disc(25, 25, 2.4)), "shadow"],
 	],
 
-	// A ring of tier pads around an orange core.
+	// Magnet poles around a ring, with the core glowing at the centre.
 	particle_accelerator: [
-		[disc(7.5, 7.5, 6.6), "steel"],
-		[ring(7.5, 7.5, 3.4, 5), "tier"],
-		[disc(7.5, 7.5, 2.4), "core"],
+		[disc(16, 16, 14), "steel"],
+		[ring(16, 16, 7, 11), "shadow"],
+		[blades(16, 16, 10.5, 14, 45, 22), "tier"],
+		[ring(16, 16, 7, 8.5), "core"],
+		[disc(16, 16, 4.5), "core"],
 	],
 };
 
 // Each tier wears different hardware, so a tier is recognisable by shape as
-// well as by colour - the way the original turns a round fan into an X, then a
-// louvred grille, then a caged one. Indexed by level - 1; tier 1 is bare.
+// well as by colour. Indexed by level - 1; tier 1 is bare. Laid down beneath
+// the body, so a louvre frames the part instead of erasing it.
 const TIER_TRIM = [
 	null,
 	// 2: rails down both sides
-	any(rect(0, 4, 1, 11), rect(14, 4, 15, 11)),
+	any(rect(0, 8, 3, 23), rect(28, 8, 31, 23)),
 	// 3: corner brackets
 	any(
-		rect(0, 0, 4, 1), rect(0, 0, 1, 4), rect(11, 0, 15, 1), rect(14, 0, 15, 4),
-		rect(0, 14, 4, 15), rect(0, 11, 1, 15), rect(11, 14, 15, 15), rect(14, 11, 15, 15),
+		rect(0, 0, 9, 3), rect(0, 0, 3, 9), rect(22, 0, 31, 3), rect(28, 0, 31, 9),
+		rect(0, 28, 9, 31), rect(0, 22, 3, 31), rect(22, 28, 31, 31), rect(28, 22, 31, 31),
 	),
 	// 4: a containment ring
-	ring(7.5, 7.5, 6.4, 7.6),
+	ring(16, 16, 13, 15.5),
 	// 5: louvres across the face
-	any(rect(1, 1, 14, 2), rect(1, 7, 14, 8), rect(1, 13, 14, 14)),
+	any(rect(1, 1, 30, 4), rect(1, 14, 30, 17), rect(1, 27, 30, 30)),
 	// 6: a full cage
-	(x, y) => !rect(2, 2, 13, 13)(x, y),
+	not(rect(4, 4, 27, 27)),
 ];
 
-// A little surface texture on top, so the higher tiers read as busier.
+// A little surface texture, so the higher tiers read as busier.
 const GREEBLES = [
-	[4, (x, y) => x % 6 === 2 && y % 6 === 2, "shadow"],
-	[6, (x, y) => (x + 2 * y) % 5 === 0, "shadow"],
+	[4, (x, y) => x % 11 === 4 && y % 11 === 4, "shadow"],
+	[6, (x, y) => (x + 2 * y) % 9 === 0, "shadow"],
 ];
 
-// The tier ramp, shared by every category so a tier reads at a glance. Tier 1
-// is bare steel in the original, so its "colour" is just a lighter steel.
+// The tier ramp, shared by every category. Tier 1 has no colour of its own, so
+// it uses a darker steel - light-on-light would hide the fan blades and the
+// hardware entirely.
+const TIER_DARK = ["#3a424b", "#49525c"];
 const TIER_HUE = [
-	[210, 6],   // 1 - plain
+	[210, 6],   // 1 - plain, drawn with TIER_DARK
 	[45, 78],   // 2 - gold
 	[105, 58],  // 3 - green
 	[215, 68],  // 4 - blue
@@ -201,6 +234,7 @@ const cache = new Map();
 
 /** Shaded and lit versions of one [hue, saturation]. */
 const shades = ([hue, sat]) => [42, 62].map((l) => `hsl(${hue} ${sat}% ${l}%)`);
+const bright = ([hue, sat]) => [`hsl(${hue} ${sat}% 72%)`, `hsl(${hue} ${sat}% 84%)`];
 
 const shapeKey = (p) => (p.category === "cell" ? `cell${p.cellCount}` : p.category);
 const coreOf = (p) => (p.category === "cell" ? [FUEL_HUE[p.type], 70] : CORE[p.category] ?? TIER_HUE[p.level - 1]);
@@ -210,27 +244,28 @@ export function spriteFor(part) {
 	const cached = cache.get(part.id);
 	if (cached) return cached;
 
+	const core = coreOf(part);
 	const paint = {
 		steel: STEEL,
 		shadow: SHADOW,
-		tier: shades(TIER_HUE[part.level - 1]),
-		core: shades(coreOf(part)),
+		shine: ["#c8d0d8", "#eef3f7"],
+		tier: part.level === 1 ? TIER_DARK : shades(TIER_HUE[part.level - 1]),
+		core: shades(core),
+		coreLit: bright(core),
 	};
 
-	const material = new Array(SIZE * SIZE).fill(null);
 	// Fuel is identified by its element, so packs stay bare; everything else
-	// wears its tier's hardware. The trim is laid down first so the body sits
-	// on top of it - otherwise a louvre or a cage just erases the part.
+	// wears its tier's hardware, underneath the body.
 	const trim = part.category === "cell" ? null : TIER_TRIM[part.level - 1];
 	const layers = trim ? [[trim, "tier"], ...SHAPES[shapeKey(part)]] : SHAPES[shapeKey(part)];
 
+	const material = new Array(SIZE * SIZE).fill(null);
 	for (const [region, kind] of layers) {
 		for (let y = 0; y < SIZE; y++) {
 			for (let x = 0; x < SIZE; x++) if (region(x, y)) material[y * SIZE + x] = kind;
 		}
 	}
 
-	// Detailing, applied over steel only so it never obscures what a part does.
 	for (const [level, pattern, kind] of GREEBLES) {
 		if (part.level < level) continue;
 		for (let y = 0; y < SIZE; y++) {
