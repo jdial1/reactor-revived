@@ -1,6 +1,7 @@
 // The reactor simulation. Pure: no DOM, no globals, no timers. Everything it
 // needs arrives in `s` and everything it changes lives in `s`, so the whole
 // thing is testable under `node --test` with no harness.
+import { applyUpgrades } from "./upgrades.js";
 // Room for the base grid plus the twenty levels of each expansion upgrade.
 export const MAX_ROWS = 35;
 export const MAX_COLS = 32;
@@ -284,6 +285,14 @@ export function tick(s) {
 	if (s.meltdown) s.heat = s.maxHeat * 2 + 1;
 
 	if (s.meltdown || s.heat > s.maxHeat * 2) meltdown(s);
+
+	// Spending protium permanently strengthens every protium cell, so the
+	// derived part stats have to be rebuilt before the layout is recompiled.
+	if (s.statsDirty) {
+		applyUpgrades(s);
+		s.statsDirty = false;
+		s.dirty = true;
+	}
 	if (s.dirty) compile(s);
 	return s;
 }
@@ -300,7 +309,10 @@ function wear(s, t) {
  */
 function expire(s, t, p) {
 	const isCell = p.category === "cell";
-	if (isCell && p.type === "protium") s.protiumParticles += p.cellCount;
+	if (isCell && p.type === "protium") {
+		s.protiumParticles += p.cellCount;
+		s.statsDirty = true;
+	}
 
 	const price = p.cost * (isCell ? 1.5 : 1);
 	if (!s.autoBuyDisabled && s.perpetual.has(isCell ? p.type : p.category) && s.money >= price) {

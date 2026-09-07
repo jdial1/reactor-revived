@@ -10,9 +10,9 @@ export function fmt(n) {
 	const tier = Math.floor(Math.log10(n) / 3);
 	if (tier >= SUFFIX.length) return n.toExponential(2).replace("e+", "e");
 
+	// Three decimals of the scaled value, truncated - matching the original
+	// exactly, and avoiding the glitch where rounding turns 999999 into
+	// "1000K" instead of "999.999K".
 	const scaled = n / 10 ** (tier * 3);
-	// 4 significant digits, truncated not rounded - rounding 999999 up to
-	// "1000K" instead of "999.9K" is exactly the glitch this avoids.
-	const places = 10 ** Math.max(0, 3 - Math.floor(Math.log10(scaled)));
-	return String(Math.floor(scaled * places) / places) + SUFFIX[tier];
+	return String(Math.floor(scaled * 1000) / 1000) + SUFFIX[tier];
 }

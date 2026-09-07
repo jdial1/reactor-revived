@@ -39,13 +39,13 @@ const SCALED = [
 const CELLS = [
 	// Uranium is the one cell whose tiers the original hand-priced rather than
 	// scaling; an array of per-tier costs keeps those exact numbers.
-	{ type: "uranium",    title: "Uranium Cell",    cost: [10, 25, 60],           ticks: 15,    power: 1,           heat: 1,           upgradeCosts: { tick: 100, power: 500, perpetual: 1000 } },
-	{ type: "plutonium",  title: "Plutonium Cell",  cost: 6e3,     costMul: 2.2,  ticks: 60,    power: 150,         heat: 150,         upgradeCosts: { tick: 30e3, power: 30e3, perpetual: 60e3 } },
-	{ type: "thorium",    title: "Thorium Cell",    cost: 4.7e6,   costMul: 2.2,  ticks: 900,   power: 7400,        heat: 7400,        upgradeCosts: { tick: 25e6, power: 25e6, perpetual: 50e6 } },
-	{ type: "seaborgium", title: "Seaborgium Cell", cost: 4e9,     costMul: 2.2,  ticks: 3600,  power: 1.6e6,       heat: 1.6e6,       upgradeCosts: { tick: 20e9, power: 20e9, perpetual: 40e9 } },
-	{ type: "dolorium",   title: "Dolorium Cell",   cost: 3.9e12,  costMul: 2.2,  ticks: 22000, power: 2.3e8,       heat: 2.3e8,       upgradeCosts: { tick: 20e12, power: 20e12, perpetual: 40e12 } },
-	{ type: "nefastium",  title: "Nefastium Cell",  cost: 3.6e15,  costMul: 2.2,  ticks: 86000, power: 5.2e10,      heat: 5.2e10,      upgradeCosts: { tick: 17.5e15, power: 17.5e15, perpetual: 35e15 } },
-	{ type: "protium",    title: "Protium Cell",    cost: 3e15,    costMul: 2.2,  ticks: 3600,  power: 1.25e12,     heat: 1.25e12,     experimental: true, requires: "protium_cells" },
+	{ type: "uranium",    title: "Uranium Cell",    cost: [10, 25, 60],           ticks: 15,    basePower: 1,           baseHeat: 1,           upgradeCosts: { tick: 100, power: 500, perpetual: 1000 } },
+	{ type: "plutonium",  title: "Plutonium Cell",  cost: 6e3,     costMul: 2.2,  ticks: 60,    basePower: 150,         baseHeat: 150,         upgradeCosts: { tick: 30e3, power: 30e3, perpetual: 60e3 } },
+	{ type: "thorium",    title: "Thorium Cell",    cost: 4.7e6,   costMul: 2.2,  ticks: 900,   basePower: 7400,        baseHeat: 7400,        upgradeCosts: { tick: 25e6, power: 25e6, perpetual: 50e6 } },
+	{ type: "seaborgium", title: "Seaborgium Cell", cost: 4e9,     costMul: 2.2,  ticks: 3600,  basePower: 1.6e6,       baseHeat: 1.6e6,       upgradeCosts: { tick: 20e9, power: 20e9, perpetual: 40e9 } },
+	{ type: "dolorium",   title: "Dolorium Cell",   cost: 3.9e12,  costMul: 2.2,  ticks: 22000, basePower: 2.3e8,       baseHeat: 2.3e8,       upgradeCosts: { tick: 20e12, power: 20e12, perpetual: 40e12 } },
+	{ type: "nefastium",  title: "Nefastium Cell",  cost: 3.6e15,  costMul: 2.2,  ticks: 86000, basePower: 5.2e10,      baseHeat: 5.2e10,      upgradeCosts: { tick: 17.5e15, power: 17.5e15, perpetual: 35e15 } },
+	{ type: "protium",    title: "Protium Cell",    cost: 3e15,    costMul: 2.2,  ticks: 3600,  basePower: 1.25e12,     baseHeat: 1.25e12,     experimental: true, requires: "protium_cells" },
 ];
 
 // Everything else: tiers 1-5 scale by the SCALED table; tier 6 is the
@@ -106,11 +106,9 @@ function derive(def, level) {
 		const i = level - 1;
 		p.id = `${def.type}${level}`;
 		p.title = CELL_PREFIX[i] + def.title;
-		// Output is always basePower/baseHeat run through the pulse formula in
+		// A cell's output is basePower/baseHeat run through the pulse formula in
 		// sim.js; the pack size is carried by cellMultiplier and cellCount, so
-		// there is no separate per-tier power/heat field to keep in step.
-		p.basePower = def.power;
-		p.baseHeat = def.heat;
+		// there is no per-tier power/heat field to keep in step.
 		p.cellCount = CELL_COUNT[i];
 		p.cellMultiplier = CELL_POWER[i];
 		p.pulses = CELL_COUNT[i];

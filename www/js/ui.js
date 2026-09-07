@@ -96,7 +96,9 @@ export function buildUI(game) {
 	dom.pages.upgrades.append(dom.upgradeList);
 
 	dom.experimentList = h("div", { className: "upgrades" });
+	dom.epStatus = h("p", { className: "ep-status" });
 	dom.pages.experiments.append(
+		dom.epStatus,
 		h("div", { className: "reboot" },
 			h("button", { className: "wide", textContent: "Reboot reactor", onclick: () => game.reboot(false) }),
 			h("button", { className: "wide", textContent: "Reboot & refund all EP", onclick: () => game.reboot(true) })),
@@ -269,7 +271,11 @@ const quant = (n) => Math.round(n / 4) * 4;
 /** Patch the whole interface to match the state. Cheap enough to run at 10fps. */
 export function render(dom, s, game) {
 	dom.money.textContent = `$${fmt(s.money)}`;
-	dom.ep.textContent = `${fmt(s.currentExoticParticles)} EP`;
+	// Pending particles are shown alongside the spendable ones, because they are
+	// only worth anything once a reboot banks them.
+	dom.ep.textContent = s.exoticParticles
+		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
+		: `${fmt(s.currentExoticParticles)} EP`;
 	dom.epBox.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
 
 	dom.power.text.textContent = `${fmt(s.power)} / ${fmt(s.maxPower)}`;
@@ -319,7 +325,11 @@ export function render(dom, s, game) {
 function renderPage(dom, s) {
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
 	if (dom.page === "objectives") renderObjectives(dom, s);
-
+	if (dom.page === "experiments") {
+		dom.epStatus.textContent = s.exoticParticles
+			? `${fmt(s.currentExoticParticles)} EP to spend, ${fmt(s.exoticParticles)} pending - reboot to bank them.`
+			: `${fmt(s.currentExoticParticles)} EP to spend. Particle accelerators earn more.`;
+	}
 }
 
 /** How many out-of-reach upgrades to leave visible as a preview. */
@@ -335,19 +345,22 @@ function renderUpgrades(dom, s) {
 	const outOfReach = [];
 
 	for (const row of dom.upgradeRows) {
+		// The other tab's rows are not on screen; leave them until they are.
+		if (!onThisPage(row)) continue;
 		const { u, button, cost, level } = row;
 		const lv = s.levels[u.id];
 		const price = costOf(s, u);
 		const owned = lv > 0;
+		const unlocked = isUnlocked(s, u);
 		const affordable = (u.ecost ? s.currentExoticParticles : s.money) >= price;
 
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
 
-		const shown = isUnlocked(s, u) && (owned || affordable);
+		const shown = unlocked && (owned || affordable);
 		button.hidden = !shown;
 		button.classList.toggle("preview", false);
-		if (!shown && isUnlocked(s, u) && onThisPage(row)) outOfReach.push({ row, price });
+		if (!shown && unlocked) outOfReach.push({ row, price });
 	}
 
 	outOfReach.sort((a, b) => a.price - b.price);

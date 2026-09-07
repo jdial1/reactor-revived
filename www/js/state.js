@@ -48,6 +48,7 @@ export function newState(random = Math.random) {
 		// offers next.
 		placed: {},
 		heatAddNextTick: 0,
+		statsDirty: false,
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);

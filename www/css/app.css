@@ -196,6 +196,14 @@ main { overflow: hidden; position: relative; }
 .objectives li i { color: var(--cash); font-style: normal; margin-left: 6px; }
 .objectives li.done { opacity: 0.4; text-decoration: line-through; }
 
+.ep-status {
+	background: var(--panel);
+	border: 1px solid var(--edge);
+	border-left: 3px solid var(--ep);
+	padding: 8px;
+	margin: 0 0 8px;
+}
+
 .options, .reboot { display: grid; gap: 6px; margin-bottom: 10px; }
 .wide { width: 100%; padding: 10px; }
 .danger { color: #d87a7a; }

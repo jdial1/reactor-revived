@@ -525,8 +525,240 @@ test("number formatting", () => {
 	assert.equal(fmt(999), "999");
 	assert.equal(fmt(1000), "1K");
 	assert.equal(fmt(1500), "1.5K");
-	assert.equal(fmt(999999), "999.9K", "truncates rather than rolling over to 1000K");
+	assert.equal(fmt(999999), "999.999K", "truncates rather than rolling over to 1000K");
 	assert.equal(fmt(1e6), "1M");
 	assert.equal(fmt(1e33), "1Dc");
+	// Matched against the live original's own tooltips.
+	assert.equal(fmt(195312500000), "195.312B");
+	assert.equal(fmt(126562500), "126.562M");
+	assert.equal(fmt(655360000000), "655.36B");
+	assert.equal(fmt(38416000000), "38.416B");
 	assert.equal(fmt(-1500), "-1.5K");
+});
+
+// ---------------------------------------------------------------------------
+// The experimental endgame: exotic particles, tier-6 parts, prestige.
+// ---------------------------------------------------------------------------
+
+/** A state with the laboratory open and every research bought. */
+function researched(...ids) {
+	const s = rich();
+	s.currentExoticParticles = 1e12;
+	buy(s, "laboratory");
+	for (const id of ids) buy(s, id);
+	return s;
+}
+
+test("a hot particle accelerator generates exotic particles", () => {
+	// random() returns 1, so only the whole part of the chance is ever awarded.
+	// Only a high tier can hold enough heat for that to be more than a rounding
+	// error - which is the point of the endgame.
+	const s = fresh();
+	const pa = put(s, 5, 5, "particle_accelerator5");
+	const p = s.stats.get("particle_accelerator5");
+	compile(s);
+	assert.ok(p.epHeat < p.containment, "it can hold the heat it needs");
+	pa.heatContained = p.epHeat;
+
+	assert.equal(s.exoticParticles, 0);
+	tick(s);
+	assert.ok(s.exoticParticles > 0, "particles produced");
+	// They accrue to this run's total, not the spendable pool.
+	assert.equal(s.currentExoticParticles, 0);
+});
+
+test("a low-tier accelerator cannot hold enough heat to matter", () => {
+	const p = PART_BY_ID.get("particle_accelerator1");
+	// Its whole containment is a rounding error against the heat it would need,
+	// so early accelerators are a heat problem long before they are an income.
+	assert.ok(p.containment < p.epHeat / 1e6);
+});
+
+test("a cold particle accelerator generates nothing", () => {
+	const s = fresh();
+	put(s, 5, 5, "particle_accelerator1");
+	compile(s);
+	tick(s);
+	assert.equal(s.exoticParticles, 0);
+});
+
+test("research gates the tier-6 parts", () => {
+	const s = rich();
+	const vent6 = PART_BY_ID.get("vent6");
+	assert.equal(isPartVisible(s, vent6), false, "locked before research");
+
+	const r = researched("vortex_cooling");
+	assert.ok(isPartVisible(r, vent6), "unlocked after research");
+	// Its siblings stay locked - each part has its own research.
+	assert.equal(isPartVisible(r, PART_BY_ID.get("coolant_cell6")), false);
+});
+
+test("an extreme vent burns reactor power to do its cooling", () => {
+	const s = researched("vortex_cooling");
+	const vent = put(s, 5, 5, "vent6");
+	compile(s);
+	vent.heatContained = 1000;
+	s.power = 1e6;
+	const before = s.power;
+	tick(s);
+	assert.ok(s.power < before, "power spent venting");
+	assert.ok(vent.heatContained < 1000, "heat vented");
+});
+
+test("a thermionic coolant cell turns half its heat into power", () => {
+	const s = researched("thermionic_conversion");
+	put(s, 5, 5, "uranium3");
+	const coolant = put(s, 5, 6, "coolant_cell6");
+	compile(s);
+	s.power = 0;
+	tick(s);
+	assert.ok(s.power > 0, "heat became power");
+	assert.ok(coolant.heatContained > 0, "and half stayed as heat");
+});
+
+test("a black hole accelerator drags heat out of the reactor", () => {
+	const s = researched("singularity_harnessing");
+	const pa = put(s, 5, 5, "particle_accelerator6");
+	compile(s);
+	s.heat = 5000;
+	s.power = 5000;
+	tick(s);
+	assert.ok(pa.heatContained > 0, "heat pulled into the accelerator");
+	assert.ok(s.heat < 5000, "and out of the reactor");
+});
+
+test("an extreme heat exchanger reaches its whole row", () => {
+	const s = researched("underground_heat_extraction");
+	const far = put(s, 5, 0, "vent1"); // five tiles away, far out of normal range
+	const ex = put(s, 5, 5, "heat_exchanger6");
+	compile(s);
+	assert.equal(ex.containments.length, 1, "reaches the far end of its row");
+
+	// An ordinary exchanger in the same spot reaches nothing.
+	const plain = fresh();
+	put(plain, 5, 0, "vent1");
+	const normal = put(plain, 5, 5, "heat_exchanger1");
+	compile(plain);
+	assert.equal(normal.containments.length, 0);
+	assert.ok(far);
+});
+
+test("protium cells get stronger as protium is spent", () => {
+	const s = researched("protium_cells");
+	// A protium cell makes 1.25e12 heat a tick against a stock ceiling of 1000,
+	// so without a vastly bigger reactor it melts the place down immediately.
+	s.levels.phlembotinum_core = 20;
+	applyUpgrades(s);
+	const before = s.stats.get("protium1").basePower;
+
+	const t = put(s, 5, 5, "protium1");
+	t.ticks = 1;
+	compile(s);
+	tick(s);
+
+	assert.equal(s.hasMeltedDown, false, "survived the tick");
+	assert.equal(s.protiumParticles, 1, "particles banked on depletion");
+	assert.ok(s.stats.get("protium1").basePower > before, "and every protium cell got stronger");
+});
+
+test("a protium cell melts a stock reactor immediately", () => {
+	const s = researched("protium_cells");
+	put(s, 5, 5, "protium1");
+	compile(s);
+	tick(s);
+	assert.ok(s.hasMeltedDown, "1.25e12 heat against a 1000 ceiling");
+});
+
+test("exotic particles survive a reboot and buy research", () => {
+	const s = fresh();
+	s.exoticParticles = 500;
+	reboot(s);
+	assert.equal(s.currentExoticParticles, 500);
+	assert.ok(buy(s, "laboratory"));
+	assert.equal(s.currentExoticParticles, 499);
+});
+
+test("a full experimental run: earn, reboot, spend, place", () => {
+	const s = fresh();
+
+	// Earn particles from an accelerator big enough to hold the heat.
+	const pa = put(s, 5, 5, "particle_accelerator5");
+	compile(s);
+	pa.heatContained = s.stats.get("particle_accelerator5").epHeat;
+	tick(s);
+	const earned = s.exoticParticles;
+	assert.ok(earned > 0);
+
+	// Bank them.
+	reboot(s);
+	assert.equal(s.currentExoticParticles, earned);
+	assert.equal(tileAt(s, 5, 5).id, null, "board wiped");
+
+	// Spend them on research, then place what it unlocked.
+	s.currentExoticParticles = 1e6;
+	assert.ok(buy(s, "laboratory"));
+	assert.ok(buy(s, "vortex_cooling"));
+	s.money = 1e15;
+	place(s, 2, 2, "vent6");
+	assert.equal(tileAt(s, 2, 2).id, "vent6");
+	assert.ok(tileAt(s, 2, 2).activated);
+});
+
+// ---------------------------------------------------------------------------
+// Parity with the live original.
+//
+// These numbers were read off https://cwmonkey.github.io/reactor-knockoff/
+// itself - its part tooltips and its reactor stats readout - not from its
+// source. They are here so a future refactor cannot quietly drift the balance.
+// ---------------------------------------------------------------------------
+
+test("part stats match the live original's tooltips", () => {
+	const rated = (p) => ({
+		power: p.basePower * p.cellMultiplier,
+		heat: (p.baseHeat * p.cellMultiplier ** 2) / p.cellCount,
+	});
+
+	const upstream = {
+		uranium1: { title: "Uranium Cell", cost: "10", power: 1, heat: 1, ticks: 15 },
+		uranium3: { title: "Quad Uranium Cell", cost: "60", power: 12, heat: 36 },
+		vent1: { title: "Basic Heat Vent", cost: "50", vent: "4", containment: "80" },
+		vent5: { title: "Ultimate Heat Vent", cost: "195.312B", vent: "126.562M", containment: "2.531B" },
+		capacitor5: { title: "Ultimate Capacitor", cost: "655.36B", reactorPower: "38.416B", containment: "6.25K" },
+		reflector3: { title: "Super Neutron Reflector", cost: "1.25M", powerIncrease: 7, ticks: 400 },
+	};
+
+	for (const [id, want] of Object.entries(upstream)) {
+		const p = PART_BY_ID.get(id);
+		assert.equal(p.title, want.title, id);
+		assert.equal(fmt(p.cost), want.cost, `${id} cost`);
+		if (want.power !== undefined) assert.equal(rated(p).power, want.power, `${id} power`);
+		if (want.heat !== undefined) assert.equal(rated(p).heat, want.heat, `${id} heat`);
+		for (const f of ["ticks", "powerIncrease"]) {
+			if (want[f] !== undefined) assert.equal(p[f], want[f], `${id} ${f}`);
+		}
+		for (const f of ["vent", "containment", "reactorPower"]) {
+			if (want[f] !== undefined) assert.equal(fmt(p[f]), want[f], `${id} ${f}`);
+		}
+	}
+});
+
+test("two adjacent cells produce what the live original produces", () => {
+	// Placed in the real game at cwmonkey.github.io: two Uranium Cells side by
+	// side reported 4 power and 8 heat per tick.
+	const s = fresh();
+	put(s, 3, 3, "uranium1");
+	put(s, 3, 4, "uranium1");
+	compile(s);
+	const power = s.cells.reduce((n, t) => n + t.power, 0);
+	const heat = s.cells.reduce((n, t) => n + t.heat, 0);
+	assert.equal(power, 4);
+	assert.equal(heat, 8);
+});
+
+test("every module imports cleanly", async () => {
+	// Catches missing or misspelled exports without a browser. main.js is
+	// excluded because it boots the game against a DOM on import.
+	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "sprites", "ui"]) {
+		await import(`../www/js/${m}.js`);
+	}
 });
