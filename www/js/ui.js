@@ -3,10 +3,10 @@
 // 1120 tiles every 100ms regardless.
 import { fmt } from "./fmt.js";
 import { PARTS } from "./parts.js";
-import { UPGRADES, costOf, isUnlocked, maxLevel, buy, reboot } from "./upgrades.js";
+import { UPGRADES, costOf, isUnlocked, maxLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { spriteFor } from "./sprites.js";
-import { tileAt, activeTiles } from "./sim.js";
+import { activeTiles } from "./sim.js";
 
 /** Make an element, set properties, append children. */
 function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -47,13 +47,12 @@ export function buildUI(game) {
 
 	dom.money = h("b", {});
 	dom.ep = h("b", {});
+	dom.epBox = h("span", { className: "ep" }, dom.ep);
 	root.append(
 		h("header", { id: "stats" },
 			meter("power", "PWR"),
 			meter("heat", "HEAT"),
-			h("div", { className: "purse" },
-				h("span", { className: "cash" }, dom.money),
-				h("span", { className: "ep" }, dom.ep)),
+			h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox),
 		),
 	);
 
@@ -84,11 +83,12 @@ export function buildUI(game) {
 		dom.experimentList,
 	);
 
+	dom.pause = h("button", { className: "wide", onclick: game.togglePause });
 	dom.pages.options.append(
 		h("div", { className: "options" },
 			h("button", { className: "wide", textContent: "Sell all power", onclick: game.sellAll }),
 			h("button", { className: "wide", textContent: "Vent heat", onclick: game.ventHeat }),
-			dom.pause = h("button", { className: "wide", onclick: game.togglePause }),
+			dom.pause,
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '
@@ -112,6 +112,7 @@ export function buildUI(game) {
 }
 
 function showPage(dom, id) {
+	dom.page = id;
 	for (const [pid] of PAGES) dom.pages[pid].classList.toggle("showing", pid === id);
 	for (const b of dom.tabs.children) b.classList.toggle("on", b.dataset.page === id);
 	// The part dock is only useful while looking at the reactor.
@@ -159,7 +160,7 @@ function buildObjectiveList(dom) {
 }
 
 /** Rebuild the tile grid. Only needed when the reactor's size changes. */
-export function buildGrid(dom, s, onTile) {
+function buildGrid(dom, s, onTile) {
 	dom.grid.replaceChildren();
 	dom.grid.style.setProperty("--cols", s.cols);
 	dom.tiles = [];
@@ -185,7 +186,7 @@ const quant = (n) => Math.round(n / 4) * 4;
 export function render(dom, s, game) {
 	dom.money.textContent = `$${fmt(s.money)}`;
 	dom.ep.textContent = `${fmt(s.currentExoticParticles)} EP`;
-	dom.ep.parentElement.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
+	dom.epBox.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
 
 	dom.power.text.textContent = `${fmt(s.power)} / ${fmt(s.maxPower)}`;
 	dom.power.fill.style.width = `${pct(s.power, s.maxPower)}%`;
@@ -195,6 +196,13 @@ export function render(dom, s, game) {
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
 	if (dom.gridSize !== `${s.rows}x${s.cols}`) buildGrid(dom, s, game.onTile);
+
+	// Only the visible page is worth patching; the tile loop below is the one
+	// that always runs, because the reactor is what the player watches.
+	if (dom.page !== "reactor") {
+		renderPage(dom, s);
+		return;
+	}
 
 	for (const row of dom.tiles) {
 		const { t } = row;
@@ -217,7 +225,17 @@ export function render(dom, s, game) {
 		button.classList.toggle("poor", s.money < part.cost);
 		button.classList.toggle("on", game.selected === part.id);
 	}
+	renderPage(dom, s);
+}
 
+/** The parts of the interface behind a tab, patched only while that tab is up. */
+function renderPage(dom, s) {
+	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
+	if (dom.page === "objectives") renderObjectives(dom, s);
+	if (dom.page === "options") dom.pause.textContent = s.paused ? "Resume" : "Pause";
+}
+
+function renderUpgrades(dom, s) {
 	for (const { u, button, cost, level } of dom.upgradeRows) {
 		const lv = s.levels[u.id];
 		const price = costOf(s, u);
@@ -226,9 +244,9 @@ export function render(dom, s, game) {
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
 	}
+}
 
-	const current = OBJECTIVES[s.objective];
-	dom.objective.textContent = current.title;
+function renderObjectives(dom, s) {
+	dom.objective.textContent = OBJECTIVES[s.objective].title;
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("done", i < s.objective));
-	dom.pause.textContent = s.paused ? "Resume" : "Pause";
 }

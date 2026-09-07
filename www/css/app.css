@@ -12,13 +12,12 @@
 	--heat: #d8703a;
 	--cash: #d8c15a;
 	--ep: #b06fd8;
-	/* The grid shrinks to fit the screen rather than scrolling off it. Phase 4
-	   adds pinch-zoom for the late-game 32x35 board. */
-	--max-tile: 34px;
 	--gap: 2px;
 }
 
 * { box-sizing: border-box; }
+/* A display rule on an id out-specifies the hidden attribute, so say it once. */
+[hidden] { display: none !important; }
 
 body {
 	margin: 0;
@@ -109,9 +108,16 @@ main { overflow: hidden; position: relative; }
 .page.showing { display: block; }
 
 /* ---- reactor grid ------------------------------------------------------- */
-#board { overflow: auto; }
+#board {
+	overflow: auto;
+	display: grid;
+	place-content: center;
+	min-height: 100%;
+}
 #grid {
-	--tile: min(var(--max-tile), calc((100vw - 20px) / var(--cols) - var(--gap)));
+	/* Shrink to fit the screen rather than scrolling off it; phase 4 adds
+	   pinch-zoom for the late-game 32x35 board. */
+	--tile: min(34px, calc((100vw - 20px) / var(--cols) - var(--gap)));
 	display: grid;
 	grid-template-columns: repeat(var(--cols), var(--tile));
 	gap: var(--gap);
@@ -125,7 +131,6 @@ main { overflow: hidden; position: relative; }
 	height: var(--tile);
 	padding: 0;
 	background: #0f1318 center / 78% no-repeat;
-	background-blend-mode: normal;
 	border: 1px solid var(--edge);
 	border-radius: 2px;
 	image-rendering: pixelated;

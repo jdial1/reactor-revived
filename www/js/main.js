@@ -5,7 +5,7 @@ import { load, save, newState, place } from "./state.js";
 import { compile, tick, tileAt, remove } from "./sim.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives } from "./objectives.js";
-import { buildUI, buildGrid, render } from "./ui.js";
+import { buildUI, render } from "./ui.js";
 
 const UI_MS = 100;
 const SAVE_MS = 60000;
@@ -73,7 +73,7 @@ const game = {
 
 function boot() {
 	dom = buildUI(game);
-	buildGrid(dom, s, game.onTile);
+	// render() builds the grid itself the first time it sees a size mismatch.
 	render(dom, s, game);
 }
 
