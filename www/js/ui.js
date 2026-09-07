@@ -107,6 +107,12 @@ export function buildUI(game) {
 
 	dom.pages.options.append(
 		h("div", { className: "options" },
+			// Only Android can open a file picker, so in a browser these would
+			// be two buttons that do nothing.
+			...(game.canTransfer ? [
+				h("button", { className: "wide", textContent: "Export save to a file", onclick: game.exportSave }),
+				h("button", { className: "wide", textContent: "Import save from a file", onclick: game.importSave }),
+			] : []),
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '

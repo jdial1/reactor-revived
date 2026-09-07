@@ -1,7 +1,7 @@
 // Wiring: the four loops and the handful of actions the UI can trigger.
 // The original ran the same four chained setTimeouts; there is nothing wrong
 // with that, and it keeps the sim on a fixed 1s beat independent of frame rate.
-import { load, save, newState, place } from "./state.js";
+import { load, save, newState, place, exportSave as saveText, deserialize } from "./state.js";
 import { compile, tick, tileAt, remove } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
@@ -84,6 +84,19 @@ const game = {
 		s.paused = !s.paused;
 	},
 
+	// Android owns the file picker; the game only hands over or receives text.
+	get canTransfer() {
+		return typeof Android !== "undefined";
+	},
+
+	exportSave() {
+		Android.exportSave(saveText(s));
+	},
+
+	importSave() {
+		Android.importSave();
+	},
+
 	wipe() {
 		ask("Delete your save and start over?", () => {
 			s = newState();
@@ -112,6 +125,17 @@ gameLoop();
 setInterval(() => render(dom, s, game), UI_MS);
 setInterval(() => checkObjectives(s), OBJECTIVE_MS);
 setInterval(() => save(s), SAVE_MS);
+
+// Called by the Android side once the player has picked a file to load.
+window.importSave = (json) => {
+	try {
+		s = deserialize(JSON.parse(json));
+	} catch {
+		return; // not one of ours; leave the running game alone
+	}
+	save(s);
+	boot();
+};
 
 // Saving on the way out matters more on a phone than in a browser tab: Android
 // can kill the process without warning once the app is backgrounded.

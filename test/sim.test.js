@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newState, serialize, deserialize, place } from "../www/js/state.js";
+import { newState, serialize, deserialize, place, exportSave } from "../www/js/state.js";
 import { compile, tick, tileAt, activeTiles, MAX_ROWS, MAX_COLS } from "../www/js/sim.js";
 import { PART_BY_ID, PARTS, isPartVisible, UNLOCK_AFTER } from "../www/js/parts.js";
 import { UPGRADES, buy, applyUpgrades, reboot, costOf, UPGRADE_BY_ID } from "../www/js/upgrades.js";
@@ -760,5 +760,35 @@ test("every module imports cleanly", async () => {
 	// excluded because it boots the game against a DOM on import.
 	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "sprites", "ui"]) {
 		await import(`../www/js/${m}.js`);
+	}
+});
+
+test("an exported save reloads into an identical game", () => {
+	const s = rich(4321);
+	buy(s, "improved_heat_vents");
+	put(s, 3, 4, "uranium2");
+	put(s, 3, 5, "vent1");
+	compile(s);
+	for (let i = 0; i < 4; i++) tick(s);
+
+	// Exactly what the Android bridge hands to the file picker and back.
+	const back = deserialize(JSON.parse(exportSave(s)));
+
+	assert.equal(back.money, s.money);
+	assert.equal(back.heat, s.heat);
+	assert.deepEqual(back.levels, s.levels);
+	assert.deepEqual(back.placed, s.placed);
+	for (let i = 0; i < 5; i++) {
+		tick(s);
+		tick(back);
+	}
+	assert.equal(back.power, s.power, "and keeps ticking identically");
+});
+
+test("importing junk is refused rather than destroying the game", () => {
+	for (const junk of ['{"v":999}', "{}", '{"v":1,"tiles":[{"i":0,"id":"nonsense"}]}']) {
+		const s = deserialize(JSON.parse(junk));
+		assert.equal(s.money, 10, junk);
+		assert.equal([...s.tiles].filter((t) => t.id).length, 0, junk);
 	}
 });

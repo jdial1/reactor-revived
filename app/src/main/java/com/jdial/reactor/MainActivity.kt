@@ -2,12 +2,15 @@ package com.jdial.reactor
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.content.res.AssetManager
 import android.os.Bundle
+import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import org.json.JSONObject
 import java.io.IOException
 
 /**
@@ -19,28 +22,68 @@ import java.io.IOException
  * origin without pulling in androidx.webkit.
  */
 private const val HOST = "reactor.local"
+private const val EXPORT = 1
+private const val IMPORT = 2
 
 class MainActivity : Activity() {
+
+	private lateinit var web: WebView
+	private var pending: String? = null
 
 	@SuppressLint("SetJavaScriptEnabled")
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
-		val web = WebView(this)
+		web = WebView(this)
 		web.settings.javaScriptEnabled = true
 		web.settings.domStorageEnabled = true
 		web.webViewClient = AssetClient(assets)
+		web.addJavascriptInterface(Bridge(), "Android")
 		setContentView(web)
 		web.loadUrl("https://$HOST/index.html")
 	}
-}
 
-private val MIME = mapOf(
-	"html" to "text/html",
-	"js" to "text/javascript",
-	"css" to "text/css",
-	"png" to "image/png",
-)
+	/**
+	 * The only two things the game cannot do for itself. Everything else -
+	 * autosave, the game itself - lives in JavaScript.
+	 */
+	inner class Bridge {
+		@JavascriptInterface
+		fun exportSave(json: String) {
+			pending = json
+			pick(Intent.ACTION_CREATE_DOCUMENT, EXPORT)
+		}
+
+		@JavascriptInterface
+		fun importSave() = pick(Intent.ACTION_OPEN_DOCUMENT, IMPORT)
+	}
+
+	/** Bridge methods arrive on a WebView thread; the picker must be started on ours. */
+	private fun pick(action: String, code: Int) = runOnUiThread {
+		startActivityForResult(
+			Intent(action).apply {
+				addCategory(Intent.CATEGORY_OPENABLE)
+				type = "application/json"
+				putExtra(Intent.EXTRA_TITLE, "reactor-revived.json")
+			},
+			code,
+		)
+	}
+
+	@Deprecated("startActivityForResult is the AndroidX-free way to use the document picker")
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		@Suppress("DEPRECATION")
+		super.onActivityResult(requestCode, resultCode, data)
+		val uri = data?.data ?: return
+		when (requestCode) {
+			EXPORT -> contentResolver.openOutputStream(uri)?.use { it.write(pending.orEmpty().toByteArray()) }
+			IMPORT -> {
+				val json = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: return
+				web.evaluateJavascript("window.importSave(${JSONObject.quote(json)})", null)
+			}
+		}
+	}
+}
 
 private class AssetClient(private val assets: AssetManager) : WebViewClient() {
 
@@ -53,3 +96,10 @@ private class AssetClient(private val assets: AssetManager) : WebViewClient() {
 		return WebResourceResponse(MIME[path.substringAfterLast('.')] ?: "application/octet-stream", "utf-8", body)
 	}
 }
+
+private val MIME = mapOf(
+	"html" to "text/html",
+	"js" to "text/javascript",
+	"css" to "text/css",
+	"png" to "image/png",
+)

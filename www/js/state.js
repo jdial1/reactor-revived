@@ -100,6 +100,8 @@ export function deserialize(saved, random = Math.random) {
 	return s;
 }
 
+export const exportSave = (s) => JSON.stringify(serialize(s));
+
 export const save = (s, storage = localStorage) => storage.setItem(SAVE_KEY, JSON.stringify(serialize(s)));
 
 export function load(storage = localStorage, random = Math.random) {
