@@ -13,6 +13,7 @@
 	--cash: #d8c15a;
 	--ep: #b06fd8;
 	--gap: 1px;
+	--part-h: 56px;   /* one dock tier; the dock's height is derived from it */
 }
 
 * { box-sizing: border-box; }
@@ -276,7 +277,10 @@ footer {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
-	max-height: 23vh;
+	/* One tier tall plus a quarter of the next, so the peek says "scroll me"
+	   and unlocking tier 6 gives the column more to scroll rather than making
+	   the dock taller. */
+	max-height: calc(var(--part-h) * 1.25 + 4px);
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
@@ -285,6 +289,7 @@ footer {
 
 .part {
 	flex: none;
+	height: var(--part-h);
 	display: grid;
 	justify-items: center;
 	padding: 2px 5px;
