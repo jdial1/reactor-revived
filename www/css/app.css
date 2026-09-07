@@ -316,7 +316,10 @@ footer {
 
 /* Twice the height of the old button strip: the readout it absorbed sits on
    top of the controls. */
-#actions { display: grid; gap: 4px; padding: 4px; }
+/* One row: the bar that earns, what it earned, the bar that threatens it. */
+#actions { display: flex; align-items: center; gap: 6px; padding: 4px; }
+#actions .meter { flex: 1; min-width: 0; }
+#actions .purse { flex: none; }
 #dock-tabs { display: flex; gap: 3px; }
 #actions button, #dock-tabs button {
 	display: flex;
