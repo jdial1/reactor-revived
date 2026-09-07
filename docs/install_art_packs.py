@@ -10,6 +10,8 @@ to be pulled out of a Unity bundle - so installing them puts someone else's
 artwork in your APK. That is your call to make, not a default.
 
 Run docs/extract_unity_sprites.py first if you want incremental or redux.
+
+Installed art is losslessly repacked on the way in - see docs/optimize_art.py.
 """
 
 import json
@@ -19,6 +21,8 @@ import sys
 import urllib.request
 
 from PIL import Image
+
+from optimize_art import rewrite
 
 OUT = "www/parts"
 REF = "docs/reference"
@@ -79,6 +83,9 @@ def install(pack):
                 shutil.copy(src, target)
                 got += 1
 
+    saved = [rewrite(f"{dst}/{n}.png") for n in wanted if os.path.exists(f"{dst}/{n}.png")]
+    print(f"{pack}: {sum(a for a, _ in saved) // 1024} KB of art packed down to"
+          f" {sum(b for _, b in saved) // 1024} KB")
     print(f"{pack}: {got}/{len(wanted)} sprites"
           + ("" if got == len(wanted) else "  (missing ones fall back to generated art)"))
     return got > 0
