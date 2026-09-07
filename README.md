@@ -119,6 +119,17 @@ passive cooling runs first.
 - The Google Drive save integration is gone. Saves live in `localStorage`, with
   export and import through Android's document picker.
 
+## Where the design came from
+
+`docs/reactor-lineage-chart.pdf` traces the whole family tree back to
+IndustrialCraft&sup2;'s nuclear reactor in Minecraft: a component reference with
+IC&sup2;'s published figures, and a table mapping each of its parts to the part it
+became here. Rebuild it with `python docs/build_lineage_chart.py`.
+
+The short version: IC&sup2;'s fuel rods make `5 x n` power and `2n(n+1)` heat,
+where `n` counts the rod and its neighbours. Power linear, heat quadratic. Every
+generation since has kept that asymmetry, including this one.
+
 ## Credits
 
 Original game by **cwmonkey**. Based on **Reactor Incremental** by **Cael**.
