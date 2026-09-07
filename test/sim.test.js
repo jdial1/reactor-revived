@@ -127,6 +127,22 @@ test("a perpetual cell buys its own replacement at 1.5x", () => {
 	assert.equal(s.money, 1000 - 10 * 1.5);
 });
 
+test("a perpetual reflector is replaced at list price, not 1.5x", () => {
+	const s = rich(1e6);
+	s.levels.perpetual_reflectors = 1;
+	applyUpgrades(s);
+	put(s, 5, 5, "uranium1");
+	const ref = put(s, 5, 6, "reflector1");
+	compile(s);
+	const cost = s.stats.get("reflector1").cost;
+	// A reflector only wears while an adjacent cell is firing, so bring it to
+	// the brink directly rather than outliving the cell that drives it.
+	ref.ticks = 1;
+	tick(s);
+	assert.equal(ref.ticks, 100, "refuelled to full");
+	assert.equal(s.money, 1e6 - cost, "list price, no 1.5x markup");
+});
+
 test("vents bleed heat off the parts they cool", () => {
 	const s = fresh();
 	put(s, 5, 5, "uranium3"); // 36 heat/tick
@@ -420,6 +436,21 @@ test("the objective list terminates", () => {
 	s.objective = OBJECTIVES.length - 1;
 	assert.equal(checkObjectives(s), false);
 	assert.equal(s.objective, OBJECTIVES.length - 1);
+});
+
+test("cell upgrade prices match the original per fuel type", () => {
+	const s = fresh();
+	const price = (id) => costOf(s, UPGRADE_BY_ID.get(id));
+	// Uranium is the odd one out: power costs 5x tick, perpetual 10x.
+	assert.equal(price("cell_tick_uranium"), 100);
+	assert.equal(price("cell_power_uranium"), 500);
+	assert.equal(price("cell_perpetual_uranium"), 1000);
+	// Every other fuel has power = tick and perpetual = 2x tick.
+	for (const [type, tick] of [["plutonium", 30e3], ["thorium", 25e6], ["seaborgium", 20e9], ["dolorium", 20e12], ["nefastium", 17.5e15]]) {
+		assert.equal(price(`cell_tick_${type}`), tick, type);
+		assert.equal(price(`cell_power_${type}`), tick, type);
+		assert.equal(price(`cell_perpetual_${type}`), tick * 2, type);
+	}
 });
 
 test("every upgrade id is unique and every requirement exists", () => {

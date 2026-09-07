@@ -24,12 +24,12 @@ const SCALED = [
 const CELLS = [
 	// Uranium is the one cell whose tiers the original hand-priced rather than
 	// scaling; an array of per-tier costs keeps those exact numbers.
-	{ type: "uranium",    title: "Uranium Cell",    cost: [10, 25, 60],           ticks: 15,    power: 1,           heat: 1,           upgradeCost: 100 },
-	{ type: "plutonium",  title: "Plutonium Cell",  cost: 6e3,     costMul: 2.2,  ticks: 60,    power: 150,         heat: 150,         upgradeCost: 30e3 },
-	{ type: "thorium",    title: "Thorium Cell",    cost: 4.7e6,   costMul: 2.2,  ticks: 900,   power: 7400,        heat: 7400,        upgradeCost: 25e6 },
-	{ type: "seaborgium", title: "Seaborgium Cell", cost: 4e9,     costMul: 2.2,  ticks: 3600,  power: 1.6e6,       heat: 1.6e6,       upgradeCost: 20e9 },
-	{ type: "dolorium",   title: "Dolorium Cell",   cost: 3.9e12,  costMul: 2.2,  ticks: 22000, power: 2.3e8,       heat: 2.3e8,       upgradeCost: 20e12 },
-	{ type: "nefastium",  title: "Nefastium Cell",  cost: 3.6e15,  costMul: 2.2,  ticks: 86000, power: 5.2e10,      heat: 5.2e10,      upgradeCost: 17.5e15 },
+	{ type: "uranium",    title: "Uranium Cell",    cost: [10, 25, 60],           ticks: 15,    power: 1,           heat: 1,           upgradeCosts: { tick: 100, power: 500, perpetual: 1000 } },
+	{ type: "plutonium",  title: "Plutonium Cell",  cost: 6e3,     costMul: 2.2,  ticks: 60,    power: 150,         heat: 150,         upgradeCosts: { tick: 30e3, power: 30e3, perpetual: 60e3 } },
+	{ type: "thorium",    title: "Thorium Cell",    cost: 4.7e6,   costMul: 2.2,  ticks: 900,   power: 7400,        heat: 7400,        upgradeCosts: { tick: 25e6, power: 25e6, perpetual: 50e6 } },
+	{ type: "seaborgium", title: "Seaborgium Cell", cost: 4e9,     costMul: 2.2,  ticks: 3600,  power: 1.6e6,       heat: 1.6e6,       upgradeCosts: { tick: 20e9, power: 20e9, perpetual: 40e9 } },
+	{ type: "dolorium",   title: "Dolorium Cell",   cost: 3.9e12,  costMul: 2.2,  ticks: 22000, power: 2.3e8,       heat: 2.3e8,       upgradeCosts: { tick: 20e12, power: 20e12, perpetual: 40e12 } },
+	{ type: "nefastium",  title: "Nefastium Cell",  cost: 3.6e15,  costMul: 2.2,  ticks: 86000, power: 5.2e10,      heat: 5.2e10,      upgradeCosts: { tick: 17.5e15, power: 17.5e15, perpetual: 35e15 } },
 	{ type: "protium",    title: "Protium Cell",    cost: 3e15,    costMul: 2.2,  ticks: 3600,  power: 1.25e12,     heat: 1.25e12,     experimental: true, requires: "protium_cells" },
 ];
 
@@ -122,6 +122,6 @@ export const PARTS = [
 
 export const PART_BY_ID = new Map(PARTS.map((p) => [p.id, p]));
 
-// The cell types that carry a price for the generated cell_power / cell_tick /
+// The cell types that carry prices for the generated cell_power / cell_tick /
 // cell_perpetual upgrades. Protium has none - it is bought with particles.
-export const CELLS_WITH_UPGRADES = CELLS.filter((c) => c.upgradeCost);
+export const CELLS_WITH_UPGRADES = CELLS.filter((c) => c.upgradeCosts);

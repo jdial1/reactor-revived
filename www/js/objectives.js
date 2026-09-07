@@ -19,7 +19,10 @@ const count = (s, match) => {
 	return n;
 };
 
-const some = (s, match) => count(s, match) > 0;
+const some = (s, match) => {
+	for (const [t, p] of placed(s)) if (match(p, t)) return true;
+	return false;
+};
 
 /** True when any live cell has an orthogonal neighbour matching `match`. */
 function adjacentToCell(s, match) {

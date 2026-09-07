@@ -43,6 +43,22 @@ function effectiveContainment(p) {
 	return p.containment;
 }
 
+/**
+ * Push heat into a containment part. A thermionic coolant cell keeps half and
+ * turns the other half into power, which is why this returns the power made -
+ * the original inlined that special case at four separate points, and in one
+ * of them credited the power straight to the reactor, where Forceful Fusion
+ * could no longer multiply it.
+ */
+function absorb(t, p, heat) {
+	if (p.id !== "coolant_cell6") {
+		t.heatContained += heat;
+		return 0;
+	}
+	t.heatContained += heat / 2;
+	return heat / 2;
+}
+
 // Live vent/transfer rates, scaled by capacitors and plating on the board.
 const ventOf = (s, p) => p.vent * (1 + s.ventMul / 100);
 const transferOf = (s, p) => p.transfer * (1 + s.transferMul / 100);
@@ -172,15 +188,7 @@ export function tick(s) {
 			if (t.ticks === 0) expire(s, t, p);
 		}
 
-		if (p.containment) {
-			// A thermionic cell turns half of what it absorbs into power.
-			if (p.id === "coolant_cell6") {
-				t.heatContained += t.heat / 2;
-				powerAdd += t.heat / 2;
-			} else {
-				t.heatContained += t.heat;
-			}
-		}
+		if (p.containment) powerAdd += absorb(t, p, t.heat);
 
 		if (p.category === "particle_accelerator" && t.heatContained) rollExoticParticles(s, t, p);
 
@@ -209,20 +217,17 @@ export function tick(s) {
 		? (s.heat > s.maxHeat ? (s.heat - s.maxHeat) / s.statOutlet : 0)
 		: s.heat / s.statOutlet;
 
-	for (const t of exchangers) balance(s, t);
+	for (const t of exchangers) powerAdd += balance(s, t);
 
 	for (const t of outlets) {
 		const rate = transferOf(s, partOf(s, t));
 		for (const n of t.containments) {
 			let share = Math.min(rate, (s.heat / s.statOutlet) * rate, maxShared * rate);
 			const np = s.stats.get(n.id);
-			if (np.id === "coolant_cell6") {
-				n.heatContained += share / 2;
-				powerAdd += share / 2;
-			} else {
-				if (s.heatOutletControlled && np.vent) share = Math.min(share, ventOf(s, np) - n.heatContained);
-				n.heatContained += share;
+			if (s.heatOutletControlled && np.vent) {
+				share = Math.min(share, ventOf(s, np) - n.heatContained);
 			}
+			powerAdd += absorb(n, np, share);
 			heatRemove += share;
 		}
 	}
@@ -238,13 +243,7 @@ export function tick(s) {
 			const per = reduce / (s.rows * s.cols);
 			for (const t of activeTiles(s)) {
 				const p = partOf(s, t);
-				if (!p?.containment) continue;
-				if (p.id === "coolant_cell6") {
-					t.heatContained += per / 2;
-					powerAdd += per / 2;
-				} else {
-					t.heatContained += per;
-				}
+				if (p?.containment) powerAdd += absorb(t, p, per);
 			}
 		}
 		s.heat -= reduce;
@@ -337,9 +336,10 @@ function rollExoticParticles(s, t, p) {
 /**
  * Heat exchangers move heat toward an even fill percentage across themselves
  * and their neighbours: pull from anything fuller than the target, push into
- * anything emptier.
+ * anything emptier. Returns the power made by any thermionic cells it fed.
  */
 function balance(s, t) {
+	let powerMade = 0;
 	const p = partOf(s, t);
 	const rate = transferOf(s, p);
 
@@ -375,14 +375,10 @@ function balance(s, t) {
 		moved = Math.min(moved, rate, t.heatContained);
 		if (moved < 1) continue;
 
-		if (np.id === "coolant_cell6") {
-			n.heatContained += moved / 2;
-			s.power += moved / 2;
-		} else {
-			n.heatContained += moved;
-		}
+		powerMade += absorb(n, np, moved);
 		t.heatContained -= moved;
 	}
+	return powerMade;
 }
 
 /** Drain the placement queue, buying as many pending tiles as money allows. */

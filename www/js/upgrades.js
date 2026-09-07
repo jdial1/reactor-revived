@@ -6,11 +6,11 @@
 // refund all fall out for free.
 import { PARTS, CELLS_WITH_UPGRADES } from "./parts.js";
 
-export const BASE_ROWS = 11;
-export const BASE_COLS = 14;
-export const BASE_MAX_POWER = 100;
-export const BASE_MAX_HEAT = 1000;
-export const BASE_LOOP_WAIT = 1000;
+const BASE_ROWS = 11;
+const BASE_COLS = 14;
+const BASE_MAX_POWER = 100;
+const BASE_MAX_HEAT = 1000;
+const BASE_LOOP_WAIT = 1000;
 const DEFAULT_MAX_LEVEL = 32;
 
 // Money-cost upgrades.
@@ -40,7 +40,9 @@ const CASH = [
 	{ id: "improved_neutron_reflection", group: "other", title: "Improved Neutron Reflection", cost: 5000, mul: 100,
 	  desc: "Reflectors give an additional 1% power per level." },
 	{ id: "perpetual_reflectors", group: "other", title: "Perpetual Reflectors", cost: 1e9, levels: 1,
-	  desc: "Spent reflectors replace themselves at 1.5x cost." },
+	  // The original's text promises 1.5x here, but its code charges list price;
+	  // only cells pay the 1.5x markup. Behaviour wins.
+	  desc: "Spent reflectors replace themselves at list price." },
 	{ id: "improved_heat_exchangers", group: "exchangers", title: "Improved Heat Exchangers", cost: 600, mul: 100,
 	  desc: "Exchangers, inlets and outlets hold and move 100% more heat per level." },
 	{ id: "reinforced_heat_exchangers", group: "exchangers", title: "Reinforced Heat Exchangers", cost: 1000, mul: 100,
@@ -113,29 +115,28 @@ const PA_UPGRADES = [1, 2, 3, 4, 5, 6].map((i) => ({
 
 // cell_power / cell_tick / cell_perpetual for every cell type that has a price.
 const CELL_KINDS = [
-	{ kind: "cell_power", title: "Potent", desc: "cells produce 100% more power per level.", mulKey: 10 },
-	{ kind: "cell_tick", title: "Enriched", desc: "cells last twice as long per level.", mulKey: 10 },
-	{ kind: "cell_perpetual", title: "Perpetual", desc: "cells replace themselves when depleted, at 1.5x cost.", levels: 1 },
+	{ kind: "power", title: "Potent", desc: "cells produce 100% more power per level.", mul: 10 },
+	{ kind: "tick", title: "Enriched", desc: "cells last twice as long per level.", mul: 10 },
+	{ kind: "perpetual", title: "Perpetual", desc: "cells replace themselves when depleted, at 1.5x cost.", levels: 1 },
 ];
 
-const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, desc, mulKey, levels }) =>
+const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, desc, mul, levels }) =>
 	CELLS_WITH_UPGRADES.map((c) => ({
-		id: `${kind}_${c.type}`,
-		group: `${kind}_upgrades`,
+		id: `cell_${kind}_${c.type}`,
+		group: `cell_${kind}_upgrades`,
 		title: `${title} ${c.title}`,
 		desc: `${c.title} ${desc}`,
-		cost: kind === "cell_perpetual" ? c.upgradeCost * 10 : c.upgradeCost,
-		mul: mulKey,
+		cost: c.upgradeCosts[kind],
+		mul,
 		levels,
 		cellType: c.type,
-		kind,
 	})),
 );
 
 export const UPGRADES = [...CASH, ...EXOTIC, ...PART_UNLOCKS, ...PA_UPGRADES, ...CELL_UPGRADES];
 export const UPGRADE_BY_ID = new Map(UPGRADES.map((u) => [u.id, u]));
 
-export const maxLevel = (u) => u.levels ?? DEFAULT_MAX_LEVEL;
+const maxLevel = (u) => u.levels ?? DEFAULT_MAX_LEVEL;
 
 /** What the next level costs. Exotic-part unlocks get pricier as you buy them. */
 export function costOf(s, u) {
@@ -149,7 +150,7 @@ export function costOf(s, u) {
 	return u.cost * (u.mul ?? 1) ** level;
 }
 
-export const isUnlocked = (s, u) =>
+const isUnlocked = (s, u) =>
 	(!u.requires || s.levels[u.requires] > 0) && (!u.ecost || u.id === "laboratory" || s.levels.laboratory > 0);
 
 /** Buy one level. Returns true if it happened. */

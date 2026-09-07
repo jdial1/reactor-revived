@@ -3,7 +3,7 @@ import { MAX_ROWS, MAX_COLS, compile, tileAt } from "./sim.js";
 import { PART_BY_ID } from "./parts.js";
 import { UPGRADES, applyUpgrades } from "./upgrades.js";
 
-export const SAVE_KEY = "reactor-revived";
+const SAVE_KEY = "reactor-revived";
 export const SAVE_VERSION = 1;
 
 const BASE = {
@@ -35,9 +35,6 @@ const newTile = (r, c) => ({
 	heat: 0,
 	power: 0,
 	heatContained: 0,
-	containments: [],
-	neighbourCells: [],
-	reflectors: [],
 });
 
 export function newState(random = Math.random) {
