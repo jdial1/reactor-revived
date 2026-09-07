@@ -181,7 +181,13 @@ export function tick(s) {
 		const p = partOf(s, t);
 		if (!p) continue;
 
-		if (p.category === "cell" && t.ticks !== 0) {
+		// A husk sits at zero waiting for auto-buy to afford it again.
+		if (p.category === "cell" && t.ticks === 0) {
+			refill(s, t, p);
+			continue;
+		}
+
+		if (p.category === "cell") {
 			powerAdd += t.power;
 			heatAdd += t.heat;
 			t.ticks--;
@@ -310,9 +316,26 @@ function wear(s, t) {
 	if (t.ticks === 0) expire(s, t, partOf(s, t));
 }
 
+/** Whether auto-buy owns this part and will replace it when it runs out. */
+const replaces = (s, p) =>
+	!s.autoBuyDisabled && s.perpetual.has(p.category === "cell" ? p.type : p.category);
+
+/** Buy a spent part again in place. True if it was refilled. */
+function refill(s, t, p) {
+	const price = p.cost * (p.category === "cell" ? 1.5 : 1);
+	if (!replaces(s, p) || s.money < price) return false;
+	s.money -= price;
+	t.ticks = p.ticks;
+	s.dirty = true;
+	return true;
+}
+
 /**
- * A cell or reflector has run out. Buy a replacement if it is perpetual and
- * affordable, otherwise it is spent. The original wrote this twice.
+ * A cell or reflector has run out. The original wrote this twice.
+ *
+ * A spent part is cleared off the board. The one exception is a cell that
+ * auto-buy owns but cannot currently afford: that stays as a husk, because the
+ * husk is what auto-buy refills once the money is there.
  */
 function expire(s, t, p) {
 	const isCell = p.category === "cell";
@@ -321,15 +344,26 @@ function expire(s, t, p) {
 		s.statsDirty = true;
 	}
 
-	const price = p.cost * (isCell ? 1.5 : 1);
-	if (!s.autoBuyDisabled && s.perpetual.has(isCell ? p.type : p.category) && s.money >= price) {
-		s.money -= price;
-		t.ticks = p.ticks;
+	if (refill(s, t, p)) return;
+	if (isCell && replaces(s, p)) {
+		s.dirty = true;
 		return;
 	}
-	// A spent cell stays on the board as a husk; a spent reflector is gone.
-	if (isCell) s.dirty = true;
-	else remove(s, t);
+	remove(s, t);
+}
+
+/**
+ * What a part refunds. A part loses value as it is used, so a vent nearly full
+ * of heat or a cell down to its last tick is worth a fraction of list price -
+ * selling is a refund on what is left, not a way to launder worn parts.
+ */
+export function sellValue(s, t) {
+	if (!t.activated) return 0; // queued, never paid for
+	const p = s.stats.get(t.id);
+	let left = 1;
+	if (p.ticks) left = Math.min(left, t.ticks / p.ticks);
+	if (p.containment) left = Math.min(left, 1 - t.heatContained / p.containment);
+	return Math.floor(p.cost * Math.max(0, left));
 }
 
 function rollExoticParticles(s, t, p) {

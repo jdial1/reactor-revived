@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize, place, exportSave } from "../www/js/state.js";
-import { compile, tick, tileAt, activeTiles, ROWS, COLS } from "../www/js/sim.js";
+import { compile, tick, tileAt, activeTiles, sellValue, ROWS, COLS } from "../www/js/sim.js";
 import { PART_BY_ID, PARTS, isPartVisible, UNLOCK_AFTER } from "../www/js/parts.js";
 import { UPGRADES, buy, applyUpgrades, reboot, costOf, UPGRADE_BY_ID } from "../www/js/upgrades.js";
 import { checkObjectives, OBJECTIVES } from "../www/js/objectives.js";
@@ -103,19 +103,63 @@ test("a reflector boosts its neighbour and wears out", () => {
 	assert.equal(ref.ticks, before - 1);
 });
 
-test("a cell burns down and leaves a husk", () => {
+test("a spent cell clears itself off the board", () => {
 	const s = fresh();
 	const t = put(s, 5, 5, "uranium1");
 	compile(s);
 	assert.equal(t.ticks, 15);
 	for (let i = 0; i < 15; i++) tick(s);
-	assert.equal(t.ticks, 0);
-	assert.equal(t.id, "uranium1"); // still on the board, just spent
-	assert.equal(s.cells.length, 1);
-	// A spent cell contributes nothing.
+	// Nothing is going to refill it, so it is gone rather than left as a husk.
+	assert.equal(t.id, null);
+	assert.equal(s.cells.length, 0);
 	const p = s.power;
 	tick(s);
 	assert.equal(s.power, p);
+});
+
+test("a cell auto-buy owns stays put and is bought again", () => {
+	const s = fresh();
+	s.levels.cell_perpetual_uranium = 1;
+	applyUpgrades(s);
+	s.money = 15; // 1.5x the $10 list price, exactly one replacement
+	const t = put(s, 5, 5, "uranium1");
+	compile(s);
+	for (let i = 0; i < 15; i++) tick(s);
+	assert.equal(t.id, "uranium1");
+	assert.equal(t.ticks, 15, "refilled on the spot");
+	assert.equal(s.money, 0);
+
+	// Broke this time: it waits as a husk rather than disappearing.
+	for (let i = 0; i < 15; i++) tick(s);
+	assert.equal(t.id, "uranium1");
+	assert.equal(t.ticks, 0);
+
+	// Money arrives and the husk is refilled without being touched.
+	s.money = 15;
+	tick(s);
+	assert.equal(t.ticks, 15);
+	assert.equal(s.money, 0);
+});
+
+test("a part refunds what is left in it, not what it cost", () => {
+	const s = fresh();
+	const cell = put(s, 5, 5, "uranium1");
+	compile(s);
+	assert.equal(sellValue(s, cell), 10, "untouched, so full price");
+
+	for (let i = 0; i < 12; i++) tick(s);
+	assert.equal(cell.ticks, 3);
+	assert.equal(sellValue(s, cell), 2, "3 of 15 ticks left of $10");
+
+	// A vent is worth less the more heat it is holding.
+	const vent = put(s, 8, 8, "vent1");
+	compile(s);
+	const p = s.stats.get("vent1");
+	assert.equal(sellValue(s, vent), p.cost);
+	vent.heatContained = p.containment * 0.99;
+	assert.equal(sellValue(s, vent), Math.floor(p.cost * 0.01), "99% full is nearly worthless");
+	vent.heatContained = p.containment;
+	assert.equal(sellValue(s, vent), 0);
 });
 
 test("a perpetual cell buys its own replacement at 1.5x", () => {

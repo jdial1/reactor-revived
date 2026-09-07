@@ -7,7 +7,7 @@ import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upg
 import { OBJECTIVES } from "./objectives.js";
 import { artFor, availablePacks, PACKS } from "./art.js";
 import { icon } from "./icons.js";
-import { ROWS, COLS, activeTiles } from "./sim.js";
+import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 
 /** Make an element, set properties, append children. */
 function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -208,7 +208,9 @@ function buildDock(dom, game) {
 			}, h("i", { style: `background-image:url(${artFor(part, game.pack)})` }),
 				label,
 				h("u", { textContent: fmt(part.cost) }));
-			column.append(button);
+			// Prepending puts the newest tier on top, and the locked tier that
+			// comes after them all above it.
+			column.prepend(button);
 			dom.partButtons.push({ button, part, label });
 		}
 	}
@@ -237,7 +239,8 @@ export function inspect(s, t, sell) {
 	const placed = [...activeTiles(s)].filter((x) => x.id);
 	const sameKind = placed.filter((x) => x.id === t.id).length;
 	const rows = [
-		["Sells for", `$${fmt(p.cost)}`],
+		// What it is worth now, which is not what it cost once it has been used.
+		["Sells for", `$${fmt(sellValue(s, t))}`],
 		["Power", t.power ? fmt(t.power) : null],
 		["Heat", t.heat ? fmt(t.heat) : null],
 		["Life", p.ticks ? `${fmt(t.ticks)} / ${fmt(p.ticks)}` : null],

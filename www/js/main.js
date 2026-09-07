@@ -2,7 +2,7 @@
 // The original ran the same four chained setTimeouts; there is nothing wrong
 // with that, and it keeps the sim on a fixed 1s beat independent of frame rate.
 import { load, save, newState, place, exportSave as saveText, deserialize } from "./state.js";
-import { compile, tick, tileAt, remove, activeTiles } from "./sim.js";
+import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives } from "./objectives.js";
@@ -28,10 +28,10 @@ function placeAt(r, c) {
 	place(s, r, c, game.selected);
 }
 
-/** Take a part off a tile, refunding it if it was paid for. */
+/** Take a part off a tile, refunding whatever life is left in it. */
 function sellTile(t) {
 	if (!t.id) return;
-	if (t.activated) s.money += s.stats.get(t.id).cost;
+	s.money += sellValue(s, t);
 	remove(s, t);
 }
 
