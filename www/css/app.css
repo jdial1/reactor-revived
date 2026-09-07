@@ -486,6 +486,9 @@ dialog::backdrop { background: #000a; }
 dialog h2 { margin: 0 0 2px; font-size: 15px; }
 dialog i { color: var(--dim); font-style: normal; font-size: 11px; }
 dialog p { margin: 0 0 12px; }
+.sheet.meltdown h2 { color: var(--heat); }
+.sheet.meltdown i { display: block; margin-bottom: 10px; font-style: normal; color: var(--dim); }
+
 .sheet-actions { display: grid; gap: 6px; margin-bottom: 8px; }
 .sheet-actions button { padding: 10px; }
 dialog .row { display: flex; gap: 8px; }

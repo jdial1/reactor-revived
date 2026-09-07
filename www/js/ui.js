@@ -150,7 +150,7 @@ export function buildUI(game) {
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '
 				+ 'itself based on <a href="http://www.kongregate.com/games/Cael/reactor-incremental">Reactor Incremental</a> by Cael. '
-				+ 'Part artwork belongs to those games and to Reactor Revival. The generated pack is drawn at runtime.' })),
+				+ 'Artwork is Reactor Revival’s, or drawn at runtime.' })),
 	);
 
 	// A slim line of what the reactor did this tick, under the totals that say
@@ -237,6 +237,21 @@ function buildDock(dom, game) {
 }
 
 const showDock = (dom, label) => dom.dockTabs.select(label, dom.dockPages);
+
+/**
+ * The reactor is gone. Dismissing it in any way is the acknowledgement, so
+ * there is no way to end up staring at an empty board wondering what happened.
+ */
+export function meltdownNotice(onAcknowledge) {
+	const dialog = h("dialog", { className: "sheet meltdown" },
+		h("h2", { textContent: "Meltdown" }),
+		h("i", { textContent: "Heat passed twice what the reactor could hold. Every part in it was destroyed." }),
+		h("div", { className: "row" },
+			h("button", { className: "wide danger", textContent: "Restart the reactor", onclick: () => dialog.close() })));
+	dialog.addEventListener("close", () => { dialog.remove(); onAcknowledge(); });
+	document.body.append(dialog);
+	dialog.showModal();
+}
 
 /** A modal question. Replaces confirm(), which Android renders as a system dialog. */
 export function ask(question, onYes) {
@@ -363,6 +378,16 @@ export function render(dom, s, game) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
 		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
 	}
+	// A meltdown empties the board in one tick. Say so once, rather than leaving
+	// the player looking at a reactor that lost everything without a word.
+	if (s.hasMeltedDown && !dom.meltdownShown) {
+		dom.meltdownShown = true;
+		meltdownNotice(() => {
+			dom.meltdownShown = false;
+			game.clearMeltdown();
+		});
+	}
+
 	// Nothing has ticked yet on the first frame after a load.
 	const rate = s.rate ?? {};
 	for (const [id, el] of Object.entries(dom.rates)) el.textContent = fmt(rate[id] ?? 0);

@@ -113,6 +113,15 @@ const game = {
 		if (s.heat === 0) s.soldHeat = true;
 	},
 
+	// Acknowledging a meltdown clears the heat with it. The reactor is empty, so
+	// there is nothing left generating heat and nothing to be gained from making
+	// the player watch it cool.
+	clearMeltdown() {
+		s.hasMeltedDown = false;
+		s.heat = 0;
+		compile(s);
+	},
+
 	togglePause() {
 		s.paused = !s.paused;
 		autoPaused = false; // an explicit choice outranks the automatic one

@@ -25,7 +25,7 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **The game can run with no image files at all.** Every one of the 75 part
   icons can be drawn at runtime from geometry, and every interface icon is
-  inline SVG. Four artwork packs ship as well &mdash; see below &mdash; but the
+  inline SVG. One artwork pack ships as well &mdash; see below &mdash; but the
   generated art is always there as a fallback and as the zero-asset option.
 - **No network access.** Nothing is fetched, ever.
 
@@ -97,10 +97,13 @@ Every game in the lineage draws the same components, so any of them can skin
 this one. Options &rarr; Part artwork switches between the installed packs, and
 the choice is saved.
 
-Five options: **Generated** (drawn from geometry, no files), **Reactor
-Revival** (the default, this project's own art), **Reactor Knockoff**,
-**Reactor Incremental** and **Reactor Redux**. Everything but the first two is
-other people's work, kept here so the lineage can be seen side by side.
+Two ship: **Reactor Revival** (the default, this project's own art) and
+**Generated** (drawn from geometry, no files).
+
+Knockoff, Incremental and Redux are supported but **not** bundled: Knockoff's
+art is unlicensed and the other two are commercial games whose sprites have to
+be lifted out of a Unity bundle. They are not ours to redistribute, so
+installing them is a local choice and they are gitignored.
 
 Where a pack has no art for a part &mdash; neither Cael game has a particle
 accelerator or a tier-6 vent, and none of them has seven fuels &mdash; that
