@@ -12,7 +12,7 @@
 	--heat: #d8703a;
 	--cash: #d8c15a;
 	--ep: #b06fd8;
-	--gap: 2px;
+	--gap: 1px;
 }
 
 * { box-sizing: border-box; }
@@ -53,19 +53,18 @@ a { color: var(--power); }
 /* ---- stat bar ---------------------------------------------------------- */
 #stats {
 	display: grid;
-	gap: 4px;
-	padding: 6px 8px;
+	gap: 2px;
+	padding: 4px 6px 3px;
 	background: var(--panel);
 	border-bottom: 1px solid var(--edge);
 }
 
 .meter {
 	display: grid;
-	grid-template-columns: 3.2em 1fr auto;
+	grid-template-columns: 16px 1fr auto;
 	align-items: center;
 	gap: 6px;
 }
-.meter span { color: var(--dim); }
 .meter .bar {
 	height: 8px;
 	background: #0007;
@@ -105,6 +104,8 @@ main { overflow: hidden; position: relative; }
 	-webkit-overflow-scrolling: touch;
 	padding: 8px;
 }
+/* The reactor page is all board; every pixel of padding costs tile size. */
+#page-reactor { padding: 2px; }
 .page.showing { display: block; }
 
 /* ---- reactor grid ------------------------------------------------------- */
@@ -119,11 +120,12 @@ main { overflow: hidden; position: relative; }
 	container-type: size;
 }
 #grid {
-	/* Fill the width exactly - columns never scroll sideways - and let the rows
-	   run off the bottom, where scrolling is natural. Pinch-zoom scales up from
-	   there. The cap stops tiles becoming absurd on a tablet. */
+	/* The whole reactor is always visible: fit whichever direction runs out
+	   first, and never scroll. Pinch-zoom still scales up from there, and the
+	   cap stops tiles becoming absurd on a tablet. */
 	--tile: calc(var(--zoom, 1) * min(
 		calc((100cqw - 2px) / var(--cols) - var(--gap)),
+		calc((100cqh - 2px) / var(--rows) - var(--gap)),
 		72px
 	));
 	/* Gestures on the grid are ours; the board around it still scrolls. */
@@ -227,10 +229,14 @@ footer {
 
 #dock { display: grid; gap: 2px; padding: 4px; }
 
-#actions, #dock-tabs { display: flex; gap: 4px; }
+#actions, #dock-tabs { display: flex; gap: 3px; }
 #actions button, #dock-tabs button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
 	flex: 1;
-	padding: 5px 0;
+	padding: 4px 0;
 	font-size: 11px;
 	color: var(--dim);
 }
@@ -241,7 +247,7 @@ footer {
 	background: #1c2a20;
 }
 #dock-body {
-	max-height: 27vh;
+	max-height: 23vh;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
@@ -264,8 +270,7 @@ footer {
 	flex: none;
 	display: grid;
 	justify-items: center;
-	gap: 1px;
-	padding: 3px 5px;
+	padding: 2px 5px;
 	min-width: 70px;
 }
 .part i {
@@ -283,12 +288,15 @@ footer {
 
 #tabs { display: flex; }
 #tabs button {
+	display: grid;
+	justify-items: center;
+	gap: 1px;
 	flex: 1;
 	border: 0;
 	border-top: 2px solid transparent;
 	border-radius: 0;
-	padding: 10px 2px;
-	font-size: 11px;
+	padding: 4px 2px 3px;
+	font-size: 10px;
 	color: var(--dim);
 	background: none;
 }
@@ -318,3 +326,14 @@ dialog .row button { flex: 1; padding: 10px; }
 }
 .sheet dt { color: var(--dim); }
 .sheet dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---- icons -------------------------------------------------------------- */
+.icon {
+	width: 16px;
+	height: 16px;
+	flex: none;
+	shape-rendering: crispEdges;
+}
+#tabs .icon { width: 18px; height: 18px; }
+/* Keep the play/pause glyph from shifting the label when it swaps. */
+.swap { display: inline-flex; width: 16px; justify-content: center; }

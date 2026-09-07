@@ -24,8 +24,8 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
 - **No Gradle dependencies.** The `app` module has no `dependencies` block at
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **No image files.** Every one of the 75 part icons is drawn at runtime from
-  geometry. The original shipped ~140 GIFs that weighed more than this whole
-  game.
+  geometry, and every interface icon is inline SVG. The original shipped ~140
+  GIFs that weighed more than this whole game.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,000 lines of game code and a 100-line Android shell.
@@ -106,7 +106,9 @@ passive cooling runs first.
 
 ## Differences from the original
 
-- Portrait: the same 154 starting tiles, turned from 11x14 to 14x11.
+- Portrait, and 12x8 rather than 11x14. Fewer tiles, but the whole reactor is
+  visible at once with tiles big enough to hit on a phone, which matters more
+  than matching a tile count. The expansion upgrades still grow it to 32x28.
 - Touch instead of a mouse. Tap to place, tap a placed part to inspect it,
   long press to sell, drag to paint, pinch to zoom. The original's six
   modifier-key macros are gone; dragging covers what they were for.

@@ -7,9 +7,10 @@
 import { PARTS, CELLS_WITH_UPGRADES } from "./parts.js";
 
 // The original was 11 rows by 14 columns - landscape, because it was a desktop
-// game. A phone is tall and narrow, so this is 19 by 8: the same 152 tiles, in
-// a shape that lets each one be half again as large. The board scrolls.
-const BASE_ROWS = 19;
+// game. This is 12 by 8: fewer tiles, but the whole reactor is visible at once
+// on a phone with tiles big enough to hit, which matters more than matching a
+// tile count. The expansion upgrades still grow it to 32 by 28.
+const BASE_ROWS = 12;
 const BASE_COLS = 8;
 const BASE_MAX_POWER = 100;
 const BASE_MAX_HEAT = 1000;

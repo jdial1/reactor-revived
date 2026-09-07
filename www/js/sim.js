@@ -3,7 +3,7 @@
 // thing is testable under `node --test` with no harness.
 import { applyUpgrades } from "./upgrades.js";
 // Room for the base grid plus the twenty levels of each expansion upgrade.
-export const MAX_ROWS = 39;
+export const MAX_ROWS = 32;
 export const MAX_COLS = 28;
 
 export const tileAt = (s, r, c) => s.tiles[r * MAX_COLS + c];

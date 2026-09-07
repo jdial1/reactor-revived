@@ -6,6 +6,7 @@ import { PARTS, isPartVisible } from "./parts.js";
 import { UPGRADES, costOf, isUnlocked, maxLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { spriteFor } from "./sprites.js";
+import { icon } from "./icons.js";
 import { activeTiles } from "./sim.js";
 
 /** Make an element, set properties, append children. */
@@ -23,8 +24,11 @@ function h(tag, { dataset, ...props } = {}, ...kids) {
  */
 function tabStrip(id, items, onPick) {
 	const el = h("div", { id });
-	for (const [value, label] of items) {
-		el.append(h("button", { textContent: label, dataset: { value }, onclick: () => onPick(value) }));
+	for (const [value, label, glyph] of items) {
+		const button = h("button", { dataset: { value }, onclick: () => onPick(value) });
+		if (glyph) button.append(icon(glyph));
+		button.append(h("span", { textContent: label }));
+		el.append(button);
 	}
 	/** Light up one button and show its matching page. */
 	el.select = (value, pages) => {
@@ -34,12 +38,13 @@ function tabStrip(id, items, onPick) {
 	return el;
 }
 
+// [id, label, icon]
 const PAGES = [
-	["reactor", "Reactor"],
-	["upgrades", "Upgrades"],
-	["experiments", "Experiments"],
-	["objectives", "Goals"],
-	["options", "Options"],
+	["reactor", "Reactor", "reactor"],
+	["upgrades", "Upgrades", "upgrades"],
+	["experiments", "Experiments", "experiments"],
+	["objectives", "Goals", "goals"],
+	["options", "Options", "options"],
 ];
 
 // The dock's own tabs. Inside each, parts sit one family per row with the
@@ -59,11 +64,11 @@ export function buildUI(game) {
 	root.replaceChildren();
 
 	// ---- stat bar ----------------------------------------------------------
-	const meter = (id, label) => {
+	const meter = (id, glyph) => {
 		const fill = h("i", { className: "fill" });
 		const text = h("b", {});
 		dom[id] = { fill, text };
-		return h("div", { className: `meter ${id}` }, h("span", { textContent: label }), h("div", { className: "bar" }, fill), text);
+		return h("div", { className: `meter ${id}` }, icon(glyph, "icon stat"), h("div", { className: "bar" }, fill), text);
 	};
 
 	dom.money = h("b", {});
@@ -71,8 +76,8 @@ export function buildUI(game) {
 	dom.epBox = h("span", { className: "ep" }, dom.ep);
 	root.append(
 		h("header", { id: "stats" },
-			meter("power", "PWR"),
-			meter("heat", "HEAT"),
+			meter("power", "power"),
+			meter("heat", "heat"),
 			h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox),
 		),
 	);
@@ -125,10 +130,12 @@ export function buildUI(game) {
 	// ---- dock and tabs -----------------------------------------------------
 	// The three controls worth reaching for mid-game sit above the parts, where
 	// a thumb already is.
-	dom.pause = h("button", { onclick: game.togglePause });
+	dom.pauseLabel = h("span", {});
+	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
+	dom.pause = h("button", { onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 	dom.actions = h("div", { id: "actions" },
-		h("button", { textContent: "Sell", onclick: game.sellAll }),
-		h("button", { textContent: "Vent", onclick: game.ventHeat }),
+		h("button", { onclick: game.sellAll }, icon("cash"), h("span", { textContent: "Sell" })),
+		h("button", { onclick: game.ventHeat }, icon("vent"), h("span", { textContent: "Vent" })),
 		dom.pause);
 	dom.dock = h("div", { id: "dock" }, dom.actions);
 	dom.tabs = tabStrip("tabs", PAGES, (id) => showPage(dom, id));
@@ -287,7 +294,10 @@ export function render(dom, s, game) {
 	dom.power.fill.style.width = `${pct(s.power, s.maxPower)}%`;
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
 	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
-	dom.pause.textContent = s.paused ? "Resume" : "Pause";
+	if (dom.pauseLabel.textContent !== (s.paused ? "Resume" : "Pause")) {
+		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
+		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
+	}
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 

@@ -75,7 +75,7 @@ test("adjacent cells pulse: power grows linearly, heat quadratically", () => {
 test("that heat/power gap is what punishes dense layouts", () => {
 	const sparse = fresh();
 	put(sparse, 2, 2, "uranium1");
-	put(sparse, 12, 5, "uranium1"); // far apart, and inside a narrow reactor
+	put(sparse, 9, 5, "uranium1"); // far apart, and inside the starting grid
 	compile(sparse);
 
 	const dense = fresh();
@@ -316,11 +316,11 @@ test("experimental part unlocks get pricier as you buy them", () => {
 
 test("expanding the reactor grows the playable grid", () => {
 	const s = rich();
-	// Tall and narrow, to suit a phone held upright.
-	assert.deepEqual([s.rows, s.cols], [19, 8]);
+	// Sized so the whole reactor fits a phone screen at once.
+	assert.deepEqual([s.rows, s.cols], [12, 8]);
 	buy(s, "expand_reactor_rows");
 	buy(s, "expand_reactor_cols");
-	assert.deepEqual([s.rows, s.cols], [20, 9]);
+	assert.deepEqual([s.rows, s.cols], [13, 9]);
 });
 
 test("replaying upgrade levels equals buying them one at a time", () => {
