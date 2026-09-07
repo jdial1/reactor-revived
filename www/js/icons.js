@@ -40,6 +40,41 @@ const BOLT = [
 	"####....",
 ];
 
+// img/icon_vent.gif, icon_inlet.gif and icon_outlet.gif: a fan, and heat
+// arrows pointing in and out.
+const FAN = [
+	"...##...",
+	"..#AA#..",
+	".##BA##.",
+	"#AABBBA#",
+	"#ABBBAA#",
+	".##AB##.",
+	"..#AA#..",
+	"...##...",
+];
+
+const INLET = [
+	"..####..",
+	"..#AB#..",
+	"..#BA#..",
+	"###AB###",
+	"#BABABA#",
+	".#BABA#.",
+	"..#BA#..",
+	"...##...",
+];
+
+const OUTLET = [
+	"...##...",
+	"..#AB#..",
+	".#ABAB#.",
+	"#ABABAB#",
+	"###BA###",
+	"..#AB#..",
+	"..#BA#..",
+	"..####..",
+];
+
 // From img/icon_cash.gif: a coin, not a dollar sign.
 const COIN = [
 	"...##...",
@@ -79,8 +114,9 @@ const ICONS = {
 
 	cash: [[grid(COIN, "#"), OUTLINE], [grid(COIN, "A"), "#00c000"]],
 
-	// The four-way fan of a heat vent.
-	vent: [["M6 0 h4 v4 l3 -1 l1 3 l-3 1 v2 l3 1 l-1 3 l-3 -1 v4 h-4 v-4 l-3 1 l-1 -3 l3 -1 v-2 l-3 -1 l1 -3 l3 1 z", "#8fd3e0"]],
+	vent: [[grid(FAN, "#"), OUTLINE], [grid(FAN, "A"), "#c0c0c0"], [grid(FAN, "B"), "#808080"]],
+	inlet: [[grid(INLET, "#"), OUTLINE], [grid(INLET, "A"), "#ff8a00"], [grid(INLET, "B"), "#ff4e00"]],
+	outlet: [[grid(OUTLET, "#"), OUTLINE], [grid(OUTLET, "A"), "#ff8a00"], [grid(OUTLET, "B"), "#ff4e00"]],
 
 	play: [["M3 1 L14 8 L3 15 Z", null]],
 	pause: [["M3 1 h4 v14 h-4 z M9 1 h4 v14 h-4 z", null]],

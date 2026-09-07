@@ -71,7 +71,9 @@ export function buildUI(game) {
 
 	// ---- stat bar ----------------------------------------------------------
 	const meter = (id, glyph, onclick, title) => {
-		const fill = h("i", { className: "fill" });
+		// `fill` covers the part that is *not* full, so the colours underneath
+		// stay pinned to their share of the bar rather than stretching with it.
+		const fill = h("i", { className: "unfilled" });
 		const text = h("b", {});
 		dom[id] = { fill, text };
 		// The bar is the button: glyph and reading sit inside it, painted over
@@ -154,14 +156,17 @@ export function buildUI(game) {
 	// A slim line of what the reactor did this tick, under the totals that say
 	// where it stands.
 	dom.rates = {};
-	const rateCell = (id, label) => {
+	const rateCell = (id, glyph, title) => {
 		const value = h("b", {});
 		dom.rates[id] = value;
-		return h("span", { className: `rate ${id}` }, h("i", { textContent: label }), value);
+		return h("span", { className: `rate ${id}`, title }, icon(glyph, "icon"), value);
 	};
 	dom.rateBar = h("div", { id: "rates" },
-		rateCell("power", "PWR"), rateCell("heat", "HEAT"), rateCell("vent", "VENT"),
-		rateCell("inlet", "IN"), rateCell("outlet", "OUT"));
+		rateCell("power", "power", "Power generated per tick"),
+		rateCell("heat", "heat", "Heat generated per tick"),
+		rateCell("vent", "vent", "Heat vented per tick"),
+		rateCell("inlet", "inlet", "Heat drawn in per tick"),
+		rateCell("outlet", "outlet", "Heat pushed out per tick"));
 
 	// ---- dock and tabs -----------------------------------------------------
 	// Power, what it earned, and heat - in that order, so the money sits
@@ -197,9 +202,9 @@ function buildDock(dom, game) {
 	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label));
 	const body = h("div", { id: "dock-body" });
 
-	for (const [label, categories] of DOCK_TABS) {
+	for (const [tab, categories] of DOCK_TABS) {
 		const page = h("div", { className: "dock-page" });
-		dom.dockPages[label] = page;
+		dom.dockPages[tab] = page;
 		body.append(page);
 
 		// One column per family, its tiers stacked down it.
@@ -223,7 +228,7 @@ function buildDock(dom, game) {
 			// Prepending puts the newest tier on top, and the locked tier that
 			// comes after them all above it.
 			column.prepend(button);
-			dom.partButtons.push({ button, part, label });
+			dom.partButtons.push({ button, part, label, tab });
 		}
 	}
 
@@ -351,9 +356,9 @@ export function render(dom, s, game) {
 	dom.epBox.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
 
 	dom.power.text.textContent = `${fmt(s.power)} / ${fmt(s.maxPower)}`;
-	dom.power.fill.style.width = `${pct(s.power, s.maxPower)}%`;
+	dom.power.fill.style.left = `${pct(s.power, s.maxPower)}%`;
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
-	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
+	dom.heat.fill.style.left = `${pct(s.heat, s.maxHeat)}%`;
 	if (dom.pauseLabel.textContent !== (s.paused ? "Resume" : "Pause")) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
 		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
@@ -410,17 +415,25 @@ export function render(dom, s, game) {
 	// The first locked tier in each family stands in for itself: a silhouette
 	// with the placements still owed and what it will cost. The tiers behind it
 	// stay hidden, so the column never grows a row it did not have before.
-	// Only in a family already on screen: a family with nothing unlocked stays
-	// hidden entirely, or the first screen would show every fuel in the game.
+	// A family you have started shows the next tier it owes; the first family
+	// you have not started shows its first tier, so there is always exactly one
+	// column of "what comes next" and never seven.
 	const started = new Set();
 	const placeholders = new Set();
-	for (const { button, part, label } of dom.partButtons) {
+	const nextFamilyShown = new Set();
+	for (const { button, part, label, tab } of dom.partButtons) {
 		const visible = isPartVisible(s, part);
 		const progress = visible ? null : unlockProgress(s, part);
 		const family = familyOf(part);
 		if (visible) started.add(family);
-		const isNext = Boolean(progress) && started.has(family) && !placeholders.has(family);
-		if (isNext) placeholders.add(family);
+
+		const opensFamily = !started.has(family) && !nextFamilyShown.has(tab);
+		const isNext = Boolean(progress) && !placeholders.has(family)
+			&& (started.has(family) || opensFamily);
+		if (isNext) {
+			placeholders.add(family);
+			if (!started.has(family)) nextFamilyShown.add(tab);
+		}
 
 		button.disabled = !visible; // a placeholder is a signpost, not a part
 		button.classList.toggle("locked", !visible && !isNext);
