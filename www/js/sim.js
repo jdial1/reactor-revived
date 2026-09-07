@@ -1,8 +1,9 @@
 // The reactor simulation. Pure: no DOM, no globals, no timers. Everything it
 // needs arrives in `s` and everything it changes lives in `s`, so the whole
 // thing is testable under `node --test` with no harness.
-export const MAX_ROWS = 32;
-export const MAX_COLS = 35;
+// Room for the base grid plus the twenty levels of each expansion upgrade.
+export const MAX_ROWS = 35;
+export const MAX_COLS = 32;
 
 export const tileAt = (s, r, c) => s.tiles[r * MAX_COLS + c];
 const inGrid = (s, r, c) => r >= 0 && c >= 0 && r < s.rows && c < s.cols;
@@ -74,8 +75,6 @@ export function compile(s) {
 	s.maxPower = s.baseMaxPower;
 	s.maxHeat = s.baseMaxHeat;
 	s.statOutlet = 0;
-	s.statInlet = 0;
-	s.statVent = 0;
 	s.cells = [];
 
 	for (const t of activeTiles(s)) {
@@ -87,8 +86,6 @@ export function compile(s) {
 
 		const p = partOf(s, t);
 		if (!p) continue;
-
-		if (p.vent) s.statVent += p.vent;
 
 		// A spent cell contributes nothing and reaches nothing.
 		if (p.category !== "cell" || t.ticks) {
@@ -113,7 +110,6 @@ export function compile(s) {
 			s.ventMul += p.level * s.ventPlatingMul;
 		}
 
-		if (p.category === "heat_inlet") s.statInlet += p.transfer * t.containments.length;
 		if (p.category === "heat_outlet") s.statOutlet += p.transfer * t.containments.length;
 		if (p.category === "cell") s.cells.push(t);
 		if (p.reactorPower) s.maxPower += p.reactorPower;
@@ -154,8 +150,6 @@ export function compile(s) {
 		}
 	}
 
-	s.statVent *= 1 + s.ventMul / 100;
-	s.statInlet *= 1 + s.transferMul / 100;
 	s.statOutlet *= 1 + s.transferMul / 100;
 	return s;
 }
@@ -169,7 +163,6 @@ export function tick(s) {
 	s.heatAddNextTick = 0;
 	s.dirty = false;
 	s.meltdown = false;
-	s.meltingDown = false;
 
 	const inlets = [];
 	const exchangers = [];
@@ -323,7 +316,6 @@ function expire(s, t, p) {
 function rollExoticParticles(s, t, p) {
 	const heat = Math.min(t.heatContained, p.epHeat);
 	let chance = (Math.log(heat) / 10 ** (5 - p.level)) * (heat / p.epHeat);
-	t.epChance = chance;
 	let gained = 0;
 	if (chance > 1) {
 		gained = Math.floor(chance);
@@ -393,6 +385,7 @@ function buyQueued(s) {
 		if (s.money < p.cost) break;
 		s.money -= p.cost;
 		t.activated = true;
+		countPlaced(s, t.id);
 		s.queue.shift();
 		s.dirty = true;
 	}
@@ -431,8 +424,12 @@ function sell(s, extremeCapacitors) {
 
 function meltdown(s) {
 	s.hasMeltedDown = true;
-	s.meltingDown = true;
 	for (const t of activeTiles(s)) if (t.id) remove(s, t);
+}
+
+/** Record that a part was bought. Only ever goes up; selling does not undo it. */
+export function countPlaced(s, id) {
+	s.placed[id] = (s.placed[id] ?? 0) + 1;
 }
 
 export function remove(s, t) {

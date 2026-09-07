@@ -1,5 +1,5 @@
 // Game state: its shape, its defaults, and how it round-trips to storage.
-import { MAX_ROWS, MAX_COLS, compile, tileAt } from "./sim.js";
+import { MAX_ROWS, MAX_COLS, compile, tileAt, countPlaced } from "./sim.js";
 import { PART_BY_ID } from "./parts.js";
 import { UPGRADES, applyUpgrades } from "./upgrades.js";
 
@@ -44,6 +44,9 @@ export function newState(random = Math.random) {
 		tiles: Array.from({ length: MAX_ROWS * MAX_COLS }, (_, i) => newTile(Math.floor(i / MAX_COLS), i % MAX_COLS)),
 		queue: [],
 		levels: {},
+		// Lifetime count of each part ever bought, which drives what the dock
+		// offers next.
+		placed: {},
 		heatAddNextTick: 0,
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
@@ -69,6 +72,7 @@ export function serialize(s) {
 		autoBuyDisabled: s.autoBuyDisabled,
 		heatControlled: s.heatControlled,
 		levels: s.levels,
+		placed: s.placed,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * MAX_COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained } : null,
 		).filter(Boolean),
@@ -82,6 +86,7 @@ export function deserialize(saved, random = Math.random) {
 
 	for (const k of Object.keys(BASE)) if (k in saved) s[k] = saved[k];
 	for (const id of Object.keys(s.levels)) if (saved.levels?.[id]) s.levels[id] = saved.levels[id];
+	Object.assign(s.placed, saved.placed);
 
 	for (const t of saved.tiles ?? []) {
 		if (!PART_BY_ID.has(t.id)) continue;
@@ -114,6 +119,7 @@ export function place(s, r, c, id) {
 	if (s.money >= p.cost) {
 		s.money -= p.cost;
 		t.activated = true;
+		countPlaced(s, id);
 		compile(s);
 	} else {
 		t.activated = false;

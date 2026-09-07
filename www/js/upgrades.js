@@ -6,8 +6,10 @@
 // refund all fall out for free.
 import { PARTS, CELLS_WITH_UPGRADES } from "./parts.js";
 
-const BASE_ROWS = 11;
-const BASE_COLS = 14;
+// The original was 11 rows by 14 columns - landscape, because it was a
+// desktop game. Same 154 tiles, turned portrait to suit a phone.
+const BASE_ROWS = 14;
+const BASE_COLS = 11;
 const BASE_MAX_POWER = 100;
 const BASE_MAX_HEAT = 1000;
 const BASE_LOOP_WAIT = 1000;

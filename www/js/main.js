@@ -3,9 +3,11 @@
 // with that, and it keeps the sim on a fixed 1s beat independent of frame rate.
 import { load, save, newState, place } from "./state.js";
 import { compile, tick, tileAt, remove } from "./sim.js";
+import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives } from "./objectives.js";
-import { buildUI, render } from "./ui.js";
+import { buildUI, render, ask, inspect } from "./ui.js";
+import { attachInput } from "./input.js";
 
 const UI_MS = 100;
 const SAVE_MS = 60000;
@@ -14,6 +16,23 @@ const OBJECTIVE_MS = 2000;
 let s = load();
 let dom;
 
+/** Put the selected part on one tile, buying or queueing it. */
+function placeAt(r, c) {
+	const t = tileAt(s, r, c);
+	if (t.id) return;
+	if (!isPartVisible(s, s.stats.get(game.selected))) return;
+	place(s, r, c, game.selected);
+}
+
+/** Take a part off a tile, refunding it if it was paid for. */
+function sellAt(r, c) {
+	const t = tileAt(s, r, c);
+	if (!t.id) return;
+	if (t.activated) s.money += s.stats.get(t.id).cost;
+	remove(s, t);
+	compile(s);
+}
+
 const game = {
 	selected: "uranium1",
 
@@ -21,20 +40,21 @@ const game = {
 		game.selected = id;
 	},
 
-	onTile(r, c) {
-		const t = tileAt(s, r, c);
-		// Tapping an occupied tile sells it; tapping an empty one places the
-		// selected part. Phase 4 replaces this with the full gesture set.
-		if (t.id) {
-			const p = s.stats.get(t.id);
-			if (p && t.activated) s.money += p.cost;
-			remove(s, t);
-			compile(s);
-		} else {
-			const p = s.stats.get(game.selected);
-			if (p.requires && !s.levels[p.requires]) return;
-			place(s, r, c, game.selected);
-		}
+	// A tap places on empty ground and inspects what is already there.
+	onTap(r, c) {
+		if (tileAt(s, r, c).id) inspect(s, tileAt(s, r, c), () => sellAt(r, c));
+		else placeAt(r, c);
+	},
+
+	// A long press sells, the touch equivalent of the original's right-click.
+	onHold(r, c) {
+		sellAt(r, c);
+	},
+
+	// Dragging paints or clears along the stroke.
+	onPaint(r, c) {
+		if (tileAt(s, r, c).id) sellAt(r, c);
+		else placeAt(r, c);
 	},
 
 	buy(id) {
@@ -43,9 +63,10 @@ const game = {
 	},
 
 	reboot(refund) {
-		if (!confirm(refund ? "Reboot and refund every Exotic Particle ever earned?" : "Reboot the reactor?")) return;
-		rebootState(s, refund);
-		compile(s);
+		ask(refund ? "Reboot and refund every Exotic Particle ever earned?" : "Reboot the reactor?", () => {
+			rebootState(s, refund);
+			compile(s);
+		});
 	},
 
 	sellAll() {
@@ -64,10 +85,11 @@ const game = {
 	},
 
 	wipe() {
-		if (!confirm("Delete your save and start over?")) return;
-		s = newState();
-		save(s);
-		boot();
+		ask("Delete your save and start over?", () => {
+			s = newState();
+			save(s);
+			boot();
+		});
 	},
 };
 
@@ -75,6 +97,7 @@ function boot() {
 	dom = buildUI(game);
 	// render() builds the grid itself the first time it sees a size mismatch.
 	render(dom, s, game);
+	attachInput(dom.board, dom.grid, game);
 }
 
 // The reactor's own beat. Reschedules itself because Improved Chronometers

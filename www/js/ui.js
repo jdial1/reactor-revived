@@ -2,7 +2,7 @@
 // last rendered and is only touched when that changes. The original walked all
 // 1120 tiles every 100ms regardless.
 import { fmt } from "./fmt.js";
-import { PARTS } from "./parts.js";
+import { PARTS, isPartVisible } from "./parts.js";
 import { UPGRADES, costOf, isUnlocked, maxLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { spriteFor } from "./sprites.js";
@@ -17,6 +17,21 @@ function h(tag, { dataset, ...props } = {}, ...kids) {
 	return node;
 }
 
+/**
+ * A row of buttons where exactly one is lit. The page tabs, the fill modes and
+ * the dock tabs are all this; the original wrote each of them out separately.
+ */
+function tabStrip(id, items, onPick) {
+	const el = h("div", { id });
+	for (const [value, label] of items) {
+		el.append(h("button", { textContent: label, dataset: { value }, onclick: () => onPick(value) }));
+	}
+	el.select = (value) => {
+		for (const b of el.children) b.classList.toggle("on", b.dataset.value === value);
+	};
+	return el;
+}
+
 const PAGES = [
 	["reactor", "Reactor"],
 	["upgrades", "Upgrades"],
@@ -25,12 +40,16 @@ const PAGES = [
 	["options", "Options"],
 ];
 
-// Which part groups the dock shows, in order.
-const DOCK_GROUPS = [
+// The dock's own tabs. Inside each, parts sit one family per row with the
+// tiers running across, so a row reads vent 1, vent 2, vent 3...
+const DOCK_TABS = [
 	["Cells", (p) => p.category === "cell"],
 	["Power", (p) => p.category === "reflector" || p.category === "capacitor"],
 	["Cooling", (p) => p.cooling],
 ];
+
+// Fuels are their own families so uranium and plutonium never share a row.
+const familyOf = (p) => (p.category === "cell" ? p.type : p.category);
 
 export function buildUI(game) {
 	const dom = {};
@@ -66,7 +85,8 @@ export function buildUI(game) {
 	root.append(main);
 
 	dom.grid = h("div", { id: "grid" });
-	dom.pages.reactor.append(h("div", { id: "board" }, dom.grid));
+	dom.board = h("div", { id: "board" }, dom.grid);
+	dom.pages.reactor.append(dom.board);
 
 	dom.objective = h("p", { className: "objective" });
 	dom.objectiveList = h("ol", { className: "objectives" });
@@ -83,12 +103,8 @@ export function buildUI(game) {
 		dom.experimentList,
 	);
 
-	dom.pause = h("button", { className: "wide", onclick: game.togglePause });
 	dom.pages.options.append(
 		h("div", { className: "options" },
-			h("button", { className: "wide", textContent: "Sell all power", onclick: game.sellAll }),
-			h("button", { className: "wide", textContent: "Vent heat", onclick: game.ventHeat }),
-			dom.pause,
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '
@@ -97,11 +113,15 @@ export function buildUI(game) {
 	);
 
 	// ---- dock and tabs -----------------------------------------------------
-	dom.dock = h("div", { id: "dock" });
-	dom.tabs = h("nav", { id: "tabs" });
-	for (const [id, label] of PAGES) {
-		dom.tabs.append(h("button", { textContent: label, dataset: { page: id }, onclick: () => showPage(dom, id) }));
-	}
+	// The three controls worth reaching for mid-game sit above the parts, where
+	// a thumb already is.
+	dom.pause = h("button", { onclick: game.togglePause });
+	dom.actions = h("div", { id: "actions" },
+		h("button", { textContent: "Sell", onclick: game.sellAll }),
+		h("button", { textContent: "Vent", onclick: game.ventHeat }),
+		dom.pause);
+	dom.dock = h("div", { id: "dock" }, dom.actions);
+	dom.tabs = tabStrip("tabs", PAGES, (id) => showPage(dom, id));
 	root.append(h("footer", {}, dom.dock, dom.tabs));
 
 	buildDock(dom, game);
@@ -114,26 +134,93 @@ export function buildUI(game) {
 function showPage(dom, id) {
 	dom.page = id;
 	for (const [pid] of PAGES) dom.pages[pid].classList.toggle("showing", pid === id);
-	for (const b of dom.tabs.children) b.classList.toggle("on", b.dataset.page === id);
+	dom.tabs.select(id);
 	// The part dock is only useful while looking at the reactor.
 	dom.dock.hidden = id !== "reactor";
 }
 
 function buildDock(dom, game) {
 	dom.partButtons = [];
-	for (const [label, match] of DOCK_GROUPS) {
-		const row = h("div", { className: "dock-group" }, h("span", { className: "dock-label", textContent: label }));
+	dom.dockRows = [];
+	dom.dockPages = {};
+	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label));
+	const body = h("div", { id: "dock-body" });
+
+	for (const [label] of DOCK_TABS) {
+		const match = DOCK_TABS.find(([l]) => l === label)[1];
+		const page = h("div", { className: "dock-page" });
+		dom.dockPages[label] = page;
+		body.append(page);
+
+		// One row per family, tiers in order across it.
+		let family = null;
+		let row = null;
 		for (const part of PARTS.filter(match)) {
+			if (familyOf(part) !== family) {
+				family = familyOf(part);
+				row = h("div", { className: "dock-row" });
+				page.append(row);
+				dom.dockRows.push(row);
+			}
 			const button = h("button", {
 				className: "part",
 				title: part.title,
 				onclick: () => game.select(part.id),
-			}, h("i", { style: `background-image:url(${spriteFor(part)})` }), h("u", { textContent: fmt(part.cost) }));
+			}, h("i", { style: `background-image:url(${spriteFor(part)})` }),
+				h("em", { textContent: part.short }),
+				h("u", { textContent: fmt(part.cost) }));
 			row.append(button);
-			dom.partButtons.push({ button, part });
+			dom.partButtons.push({ button, part, row });
 		}
-		dom.dock.append(row);
 	}
+
+	dom.dock.append(dom.dockTabs, body);
+	showDock(dom, DOCK_TABS[0][0]);
+}
+
+function showDock(dom, label) {
+	dom.dockTab = label;
+	for (const [name] of DOCK_TABS) dom.dockPages[name].classList.toggle("showing", name === label);
+	dom.dockTabs.select(label);
+}
+
+/** A modal question. Replaces confirm(), which Android renders as a system dialog. */
+export function ask(question, onYes) {
+	const dialog = h("dialog", { className: "ask" },
+		h("p", { textContent: question }),
+		h("div", { className: "row" },
+			h("button", { textContent: "Cancel", onclick: () => dialog.close() }),
+			h("button", { className: "danger", textContent: "Do it", onclick: () => { dialog.close(); onYes(); } })));
+	dialog.addEventListener("close", () => dialog.remove());
+	document.body.append(dialog);
+	dialog.showModal();
+}
+
+/** What a placed part is doing right now, plus a way to sell it. */
+export function inspect(s, t, onSell) {
+	const p = s.stats.get(t.id);
+	const rows = [
+		["Sells for", `$${fmt(p.cost)}`],
+		["Power", t.power ? fmt(t.power) : null],
+		["Heat", t.heat ? fmt(t.heat) : null],
+		["Life", p.ticks ? `${fmt(t.ticks)} / ${fmt(p.ticks)}` : null],
+		["Heat held", p.containment ? `${fmt(t.heatContained)} / ${fmt(p.containment)}` : null],
+		["Vents", p.vent ? `${fmt(p.vent)}/tick` : null],
+		["Transfers", p.transfer ? `${fmt(p.transfer)}/tick` : null],
+		["Max power", p.reactorPower ? `+${fmt(p.reactorPower)}` : null],
+		["Max heat", p.reactorHeat ? `+${fmt(p.reactorHeat)}` : null],
+	];
+
+	const dialog = h("dialog", { className: "sheet" },
+		h("h2", { textContent: p.title }),
+		h("i", { textContent: p.desc ?? "" }),
+		h("dl", {}, rows.filter(([, v]) => v !== null).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
+		h("div", { className: "row" },
+			h("button", { textContent: "Close", onclick: () => dialog.close() }),
+			h("button", { className: "danger", textContent: "Sell", onclick: () => { dialog.close(); onSell(); } })));
+	dialog.addEventListener("close", () => dialog.remove());
+	document.body.append(dialog);
+	dialog.showModal();
 }
 
 function buildUpgrades(dom, game) {
@@ -160,9 +247,10 @@ function buildObjectiveList(dom) {
 }
 
 /** Rebuild the tile grid. Only needed when the reactor's size changes. */
-function buildGrid(dom, s, onTile) {
+function buildGrid(dom, s) {
 	dom.grid.replaceChildren();
 	dom.grid.style.setProperty("--cols", s.cols);
+	dom.grid.style.setProperty("--rows", s.rows);
 	dom.tiles = [];
 	for (const t of activeTiles(s)) {
 		const heat = h("i", { className: "heat" });
@@ -171,10 +259,6 @@ function buildGrid(dom, s, onTile) {
 		dom.grid.append(cell);
 		dom.tiles.push({ t, cell, heat, life, sig: "" });
 	}
-	dom.grid.onclick = (e) => {
-		const cell = e.target.closest(".tile");
-		if (cell) onTile(Number(cell.dataset.r), Number(cell.dataset.c));
-	};
 	dom.gridSize = `${s.rows}x${s.cols}`;
 }
 
@@ -192,10 +276,11 @@ export function render(dom, s, game) {
 	dom.power.fill.style.width = `${pct(s.power, s.maxPower)}%`;
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
 	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
+	dom.pause.textContent = s.paused ? "Resume" : "Pause";
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
-	if (dom.gridSize !== `${s.rows}x${s.cols}`) buildGrid(dom, s, game.onTile);
+	if (dom.gridSize !== `${s.rows}x${s.cols}`) buildGrid(dom, s);
 
 	// Only the visible page is worth patching; the tile loop below is the one
 	// that always runs, because the reactor is what the player watches.
@@ -221,10 +306,12 @@ export function render(dom, s, game) {
 	}
 
 	for (const { button, part } of dom.partButtons) {
-		button.classList.toggle("locked", Boolean(part.requires) && !s.levels[part.requires]);
+		button.classList.toggle("locked", !isPartVisible(s, part));
 		button.classList.toggle("poor", s.money < part.cost);
 		button.classList.toggle("on", game.selected === part.id);
 	}
+	// Hide a family entirely until at least one of its tiers is unlocked.
+	for (const row of dom.dockRows) row.hidden = !row.querySelector(".part:not(.locked)");
 	renderPage(dom, s);
 }
 
@@ -232,17 +319,41 @@ export function render(dom, s, game) {
 function renderPage(dom, s) {
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
 	if (dom.page === "objectives") renderObjectives(dom, s);
-	if (dom.page === "options") dom.pause.textContent = s.paused ? "Resume" : "Pause";
+
 }
 
+/** How many out-of-reach upgrades to leave visible as a preview. */
+const PREVIEW_COUNT = 3;
+
+/**
+ * Show what you can buy and what you own; of the rest, show only the few
+ * nearest to affordable, dithered, so the list stays short but you can still
+ * see what you are saving towards.
+ */
 function renderUpgrades(dom, s) {
-	for (const { u, button, cost, level } of dom.upgradeRows) {
+	const onThisPage = ({ u }) => Boolean(u.ecost) === (dom.page === "experiments");
+	const outOfReach = [];
+
+	for (const row of dom.upgradeRows) {
+		const { u, button, cost, level } = row;
 		const lv = s.levels[u.id];
 		const price = costOf(s, u);
-		button.hidden = !isUnlocked(s, u);
-		button.classList.toggle("poor", (u.ecost ? s.currentExoticParticles : s.money) < price);
+		const owned = lv > 0;
+		const affordable = (u.ecost ? s.currentExoticParticles : s.money) >= price;
+
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
+
+		const shown = isUnlocked(s, u) && (owned || affordable);
+		button.hidden = !shown;
+		button.classList.toggle("preview", false);
+		if (!shown && isUnlocked(s, u) && onThisPage(row)) outOfReach.push({ row, price });
+	}
+
+	outOfReach.sort((a, b) => a.price - b.price);
+	for (const { row } of outOfReach.slice(0, PREVIEW_COUNT)) {
+		row.button.hidden = false;
+		row.button.classList.add("preview");
 	}
 }
 

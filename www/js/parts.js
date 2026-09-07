@@ -8,6 +8,21 @@ const CELL_COUNT = [1, 2, 4];
 const CELL_PREFIX = ["", "Dual ", "Quad "];
 const TIER_PREFIX = ["Basic ", "Advanced ", "Super ", "Wonderous ", "Ultimate "];
 
+// Short names for the dock, where "Wonderous Heat Exchanger" does not fit.
+const SHORT = {
+	reflector: "Reflect",
+	capacitor: "Capac",
+	vent: "Vent",
+	heat_exchanger: "Exch",
+	heat_inlet: "Inlet",
+	heat_outlet: "Outlet",
+	coolant_cell: "Coolant",
+	reactor_plating: "Plating",
+	particle_accelerator: "Accel",
+};
+const PACK_SUFFIX = ["", "×2", "×4"];
+const capitalise = (w) => w[0].toUpperCase() + w.slice(1);
+
 // [field, multiplierField] - the only list that knows which stats scale with tier.
 const SCALED = [
 	["ticks", "ticksMul"],
@@ -99,9 +114,11 @@ function derive(def, level) {
 		p.cellCount = CELL_COUNT[i];
 		p.cellMultiplier = CELL_POWER[i];
 		p.pulses = CELL_COUNT[i];
+		p.short = capitalise(def.type) + PACK_SUFFIX[i];
 	} else {
 		p.id = `${def.category}${level}`;
 		p.title = level <= 5 ? TIER_PREFIX[level - 1] + def.title : def.title;
+		p.short = `${SHORT[def.category]} ${level}`;
 		for (const [field, mul] of SCALED) {
 			if (def[field] && def[mul]) p[field] = def[field] * def[mul] ** (level - 1);
 		}
@@ -121,6 +138,32 @@ export const PARTS = [
 ];
 
 export const PART_BY_ID = new Map(PARTS.map((p) => [p.id, p]));
+
+/** How many of the previous part you must place before the next one appears. */
+export const UNLOCK_AFTER = 10;
+
+// Progressive reveal: each part stays hidden until ten of the one before it
+// have been placed, so the dock opens with a handful of buttons instead of
+// seventy-five. Fuel cells form one chain across every tier of every element;
+// each component category forms its own. Tier-6 parts are gated by research
+// instead, so they stay out of the chains.
+const chains = new Map([["cell", []]]);
+for (const p of PARTS) {
+	if (p.experimental) continue;
+	const key = p.category === "cell" ? "cell" : p.category;
+	if (!chains.has(key)) chains.set(key, []);
+	chains.get(key).push(p);
+}
+for (const chain of chains.values()) {
+	chain.forEach((p, i) => {
+		p.after = i ? chain[i - 1].id : null;
+	});
+}
+
+/** Is this part offered yet - research done, and enough of its predecessor placed? */
+export const isPartVisible = (s, p) =>
+	(!p.requires || s.levels[p.requires] > 0)
+	&& (!p.after || (s.placed[p.after] ?? 0) >= UNLOCK_AFTER);
 
 // The cell types that carry prices for the generated cell_power / cell_tick /
 // cell_perpetual upgrades. Protium has none - it is bought with particles.

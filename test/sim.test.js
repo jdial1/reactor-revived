@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize, place } from "../www/js/state.js";
-import { compile, tick, tileAt, MAX_COLS } from "../www/js/sim.js";
-import { PART_BY_ID } from "../www/js/parts.js";
+import { compile, tick, tileAt, activeTiles, MAX_ROWS, MAX_COLS } from "../www/js/sim.js";
+import { PART_BY_ID, PARTS, isPartVisible, UNLOCK_AFTER } from "../www/js/parts.js";
 import { UPGRADES, buy, applyUpgrades, reboot, costOf, UPGRADE_BY_ID } from "../www/js/upgrades.js";
 import { checkObjectives, OBJECTIVES } from "../www/js/objectives.js";
 import { fmt } from "../www/js/fmt.js";
@@ -242,6 +242,18 @@ test("the tick is deterministic", () => {
 	assert.deepEqual(run(), run());
 });
 
+test("a fully expanded reactor still fits the grid", () => {
+	const s = rich();
+	s.levels.expand_reactor_rows = 20;
+	s.levels.expand_reactor_cols = 20;
+	applyUpgrades(s);
+	assert.ok(s.rows <= MAX_ROWS, `${s.rows} rows`);
+	assert.ok(s.cols <= MAX_COLS, `${s.cols} cols`);
+	// Every tile the grid can reach must actually exist.
+	compile(s);
+	assert.equal([...activeTiles(s)].length, s.rows * s.cols);
+});
+
 test("upgrades are pure functions of their levels", () => {
 	const a = fresh();
 	a.levels.improved_heat_vents = 3;
@@ -304,10 +316,11 @@ test("experimental part unlocks get pricier as you buy them", () => {
 
 test("expanding the reactor grows the playable grid", () => {
 	const s = rich();
-	assert.deepEqual([s.rows, s.cols], [11, 14]);
+	// Portrait: the original's 11x14 turned on its side to suit a phone.
+	assert.deepEqual([s.rows, s.cols], [14, 11]);
 	buy(s, "expand_reactor_rows");
 	buy(s, "expand_reactor_cols");
-	assert.deepEqual([s.rows, s.cols], [12, 15]);
+	assert.deepEqual([s.rows, s.cols], [15, 12]);
 });
 
 test("replaying upgrade levels equals buying them one at a time", () => {
@@ -464,6 +477,46 @@ test("every upgrade id is unique and every requirement exists", () => {
 test("every experimental part has an unlock upgrade", () => {
 	for (const p of PART_BY_ID.values()) {
 		if (p.requires) assert.ok(UPGRADE_BY_ID.has(p.requires), `${p.id} requires ${p.requires}`);
+	}
+});
+
+test("the dock opens with one part per family, not seventy-five", () => {
+	const s = fresh();
+	const visible = PARTS.filter((p) => isPartVisible(s, p));
+	assert.equal(visible.length, 10, "one fuel plus nine component families");
+	assert.ok(visible.every((p) => !p.after && !p.requires));
+});
+
+test("placing ten of a part reveals the next one", () => {
+	const s = rich();
+	const next = PART_BY_ID.get("uranium2");
+	assert.equal(isPartVisible(s, next), false);
+
+	for (let i = 0; i < UNLOCK_AFTER - 1; i++) place(s, 0, i, "uranium1");
+	assert.equal(isPartVisible(s, next), false, "nine is not enough");
+
+	place(s, 1, 0, "uranium1");
+	assert.ok(isPartVisible(s, next));
+	// Selling does not take the unlock away again.
+	assert.equal(s.placed.uranium1, UNLOCK_AFTER);
+});
+
+test("the unlock chain runs fuel to fuel and tier to tier", () => {
+	assert.equal(PART_BY_ID.get("uranium1").after, null);
+	assert.equal(PART_BY_ID.get("uranium2").after, "uranium1");
+	assert.equal(PART_BY_ID.get("plutonium1").after, "uranium3", "fuels chain into each other");
+	assert.equal(PART_BY_ID.get("vent1").after, null, "each component family starts fresh");
+	assert.equal(PART_BY_ID.get("vent5").after, "vent4");
+	// Tier-6 parts are gated by research instead, so they stay off the chain.
+	for (const p of PARTS.filter((x) => x.level === 6)) {
+		assert.ok(!p.after, p.id);
+		assert.ok(p.requires, p.id);
+	}
+});
+
+test("every part has a dock label and a drawable shape", () => {
+	for (const p of PARTS) {
+		assert.ok(p.short && p.short.length <= 12, `${p.id} label: ${p.short}`);
 	}
 });
 
