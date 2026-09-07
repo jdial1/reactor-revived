@@ -19,40 +19,40 @@ REF = "docs/reference"
 CELL = 64          # sprite box
 PAD = 10
 LABEL_W = 210
-COL_W = 170  # wide enough for the column headings, not just the sprite
+COL_W = 150  # wide enough for the column headings, not just the sprite
 BG = (11, 13, 16)
 INK = (200, 211, 222)
 DIM = (123, 135, 148)
 RULE = (35, 43, 52)
 
-# part label, IC2 file, Knockoff file, Revival file, our part id
+# part label, IC2, Incremental, Redux, Knockoff, Revival, our part id
 ROWS = [
-    ("Fuel rod", "Fuel_Rod_(Uranium)", "cell_1_1", "cell_1_1", "uranium1"),
-    ("Fuel rod x2", "Dual_Fuel_Rod_(Uranium)", "cell_1_2", "cell_1_2", "uranium2"),
-    ("Fuel rod x4", "Quad_Fuel_Rod_(Uranium)", "cell_1_4", "cell_1_4", "uranium3"),
-    ("Exotic fuel", "Fuel_Rod_(MOX)", None, None, "protium1"),
-    ("Heat vent", "Heat_Vent", "vent_1", "vent_1", "vent1"),
-    ("Heat vent, mid", "Advanced_Heat_Vent", "vent_3", "vent_3", "vent3"),
-    ("Heat vent, high", "Overclocked_Heat_Vent", "vent_5", "vent_5", "vent5"),
-    ("Heat exchanger", "Heat_Exchanger", "exchanger_1", "exchanger_1", "heat_exchanger1"),
-    ("Exchanger, mid", "Advanced_Heat_Exchanger", "exchanger_3", "exchanger_3", "heat_exchanger3"),
-    ("Heat inlet", "Component_Heat_Exchanger", "inlet_1", "inlet_1", "heat_inlet1"),
-    ("Heat outlet", "Reactor_Heat_Exchanger", "outlet_1", "outlet_1", "heat_outlet1"),
-    ("Coolant cell", "Coolant_Cell", "coolant_1", "coolant_cell_1", "coolant_cell1"),
-    ("Coolant, mid", "60k_Coolant_Cell", "coolant_3", "coolant_cell_3", "coolant_cell3"),
-    ("Neutron reflector", "Neutron_Reflector", "reflector_1", "reflector_1", "reflector1"),
-    ("Reflector, mid", "Thick_Neutron_Reflector", "reflector_3", "reflector_3", "reflector3"),
-    ("Reactor plating", "Reactor_Plating", "plating_1", "plating_1", "reactor_plating1"),
-    ("Plating, mid", "Heat-Capacity_Reactor_Plating", "plating_3", "plating_3", "reactor_plating3"),
-    ("Capacitor", None, "capacitor_1", "capacitor_1", "capacitor1"),
-    ("Capacitor, mid", None, "capacitor_3", "capacitor_3", "capacitor3"),
-    ("Accelerator", None, "accelerator_1", "accelerator_1", "particle_accelerator1"),
-    ("Accelerator, mid", None, "accelerator_3", "accelerator_3", "particle_accelerator3"),
-    ("Condensator", "RSH-Condensator", None, None, None),
+    ("Fuel rod", "Fuel_Rod_(Uranium)", "Fuel1-1", "Fuel1-1", "cell_1_1", "cell_1_1", "uranium1"),
+    ("Fuel rod x2", "Dual_Fuel_Rod_(Uranium)", "Fuel1-2", "Fuel1-2", "cell_1_2", "cell_1_2", "uranium2"),
+    ("Fuel rod x4", "Quad_Fuel_Rod_(Uranium)", "Fuel1-4", "Fuel1-3", "cell_1_4", "cell_1_4", "uranium3"),
+    ("Exotic fuel", "Fuel_Rod_(MOX)", None, None, None, None, "protium1"),
+    ("Heat vent", "Heat_Vent", "Vent1", "Vent1", "vent_1", "vent_1", "vent1"),
+    ("Heat vent, mid", "Advanced_Heat_Vent", "Vent3", "Vent3", "vent_3", "vent_3", "vent3"),
+    ("Heat vent, high", "Overclocked_Heat_Vent", "Vent5", "Vent5", "vent_5", "vent_5", "vent5"),
+    ("Heat exchanger", "Heat_Exchanger", "Exchanger1", "Exchanger1", "exchanger_1", "exchanger_1", "heat_exchanger1"),
+    ("Exchanger, mid", "Advanced_Heat_Exchanger", "Exchanger3", "Exchanger3", "exchanger_3", "exchanger_3", "heat_exchanger3"),
+    ("Heat inlet", "Component_Heat_Exchanger", "Inlet1", "Inlet1", "inlet_1", "inlet_1", "heat_inlet1"),
+    ("Heat outlet", "Reactor_Heat_Exchanger", "Outlet1", "Outlet1", "outlet_1", "outlet_1", "heat_outlet1"),
+    ("Coolant cell", "Coolant_Cell", "Coolant1", "Coolant1", "coolant_1", "coolant_cell_1", "coolant_cell1"),
+    ("Coolant, mid", "60k_Coolant_Cell", "Coolant3", "Coolant3", "coolant_3", "coolant_cell_3", "coolant_cell3"),
+    ("Neutron reflector", "Neutron_Reflector", "Reflector1", "Reflector1", "reflector_1", "reflector_1", "reflector1"),
+    ("Reflector, mid", "Thick_Neutron_Reflector", "Reflector3", "Reflector3", "reflector_3", "reflector_3", "reflector3"),
+    ("Reactor plating", "Reactor_Plating", "Plate1", "Plate1", "plating_1", "plating_1", "reactor_plating1"),
+    ("Plating, mid", "Heat-Capacity_Reactor_Plating", "Plate3", "Plate3", "plating_3", "plating_3", "reactor_plating3"),
+    ("Capacitor", None, "Capacitor1", "Capacitor1", "capacitor_1", "capacitor_1", "capacitor1"),
+    ("Capacitor, mid", None, "Capacitor3", "Capacitor3", "capacitor_3", "capacitor_3", "capacitor3"),
+    ("Accelerator", None, None, None, "accelerator_1", "accelerator_1", "particle_accelerator1"),
+    ("Accelerator, mid", None, None, None, "accelerator_3", "accelerator_3", "particle_accelerator3"),
+    ("Condensator", "RSH-Condensator", None, None, None, None, None),
 ]
 
-COLUMNS = ["IndustrialCraft²", "Reactor Knockoff", "Reactor Revival", "Reactor Revived"]
-CAPTIONS = ["Minecraft mod", "2013 browser", "the fork", "drawn at runtime"]
+COLUMNS = ["IndustrialCraft²", "Incremental", "Redux", "Knockoff", "Revival", "Revived"]
+CAPTIONS = ["Minecraft mod", "Cael, Kongregate", "Cael, the sequel", "cwmonkey, 2013", "the jdial1 fork", "this game, at runtime"]
 
 
 KNOCKOFF_URL = "https://raw.githubusercontent.com/cwmonkey/reactor-knockoff/master/img"
@@ -69,7 +69,7 @@ def fetch_reference():
     for sub in ("ic2", "knockoff", "revival"):
         os.makedirs(f"{REF}/{sub}", exist_ok=True)
 
-    for _, _, ko, _, _ in ROWS:
+    for _, _, _, _, ko, _, _ in ROWS:
         if ko and not os.path.exists(f"{REF}/knockoff/{ko}.png"):
             try:
                 urllib.request.urlretrieve(f"{KNOCKOFF_URL}/{ko}.gif", f"{REF}/knockoff/{ko}.gif")
@@ -78,7 +78,7 @@ def fetch_reference():
             except Exception as e:
                 print(f"  knockoff/{ko}: {e}")
 
-    wanted = {ic2 for _, ic2, _, _, _ in ROWS if ic2}
+    wanted = {ic2 for _, ic2, _, _, _, _, _ in ROWS if ic2}
     if any(not os.path.exists(f"{REF}/ic2/{n}.png") for n in wanted):
         imgs, cont = {}, None
         for _ in range(12):
@@ -98,7 +98,7 @@ def fetch_reference():
             else:
                 print(f"  ic2/{n}: not on the wiki")
 
-    for _, _, _, rv, _ in ROWS:
+    for _, _, _, _, _, rv, _ in ROWS:
         src = f"{REVIVAL_DIR}/{rv}.png" if rv else None
         if src and os.path.exists(src) and not os.path.exists(f"{REF}/revival/{rv}.png"):
             shutil.copy(src, f"{REF}/revival/{rv}.png")
@@ -144,27 +144,29 @@ def main():
 
     top = 132
     row_h = CELL + PAD
-    width = LABEL_W + COL_W * 4 + 40
+    width = LABEL_W + COL_W * len(COLUMNS) + 40
     height = top + row_h * len(ROWS) + 78
 
     img = Image.new("RGB", (width, height), BG)
     d = ImageDraw.Draw(img)
 
     d.text((24, 24), "Reactor part sprite sheet", font=f_title, fill=(255, 255, 255))
-    d.text((24, 62), "Four generations of the same components, drawn side by side.", font=f_sub, fill=DIM)
+    d.text((24, 62), "Six generations of the same components, drawn side by side. Left to right is oldest to newest.", font=f_sub, fill=DIM)
 
     for i, (name, cap) in enumerate(zip(COLUMNS, CAPTIONS)):
         x = 24 + LABEL_W + COL_W * i
         d.text((x, 92), name, font=f_head, fill=INK)
         d.text((x, 110), cap, font=f_cap, fill=DIM)
 
-    for r, (label, ic2, ko, rv, mine) in enumerate(ROWS):
+    for r, (label, ic2, inc, rdx, ko, rv, mine) in enumerate(ROWS):
         y = top + row_h * r
         d.line([(24, y - 4), (width - 24, y - 4)], fill=RULE)
         d.text((24, y + CELL // 2 - 8), label, font=f_row, fill=INK)
 
         tiles = [
             sprite(f"{REF}/ic2/{ic2}.png" if ic2 else None),
+            sprite(f"{REF}/incremental/{inc}.png" if inc else None),
+            sprite(f"{REF}/redux/{rdx}.png" if rdx else None),
             sprite(f"{REF}/knockoff/{ko}.png" if ko else None),
             sprite(f"{REF}/revival/{rv}.png" if rv else None),
             ours(data["sprites"][mine], size) if mine else None,
@@ -179,9 +181,10 @@ def main():
     note_y = height - 62
     d.line([(24, note_y - 12), (width - 24, note_y - 12)], fill=RULE)
     for i, line in enumerate([
-        "IC² sprites: wiki.industrial-craft.net  ·  Knockoff: cwmonkey/reactor-knockoff  ·  Revival: the jdial1 fork",
+        "IC²: wiki.industrial-craft.net  ·  Incremental & Redux: extracted from the Unity builds on Kongregate  ·  Knockoff: cwmonkey/reactor-knockoff",
         "Reactor Revived sprites are computed from geometry at runtime and ship as no files at all.",
-        "Third-party art is reproduced here for study; it is not redistributed with the game.",
+        "Third-party art is reproduced here for study; it is not redistributed with the game.  A dash means the game has no such part,",
+        "or none was found in its extracted sprite set.",
     ]):
         d.text((24, note_y + i * 16), line, font=f_note, fill=DIM)
 

@@ -127,9 +127,13 @@ IC&sup2;'s published figures, and a table mapping each of its parts to the part 
 became here. Rebuild it with `python docs/build_lineage_chart.py`.
 
 `docs/build_sprite_sheet.py` builds a companion sprite sheet showing the same
-component drawn by all four generations side by side. It fetches the other
-games' sprites into `docs/reference/`, which is gitignored &mdash; the point of
-generating our own art was to not redistribute anyone else's.
+component drawn by all six generations side by side &mdash; IndustrialCraft&sup2;,
+Reactor Incremental, Reactor Redux, Reactor Knockoff, Reactor Revival and this
+game. It fetches the others' sprites into `docs/reference/`, which is gitignored
+&mdash; the point of generating our own art was to not redistribute anyone
+else's. Incremental and Redux are Unity WebGL builds, so their icons come out of
+the asset bundle via `docs/extract_unity_sprites.py` (needs `pip install
+UnityPy`).
 
 The short version: IC&sup2;'s fuel rods make `5 x n` power and `2n(n+1)` heat,
 where `n` counts the rod and its neighbours. Power linear, heat quadratic. Every
