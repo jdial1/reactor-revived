@@ -205,6 +205,7 @@ main { overflow: hidden; position: relative; }
 	border: 1px solid var(--edge);
 	border-radius: 2px;
 	image-rendering: pixelated;
+	overflow: hidden; /* a spinning fan sweeps its corners past the tile edge */
 }
 .tile.queued { opacity: 0.45; border-style: dashed; }
 
@@ -319,6 +320,21 @@ footer {
 
 /* Twice the height of the old button strip: the readout it absorbed sits on
    top of the controls. */
+/* What the reactor did this tick, as opposed to where it now stands. */
+#rates {
+	display: flex;
+	justify-content: space-between;
+	gap: 4px;
+	padding: 3px 8px;
+	font-size: 10px;
+	border-bottom: 1px solid var(--edge);
+}
+#rates .rate { display: flex; gap: 4px; }
+#rates i { font-style: normal; color: var(--dim); }
+#rates b { font-weight: normal; font-variant-numeric: tabular-nums; }
+#rates .power b { color: var(--power); }
+#rates .heat b { color: var(--heat); }
+
 /* One row: the bar that earns, what it earned, the bar that threatens it. */
 #actions { display: flex; align-items: center; gap: 6px; padding: 4px; }
 #actions .meter { flex: 1; min-width: 0; }
@@ -389,6 +405,19 @@ footer {
 .part u { text-decoration: none; font-size: 9px; color: var(--dim); }
 .part.on { border-color: var(--power); background: #1c2a20; }
 .part.poor u { color: #8c5b5b; }
+/* The hub of a working vent, turning. The art is blown up and clipped by the
+   tile so only the fan itself shows, which is why no separate rotor sprite is
+   needed. */
+.tile .fan {
+	position: absolute;
+	inset: 0;
+	background: center / 166% no-repeat;
+	image-rendering: pixelated;
+	opacity: 0;
+}
+.tile .fan.spinning { opacity: 1; animation: fan-spin 0.45s linear infinite; }
+@keyframes fan-spin { to { transform: rotate(360deg); } }
+
 .part.locked { display: none; }
 
 /* The tier you have not earned yet: how many more of the one below to place,

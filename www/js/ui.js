@@ -151,6 +151,18 @@ export function buildUI(game) {
 				+ 'Part artwork belongs to those games and to Reactor Revival. The generated pack is drawn at runtime.' })),
 	);
 
+	// A slim line of what the reactor did this tick, under the totals that say
+	// where it stands.
+	dom.rates = {};
+	const rateCell = (id, label) => {
+		const value = h("b", {});
+		dom.rates[id] = value;
+		return h("span", { className: `rate ${id}` }, h("i", { textContent: label }), value);
+	};
+	dom.rateBar = h("div", { id: "rates" },
+		rateCell("power", "PWR"), rateCell("heat", "HEAT"), rateCell("vent", "VENT"),
+		rateCell("inlet", "IN"), rateCell("outlet", "OUT"));
+
 	// ---- dock and tabs -----------------------------------------------------
 	// Power, what it earned, and heat - in that order, so the money sits
 	// between the bar that makes it and the bar that threatens it.
@@ -162,7 +174,7 @@ export function buildUI(game) {
 	// Upgrades page, where the money is being spent. Only the parts hide.
 	dom.dock = h("div", { id: "dock" });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => { showPage(dom, id); game.viewing(id); });
-	root.append(h("footer", {}, dom.actions, dom.dock, dom.tabs));
+	root.append(h("footer", {}, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	buildDock(dom, game);
 	buildUpgrades(dom, game);
@@ -313,9 +325,12 @@ function buildGrid(dom, s) {
 	for (const t of activeTiles(s)) {
 		const heat = h("i", { className: "heat" });
 		const life = h("i", { className: "life" });
-		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, heat, life);
+		// The vent's own art, blown up so only the hub shows, turning while the
+		// vent is shifting heat.
+		const fan = h("i", { className: "fan" });
+		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, fan, heat, life);
 		dom.grid.append(cell);
-		dom.tiles.push({ t, cell, heat, life, sig: "" });
+		dom.tiles.push({ t, cell, heat, life, fan, sig: "" });
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
@@ -343,6 +358,10 @@ export function render(dom, s, game) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
 		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
 	}
+	// Nothing has ticked yet on the first frame after a load.
+	const rate = s.rate ?? {};
+	for (const [id, el] of Object.entries(dom.rates)) el.textContent = fmt(rate[id] ?? 0);
+
 	dom.objective.textContent = OBJECTIVES[s.objective]?.title ?? "Every goal met.";
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
@@ -371,11 +390,17 @@ export function render(dom, s, game) {
 		const p = t.id ? s.stats.get(t.id) : null;
 		const heat = p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
+		// Spinning is not part of the signature: it changes every tick, and a
+		// class toggle is cheaper than rebuilding the tile for it.
+		row.fan.classList.toggle("spinning", Boolean(p?.vent) && t.vented > 0);
+
 		const sig = `${t.id}|${t.activated}|${heat}|${life}|${s.artPack}`;
 		if (sig === row.sig) continue;
 		row.sig = sig;
 
-		row.cell.style.backgroundImage = p ? `url(${artFor(p, s.artPack)})` : "";
+		const art = p ? `url(${artFor(p, s.artPack)})` : "";
+		row.cell.style.backgroundImage = art;
+		row.fan.style.backgroundImage = p?.vent ? art : "";
 		row.cell.classList.toggle("queued", Boolean(t.id) && !t.activated);
 		row.cell.classList.toggle("spent", Boolean(p) && p.category === "cell" && !t.ticks);
 		row.heat.style.width = `${heat}%`;

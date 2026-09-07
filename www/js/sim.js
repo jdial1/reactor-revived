@@ -161,6 +161,9 @@ export function compile(s) {
 
 /** One second of reactor. Mutates and returns `s`; sets s.dirty when the layout changed. */
 export function tick(s) {
+	// What this tick moved, for the readout. Totals say where the reactor is;
+	// these say what it is doing.
+	const rate = { power: 0, heat: 0, vent: 0, inlet: 0, outlet: 0 };
 	let powerAdd = 0;
 	// A perpetual capacitor that saved itself last tick dumps its heat now.
 	let heatAdd = s.heatAddNextTick;
@@ -209,11 +212,12 @@ export function tick(s) {
 
 	// Inlets pull heat out of their neighbours and into the reactor.
 	for (const t of inlets) {
-		const rate = transferOf(s, partOf(s, t));
+		const pull = transferOf(s, partOf(s, t));
 		for (const n of t.containments) {
-			const moved = Math.min(rate, n.heatContained);
+			const moved = Math.min(pull, n.heatContained);
 			n.heatContained -= moved;
 			heatAdd += moved;
+			rate.inlet += moved;
 		}
 	}
 	s.heat += heatAdd;
@@ -227,15 +231,16 @@ export function tick(s) {
 	for (const t of exchangers) powerAdd += balance(s, t);
 
 	for (const t of outlets) {
-		const rate = transferOf(s, partOf(s, t));
+		const push = transferOf(s, partOf(s, t));
 		for (const n of t.containments) {
-			let share = Math.min(rate, (s.heat / s.statOutlet) * rate, maxShared * rate);
+			let share = Math.min(push, (s.heat / s.statOutlet) * push, maxShared * push);
 			const np = s.stats.get(n.id);
 			if (s.heatOutletControlled && np.vent) {
 				share = Math.min(share, ventOf(s, np) - n.heatContained);
 			}
 			powerAdd += absorb(n, np, share);
 			heatRemove += share;
+			rate.outlet += share;
 		}
 	}
 	s.heat -= heatRemove;
@@ -261,6 +266,9 @@ export function tick(s) {
 		powerAdd *= 1 + s.heatPowerMul * (Math.log(s.heat) / Math.log(1000) / 100);
 	}
 	s.power += powerAdd;
+	rate.power = powerAdd;
+	rate.heat = heatAdd;
+	s.rate = rate;
 
 	buyQueued(s);
 
@@ -270,11 +278,15 @@ export function tick(s) {
 
 		if (p.vent) {
 			// An extreme vent burns reactor power to do its cooling.
-			const rate = p.id === "vent6"
+			const shed = p.id === "vent6"
 				? Math.min(ventOf(s, p), t.heatContained, s.power)
 				: Math.min(ventOf(s, p), t.heatContained);
-			if (p.id === "vent6") s.power -= rate;
-			t.heatContained -= rate;
+			if (p.id === "vent6") s.power -= shed;
+			t.heatContained -= shed;
+			// Recorded per tile as well as in total: a vent that moved heat this
+			// tick is one the board should show turning.
+			t.vented = shed;
+			rate.vent += shed;
 		}
 
 		// A black hole accelerator actively drags heat out of the reactor,
