@@ -1,0 +1,126 @@
+// Game state: its shape, its defaults, and how it round-trips to storage.
+import { MAX_ROWS, MAX_COLS, compile, tileAt } from "./sim.js";
+import { PART_BY_ID } from "./parts.js";
+import { UPGRADES, applyUpgrades } from "./upgrades.js";
+
+export const SAVE_KEY = "reactor-revived";
+export const SAVE_VERSION = 1;
+
+const BASE = {
+	money: 10,
+	power: 0,
+	heat: 0,
+	exoticParticles: 0,
+	currentExoticParticles: 0,
+	totalExoticParticles: 0,
+	protiumParticles: 0,
+	objective: 0,
+	hasMeltedDown: false,
+	soldPower: false,
+	soldHeat: false,
+	// Player-facing toggles.
+	paused: false,
+	autoSellDisabled: false,
+	autoBuyDisabled: false,
+	heatControlled: false,
+};
+
+// The whole 32x35 grid always exists; `rows`/`cols` say how much of it is in
+// play. Fixed indices mean growing the reactor never remaps a tile.
+const newTile = (r, c) => ({
+	r, c,
+	id: null,
+	activated: false,
+	ticks: 0,
+	heat: 0,
+	power: 0,
+	heatContained: 0,
+	containments: [],
+	neighbourCells: [],
+	reflectors: [],
+});
+
+export function newState(random = Math.random) {
+	const s = {
+		...BASE,
+		random,
+		tiles: Array.from({ length: MAX_ROWS * MAX_COLS }, (_, i) => newTile(Math.floor(i / MAX_COLS), i % MAX_COLS)),
+		queue: [],
+		levels: {},
+		heatAddNextTick: 0,
+	};
+	for (const u of UPGRADES) s.levels[u.id] = 0;
+	applyUpgrades(s);
+	compile(s);
+	return s;
+}
+
+/** Only what cannot be recomputed. Every multiplier is derived from `levels`. */
+export function serialize(s) {
+	return {
+		v: SAVE_VERSION,
+		money: s.money, power: s.power, heat: s.heat,
+		exoticParticles: s.exoticParticles,
+		currentExoticParticles: s.currentExoticParticles,
+		totalExoticParticles: s.totalExoticParticles,
+		protiumParticles: s.protiumParticles,
+		objective: s.objective,
+		hasMeltedDown: s.hasMeltedDown,
+		soldPower: s.soldPower, soldHeat: s.soldHeat,
+		paused: s.paused,
+		autoSellDisabled: s.autoSellDisabled,
+		autoBuyDisabled: s.autoBuyDisabled,
+		heatControlled: s.heatControlled,
+		levels: s.levels,
+		tiles: [...s.tiles].map((t) =>
+			t.id ? { i: t.r * MAX_COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained } : null,
+		).filter(Boolean),
+		queue: s.queue.map((t) => t.r * MAX_COLS + t.c),
+	};
+}
+
+export function deserialize(saved, random = Math.random) {
+	const s = newState(random);
+	if (!saved || saved.v !== SAVE_VERSION) return s;
+
+	for (const k of Object.keys(BASE)) if (k in saved) s[k] = saved[k];
+	for (const id of Object.keys(s.levels)) if (saved.levels?.[id]) s.levels[id] = saved.levels[id];
+
+	for (const t of saved.tiles ?? []) {
+		if (!PART_BY_ID.has(t.id)) continue;
+		Object.assign(s.tiles[t.i], { id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained });
+	}
+	s.queue = (saved.queue ?? []).map((i) => s.tiles[i]);
+
+	applyUpgrades(s);
+	compile(s);
+	return s;
+}
+
+export const save = (s, storage = localStorage) => storage.setItem(SAVE_KEY, JSON.stringify(serialize(s)));
+
+export function load(storage = localStorage, random = Math.random) {
+	try {
+		return deserialize(JSON.parse(storage.getItem(SAVE_KEY)), random);
+	} catch {
+		return newState(random);
+	}
+}
+
+/** Place a part on a tile, buying it now if affordable or queueing it if not. */
+export function place(s, r, c, id) {
+	const t = tileAt(s, r, c);
+	const p = PART_BY_ID.get(id);
+	t.id = id;
+	t.ticks = p.ticks ?? 0;
+	t.heatContained = 0;
+	if (s.money >= p.cost) {
+		s.money -= p.cost;
+		t.activated = true;
+		compile(s);
+	} else {
+		t.activated = false;
+		s.queue.push(t);
+	}
+	return t;
+}
