@@ -3,7 +3,7 @@
 // 1120 tiles every 100ms regardless.
 import { fmt } from "./fmt.js";
 import { PARTS, isPartVisible } from "./parts.js";
-import { UPGRADES, costOf, isUnlocked, maxLevel, nextLevel } from "./upgrades.js";
+import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { artFor, availablePacks, PACKS } from "./art.js";
 import { icon } from "./icons.js";
@@ -268,7 +268,13 @@ function buildUpgrades(dom, game) {
 		const was = h("s", {});
 		const now = h("b", {});
 		const delta = h("em", { className: "delta" }, was, now);
+		// Power, heat or utility, in the corner. Fixed per upgrade, so it is set
+		// here once rather than by the renderer.
+		const kind = kindOf(u);
+		const badge = h("i", { className: `kind ${kind}`, title: kind },
+			icon(kind === "utility" ? "options" : kind));
 		const button = h("button", { className: "upgrade", onclick: () => game.buy(u.id) },
+			badge,
 			h("b", { textContent: u.title }),
 			h("i", { textContent: u.desc }),
 			delta,

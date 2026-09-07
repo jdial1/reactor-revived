@@ -312,7 +312,7 @@ export function nextLevel(s, u) {
 	const moved = (field, a, b) => {
 		const from = show(field, a);
 		const to = show(field, b);
-		return from === to ? null : { from, to };
+		return from === to ? null : { field, from, to };
 	};
 
 	for (const field of SCALARS) {
@@ -327,7 +327,50 @@ export function nextLevel(s, u) {
 		}
 	}
 	for (const field of SWITCHES) {
-		if (now[field] !== next[field]) return { from: "off", to: "on" };
+		if (now[field] !== next[field]) return { field, from: "off", to: "on" };
 	}
 	return null;
+}
+
+// ---- what kind of upgrade this is ------------------------------------------
+//
+// Power, heat, or neither. Worked out from the field the upgrade moves rather
+// than from a list of ids, for the same reason the numbers are: a list would be
+// 63 entries to keep in step with the sim by hand.
+
+const KIND_BY_FIELD = {
+	basePower: "power", reactorPower: "power", powerIncrease: "power",
+	autoSellMul: "power", baseMaxPower: "power", heatPowerMul: "power",
+
+	baseHeat: "heat", reactorHeat: "heat", vent: "heat", transfer: "heat",
+	containment: "heat", baseMaxHeat: "heat", manualHeatReduce: "heat",
+	ventPlatingMul: "heat", ventCapacitorMul: "heat",
+	transferPlatingMul: "heat", transferCapacitorMul: "heat",
+	heatControlOperator: "heat", heatOutletControlled: "heat",
+	// loopWait, ticks and epHeat move neither: they are utility.
+};
+
+const KIND_BY_CATEGORY = {
+	vent: "heat", heat_exchanger: "heat", heat_inlet: "heat", heat_outlet: "heat",
+	coolant_cell: "heat", reactor_plating: "heat",
+	capacitor: "power", reflector: "power", cell: "power",
+	particle_accelerator: "utility",
+};
+
+// An upgrade whose whole job is to unlock a part is that part's kind - it moves
+// no field of its own, so there is nothing to measure.
+const UNLOCKS = new Map(PARTS.filter((p) => p.requires).map((p) => [p.requires, p.category]));
+
+const KIND = new Map();
+
+/** "power", "heat" or "utility". Static per upgrade, so worked out once. */
+export function kindOf(u) {
+	if (!KIND.has(u.id)) {
+		const unlocked = UNLOCKS.get(u.id);
+		const step = nextLevel({ levels: {}, protiumParticles: 0 }, u);
+		KIND.set(u.id, (unlocked && KIND_BY_CATEGORY[unlocked])
+			|| (step && KIND_BY_FIELD[step.field])
+			|| "utility");
+	}
+	return KIND.get(u.id);
 }

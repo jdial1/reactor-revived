@@ -197,10 +197,17 @@ main { overflow: hidden; position: relative; }
 /* ---- upgrades and goals ------------------------------------------------- */
 .upgrades { display: grid; gap: 6px; }
 .upgrade {
+	position: relative;
 	display: grid;
 	gap: 2px;
 	text-align: left;
 }
+/* Which of the reactor's two numbers this moves, or neither. */
+.upgrade .kind { position: absolute; top: 6px; right: 7px; line-height: 0; }
+.upgrade .kind .icon { width: 15px; height: 15px; }
+.upgrade .kind.utility { color: var(--dim); }
+/* Keep a long title clear of the badge. */
+.upgrade > b { padding-right: 22px; }
 .upgrade b { color: var(--ink); }
 .upgrade i { color: var(--dim); font-style: normal; font-size: 11px; }
 .upgrade span { display: flex; justify-content: space-between; }
