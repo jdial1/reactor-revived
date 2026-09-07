@@ -256,25 +256,32 @@ footer {
 	border-color: var(--power);
 	background: #1c2a20;
 }
-#dock-body {
+#dock-body { overflow: hidden; }
+
+.dock-page { display: none; }
+/* Families run across; the page scrolls sideways when there are more than fit. */
+.dock-page.showing {
+	display: flex;
+	align-items: flex-start;
+	gap: 3px;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+}
+
+/* One family per column, its tiers stacked down it and scrolling on their own,
+   so reaching vent 6 never scrolls the cells out of view. */
+.dock-col {
+	flex: none;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 	max-height: 23vh;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
 }
-#dock-body::-webkit-scrollbar { display: none; }
-
-.dock-page { display: none; }
-.dock-page.showing { display: grid; gap: 3px; }
-
-/* One family per row, its tiers running across it. */
-.dock-row {
-	display: flex;
-	gap: 4px;
-	overflow-x: auto;
-	scrollbar-width: none;
-}
-.dock-row::-webkit-scrollbar { display: none; }
+.dock-page::-webkit-scrollbar, .dock-col::-webkit-scrollbar { display: none; }
 
 .part {
 	flex: none;

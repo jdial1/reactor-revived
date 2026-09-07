@@ -165,26 +165,25 @@ function showPage(dom, id) {
 
 function buildDock(dom, game) {
 	dom.partButtons = [];
-	dom.dockRows = [];
+	dom.dockCols = [];
 	dom.dockPages = {};
 	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label));
 	const body = h("div", { id: "dock-body" });
 
-	for (const [label] of DOCK_TABS) {
-		const match = DOCK_TABS.find(([l]) => l === label)[1];
+	for (const [label, match] of DOCK_TABS) {
 		const page = h("div", { className: "dock-page" });
 		dom.dockPages[label] = page;
 		body.append(page);
 
-		// One row per family, tiers in order across it.
+		// One column per family, its tiers stacked down it.
 		let family = null;
-		let row = null;
+		let column = null;
 		for (const part of PARTS.filter(match)) {
 			if (familyOf(part) !== family) {
 				family = familyOf(part);
-				row = h("div", { className: "dock-row" });
-				page.append(row);
-				dom.dockRows.push(row);
+				column = h("div", { className: "dock-col" });
+				page.append(column);
+				dom.dockCols.push(column);
 			}
 			const button = h("button", {
 				className: "part",
@@ -193,8 +192,8 @@ function buildDock(dom, game) {
 			}, h("i", { style: `background-image:url(${artFor(part, game.pack)})` }),
 				h("em", { textContent: part.short }),
 				h("u", { textContent: fmt(part.cost) }));
-			row.append(button);
-			dom.partButtons.push({ button, part, row });
+			column.append(button);
+			dom.partButtons.push({ button, part });
 		}
 	}
 
@@ -350,7 +349,7 @@ export function render(dom, s, game) {
 		button.classList.toggle("on", game.selected === part.id);
 	}
 	// Hide a family entirely until at least one of its tiers is unlocked.
-	for (const row of dom.dockRows) row.hidden = !row.querySelector(".part:not(.locked)");
+	for (const col of dom.dockCols) col.hidden = !col.querySelector(".part:not(.locked)");
 	renderPage(dom, s);
 }
 
