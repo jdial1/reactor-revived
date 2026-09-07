@@ -15,60 +15,41 @@ import java.io.IOException
  *
  * The game is served from a real https:// origin rather than file:// because a
  * modern WebView gives file:// an opaque origin - localStorage is unavailable and
- * ES modules refuse to load. Twenty lines of shouldInterceptRequest buys a stable
+ * ES modules refuse to load. A dozen lines of shouldInterceptRequest buys a stable
  * origin without pulling in androidx.webkit.
  */
 private const val HOST = "reactor.local"
-private const val START_URL = "https://$HOST/index.html"
 
 class MainActivity : Activity() {
-
-	private lateinit var web: WebView
 
 	@SuppressLint("SetJavaScriptEnabled")
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
-		web = WebView(this)
+		val web = WebView(this)
 		web.settings.javaScriptEnabled = true
 		web.settings.domStorageEnabled = true
-		web.settings.mediaPlaybackRequiresUserGesture = false
 		web.webViewClient = AssetClient(assets)
 		setContentView(web)
-
-		if (savedInstanceState == null) web.loadUrl(START_URL) else web.restoreState(savedInstanceState)
-	}
-
-	override fun onSaveInstanceState(outState: Bundle) {
-		super.onSaveInstanceState(outState)
-		web.saveState(outState)
-	}
-
-	@Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
-	override fun onBackPressed() {
-		if (web.canGoBack()) web.goBack() else super.onBackPressed()
+		web.loadUrl("https://$HOST/index.html")
 	}
 }
+
+private val MIME = mapOf(
+	"html" to "text/html",
+	"js" to "text/javascript",
+	"css" to "text/css",
+	"png" to "image/png",
+)
 
 private class AssetClient(private val assets: AssetManager) : WebViewClient() {
 
 	override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
 		if (request.url.host != HOST) return null
-		val path = request.url.path.orEmpty().trimStart('/').ifEmpty { "index.html" }
-		return try {
-			WebResourceResponse(mimeOf(path), "utf-8", assets.open(path))
-		} catch (e: IOException) {
-			WebResourceResponse("text/plain", "utf-8", 404, "Not Found", emptyMap(), null)
-		}
-	}
-
-	private fun mimeOf(path: String) = when (path.substringAfterLast('.', "")) {
-		"html" -> "text/html"
-		"js" -> "text/javascript"
-		"css" -> "text/css"
-		"json" -> "application/json"
-		"svg" -> "image/svg+xml"
-		"png" -> "image/png"
-		else -> "application/octet-stream"
+		val path = request.url.path!!.trimStart('/')
+		// The WebView asks for /favicon.ico whether or not we ship one; an
+		// uncaught FileNotFoundException here takes the whole process down.
+		val body = try { assets.open(path) } catch (e: IOException) { return null }
+		return WebResourceResponse(MIME[path.substringAfterLast('.')] ?: "application/octet-stream", "utf-8", body)
 	}
 }

@@ -19,9 +19,4 @@ android {
 	// The game lives in www/ at the repo root so it can be opened in a desktop
 	// browser during development; the APK ships those exact same files.
 	sourceSets["main"].assets.srcDirs("../www")
-
-	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_17
-		targetCompatibility = JavaVersion.VERSION_17
-	}
 }
