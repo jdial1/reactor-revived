@@ -29,8 +29,12 @@ globalThis.document = {
 	createElement: () => ({
 		getContext: () => ({
 			fillStyle: "#000",
-			fillRect(x, y) {
-				painted.push([x, y, ...rgb(this.fillStyle)]);
+			fillRect(x, y, w, h) {
+				// sprites.js paints blocks, not single pixels - expand them.
+				const [r, g, b] = rgb(this.fillStyle);
+				for (let j = 0; j < h; j++) {
+					for (let i = 0; i < w; i++) painted.push([x + i, y + j, r, g, b]);
+				}
 			},
 		}),
 		toDataURL: () => "data:,",
