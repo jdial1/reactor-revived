@@ -74,10 +74,10 @@ export function buildUI(game) {
 		const fill = h("i", { className: "fill" });
 		const text = h("b", {});
 		dom[id] = { fill, text };
-		// The glyph sits inside the bar, painted over the fill, so the bar needs
-		// no column of its own beside it.
+		// Glyph and reading both sit inside the bar, painted over the fill, so
+		// the bar takes the whole width with nothing in a column beside it.
 		return h("div", { className: `meter ${id}` },
-			h("div", { className: "bar" }, fill, icon(glyph, "icon stat")), text);
+			h("div", { className: "bar" }, fill, icon(glyph, "icon stat"), text));
 	};
 
 	dom.money = h("b", {});

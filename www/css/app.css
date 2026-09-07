@@ -14,7 +14,7 @@
 	--ep: #b06fd8;
 	--gap: 1px;
 	--part-h: 56px;   /* one dock tier; the dock's height is derived from it */
-	--bar-h: 16px;    /* a meter bar, and the icon that labels it */
+	--bar-h: 32px;    /* a meter bar, and the icon that labels it */
 }
 
 * { box-sizing: border-box; }
@@ -60,12 +60,7 @@ a { color: var(--power); }
 }
 #goal .objective { margin: 0; border: 0; border-left: 3px solid var(--cash); }
 
-.meter {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	align-items: center;
-	gap: 6px;
-}
+.meter { display: grid; }
 /* A watermark centred on the bar, over the fill. Both glyphs fill their
    16-unit box top to bottom, so the bar's own height is the size that sits
    inside it without overhanging. */
@@ -93,7 +88,15 @@ a { color: var(--power); }
 }
 .power .fill { background: var(--power); }
 .heat .fill { background: var(--heat); }
-.meter b { font-variant-numeric: tabular-nums; }
+/* The reading rides on the bar, hard right, over whatever the fill is doing. */
+.meter b {
+	position: absolute;
+	right: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-variant-numeric: tabular-nums;
+	text-shadow: 0 1px 2px #000a;
+}
 
 .purse { display: flex; justify-content: space-between; }
 .cash { color: var(--cash); }
