@@ -159,6 +159,16 @@ for (const chain of chains.values()) {
 }
 
 /** Is this part offered yet - research done, and enough of its predecessor placed? */
+/**
+ * How close a part is to unlocking, as `{ have, need }`, or null when placing
+ * more of the previous tier is not what it is waiting for - either because it
+ * is already available, or because it wants an experimental upgrade instead.
+ */
+export const unlockProgress = (s, p) =>
+	(p.after && (!p.requires || s.levels[p.requires] > 0)
+		? { have: Math.min(s.placed[p.after] ?? 0, UNLOCK_AFTER), need: UNLOCK_AFTER }
+		: null);
+
 export const isPartVisible = (s, p) =>
 	(!p.requires || s.levels[p.requires] > 0)
 	&& (!p.after || (s.placed[p.after] ?? 0) >= UNLOCK_AFTER);

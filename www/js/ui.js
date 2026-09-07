@@ -2,7 +2,7 @@
 // last rendered and is only touched when that changes. The original walked all
 // 1120 tiles every 100ms regardless.
 import { fmt } from "./fmt.js";
-import { PARTS, isPartVisible } from "./parts.js";
+import { PARTS, isPartVisible, unlockProgress } from "./parts.js";
 import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { artFor, availablePacks, PACKS } from "./art.js";
@@ -201,15 +201,16 @@ function buildDock(dom, game) {
 				page.append(column);
 				dom.dockCols.push(column);
 			}
+			const label = h("em", { textContent: part.short });
 			const button = h("button", {
 				className: "part",
 				title: part.title,
 				onclick: () => game.select(part.id),
 			}, h("i", { style: `background-image:url(${artFor(part, game.pack)})` }),
-				h("em", { textContent: part.short }),
+				label,
 				h("u", { textContent: fmt(part.cost) }));
 			column.append(button);
-			dom.partButtons.push({ button, part });
+			dom.partButtons.push({ button, part, label });
 		}
 	}
 
@@ -371,10 +372,27 @@ export function render(dom, s, game) {
 		row.life.style.width = `${life}%`;
 	}
 
-	for (const { button, part } of dom.partButtons) {
-		button.classList.toggle("locked", !isPartVisible(s, part));
-		button.classList.toggle("poor", s.money < part.cost);
+	// The first locked tier in each family stands in for itself: a silhouette
+	// with the placements still owed and what it will cost. The tiers behind it
+	// stay hidden, so the column never grows a row it did not have before.
+	// Only in a family already on screen: a family with nothing unlocked stays
+	// hidden entirely, or the first screen would show every fuel in the game.
+	const started = new Set();
+	const placeholders = new Set();
+	for (const { button, part, label } of dom.partButtons) {
+		const visible = isPartVisible(s, part);
+		const progress = visible ? null : unlockProgress(s, part);
+		const family = familyOf(part);
+		if (visible) started.add(family);
+		const isNext = Boolean(progress) && started.has(family) && !placeholders.has(family);
+		if (isNext) placeholders.add(family);
+
+		button.disabled = !visible; // a placeholder is a signpost, not a part
+		button.classList.toggle("locked", !visible && !isNext);
+		button.classList.toggle("next", isNext);
+		button.classList.toggle("poor", visible && s.money < part.cost);
 		button.classList.toggle("on", game.selected === part.id);
+		label.textContent = isNext ? `${progress.have}/${progress.need}` : part.short;
 	}
 	// Hide a family entirely until at least one of its tiers is unlocked. Tabs
 	// need no such treatment: every category's tier 1 is visible from boot.

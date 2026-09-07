@@ -14,6 +14,7 @@
 	--ep: #b06fd8;
 	--gap: 1px;
 	--part-h: 56px;   /* one dock tier; the dock's height is derived from it */
+	--peek-h: 19px;   /* the strip under it: the next tier, not yet earned */
 	--bar-h: 32px;    /* a meter bar, and the icon that labels it */
 }
 
@@ -327,12 +328,10 @@ footer {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
-	/* One tier tall plus a quarter of the next, so the peek says "scroll me"
-	   and unlocking tier 6 gives the column more to scroll rather than making
-	   the dock taller. A fixed height, not a maximum: with a max, the first
-	   column is one tier tall until a second tier unlocks and then everything
-	   above it jumps. The gap under a lone part is the price of never moving. */
-	height: calc(var(--part-h) * 1.25 + 4px);
+	/* One tier, plus the strip that shows the next one. Unlocking a tier gives
+	   the column more to scroll rather than making the dock taller, and the
+	   height is fixed rather than a maximum so nothing above it ever moves. */
+	height: calc(var(--part-h) + 4px + var(--peek-h));
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
@@ -359,6 +358,24 @@ footer {
 .part.on { border-color: var(--power); background: #1c2a20; }
 .part.poor u { color: #8c5b5b; }
 .part.locked { display: none; }
+
+/* The tier you have not earned yet: how many more of the one below to place,
+   what it will cost, and the shape of the part with the detail masked out -
+   enough to aim at without spoiling the art. */
+.part.next {
+	height: var(--peek-h);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	padding: 0 4px;
+	background-image: repeating-conic-gradient(#0000 0% 25%, #ffffff0d 0% 50%);
+	background-size: 4px 4px;
+}
+/* Flattened to a silhouette: the shape of the part without its detail. */
+.part.next i { width: 13px; height: 13px; filter: brightness(0) invert(1) brightness(0.42); }
+.part.next em { color: var(--ink); }
+.part.next u { color: var(--dim); }
 
 #tabs { display: flex; }
 #tabs button {
