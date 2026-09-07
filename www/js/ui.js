@@ -80,13 +80,16 @@ export function buildUI(game) {
 	dom.money = h("b", {});
 	dom.ep = h("b", {});
 	dom.epBox = h("span", { className: "ep" }, dom.ep);
-	root.append(
-		h("header", { id: "stats" },
-			meter("power", "power"),
-			meter("heat", "heat"),
-			h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox),
-		),
-	);
+	// The readout sits with the buttons that change it, at the bottom where a
+	// thumb already is. All the top of the screen owes the player is what to
+	// aim for next.
+	dom.readout = h("div", { className: "readout" },
+		meter("power", "power"),
+		meter("heat", "heat"),
+		h("div", { className: "purse" }, h("span", { className: "cash" }, dom.money), dom.epBox));
+
+	dom.objective = h("p", { className: "objective" });
+	root.append(h("header", { id: "goal" }, dom.objective));
 
 	// ---- pages -------------------------------------------------------------
 	const main = h("main", {});
@@ -101,9 +104,8 @@ export function buildUI(game) {
 	dom.board = h("div", { id: "board" }, dom.grid);
 	dom.pages.reactor.append(dom.board);
 
-	dom.objective = h("p", { className: "objective" });
 	dom.objectiveList = h("ol", { className: "objectives" });
-	dom.pages.objectives.append(dom.objective, dom.objectiveList);
+	dom.pages.objectives.append(dom.objectiveList);
 
 	dom.upgradeList = h("div", { className: "upgrades" });
 	dom.pages.upgrades.append(dom.upgradeList);
@@ -148,12 +150,16 @@ export function buildUI(game) {
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
 	dom.pause = h("button", { onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 	dom.actions = h("div", { id: "actions" },
-		h("button", { onclick: game.sellAll }, icon("cash"), h("span", { textContent: "Sell" })),
-		h("button", { onclick: game.ventHeat }, icon("vent"), h("span", { textContent: "Vent" })),
-		dom.pause);
-	dom.dock = h("div", { id: "dock" }, dom.actions);
-	dom.tabs = tabStrip("tabs", PAGES, (id) => showPage(dom, id));
-	root.append(h("footer", {}, dom.dock, dom.tabs));
+		dom.readout,
+		h("div", { className: "controls" },
+			h("button", { onclick: game.sellAll }, icon("cash"), h("span", { textContent: "Sell" })),
+			h("button", { onclick: game.ventHeat }, icon("vent"), h("span", { textContent: "Vent" })),
+			dom.pause));
+	// The bar stays put on every page - the readout in it is most wanted on the
+	// Upgrades page, where the money is being spent. Only the parts hide.
+	dom.dock = h("div", { id: "dock" });
+	dom.tabs = tabStrip("tabs", PAGES, (id) => { showPage(dom, id); game.viewing(id); });
+	root.append(h("footer", {}, dom.actions, dom.dock, dom.tabs));
 
 	buildDock(dom, game);
 	buildUpgrades(dom, game);
@@ -311,6 +317,7 @@ export function render(dom, s, game) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
 		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
 	}
+	dom.objective.textContent = OBJECTIVES[s.objective]?.title ?? "Every goal met.";
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
@@ -411,6 +418,5 @@ function renderUpgrades(dom, s) {
 }
 
 function renderObjectives(dom, s) {
-	dom.objective.textContent = OBJECTIVES[s.objective].title;
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("done", i < s.objective));
 }
