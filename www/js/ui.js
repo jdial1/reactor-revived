@@ -49,10 +49,16 @@ const PAGES = [
 
 // The dock's own tabs. Inside each, parts sit one family per row with the
 // tiers running across, so a row reads vent 1, vent 2, vent 3...
+// [label, the categories it holds]. Split by what a part does to the sim, not
+// by what is left over: "Cooling" used to be every category that was not a cell
+// or a capacitor, which put plating and particle accelerators - neither of them
+// cooling - in with the vents, 42 parts in one tab.
 const DOCK_TABS = [
-	["Cells", (p) => p.category === "cell"],
-	["Power", (p) => p.category === "reflector" || p.category === "capacitor"],
-	["Cooling", (p) => p.cooling],
+	["Cells", ["cell"]],
+	["Power", ["reflector", "capacitor"]],
+	["Cooling", ["vent", "coolant_cell", "reactor_plating"]],
+	["Transfer", ["heat_exchanger", "heat_inlet", "heat_outlet"]],
+	["Exotic", ["particle_accelerator"]],
 ];
 
 // Fuels are their own families so uranium and plutonium never share a row.
@@ -170,7 +176,7 @@ function buildDock(dom, game) {
 	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label));
 	const body = h("div", { id: "dock-body" });
 
-	for (const [label, match] of DOCK_TABS) {
+	for (const [label, categories] of DOCK_TABS) {
 		const page = h("div", { className: "dock-page" });
 		dom.dockPages[label] = page;
 		body.append(page);
@@ -178,7 +184,7 @@ function buildDock(dom, game) {
 		// One column per family, its tiers stacked down it.
 		let family = null;
 		let column = null;
-		for (const part of PARTS.filter(match)) {
+		for (const part of PARTS.filter((p) => categories.includes(p.category))) {
 			if (familyOf(part) !== family) {
 				family = familyOf(part);
 				column = h("div", { className: "dock-col" });
@@ -348,7 +354,8 @@ export function render(dom, s, game) {
 		button.classList.toggle("poor", s.money < part.cost);
 		button.classList.toggle("on", game.selected === part.id);
 	}
-	// Hide a family entirely until at least one of its tiers is unlocked.
+	// Hide a family entirely until at least one of its tiers is unlocked. Tabs
+	// need no such treatment: every category's tier 1 is visible from boot.
 	for (const col of dom.dockCols) col.hidden = !col.querySelector(".part:not(.locked)");
 	renderPage(dom, s);
 }

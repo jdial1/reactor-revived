@@ -61,39 +61,39 @@ const COMPONENTS = [
 	{ category: "capacitor", title: "Extreme Capacitor", level: 6, cost: 105e12,
 	  experimental: true, requires: "experimental_capacitance", reactorPower: 2.1e15, containment: 5.4e12 },
 
-	{ category: "vent", title: "Heat Vent", levels: 5, cost: 50, costMul: 250, cooling: true,
+	{ category: "vent", title: "Heat Vent", levels: 5, cost: 50, costMul: 250,
 	  containment: 80, containmentMul: 75, vent: 4, ventMul: 75 },
-	{ category: "vent", title: "Extreme Vent", level: 6, cost: 50e12, cooling: true,
+	{ category: "vent", title: "Extreme Vent", level: 6, cost: 50e12,
 	  experimental: true, requires: "vortex_cooling", containment: 100e9, vent: 5e9 },
 
-	{ category: "heat_exchanger", title: "Heat Exchanger", levels: 5, cost: 160, costMul: 200, cooling: true,
+	{ category: "heat_exchanger", title: "Heat Exchanger", levels: 5, cost: 160, costMul: 200,
 	  containment: 320, containmentMul: 75, transfer: 16, transferMul: 75 },
-	{ category: "heat_exchanger", title: "Extreme Heat Exchanger", level: 6, cost: 50e12, cooling: true,
+	{ category: "heat_exchanger", title: "Extreme Heat Exchanger", level: 6, cost: 50e12,
 	  experimental: true, requires: "underground_heat_extraction", containment: 1e12, transfer: 20e9 },
 
-	{ category: "heat_inlet", title: "Heat Inlet", levels: 5, cost: 160, costMul: 200, cooling: true,
+	{ category: "heat_inlet", title: "Heat Inlet", levels: 5, cost: 160, costMul: 200,
 	  transfer: 16, transferMul: 75 },
-	{ category: "heat_inlet", title: "Extreme Heat Inlet", level: 6, cost: 50e12, cooling: true,
+	{ category: "heat_inlet", title: "Extreme Heat Inlet", level: 6, cost: 50e12,
 	  experimental: true, requires: "vortex_extraction", transfer: 20e9, range: 2 },
 
-	{ category: "heat_outlet", title: "Heat Outlet", levels: 5, cost: 160, costMul: 200, cooling: true,
+	{ category: "heat_outlet", title: "Heat Outlet", levels: 5, cost: 160, costMul: 200,
 	  transfer: 16, transferMul: 75 },
-	{ category: "heat_outlet", title: "Extreme Heat Outlet", level: 6, cost: 50e12, cooling: true,
+	{ category: "heat_outlet", title: "Extreme Heat Outlet", level: 6, cost: 50e12,
 	  experimental: true, requires: "explosive_ejection", transfer: 20e9, range: 2 },
 
-	{ category: "coolant_cell", title: "Coolant Cell", levels: 5, cost: 500, costMul: 200, cooling: true,
+	{ category: "coolant_cell", title: "Coolant Cell", levels: 5, cost: 500, costMul: 200,
 	  containment: 2000, containmentMul: 180 },
-	{ category: "coolant_cell", title: "Thermionic Coolant Cell", level: 6, cost: 160e12, cooling: true,
+	{ category: "coolant_cell", title: "Thermionic Coolant Cell", level: 6, cost: 160e12,
 	  experimental: true, requires: "thermionic_conversion", containment: 380e12 },
 
-	{ category: "reactor_plating", title: "Reactor Plating", levels: 5, cost: 1000, costMul: 160, cooling: true,
+	{ category: "reactor_plating", title: "Reactor Plating", levels: 5, cost: 1000, costMul: 160,
 	  reactorHeat: 100, reactorHeatMul: 140 },
-	{ category: "reactor_plating", title: "Charged Reactor Plating", level: 6, cost: 100e12, cooling: true,
+	{ category: "reactor_plating", title: "Charged Reactor Plating", level: 6, cost: 100e12,
 	  experimental: true, requires: "micro_capacitance", reactorHeat: 8e12 },
 
-	{ category: "particle_accelerator", title: "Particle Accelerator", levels: 5, cost: 1e12, costMul: 10000, cooling: true,
+	{ category: "particle_accelerator", title: "Particle Accelerator", levels: 5, cost: 1e12, costMul: 10000,
 	  containment: 100, containmentMul: 1e6, epHeat: 5e8, epHeatMul: 20000 },
-	{ category: "particle_accelerator", title: "Black Hole Particle Accelerator", level: 6, cost: 100e12, cooling: true,
+	{ category: "particle_accelerator", title: "Black Hole Particle Accelerator", level: 6, cost: 100e12,
 	  experimental: true, requires: "singularity_harnessing", containment: 1e32, epHeat: 1.6e30, transfer: 1e30 },
 ];
 
