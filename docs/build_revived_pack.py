@@ -156,6 +156,8 @@ SHAPES = {
 # An outlet is an inlet upside down; drawing it twice would only let them drift.
 SHAPES["heat_outlet"] = SHAPES["heat_inlet"][::-1]
 
+# Kept as the reference the cell geometry is read from: a 1-wide casing, a
+# 2-wide core with a lit edge, and a cap at each end.
 FUEL_ROD = [
     "................", "................", "......SSSS......", "......SDDS......",
     "......SCLS......", "......SCCS......", "......SCLS......", "......SCCS......",
@@ -225,33 +227,45 @@ def paint(rows, tier, core, extra_trim=True):
 
 # ---- fuel cells: one rod, three layouts, seven hues ------------------------
 
-def rod_layout(count):
-    """The rod placed once, twice or four times inside the 16x16 box."""
-    rod = [list(r) for r in FUEL_ROD]
-    if count == 1:
-        return ["".join(r) for r in rod]
+def cell_grid(count):
+    """A fuel cell: one casing holding `count` rods, inner walls shared.
 
-    # Columns 6..9 hold the rod; lift that 4-wide strip out and re-place it.
-    strip = [[rod[y][x] for x in range(6, 10)] for y in range(GRID)]
-    out = [["." for _ in range(GRID)] for _ in range(GRID)]
+    A pack is not several separate rods sitting next to each other - it is one
+    component with several fuel channels in it, which is how Reactor Revival
+    draws them. So the rod is not stamped repeatedly; its anatomy is, and where
+    two channels meet they share a single wall rather than each keeping its own.
+    Every pack keeps the x1 rod's proportions: a 2-wide core behind a 1-wide
+    casing, capped top and bottom.
+    """
+    cols, rows_n = {1: (1, 1), 2: (2, 1), 4: (2, 2)}[count]
 
-    def stamp(ox, oy, rowsrc):
-        for y, line in enumerate(rowsrc):
-            for x, ch in enumerate(line):
-                if ch != "." and 0 <= oy + y < GRID and 0 <= ox + x < GRID:
-                    out[oy + y][ox + x] = ch
+    w = 1 + 3 * cols                 # wall, then (core, core, wall) per channel
+    x0 = (GRID - w) // 2
+    top, bottom = 2, 12              # the same 11 rows the single rod occupies
 
-    if count == 2:
-        stamp(3, 0, strip)
-        stamp(9, 0, strip)
-    else:
-        # Half-height rods for the quad: keep both caps, drop the middle.
-        short = strip[2:6] + strip[9:13]
-        stamp(3, 0, short)
-        stamp(9, 0, short)
-        stamp(3, 8, short)
-        stamp(9, 8, short)
-    return ["".join(r) for r in out]
+    g = [["." for _ in range(GRID)] for _ in range(GRID)]
+    for y in range(top, bottom + 1):
+        for x in range(x0, x0 + w):
+            g[y][x] = "S"
+
+    # The space left for fuel once the caps and the shared dividers are taken.
+    span = (bottom - 2) - (top + 2) + 1
+    ch = (span - (rows_n - 1)) // rows_n
+    for r in range(rows_n):
+        cy = top + 2 + r * (ch + 1)
+        for c in range(cols):
+            cx = x0 + 1 + c * 3
+            for y in range(cy, cy + ch):
+                for x in range(cx, cx + 2):
+                    g[y][x] = "C"
+            for y in range(cy, cy + ch, 2):   # the lit edge the rod has
+                g[y][cx] = "L"
+            # Every channel is capped at both ends, so a shared divider reads as
+            # two cells back to back rather than as one tall window cut in half.
+            for x in range(cx, cx + 2):
+                g[cy - 1][x] = "D"
+                g[cy + ch][x] = "D"
+    return ["".join(r) for r in g]
 
 
 def build():
@@ -270,7 +284,7 @@ def build():
             stem = f"xcell_1_{count}" if fuel == "protium" else f"cell_{i}_{count}"
             # A cell's colour is its element, and its tier is its pack size, so
             # no tier hardware here - the layout already says which one it is.
-            paint(rod_layout(count), 1, shades((hue, 70)), extra_trim=False).save(f"{dst}/{stem}.png")
+            paint(cell_grid(count), 1, shades((hue, 70)), extra_trim=False).save(f"{dst}/{stem}.png")
             names.append(stem)
 
     return sorted(names)
