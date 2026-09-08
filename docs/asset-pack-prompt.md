@@ -1,5 +1,8 @@
 # Prompt: draw the Reactor Revived part set
 
+> Superseded by `icon-set-prompt.md`, which hands over the tier ramp, palette and greebling as
+> well as the shapes. This one is kept because the shipped `revived` pack came from it.
+
 Paste everything below the line into a capable LLM. It asks for **ten 16×16 pixel
 grids**, not images — the other 65 sprites are derived from them by script, which is what
 keeps the set coherent.
