@@ -92,11 +92,28 @@ def install(pack):
     return have
 
 
+def load_manifest():
+    """What is already installed. Missing or unreadable means nothing is."""
+    try:
+        with open(f"{OUT}/packs.json", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
 def main():
     packs = sys.argv[1:] or ["revival"]
-    # Each pack maps to the sprites it actually has, so the game knows what to
-    # fall back on rather than asking for a file that is not there.
-    installed = {p: have for p in packs if (have := install(p))}
+    # Merged, not replaced: installing one pack used to rewrite the manifest
+    # from scratch, which quietly dropped every other pack - including the
+    # shipped one - out of the Options list until you reinstalled them all.
+    installed = load_manifest()
+    for p in packs:
+        if have := install(p):
+            installed[p] = have
+
+    # A pack whose files have since been deleted should not linger in the list.
+    installed = {p: names for p, names in installed.items() if os.path.isdir(f"{OUT}/{p}")}
+
     os.makedirs(OUT, exist_ok=True)
     with open(f"{OUT}/packs.json", "w", encoding="utf-8") as f:
         json.dump(installed, f, separators=(",", ":"))
