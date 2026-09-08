@@ -182,10 +182,14 @@ def trim(tier):
     if tier == 2:                                   # rails down both sides
         cells |= box(1, 4, 2, 11) | box(13, 4, 14, 11)
     elif tier == 3:                                 # corner brackets
-        for x0 in (1, 11):
-            for y0 in (1, 11):
-                arm = 0 if x0 == 1 else 3
-                cells |= box(x0, y0, x0 + 3, y0 + 1) | box(x0 + arm, y0, x0 + arm + 1, y0 + 3)
+        # One L, mirrored into the other three corners, so the set is symmetric
+        # both ways by construction - an outlet is a flipped inlet, and hand
+        # placing four corners had the bottom pair in the wrong rows.
+        corner = box(1, 1, 4, 2) | box(1, 1, 2, 4)
+        cells |= corner
+        cells |= {(GRID - 1 - x, y) for x, y in corner}
+        cells |= {(x, GRID - 1 - y) for x, y in corner}
+        cells |= {(GRID - 1 - x, GRID - 1 - y) for x, y in corner}
     elif tier == 4:                                 # a containment ring
         c = (GRID - 1) / 2
         cells |= {(x, y) for x in range(GRID) for y in range(GRID)
