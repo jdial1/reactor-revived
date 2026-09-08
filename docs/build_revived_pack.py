@@ -227,6 +227,49 @@ def paint(rows, tier, core, extra_trim=True):
 
 # ---- fuel cells: one rod, three layouts, seven hues ------------------------
 
+def rod_block():
+    """The x1 rod itself, 4 wide and 11 tall, lifted out of FUEL_ROD."""
+    return [FUEL_ROD[y][6:10] for y in range(2, 13)]
+
+
+def stamp(g, block, ox, oy):
+    """Draw a rod, shading the rod behind it rather than cutting into it.
+
+    A transparent gap would read as depth, but at four rods in a 16-cell row
+    there is no column to spare - clearing one erases most of the rod behind.
+    So where this rod meets one already drawn, that neighbour's cell is darkened
+    instead: the rod in front casts a shadow on the one behind, which is both
+    the right cue and free of width.
+    """
+    h, w = len(block), len(block[0])
+    for y in range(oy, oy + h):                    # shadow down the left side
+        if 0 <= y < GRID and 0 <= ox - 1 < GRID and g[y][ox - 1] != ".":
+            g[y][ox - 1] = "D"
+    for x in range(ox, ox + w):                    # and along the top
+        if 0 <= oy - 1 < GRID and 0 <= x < GRID and g[oy - 1][x] != ".":
+            g[oy - 1][x] = "D"
+    for y, line in enumerate(block):
+        for x, ch in enumerate(line):
+            if ch != "." and 0 <= oy + y < GRID and 0 <= ox + x < GRID:
+                g[oy + y][ox + x] = ch
+
+
+def cell_cluster():
+    """Four rods with depth: the back pair up and left, the front pair down and
+    right and drawn last, so it occludes them. This is how Reactor Revival draws
+    a quad, and it keeps the rod at full size - a flat 2x2 cannot, because two
+    11-row rods do not fit in 16 rows without shrinking the one thing that
+    should never vary."""
+    rod = rod_block()
+    g = [["." for _ in range(GRID)] for _ in range(GRID)]
+    # Spacing and offset in the same proportion to the rod as Revival's quad:
+    # the pairs about 1.3 rod-widths apart, the front pair a bit under a width
+    # right and about a third of a rod down.
+    for ox, oy in ((1, 0), (7, 0), (4, 4), (10, 4)):
+        stamp(g, rod, ox, oy)
+    return ["".join(r) for r in g]
+
+
 def cell_grid(count):
     """A fuel cell: one casing holding `count` rods, inner walls shared.
 
@@ -237,7 +280,9 @@ def cell_grid(count):
     Every pack keeps the x1 rod's proportions: a 2-wide core behind a 1-wide
     casing, capped top and bottom.
     """
-    cols, rows_n = {1: (1, 1), 2: (2, 1), 4: (2, 2)}[count]
+    if count == 4:
+        return cell_cluster()
+    cols, rows_n = {1: (1, 1), 2: (2, 1)}[count]
 
     w = 1 + 3 * cols                 # wall, then (core, core, wall) per channel
     x0 = (GRID - w) // 2
