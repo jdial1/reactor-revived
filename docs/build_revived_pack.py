@@ -169,24 +169,32 @@ FUEL_ROD = [
 # ---- tier hardware, from TIER_TRIM in sprites.js ---------------------------
 
 def trim(tier):
-    """The cells the tier's hardware occupies. Laid under the body, so a part
-    is recognisable by shape as well as by colour."""
+    """The cells the tier's hardware occupies, laid under the body.
+
+    Everything is inset one cell from the edge. The outline is derived from
+    transparent cells, so hardware touching x=0 has nothing to outline against
+    and runs straight into the part on the next tile: a board of tier 2 grows
+    continuous rails, and a board of tier 5 turns into horizontal stripes across
+    the whole reactor. One cell of margin keeps every part its own object.
+    """
     cells = set()
     box = lambda x0, y0, x1, y1: {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
     if tier == 2:                                   # rails down both sides
-        cells |= box(0, 4, 1, 11) | box(14, 4, 15, 11)
+        cells |= box(1, 4, 2, 11) | box(13, 4, 14, 11)
     elif tier == 3:                                 # corner brackets
-        for x0, y0 in ((0, 0), (11, 0), (0, 11), (11, 11)):
-            cells |= box(x0, y0, x0 + 4, y0 + 1) | box(x0 + (0 if x0 == 0 else 3), y0, x0 + (1 if x0 == 0 else 4), y0 + 4)
+        for x0 in (1, 11):
+            for y0 in (1, 11):
+                arm = 0 if x0 == 1 else 3
+                cells |= box(x0, y0, x0 + 3, y0 + 1) | box(x0 + arm, y0, x0 + arm + 1, y0 + 3)
     elif tier == 4:                                 # a containment ring
         c = (GRID - 1) / 2
         cells |= {(x, y) for x in range(GRID) for y in range(GRID)
-                  if 6.4 <= math.hypot(x - c, y - c) <= 7.4}
+                  if 5.7 <= math.hypot(x - c, y - c) <= 6.7}
     elif tier == 5:                                 # louvres across the face
-        cells |= box(0, 0, 15, 1) | box(0, 7, 15, 8) | box(0, 14, 15, 15)
+        cells |= box(1, 1, 14, 2) | box(1, 7, 14, 8) | box(1, 13, 14, 14)
     elif tier == 6:                                 # a full cage
-        cells |= {(x, y) for x in range(GRID) for y in range(GRID)
-                  if not (2 <= x <= 13 and 2 <= y <= 13)}
+        cells |= {(x, y) for x in range(1, 15) for y in range(1, 15)
+                  if not (3 <= x <= 12 and 3 <= y <= 12)}
     return cells
 
 
