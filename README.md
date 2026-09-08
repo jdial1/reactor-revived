@@ -97,8 +97,17 @@ Every game in the lineage draws the same components, so any of them can skin
 this one. Options &rarr; Part artwork switches between the installed packs, and
 the choice is saved.
 
-Two ship: **Reactor Revival** (the default, this project's own art) and
-**Generated** (drawn from geometry, no files).
+Three ship: **Reactor Revived** (this game's own art), **Reactor Revival** (the
+default, the fork's art) and **Generated** (drawn from geometry, no files).
+
+The Revived pack is ten hand-drawn 16&times;16 shapes; the other 65 sprites are
+derived from them by `docs/build_revived_pack.py` &mdash; tiers by recolour plus
+tier hardware, and the 21 fuel cells from one rod tiled and hue-shifted per
+element. Deriving rather than drawing is the point: 75 sprites drawn separately
+never agree with each other about light, weight or palette, which is what made
+every off-the-shelf pack we surveyed unusable. The vent is generated rather than
+drawn, in polar coordinates with the angle taken modulo 90&deg;, so the
+four-fold symmetry the spinning fan needs cannot drift.
 
 Knockoff, Incremental and Redux are supported but **not** bundled: Knockoff's
 art is unlicensed and the other two are commercial games whose sprites have to

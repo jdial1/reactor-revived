@@ -150,7 +150,7 @@ export function buildUI(game) {
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '
 				+ 'itself based on <a href="http://www.kongregate.com/games/Cael/reactor-incremental">Reactor Incremental</a> by Cael. '
-				+ 'Artwork is Reactor Revival’s, or drawn at runtime.' })),
+				+ 'Artwork is this game’s own, Reactor Revival’s, or drawn at runtime.' })),
 	);
 
 	// A slim line of what the reactor did this tick, under the totals that say

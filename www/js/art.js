@@ -58,6 +58,9 @@ const caelStyle = (quad) => (p) => {
 export const PACKS = {
 	generated: { label: "Generated (no files)", file: null },
 	revival: { label: "Reactor Revival", file: knockoffStyle("coolant_cell") },
+	// This game's own art: ten drawn shapes, the other 65 sprites derived from
+	// them by docs/build_revived_pack.py. Same filenames as Revival.
+	revived: { label: "Reactor Revived", file: knockoffStyle("coolant_cell") },
 	knockoff: { label: "Reactor Knockoff", file: knockoffStyle("coolant") },
 	incremental: { label: "Reactor Incremental", file: caelStyle(4) },
 	redux: { label: "Reactor Redux", file: caelStyle(3) },
