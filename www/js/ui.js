@@ -176,6 +176,13 @@ export function buildUI(game) {
 	// Upgrades page, where the money is being spent. Only the parts hide.
 	dom.dock = h("div", { id: "dock" });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => { showPage(dom, id); game.viewing(id); });
+	// A badge on the tabs you spend at, so money burning a hole in your pocket
+	// is visible from the reactor. One dot for one thing to buy, a count for more.
+	dom.pips = {};
+	for (const id of ["upgrades", "experiments"]) {
+		const button = [...dom.tabs.children].find((b) => b.dataset.value === id);
+		dom.pips[id] = button.appendChild(h("span", { className: `pip ${id}`, hidden: true }));
+	}
 	root.append(h("footer", {}, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	buildDock(dom, game);
@@ -538,8 +545,32 @@ export function render(dom, s, game) {
 	renderPage(dom, s);
 }
 
+/**
+ * How many upgrades on a page can be bought right now. costOf returns Infinity
+ * at max level, so a maxed-out upgrade never counts.
+ */
+function affordable(s, experiments) {
+	let n = 0;
+	for (const u of UPGRADES) {
+		if (Boolean(u.ecost) !== experiments) continue;
+		if (isUnlocked(s, u) && (u.ecost ? s.currentExoticParticles : s.money) >= costOf(s, u)) n++;
+	}
+	return n;
+}
+
+/** The tab badges. These run on every page, since the point is to be seen from another one. */
+function renderPips(dom, s) {
+	for (const [id, pip] of Object.entries(dom.pips)) {
+		const n = affordable(s, id === "experiments");
+		pip.hidden = !n;
+		pip.textContent = n > 1 ? n : "";
+		pip.classList.toggle("many", n > 1);
+	}
+}
+
 /** The parts of the interface behind a tab, patched only while that tab is up. */
 function renderPage(dom, s) {
+	renderPips(dom, s);
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
 	if (dom.page === "objectives") renderObjectives(dom, s);
 	if (dom.page === "experiments") {

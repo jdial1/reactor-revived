@@ -473,6 +473,32 @@ footer {
 }
 #tabs button.on { color: var(--ink); border-top-color: var(--power); }
 
+/* Something is affordable behind this tab. A bare dot says "one thing"; past
+   that the count is worth more than the dot, so it becomes a number. Coloured
+   by the currency it is asking to be spent. */
+#tabs button { position: relative; }
+.pip {
+	position: absolute;
+	top: 3px;
+	left: 50%;
+	margin-left: 5px;
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+	background: var(--cash);
+	animation: pop 220ms ease-out;
+}
+.pip.experiments { background: var(--ep); }
+.pip.many {
+	width: auto;
+	min-width: 14px;
+	height: 14px;
+	padding: 0 3px;
+	font: 700 9px/14px ui-monospace, monospace;
+	text-align: center;
+	color: var(--bg);
+}
+
 /* ---- dialogs ------------------------------------------------------------ */
 dialog {
 	color: var(--ink);
