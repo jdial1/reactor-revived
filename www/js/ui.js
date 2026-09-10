@@ -290,12 +290,22 @@ export function toast(text, glyph) {
 	say(text);
 }
 
-/** Flash an element to confirm it did something. */
+/**
+ * Flash an element to confirm it did something.
+ *
+ * The class has to come off again. An animation without `forwards` reverts to
+ * the element's own state when it ends, and the meter wash has no opacity of
+ * its own - so leaving the class on left a solid green or blue slab over the
+ * bar, hiding the reading underneath it, for the rest of the session.
+ */
 export const flash = (el, cls) => {
 	if (!el) return;
 	el.classList.remove(cls);
 	void el.offsetWidth;              // restart the animation if it is running
 	el.classList.add(cls);
+	const done = () => el.classList.remove(cls);
+	el.addEventListener("animationend", done, { once: true });
+	setTimeout(done, 1200);           // animationend never fires on a hidden tab
 };
 
 /**

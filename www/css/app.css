@@ -299,6 +299,15 @@ main { overflow: hidden; position: relative; }
 /* Which of the reactor's two numbers this moves, or neither. */
 .upgrade .kind { position: absolute; top: 6px; right: 7px; line-height: 0; }
 .upgrade .kind .icon { width: 15px; height: 15px; }
+/* Out of reach: the flat panel frame, not the raised button one, so the list
+   reads as what you can press and what you are saving towards. The narrower
+   frame is paid back in padding, or the row would shift as prices come in. */
+.upgrade.poor {
+	border-width: 6px;
+	border-image-source: url(../ui/panel.png);
+	border-image-slice: 6;
+	padding: 2px 4px;
+}
 .upgrade .kind.utility { color: var(--dim); }
 /* Keep a long title clear of the badge. */
 .upgrade > b { padding-right: 22px; }
@@ -637,7 +646,9 @@ dialog .row button { flex: 1; padding: 10px; }
 	inset: 0;
 	z-index: 4;
 	pointer-events: none;
-	animation: wash 320ms ease-out;
+	/* forwards as well as the class removal in flash(): if the animation never
+	   runs, the last frame is what shows, and that has to be invisible. */
+	animation: wash 320ms ease-out forwards;
 }
 .meter.sold::before { background: var(--power); }
 .meter.vented::before { background: var(--coolant, #4aa8d8); }
