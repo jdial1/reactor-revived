@@ -79,8 +79,11 @@ export function buildUI(game) {
 		// The bar is the button: glyph and reading sit inside it, painted over
 		// the fill. Two bars this size are a better target than two small
 		// buttons were, and the thing you press is the thing it acts on.
-		return h("button", { className: `meter ${id}`, onclick, title },
+		const el = h("button", { className: `meter ${id}`, onclick, title },
 			fill, icon(glyph, "icon stat"), text);
+		el.setAttribute("aria-label", title);
+		dom[id].el = el;
+		return el;
 	};
 
 	dom.money = h("b", {});
@@ -100,6 +103,8 @@ export function buildUI(game) {
 
 	dom.objective = h("p", { className: "objective" });
 	root.append(h("header", { id: "goal" }, dom.objective, dom.pause));
+	// One polite live region for the whole game: goals met, meltdowns, unlocks.
+	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
 
 	// ---- pages -------------------------------------------------------------
 	const main = h("main", {});
@@ -231,6 +236,56 @@ function buildDock(dom, game) {
 const showDock = (dom, label) => dom.dockTabs.select(label, dom.dockPages);
 
 /**
+ * Take a transient element off the page when its animation ends - or after a
+ * deadline, because a browser pauses animations in a tab nobody is looking at
+ * and `animationend` would never come, leaving toasts stacked up on return.
+ */
+function removeAfter(el, ms) {
+	const kill = () => el.remove();
+	el.addEventListener("animationend", kill);
+	setTimeout(kill, ms);
+}
+
+/** Say something to a screen reader without showing it. */
+function say(text) {
+	const live = document.getElementById("say");
+	if (live) live.textContent = text;
+}
+
+/**
+ * A number rising out of the thing that produced it. Money earned by tapping
+ * the power bar appears at the bar, not silently in the purse at the other end
+ * of the row.
+ */
+export function floatText(text, anchor, colour) {
+	if (!anchor) return;
+	const box = anchor.getBoundingClientRect();
+	const el = h("span", { className: "floater", textContent: text });
+	el.style.color = colour;
+	el.style.left = `${box.left + box.width / 2}px`;
+	el.style.top = `${box.top + box.height / 4}px`;
+	removeAfter(el, 1500);
+	document.body.append(el);
+}
+
+/** A short message, and the same words to a screen reader. */
+export function toast(text, glyph) {
+	document.getElementById("toast")?.remove();
+	const el = h("div", { id: "toast" }, glyph ? icon(glyph) : [], h("span", { textContent: text }));
+	removeAfter(el, 3200);
+	document.body.append(el);
+	say(text);
+}
+
+/** Flash an element to confirm it did something. */
+export const flash = (el, cls) => {
+	if (!el) return;
+	el.classList.remove(cls);
+	void el.offsetWidth;              // restart the animation if it is running
+	el.classList.add(cls);
+};
+
+/**
  * The reactor is gone. Dismissing it in any way is the acknowledgement, so
  * there is no way to end up staring at an empty board wondering what happened.
  */
@@ -341,8 +396,9 @@ function buildGrid(dom, s) {
 		// vent is shifting heat.
 		const fan = h("i", { className: "fan" });
 		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, fan, heat, life);
+		cell.setAttribute("aria-label", `row ${t.r + 1} column ${t.c + 1}, empty`);
 		dom.grid.append(cell);
-		dom.tiles.push({ t, cell, heat, life, fan, sig: "" });
+		dom.tiles.push({ t, cell, heat, life, fan, sig: "", had: null });
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
@@ -420,6 +476,14 @@ export function render(dom, s, game) {
 		if (sig === row.sig) continue;
 		row.sig = sig;
 
+		// A part that was not here a moment ago just got placed - say so, and
+		// pop it, so the tap that put it there is visibly the cause.
+		if (t.id && t.id !== row.had) flash(row.cell, "placed");
+		row.had = t.id;
+		row.cell.setAttribute("aria-label", p
+			? `row ${t.r + 1} column ${t.c + 1}, ${p.title}${t.activated ? "" : ", unpaid"}`
+			: `row ${t.r + 1} column ${t.c + 1}, empty`);
+
 		const art = p ? `url(${artFor(p)})` : "";
 		row.cell.style.backgroundImage = art;
 		row.fan.style.backgroundImage = p?.vent ? art : "";
@@ -438,7 +502,8 @@ export function render(dom, s, game) {
 	const started = new Set();
 	const placeholders = new Set();
 	const nextFamilyShown = new Set();
-	for (const { button, part, label, tab } of dom.partButtons) {
+	for (const row of dom.partButtons) {
+		const { button, part, label, tab } = row;
 		const visible = isPartVisible(s, part);
 		const progress = visible ? null : unlockProgress(s, part);
 		const family = familyOf(part);
@@ -451,6 +516,14 @@ export function render(dom, s, game) {
 			placeholders.add(family);
 			if (!started.has(family)) nextFamilyShown.add(tab);
 		}
+
+		// It was a locked strip a moment ago and now it is a part: that is the
+		// reward for placing ten of the last one, and it deserves to be seen.
+		if (visible && row.wasLocked) {
+			flash(button, "unlocked");
+			toast(`${part.title} unlocked`, "upgrades");
+		}
+		row.wasLocked = !visible;
 
 		button.disabled = !visible; // a placeholder is a signpost, not a part
 		button.classList.toggle("locked", !visible && !isNext);

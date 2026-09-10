@@ -5,8 +5,9 @@ import { load, save, newState, place, exportSave as saveText, deserialize } from
 import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
-import { checkObjectives } from "./objectives.js";
-import { buildUI, render, ask, inspect } from "./ui.js";
+import { checkObjectives, OBJECTIVES } from "./objectives.js";
+import { fmt } from "./fmt.js";
+import { buildUI, render, ask, inspect, flash, floatText, toast } from "./ui.js";
 import { loadArt } from "./art.js";
 import { attachInput } from "./input.js";
 
@@ -79,8 +80,9 @@ const game = {
 	},
 
 	buy(id) {
-		buyUpgrade(s, id);
+		if (!buyUpgrade(s, id)) return;   // unaffordable or locked: say nothing
 		compile(s);
+		flash(dom.upgradeRows.find((r) => r.u.id === id)?.button, "bought");
 	},
 
 	reboot(refund) {
@@ -91,14 +93,22 @@ const game = {
 	},
 
 	sellAll() {
-		s.money += s.power;
+		if (s.power <= 0) return;         // nothing to sell; do not flash a lie
+		const earned = s.power;
+		s.money += earned;
 		s.power = 0;
 		s.soldPower = true;
+		flash(dom.power.el, "sold");
+		floatText(`+${fmt(earned)}`, dom.power.el, "var(--cash)");
 	},
 
 	ventHeat() {
-		s.heat = Math.max(0, s.heat - s.manualHeatReduce);
+		if (s.heat <= 0) return;
+		const shed = Math.min(s.heat, s.manualHeatReduce);
+		s.heat -= shed;
 		if (s.heat === 0) s.soldHeat = true;
+		flash(dom.heat.el, "vented");
+		floatText(`-${fmt(shed)}`, dom.heat.el, "var(--heat)");
 	},
 
 	// Acknowledging a meltdown clears the heat with it. The reactor is empty, so
@@ -172,7 +182,11 @@ await loadArt();
 boot();
 gameLoop();
 setInterval(() => render(dom, s, game), UI_MS);
-setInterval(() => checkObjectives(s), OBJECTIVE_MS);
+setInterval(() => {
+	// The goal that is about to be met, captured before the counter moves on.
+	const done = OBJECTIVES[s.objective];
+	if (checkObjectives(s)) toast(`Goal met - ${done.title}`, "goals");
+}, OBJECTIVE_MS);
 setInterval(() => save(s), SAVE_MS);
 
 // Called by the Android side once the player has picked a file to load.

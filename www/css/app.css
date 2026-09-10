@@ -513,3 +513,109 @@ dialog .row button { flex: 1; padding: 10px; }
 #tabs .icon { width: 18px; height: 18px; }
 /* Keep the play/pause glyph from shifting the label when it swaps. */
 .swap { display: inline-flex; width: 16px; justify-content: center; }
+
+/* ---- feedback ----------------------------------------------------------- */
+/* The loop is: place a part, watch power climb, tap to sell it, spend it. Each
+   beat of that got something small to confirm it happened, because a tap that
+   changes a number somewhere else on screen does not feel like it did anything. */
+
+/* A part just landed. */
+.tile.placed { animation: pop 220ms ease-out; }
+@keyframes pop {
+	0% { transform: scale(0.7); filter: brightness(1.8); }
+	60% { transform: scale(1.08); }
+	100% { transform: scale(1); }
+}
+
+/* A tier you just earned, in the dock. */
+.part.unlocked { animation: earned 700ms ease-out; }
+@keyframes earned {
+	0%, 100% { box-shadow: none; }
+	30% { box-shadow: 0 0 0 2px var(--power), 0 0 12px 2px var(--power); }
+}
+
+/* Power sold, heat vented, upgrade bought. */
+.meter.sold::before, .meter.vented::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 4;
+	pointer-events: none;
+	animation: wash 320ms ease-out;
+}
+.meter.sold::before { background: var(--power); }
+.meter.vented::before { background: var(--coolant, #4aa8d8); }
+@keyframes wash { from { opacity: 0.55; } to { opacity: 0; } }
+
+.upgrade.bought { animation: earned 600ms ease-out; }
+
+/* A number leaving the thing that produced it. */
+.floater {
+	position: fixed;
+	z-index: 50;
+	pointer-events: none;
+	font-variant-numeric: tabular-nums;
+	font-weight: bold;
+	text-shadow: 0 1px 3px #000;
+	animation: rise 900ms ease-out forwards;
+}
+@keyframes rise {
+	from { transform: translate(-50%, 0); opacity: 1; }
+	to { transform: translate(-50%, -34px); opacity: 0; }
+}
+
+/* Said once, then gone. */
+/* Under the goal bar, over the reactor: the only band of the screen with
+   nothing to press, so a message never covers a control. */
+#toast {
+	position: fixed;
+	left: 50%;
+	top: 62px;
+	z-index: 60;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	max-width: 88vw;
+	padding: 8px 14px;
+	background: var(--panel);
+	border: 1px solid var(--power);
+	border-radius: 4px;
+	box-shadow: 0 4px 16px #000a;
+	animation: toast-in 2600ms ease-out forwards;
+}
+@keyframes toast-in {
+	0% { opacity: 0; transform: translate(-50%, 10px); }
+	8%, 82% { opacity: 1; transform: translate(-50%, 0); }
+	100% { opacity: 0; transform: translate(-50%, -6px); }
+}
+
+/* ---- keyboard and screen readers ---------------------------------------- */
+/* Nothing here had a focus style, so a keyboard had no idea where it was. */
+:focus-visible {
+	outline: 2px solid var(--power);
+	outline-offset: 2px;
+}
+.tile:focus-visible { outline-offset: -2px; }
+
+/* Announced, not shown. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* Some people get motion sick, and this game shakes the screen when it is hot.
+   The fan still appears over a working vent - it just stops turning. */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 1ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 1ms !important;
+	}
+}
