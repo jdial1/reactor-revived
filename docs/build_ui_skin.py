@@ -74,6 +74,42 @@ def recolour(im, ramp):
     return out
 
 
+def flatten(im, slice_):
+    """Make the four tiled strips uniform along their length.
+
+    border-image tiles the middle of each edge. Buch drew his bevels with the
+    corner highlight running a pixel or two into that middle, so tiling a 4px
+    strip that starts with one bright pixel puts a bright pixel every 4px along
+    the top of the button - a dotted line where an unbroken one belongs. The
+    meter frame had it worse: its crop caught the rounded end of the fill, and
+    that notch repeated across the bar.
+
+    Each row of the top and bottom strips, and each column of the left and
+    right, is set to the colour that already dominates it. Corners are left
+    alone - they are drawn once and never repeated.
+    """
+    px = im.load()
+    w, h = im.size
+
+    def dominant(pixels):
+        counts = {}
+        for p in pixels:
+            counts[p] = counts.get(p, 0) + 1
+        return max(counts, key=counts.get)
+
+    for y in list(range(slice_)) + list(range(h - slice_, h)):
+        span = range(slice_, w - slice_)
+        keep = dominant([px[x, y] for x in span])
+        for x in span:
+            px[x, y] = keep
+    for x in list(range(slice_)) + list(range(w - slice_, w)):
+        span = range(slice_, h - slice_)
+        keep = dominant([px[x, y] for y in span])
+        for y in span:
+            px[x, y] = keep
+    return im
+
+
 def hollow(im, slice_):
     """Clear everything border-image will discard, so the file is mostly empty."""
     px = im.load()
@@ -93,7 +129,7 @@ def main():
 
     sheet = Image.open(src).convert("RGBA")
     for name, box, ramp, slice_ in PIECES:
-        piece = hollow(recolour(sheet.crop(box), ramp), slice_)
+        piece = hollow(flatten(recolour(sheet.crop(box), ramp), slice_), slice_)
         piece.save(f"{OUT}/{name}.png")
         size = os.path.getsize(f"{OUT}/{name}.png")
         print(f"{OUT}/{name}.png  {piece.width}x{piece.height}  "
