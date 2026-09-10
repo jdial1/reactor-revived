@@ -151,7 +151,9 @@ export function buildUI(game) {
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '
 				+ 'itself based on <a href="http://www.kongregate.com/games/Cael/reactor-incremental">Reactor Incremental</a> by Cael. '
-				+ 'Part artwork is Reactor Revival’s.' })),
+				+ 'Part artwork is Reactor Revival’s. Interface skinned from '
+				+ '<a href="https://opengameart.org/content/sci-fi-user-interface-elements">Sci-fi User Interface Elements</a> '
+				+ 'by Buch (CC0).' })),
 	);
 
 	// A slim line of what the reactor did this tick, under the totals that say

@@ -51,6 +51,26 @@ button {
 	padding: 6px 8px;
 }
 button:active { filter: brightness(1.4); }
+
+/* Buttons, dialogs and the meter frames are skinned from Buch's CC0 sci-fi UI
+   sheet - the same pack Reactor Knockoff used - recoloured onto this palette by
+   docs/build_ui_skin.py. border-image wants only the outer ring of each file,
+   which is why their middles are blank.
+
+   Skinning is opt-in per selector rather than applied to every button. A part
+   in the dock is a 31px sprite in a 63px box and has no eight pixels to give
+   to a frame, and the page tabs mark the current page by colouring one border
+   - which a border-image would paint straight over. */
+#goal .pause, #actions button, #dock-tabs button, .upgrade, button.wide,
+.sheet-actions button, dialog .row button {
+	/* A steel edge, invisible under the image, is what shows if the image is
+	   ever missing - the same reasoning as the generated part sprites. */
+	border: 8px solid var(--edge);
+	border-image: url(../ui/button.png) 8 repeat;
+	border-radius: 0;
+	padding: 0 2px;
+	image-rendering: pixelated;
+}
 a { color: var(--power); }
 
 /* ---- stat bar ---------------------------------------------------------- */
@@ -93,7 +113,8 @@ a { color: var(--power); }
 	padding: 0;
 	height: var(--bar-h);
 	background: #0007;
-	border: 1px solid var(--edge);
+	border: 8px solid var(--edge);
+	border-image: url(../ui/meter.png) 8 repeat;
 	overflow: hidden;
 }
 /* A watermark centred on the bar, over the fill. Both glyphs fill their
@@ -371,10 +392,12 @@ footer {
 	color: var(--dim);
 }
 #actions button { color: var(--ink); }
+/* The frame is an image now, so a border colour would not show. The mark moves
+   just inside it. */
 #dock-tabs button.on {
 	color: var(--ink);
-	border-color: var(--power);
 	background: #1c2a20;
+	box-shadow: inset 0 0 0 1px var(--power);
 }
 #dock-body { overflow: hidden; }
 
@@ -507,10 +530,12 @@ footer {
 dialog {
 	color: var(--ink);
 	background: var(--panel);
-	border: 1px solid var(--edge);
-	border-radius: 6px;
-	padding: 14px;
+	border: 6px solid var(--edge);
+	border-image: url(../ui/panel.png) 6 repeat;
+	border-radius: 0;
+	padding: 8px;
 	max-width: min(90vw, 340px);
+	image-rendering: pixelated;
 }
 dialog::backdrop { background: #000a; }
 dialog h2 { margin: 0 0 2px; font-size: 15px; }

@@ -121,6 +121,31 @@ redistribute. `docs/build_revived_pack.py` and `docs/split_sheet.py` build
 alternative sets the same way. None of them is wired into the game — to try
 one, copy it over `www/parts/revival/`.
 
+## Interface skin
+
+The buttons, dialogs and meter frames are cut from **"Sci-fi User Interface
+Elements" by Buch** on OpenGameArt, which is **CC0** — the same pack Reactor
+Knockoff drew its buttons from, so this is a lineage inheritance rather than a
+new dependency. Three files in `www/ui/`, 1.4 KB together, applied with CSS
+`border-image`.
+
+The sheet is a mockup of one window rather than a kit, and it is drawn in lilac
+and teal, so only the *shape* is taken: every colour is remapped onto this
+project's own steel ramp by brightness, keeping Buch's bevels and losing his
+palette. `border-image` uses only the outer ring of each file, so the middles
+are blanked and the slices stay 1:1 with the source pixels — nothing is
+resampled.
+
+```bash
+python docs/build_ui_skin.py
+```
+
+Skinning is opt-in per selector. A part in the dock is a 31px sprite in a 63px
+box with no eight pixels to give to a frame, and the page tabs mark the current
+page by colouring one border, which an image border would paint over. Each
+skinned rule keeps a plain steel `border-color` underneath, so a build without
+`www/ui/` still has visible edges.
+
 ## Balance parity
 
 The numbers are checked against the *running* original at
