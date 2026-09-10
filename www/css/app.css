@@ -425,12 +425,15 @@ footer {
 .part u { text-decoration: none; font-size: 9px; color: var(--dim); }
 .part.on { border-color: var(--power); background: #1c2a20; }
 .part.poor u { color: #8c5b5b; }
-/* The hub of a working vent, turning. The art is blown up and clipped by the
-   tile so only the fan itself shows, which is why no separate rotor sprite is
-   needed. */
+/* The hub of a working vent, turning. No separate rotor sprite: the part's own
+   art is shown at 166%, so only the middle 60% - the round, rotatable part -
+   falls inside the box and the housing is cropped away.
+   The box is that middle 60% of the tile rather than the whole tile, which puts
+   the rotor back at the scale the rest of the art is drawn at. Filling the tile
+   meant a vent under a spin was half again the size of one at rest. */
 .tile .fan {
 	position: absolute;
-	inset: 0;
+	inset: 20%;
 	background: center / 166% no-repeat;
 	image-rendering: pixelated;
 	opacity: 0;
