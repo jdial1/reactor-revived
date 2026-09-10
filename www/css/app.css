@@ -10,8 +10,7 @@
 	   docs/build_ui_skin.py, not chosen. Whatever sits inside a frame is painted
 	   its own frame's colour, or the piece reads as a plate with a hole in it.
 	   The meter's is --panel, which is why an empty bar is that and not black. */
-	--face: #262e39;     /* button.png, panel.png */
-	--face-on: #3d4757;  /* button-on.png, which is lit on the other side */
+	--face: #262e39;  /* button.png, button-on.png, panel.png */
 	--ink: #c8d3de;
 	--dim: #7b8794;
 	--power: #58c470;
@@ -397,7 +396,17 @@ footer {
 /* One row: the bar that earns, what it earned, the bar that threatens it. */
 #actions { display: flex; align-items: center; gap: 6px; padding: 4px; }
 #actions .meter { flex: 1; min-width: 0; }
-#actions .purse { flex: none; }
+/* The money sat in the hole between two framed bars. It gets the panel frame,
+   so the row reads as three surfaces rather than two and a gap. */
+#actions .purse {
+	flex: none;
+	align-self: stretch;
+	padding: 0 4px;
+	background: var(--face);
+	border: 6px solid var(--edge);
+	border-image: url(../ui/panel.png) 6 repeat;
+	image-rendering: pixelated;
+}
 #dock-tabs { display: flex; gap: 3px; }
 #actions button, #dock-tabs button {
 	display: flex;
@@ -415,7 +424,6 @@ footer {
    replaced was the interface shouting a state the bevel already tells you. */
 #dock-tabs button.on, .skin-on {
 	color: var(--ink);
-	background: var(--face-on);
 	border-image-source: url(../ui/button-on.png);
 }
 #dock-body { overflow: hidden; }
@@ -470,7 +478,7 @@ footer {
    was, light where the shadow was. */
 .part.on {
 	border-color: #07090c;
-	background: var(--face-on);
+	background: var(--face);
 	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
 }
 .part.poor u { color: #8c5b5b; }

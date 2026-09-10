@@ -52,28 +52,38 @@ def rgb(s):
     return tuple(int(s[i:i + 2], 16) for i in (1, 3, 5))
 
 
-def recolour(im, ramp):
-    """Every distinct colour onto the ramp, ordered by brightness."""
-    px = im.load()
+def mapping(pieces, ramp):
+    """One colour map for the whole kit, not one per piece.
+
+    Built per piece, this went wrong: the plain button uses seven of Buch's
+    colours and the pressed one six, so spreading each crop's own colours across
+    the ramp sent the same source grey to two different steels, and a selected
+    button came out a shade lighter than an unselected one for no reason anyone
+    could see. The pieces are one kit and share one map.
+    """
     seen = {}
-    for y in range(im.height):
-        for x in range(im.width):
-            r, g, b, a = px[x, y]
-            if a:
-                seen.setdefault((r, g, b), 0.299 * r + 0.587 * g + 0.114 * b)
+    for im in pieces:
+        px = im.load()
+        for y in range(im.height):
+            for x in range(im.width):
+                r, g, b, a = px[x, y]
+                if a:
+                    seen.setdefault((r, g, b), 0.299 * r + 0.587 * g + 0.114 * b)
 
     order = sorted(seen, key=lambda c: seen[c])
     steps = [rgb(h) for h in ramp]
     # Spread the colours present across the whole ramp rather than matching
     # absolute brightness: the source is a light UI and this one is not.
-    mapped = {c: steps[round(i * (len(steps) - 1) / max(1, len(order) - 1))]
-              for i, c in enumerate(order)}
+    return {c: steps[round(i * (len(steps) - 1) / max(1, len(order) - 1))]
+            for i, c in enumerate(order)}
 
+
+def recolour(im, mapped):
     out = Image.new("RGBA", im.size, (0, 0, 0, 0))
-    dst = out.load()
+    src, dst = im.load(), out.load()
     for y in range(im.height):
         for x in range(im.width):
-            r, g, b, a = px[x, y]
+            r, g, b, a = src[x, y]
             dst[x, y] = (*mapped[(r, g, b)], a) if a else (0, 0, 0, 0)
     return out
 
@@ -152,8 +162,11 @@ def main():
         urllib.request.urlretrieve(SRC, src)
 
     sheet = Image.open(src).convert("RGBA")
-    for name, box, ramp, slice_ in PIECES:
-        piece = hollow(flatten(recolour(sheet.crop(box), ramp), slice_), slice_)
+    crops = [sheet.crop(box) for _, box, _, _ in PIECES]
+    mapped = mapping(crops, RAMP)
+
+    for (name, _, _, slice_), crop in zip(PIECES, crops):
+        piece = hollow(flatten(recolour(crop, mapped), slice_), slice_)
         piece.save(f"{OUT}/{name}.png")
         size = os.path.getsize(f"{OUT}/{name}.png")
         print(f"{OUT}/{name}.png  {piece.width}x{piece.height}  "
