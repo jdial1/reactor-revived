@@ -93,7 +93,11 @@ export function buildUI(game) {
 	// thumb already is. All the top of the screen owes the player is what to
 	// aim for next.
 	// The coin says "money"; the number does not need a currency symbol too.
-	dom.purse = h("div", { className: "purse" }, icon("cash", "icon coin"), h("span", { className: "cash" }, dom.money), dom.epBox);
+	// Money on top, particles under it: two currencies on one line read as one
+	// long number, and the money is the one being watched.
+	dom.purse = h("div", { className: "purse" },
+		h("div", { className: "money-row" }, icon("cash", "icon coin"), h("span", { className: "cash" }, dom.money)),
+		dom.epBox);
 
 	// Pause is the only control left that acts on nothing in particular, so it
 	// goes in the corner rather than taking a row of its own.

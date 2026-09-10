@@ -151,17 +151,18 @@ a { color: var(--power); }
 }
 
 .purse {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 6px;
+	display: grid;
+	justify-items: center;
+	align-content: center;
+	gap: 1px;
 	white-space: nowrap;
 }
+.purse .money-row { display: flex; align-items: center; gap: 6px; }
 .cash { color: var(--cash); }
 /* The money is the number worth reading on this row, so it is the biggest. */
 .purse .cash { font-size: 19px; }
 .purse .icon.coin { width: 19px; height: 19px; }
-.ep { color: var(--ep); }
+.ep { color: var(--ep); font-size: 11px; }
 
 /* The reactor visibly runs hot before it kills you. */
 body.hot #actions .readout { box-shadow: 0 0 0 1px var(--heat); }
