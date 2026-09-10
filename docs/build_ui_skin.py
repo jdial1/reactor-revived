@@ -39,6 +39,10 @@ RAMP = ["#07090c", "#0f1318", "#151a21", "#262e39", "#3d4757", "#7b8794", "#c8d3
 # of every dialog.
 PIECES = [
     ("button", (117, 139, 137, 159), RAMP, 8),
+    # The same button pressed: Buch runs the highlight along the bottom-right
+    # instead of the top-left, so it reads as pushed in. That is the selected
+    # state for anything skinned - no colour needed to say "this one".
+    ("button-on", (138, 138, 158, 158), RAMP, 8),
     ("panel", (82, 69, 127, 86), RAMP, 6),
     ("meter", (98, 118, 164, 138), RAMP, 8),
 ]

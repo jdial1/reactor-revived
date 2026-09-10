@@ -6,6 +6,7 @@
 	--bg: #0b0d10;
 	--panel: #151a21;
 	--edge: #262e39;
+	--face: #1e2530;  /* a skinned button's face: one step inside --edge */
 	--ink: #c8d3de;
 	--dim: #7b8794;
 	--power: #58c470;
@@ -61,11 +62,17 @@ button:active { filter: brightness(1.4); }
    in the dock is a 31px sprite in a 63px box and has no eight pixels to give
    to a frame, and the page tabs mark the current page by colouring one border
    - which a border-image would paint straight over. */
-#goal .pause, #actions button, #dock-tabs button, .upgrade, button.wide,
-.sheet-actions button, dialog .row button {
+/* :not(.meter) matters more than it looks: a meter is a button inside #actions,
+   so this list was skinning the bars with the button frame and painting a flat
+   face over their colour ramp - an ID selector beats .meter.power. */
+#goal .pause, #actions button:not(.meter), #dock-tabs button, .upgrade,
+button.wide, .sheet-actions button, dialog .row button {
 	/* A steel edge, invisible under the image, is what shows if the image is
 	   ever missing - the same reasoning as the generated part sprites. */
 	border: 8px solid var(--edge);
+	/* The frame's innermost ring is --edge; a --panel face inside it read as a
+	   hole cut in the button. One step down from the frame, not four. */
+	background: var(--face);
 	border-image: url(../ui/button.png) 8 repeat;
 	border-radius: 0;
 	padding: 0 2px;
@@ -113,6 +120,10 @@ a { color: var(--power); }
 	padding: 0;
 	height: var(--bar-h);
 	background: #0007;
+	/* Clipped to the padding box, which is exactly what .unfilled covers. On
+	   border-box the ramp painted under the frame too and showed through the
+	   image's transparent corners, colouring an empty bar. */
+	background-clip: padding-box;
 	border: 8px solid var(--edge);
 	border-image: url(../ui/meter.png) 8 repeat;
 	overflow: hidden;
@@ -158,7 +169,9 @@ a { color: var(--power); }
 .meter b { z-index: 3; }
 /* Both bars fill towards trouble, so both read the same way. */
 .meter.power, .meter.heat {
-	background: linear-gradient(to right,
+	/* background-image, not the shorthand: the shorthand would reset the
+	   padding-box clip set above and let the ramp paint under the frame. */
+	background-image: linear-gradient(to right,
 		var(--power) 0 50%, var(--cash) 50% 80%, var(--heat) 80% 100%);
 }
 /* The reading rides on the bar, hard right, over whatever the fill is doing. */
@@ -392,12 +405,13 @@ footer {
 	color: var(--dim);
 }
 #actions button { color: var(--ink); }
-/* The frame is an image now, so a border colour would not show. The mark moves
-   just inside it. */
-#dock-tabs button.on {
+/* Selected is Buch's pressed button: the highlight runs along the bottom-right
+   instead of the top-left, so the thing reads as pushed in. The green ring this
+   replaced was the interface shouting a state the bevel already tells you. */
+#dock-tabs button.on, .skin-on {
 	color: var(--ink);
-	background: #1c2a20;
-	box-shadow: inset 0 0 0 1px var(--power);
+	background: var(--panel);
+	border-image-source: url(../ui/button-on.png);
 }
 #dock-body { overflow: hidden; }
 
@@ -446,7 +460,14 @@ footer {
 }
 .part em { font-style: normal; font-size: 9px; white-space: nowrap; }
 .part u { text-decoration: none; font-size: 9px; color: var(--dim); }
-.part.on { border-color: var(--power); background: #1c2a20; }
+/* A part is 70px wide with a 31px sprite in it and has no eight pixels to give
+   to a frame, so it gets the same lighting in one pixel: dark where the light
+   was, light where the shadow was. */
+.part.on {
+	border-color: #07090c;
+	background: var(--face);
+	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
+}
 .part.poor u { color: #8c5b5b; }
 /* The hub of a working vent, turning. No separate rotor sprite: the part's own
    art is shown at 166%, so only the middle 60% - the round, rotatable part -
@@ -476,8 +497,15 @@ footer {
 	justify-content: center;
 	gap: 5px;
 	padding: 0 4px;
-	background-image: repeating-conic-gradient(#0000 0% 25%, #ffffff0d 0% 50%);
-	background-size: 4px 4px;
+	/* --p is how much of the way there you are, set by the renderer. The
+	   checkerboard is the empty track; the green is the part you have done.
+	   Without the fill this strip was a full-width texture with "0/10" written
+	   on it, which reads as a progress bar that is always complete. */
+	--p: 0;
+	background-image:
+		linear-gradient(to right, #c8d3de1f 0 calc(var(--p) * 100%), #0000 0),
+		repeating-conic-gradient(#0000 0% 25%, #ffffff0d 0% 50%);
+	background-size: auto, 4px 4px;
 }
 /* Flattened to a silhouette: the shape of the part without its detail. */
 .part.next i { width: 17px; height: 17px; filter: brightness(0) invert(1) brightness(0.42); }
@@ -498,7 +526,7 @@ footer {
 	color: var(--dim);
 	background: none;
 }
-#tabs button.on { color: var(--ink); border-top-color: var(--power); }
+#tabs button.on { color: var(--ink); border-top-color: var(--ink); }
 
 /* Something is affordable behind this tab. A bare dot says "one thing"; past
    that the count is worth more than the dot, so it becomes a number. Coloured
@@ -529,7 +557,7 @@ footer {
 /* ---- dialogs ------------------------------------------------------------ */
 dialog {
 	color: var(--ink);
-	background: var(--panel);
+	background: var(--face);
 	border: 6px solid var(--edge);
 	border-image: url(../ui/panel.png) 6 repeat;
 	border-radius: 0;

@@ -541,6 +541,8 @@ export function render(dom, s, game) {
 		button.disabled = !visible; // a placeholder is a signpost, not a part
 		button.classList.toggle("locked", !visible && !isNext);
 		button.classList.toggle("next", isNext);
+		// How far along the unlock is, for the strip's fill.
+		if (isNext) button.style.setProperty("--p", progress.have / progress.need);
 		button.classList.toggle("poor", visible && s.money < part.cost);
 		button.classList.toggle("on", game.selected === part.id);
 		label.textContent = isNext ? `${progress.have}/${progress.need}` : part.short;
