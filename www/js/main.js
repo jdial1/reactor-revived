@@ -7,7 +7,7 @@ import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives } from "./objectives.js";
 import { buildUI, render, ask, inspect } from "./ui.js";
-import { loadPacks } from "./art.js";
+import { loadArt } from "./art.js";
 import { attachInput } from "./input.js";
 
 // Set when a page change paused the game, so returning can undo exactly that.
@@ -51,18 +51,6 @@ const game = {
 
 	select(id) {
 		game.selected = id;
-	},
-
-	// `pack` mirrors the saved setting so the dock can be built before a state
-	// exists; changing it rebuilds every sprite on screen.
-	get pack() {
-		return s.artPack;
-	},
-
-	setArtPack(id) {
-		s.artPack = id;
-		save(s);
-		boot();
 	},
 
 	// A tap places on empty ground and inspects what is already there.
@@ -180,7 +168,7 @@ function gameLoop() {
 	setTimeout(gameLoop, s.loopWait);
 }
 
-await loadPacks();
+await loadArt();
 boot();
 gameLoop();
 setInterval(() => render(dom, s, game), UI_MS);

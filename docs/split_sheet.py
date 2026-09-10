@@ -18,14 +18,12 @@ wrong produces 75 subtly wrong files that all look plausible in a folder:
 Failures are reported per cell and nothing is written unless --force is given.
 """
 
-import json
 import os
 import sys
 
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(__file__))
-from install_art_packs import load_manifest  # noqa: E402
 from optimize_art import rewrite             # noqa: E402
 
 CELL, COLS, ROWS = 64, 6, 16
@@ -164,12 +162,7 @@ def main():
     print(f"{pack}: {len(names)} sprites, "
           f"{sum(a for a, _ in saved) // 1024} KB packed down to {sum(b for _, b in saved) // 1024} KB")
 
-    manifest = load_manifest()
-    manifest[pack] = sorted(names)
-    with open(f"{OUT}/packs.json", "w", encoding="utf-8") as f:
-        json.dump(manifest, f, separators=(",", ":"))
-    print("packs:", list(manifest))
-    print(f"add a PACKS entry for '{pack}' in www/js/art.js to make it selectable")
+    print("to use it, copy these over www/parts/revival/ - the game reads that one folder")
 
 
 if __name__ == "__main__":

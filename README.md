@@ -25,8 +25,8 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **The game can run with no image files at all.** Every one of the 75 part
   icons can be drawn at runtime from geometry, and every interface icon is
-  inline SVG. One artwork pack ships as well &mdash; see below &mdash; but the
-  generated art is always there as a fallback and as the zero-asset option.
+  inline SVG. One artwork pack ships as well &mdash; see below &mdash; but it is
+  a fallback away from running on nothing.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,000 lines of game code and a 100-line Android shell.
@@ -93,43 +93,33 @@ picker for save export and import.
 
 ## Part artwork
 
-Every game in the lineage draws the same components, so any of them can skin
-this one. Options &rarr; Part artwork switches between the installed packs, and
-the choice is saved.
+The parts are drawn with **Reactor Revival's** art, in `www/parts/revival/` —
+75 PNGs, one per part, 67 KB after a lossless repack. There is no picker: the
+game had one, along with a registry of every pack in the lineage and a manifest
+of which sprites each had, and with a single pack none of it earned its place.
 
-Three ship: **Reactor Revived** (this game's own art), **Reactor Revival** (the
-default, the fork's art) and **Generated** (drawn from geometry, no files).
+If that folder is missing, every part is drawn from geometry at runtime instead
+(`www/js/sprites.js`) — which is what keeps "runs with no image files at all"
+true rather than merely claimed. The game probes for the art once at boot and
+falls back wholesale.
 
-The Revived pack is ten hand-drawn 16&times;16 shapes; the other 65 sprites are
-derived from them by `docs/build_revived_pack.py` &mdash; tiers by recolour plus
-tier hardware, and the 21 fuel cells from one rod tiled and hue-shifted per
-element. Deriving rather than drawing is the point: 75 sprites drawn separately
-never agree with each other about light, weight or palette, which is what made
-every off-the-shelf pack we surveyed unusable. The vent is generated rather than
-drawn, in polar coordinates with the angle taken modulo 90&deg;, so the
-four-fold symmetry the spinning fan needs cannot drift.
-
-Knockoff, Incremental and Redux are supported but **not** bundled: Knockoff's
-art is unlicensed and the other two are commercial games whose sprites have to
-be lifted out of a Unity bundle. They are not ours to redistribute, so
-installing them is a local choice and they are gitignored.
-
-Where a pack has no art for a part &mdash; neither Cael game has a particle
-accelerator or a tier-6 vent, and none of them has seven fuels &mdash; that
-part falls back to the generated sprite. `parts/packs.json` lists what each
-pack actually has, so the game never asks for a file that is not there.
-
-To rebuild the packs from their sources:
+To install or reinstall it:
 
 ```bash
-python docs/extract_unity_sprites.py                       # for the two Cael games
-python docs/install_art_packs.py revival knockoff incremental redux
+python docs/install_art_packs.py revival
 ```
 
-Installed art is repacked losslessly on the way in &mdash; the sprites are
-32-bit RGBA but use at most a couple of hundred colours, so `docs/optimize_art.py`
-re-encodes them as palette PNGs and verifies every file pixel for pixel. That
-takes about a third off; the four packs together are 119 KB.
+Art is repacked losslessly on the way in — the sprites are 32-bit RGBA but use
+at most a couple of hundred colours, so `docs/optimize_art.py` re-encodes them
+as palette PNGs and verifies every file pixel for pixel, taking about a third
+off.
+
+Knockoff, Incremental and Redux can still be installed for comparison and are
+gitignored: Knockoff's art is unlicensed and the other two are commercial games
+whose sprites have to be lifted out of a Unity bundle, so they are not ours to
+redistribute. `docs/build_revived_pack.py` and `docs/split_sheet.py` build
+alternative sets the same way. None of them is wired into the game — to try
+one, copy it over `www/parts/revival/`.
 
 ## Balance parity
 

@@ -858,38 +858,28 @@ test("a meltdown reports every tile it destroys", () => {
 	assert.equal(s.exploded.length, 2, "both parts reported");
 });
 
-test("every pack promises only art it actually ships", async () => {
-	const packs = JSON.parse(await readFile("www/parts/packs.json", "utf8"));
-	for (const [pack, names] of Object.entries(packs)) {
-		for (const name of names) {
-			assert.ok(existsSync(`www/parts/${pack}/${name}.png`), `${pack}/${name}.png is listed but missing`);
-		}
+test("the shipped art covers every part", async () => {
+	const { fileFor } = await import("../www/js/art.js");
+	for (const part of PARTS) {
+		const f = `www/parts/revival/${fileFor(part)}.png`;
+		assert.ok(existsSync(f), `${part.id} has no art: ${f}`);
 	}
 });
 
-test("a pack with gaps falls back to generated art", async () => {
+test("with no art installed, every part still draws", async () => {
 	// sprites.js paints into a canvas; the fallback only needs it to exist.
 	globalThis.document = {
 		createElement: () => ({ getContext: () => ({ fillRect() {} }), toDataURL: () => "data:," }),
 	};
-	const { PACKS, artFor, loadPacks } = await import("../www/js/art.js");
-	const packs = JSON.parse(await readFile("www/parts/packs.json", "utf8"));
-	globalThis.fetch = async () => ({ ok: true, json: async () => packs });
-	const available = await loadPacks();
+	const { artFor, fileFor, loadArt } = await import("../www/js/art.js");
 
-	assert.deepEqual(available, ["generated", ...Object.keys(packs)]);
-	// Neither of Cael's games has a particle accelerator or a tier-6 plating,
-	// and none of them has our seventh fuel.
-	for (const pack of ["incremental", "redux"]) {
-		for (const part of PARTS.filter((p) => p.category === "particle_accelerator" || p.type === "protium")) {
-			assert.ok(artFor(part, pack).startsWith("data:"), `${pack} should generate ${part.id}`);
-		}
+	globalThis.fetch = async () => { throw new Error("no art in this build"); };
+	assert.equal(await loadArt(), false);
+	for (const part of PARTS) {
+		assert.ok(artFor(part).startsWith("data:"), `${part.id} should be drawn, not fetched`);
 	}
-	// Everything a pack does claim must resolve to a file that exists.
-	for (const pack of Object.keys(packs)) {
-		for (const part of PARTS) {
-			const url = artFor(part, pack);
-			assert.ok(url.startsWith("data:") || existsSync(`www/${url}`), `${pack}: ${url} missing`);
-		}
-	}
+
+	globalThis.fetch = async () => ({ ok: true });
+	assert.equal(await loadArt(), true);
+	assert.equal(artFor(PARTS[0]), `parts/revival/${fileFor(PARTS[0])}.png`);
 });

@@ -5,7 +5,7 @@ import { fmt } from "./fmt.js";
 import { PARTS, isPartVisible, unlockProgress } from "./parts.js";
 import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
-import { artFor, availablePacks, PACKS } from "./art.js";
+import { artFor } from "./art.js";
 import { icon } from "./icons.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 
@@ -130,16 +130,8 @@ export function buildUI(game) {
 		dom.experimentList,
 	);
 
-	// Any game in the lineage can skin this one; the packs that shipped with
-	// this build are listed in parts/packs.json.
-	dom.artPack = h("select", { className: "wide", onchange: (e) => game.setArtPack(e.target.value) });
-	for (const id of availablePacks()) {
-		dom.artPack.append(h("option", { value: id, textContent: PACKS[id].label }));
-	}
-
 	dom.pages.options.append(
 		h("div", { className: "options" },
-			h("label", { className: "field" }, h("span", { textContent: "Part artwork" }), dom.artPack),
 			// Only Android can open a file picker, so in a browser these would
 			// be two buttons that do nothing.
 			...(game.canTransfer ? [
@@ -150,7 +142,7 @@ export function buildUI(game) {
 			h("p", { className: "credit", innerHTML:
 				'A clean-room rewrite of <a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a> by cwmonkey, '
 				+ 'itself based on <a href="http://www.kongregate.com/games/Cael/reactor-incremental">Reactor Incremental</a> by Cael. '
-				+ 'Artwork is this game’s own, Reactor Revival’s, or drawn at runtime.' })),
+				+ 'Part artwork is Reactor Revival’s.' })),
 	);
 
 	// A slim line of what the reactor did this tick, under the totals that say
@@ -222,7 +214,7 @@ function buildDock(dom, game) {
 				className: "part",
 				title: part.title,
 				onclick: () => game.select(part.id),
-			}, h("i", { style: `background-image:url(${artFor(part, game.pack)})` }),
+			}, h("i", { style: `background-image:url(${artFor(part)})` }),
 				label,
 				h("u", { textContent: fmt(part.cost) }));
 			// Prepending puts the newest tier on top, and the locked tier that
@@ -424,11 +416,11 @@ export function render(dom, s, game) {
 		// class toggle is cheaper than rebuilding the tile for it.
 		row.fan.classList.toggle("spinning", Boolean(p?.vent) && t.vented > 0);
 
-		const sig = `${t.id}|${t.activated}|${heat}|${life}|${s.artPack}`;
+		const sig = `${t.id}|${t.activated}|${heat}|${life}`;
 		if (sig === row.sig) continue;
 		row.sig = sig;
 
-		const art = p ? `url(${artFor(p, s.artPack)})` : "";
+		const art = p ? `url(${artFor(p)})` : "";
 		row.cell.style.backgroundImage = art;
 		row.fan.style.backgroundImage = p?.vent ? art : "";
 		row.cell.classList.toggle("queued", Boolean(t.id) && !t.activated);
@@ -477,7 +469,6 @@ export function render(dom, s, game) {
 function renderPage(dom, s) {
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
 	if (dom.page === "objectives") renderObjectives(dom, s);
-	if (dom.page === "options") dom.artPack.value = s.artPack;
 	if (dom.page === "experiments") {
 		dom.epStatus.textContent = s.exoticParticles
 			? `${fmt(s.currentExoticParticles)} EP to spend, ${fmt(s.exoticParticles)} pending - reboot to bank them.`

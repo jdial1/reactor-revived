@@ -14,7 +14,6 @@ Run docs/extract_unity_sprites.py first if you want incremental or redux.
 Installed art is losslessly repacked on the way in - see docs/optimize_art.py.
 """
 
-import json
 import os
 import shutil
 import sys
@@ -92,32 +91,11 @@ def install(pack):
     return have
 
 
-def load_manifest():
-    """What is already installed. Missing or unreadable means nothing is."""
-    try:
-        with open(f"{OUT}/packs.json", encoding="utf-8") as f:
-            return json.load(f)
-    except (OSError, ValueError):
-        return {}
-
-
 def main():
     packs = sys.argv[1:] or ["revival"]
-    # Merged, not replaced: installing one pack used to rewrite the manifest
-    # from scratch, which quietly dropped every other pack - including the
-    # shipped one - out of the Options list until you reinstalled them all.
-    installed = load_manifest()
-    for p in packs:
-        if have := install(p):
-            installed[p] = have
-
-    # A pack whose files have since been deleted should not linger in the list.
-    installed = {p: names for p, names in installed.items() if os.path.isdir(f"{OUT}/{p}")}
-
-    os.makedirs(OUT, exist_ok=True)
-    with open(f"{OUT}/packs.json", "w", encoding="utf-8") as f:
-        json.dump(installed, f, separators=(",", ":"))
-    print("installed packs:", list(installed))
+    for pack in packs:
+        install(pack)
+    print("the game draws from www/parts/revival/; other packs are for comparison only")
 
 
 if __name__ == "__main__":
