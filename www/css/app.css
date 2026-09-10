@@ -6,7 +6,12 @@
 	--bg: #0b0d10;
 	--panel: #151a21;
 	--edge: #262e39;
-	--face: #1e2530;  /* a skinned button's face: one step inside --edge */
+	/* The colour each skinned frame ends on, just inside its slice - printed by
+	   docs/build_ui_skin.py, not chosen. Whatever sits inside a frame is painted
+	   its own frame's colour, or the piece reads as a plate with a hole in it.
+	   The meter's is --panel, which is why an empty bar is that and not black. */
+	--face: #262e39;     /* button.png, panel.png */
+	--face-on: #3d4757;  /* button-on.png, which is lit on the other side */
 	--ink: #c8d3de;
 	--dim: #7b8794;
 	--power: #58c470;
@@ -70,8 +75,6 @@ button.wide, .sheet-actions button, dialog .row button {
 	/* A steel edge, invisible under the image, is what shows if the image is
 	   ever missing - the same reasoning as the generated part sprites. */
 	border: 8px solid var(--edge);
-	/* The frame's innermost ring is --edge; a --panel face inside it read as a
-	   hole cut in the button. One step down from the frame, not four. */
 	background: var(--face);
 	border-image: url(../ui/button.png) 8 repeat;
 	border-radius: 0;
@@ -151,7 +154,9 @@ a { color: var(--power); }
 	top: 0;
 	bottom: 0;
 	left: 0;
-	background: #0b0d10;
+	/* The meter frame's own inner ring is --panel, so an empty bar is that, not
+	   something darker: the track and the frame around it are one surface. */
+	background: var(--panel);
 	transition: left 120ms linear;
 }
 /* The segments: hard gaps ruled over the whole bar, ramp and cover alike. As a
@@ -410,7 +415,7 @@ footer {
    replaced was the interface shouting a state the bevel already tells you. */
 #dock-tabs button.on, .skin-on {
 	color: var(--ink);
-	background: var(--panel);
+	background: var(--face-on);
 	border-image-source: url(../ui/button-on.png);
 }
 #dock-body { overflow: hidden; }
@@ -465,7 +470,7 @@ footer {
    was, light where the shadow was. */
 .part.on {
 	border-color: #07090c;
-	background: var(--face);
+	background: var(--face-on);
 	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
 }
 .part.poor u { color: #8c5b5b; }

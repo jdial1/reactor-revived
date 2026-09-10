@@ -123,6 +123,26 @@ def hollow(im, slice_):
     return im
 
 
+def inner_ring(im, slice_):
+    """The colour the frame ends on, just inside the slice.
+
+    Whatever sits inside one of these frames has to be painted this colour or
+    the piece reads as a plate with a hole cut in it. The CSS tokens --face and
+    --face-on come from here, so this is printed rather than eyeballed.
+    """
+    px = im.load()
+    w, h = im.size
+    ring = ([px[x, slice_ - 1] for x in range(slice_, w - slice_)]
+            + [px[x, h - slice_] for x in range(slice_, w - slice_)]
+            + [px[slice_ - 1, y] for y in range(slice_, h - slice_)]
+            + [px[w - slice_, y] for y in range(slice_, h - slice_)])
+    counts = {}
+    for p in ring:
+        counts[p] = counts.get(p, 0) + 1
+    r, g, b, _ = max(counts, key=counts.get)
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
 def main():
     os.makedirs(REF, exist_ok=True)
     os.makedirs(OUT, exist_ok=True)
@@ -137,7 +157,8 @@ def main():
         piece.save(f"{OUT}/{name}.png")
         size = os.path.getsize(f"{OUT}/{name}.png")
         print(f"{OUT}/{name}.png  {piece.width}x{piece.height}  "
-              f"border-image-slice: {slice_}  ({size} bytes)")
+              f"border-image-slice: {slice_}  face: {inner_ring(piece, slice_)}  "
+              f"({size} bytes)")
 
 
 if __name__ == "__main__":
