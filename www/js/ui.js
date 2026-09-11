@@ -1,6 +1,5 @@
-// The DOM layer. Built once, then patched: each tile remembers the signature it
-// last rendered and is only touched when that changes. The original walked all
-// 1120 tiles every 100ms regardless.
+// The DOM layer. Built once, then patched: a tile is touched only when its
+// signature changes.
 import { fmt } from "./fmt.js";
 import { PARTS, isPartVisible, unlockProgress } from "./parts.js";
 import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
@@ -9,7 +8,6 @@ import { artFor } from "./art.js";
 import { icon } from "./icons.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 
-/** Make an element, set properties, append children. */
 function h(tag, { dataset, ...props } = {}, ...kids) {
 	// `dataset` is getter-only, so it cannot ride along with Object.assign.
 	const node = Object.assign(document.createElement(tag), props);
@@ -18,10 +16,7 @@ function h(tag, { dataset, ...props } = {}, ...kids) {
 	return node;
 }
 
-/**
- * A row of buttons where exactly one is lit. The page tabs, the fill modes and
- * the dock tabs are all this; the original wrote each of them out separately.
- */
+/** A row of buttons where exactly one is lit: the page tabs and the dock's. */
 function tabStrip(id, items, onPick) {
 	const el = h("div", { id });
 	for (const [value, label, glyph] of items) {
@@ -30,7 +25,6 @@ function tabStrip(id, items, onPick) {
 		button.append(h("span", { textContent: label }));
 		el.append(button);
 	}
-	/** Light up one button and show its matching page. */
 	el.select = (value, pages) => {
 		for (const b of el.children) {
 			const on = b.dataset.value === value;
@@ -51,12 +45,8 @@ const PAGES = [
 	["options", "Options", "options"],
 ];
 
-// The dock's own tabs. Inside each, parts sit one family per row with the
-// tiers running across, so a row reads vent 1, vent 2, vent 3...
-// [label, the categories it holds]. Split by what a part does to the sim, not
-// by what is left over: "Cooling" used to be every category that was not a cell
-// or a capacitor, which put plating and particle accelerators - neither of them
-// cooling - in with the vents, 42 parts in one tab.
+// [label, the categories it holds]. Split by what a part does, not by what is
+// left over - "everything that is not a cell" was 42 parts in one tab.
 const DOCK_TABS = [
 	["Cells", ["cell"]],
 	["Power", ["reflector", "capacitor"]],
@@ -94,16 +84,11 @@ export function buildUI(game) {
 	const root = document.getElementById("app");
 	root.replaceChildren();
 
-	// ---- stat bar ----------------------------------------------------------
 	const meter = (id, glyph, onclick, title) => {
-		// `fill` covers the part that is *not* full, so the colours underneath
-		// stay pinned to their share of the bar rather than stretching with it.
+		// `fill` covers what is *not* full, pinning the colours to their share.
 		const fill = h("i", { className: "unfilled" });
 		const text = h("b", {});
 		dom[id] = { fill, text };
-		// The bar is the button: glyph and reading sit inside it, painted over
-		// the fill. Two bars this size are a better target than two small
-		// buttons were, and the thing you press is the thing it acts on.
 		const el = h("button", { className: `meter ${id}`, onclick, title },
 			fill, icon(glyph, "icon stat"), text);
 		el.setAttribute("aria-label", title);
@@ -114,25 +99,15 @@ export function buildUI(game) {
 	dom.money = h("b", {});
 	dom.ep = h("b", {});
 	dom.epBox = h("span", { className: "ep" }, dom.ep);
-	// The readout sits with the buttons that change it, at the bottom where a
-	// thumb already is. All the top of the screen owes the player is what to
-	// aim for next.
-	// The coin says "money"; the number does not need a currency symbol too.
-	// Money on top, particles under it: two currencies on one line read as one
-	// long number, and the money is the one being watched.
+	// Money on top, particles under: on one line they read as one long number.
 	dom.purse = h("div", { className: "purse" },
 		h("div", { className: "money-row" }, icon("cash", "icon coin"), h("span", { className: "cash" }, dom.money)),
 		dom.epBox);
 
-	// Pause is the only control left that acts on nothing in particular, so it
-	// goes in the corner rather than taking a row of its own.
 	dom.pauseLabel = h("span", {});
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
 	dom.pause = h("button", { className: "pause", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 
-	// The current goal is also the way to see the rest of them: the list was a
-	// fifth tab that most players opened once, and the line at the top of the
-	// screen is already the thing they would tap to ask "what else is there".
 	dom.objective = h("button", {
 		className: "objective",
 		title: "Show every goal",
@@ -144,7 +119,6 @@ export function buildUI(game) {
 	// One polite live region for the whole game: goals met, meltdowns, unlocks.
 	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
 
-	// ---- pages -------------------------------------------------------------
 	const main = h("main", {});
 	dom.pages = {};
 	for (const [id] of PAGES) {
@@ -166,7 +140,6 @@ export function buildUI(game) {
 	root.append(dom.goalSheet);
 
 	dom.upgradeList = h("div", { className: "upgrades" });
-	// An empty list looks broken. Say what fills it.
 	dom.upgradeEmpty = h("p", { className: "empty", textContent:
 		"Nothing you can afford yet. Sell power by tapping the power bar." });
 	dom.pages.upgrades.append(dom.upgradeEmpty, dom.upgradeList);
@@ -219,19 +192,14 @@ export function buildUI(game) {
 		rateCell("inlet", "inlet", "Heat drawn in per tick"),
 		rateCell("outlet", "outlet", "Heat pushed out per tick"));
 
-	// ---- dock and tabs -----------------------------------------------------
-	// Power, what it earned, and heat - in that order, so the money sits
-	// between the bar that makes it and the bar that threatens it.
+	// dock and tabs
+	// Money between the bar that makes it and the bar that threatens it.
 	dom.actions = h("div", { id: "actions" },
 		meter("power", "power", game.sellAll, "Sell all power"),
 		dom.purse,
 		meter("heat", "heat", game.ventHeat, "Vent heat"));
-	// The bar stays put on every page - the readout in it is most wanted on the
-	// Upgrades page, where the money is being spent. Only the parts hide.
 	dom.dock = h("div", { id: "dock" });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => { showPage(dom, id); game.viewing(id); });
-	// A badge on the tabs you spend at, so money burning a hole in your pocket
-	// is visible from the reactor. One dot for one thing to buy, a count for more.
 	dom.pips = {};
 	for (const id of ["upgrades", "experiments"]) {
 		const button = [...dom.tabs.children].find((b) => b.dataset.value === id);
@@ -249,7 +217,6 @@ export function buildUI(game) {
 function showPage(dom, id) {
 	dom.page = id;
 	dom.tabs.select(id, dom.pages);
-	// The part dock is only useful while looking at the reactor.
 	dom.dock.hidden = id !== "reactor";
 }
 
@@ -265,7 +232,6 @@ function buildDock(dom, game) {
 		dom.dockPages[tab] = page;
 		body.append(page);
 
-		// One column per family, its tiers stacked down it.
 		let family = null;
 		let column = null;
 		for (const part of PARTS.filter((p) => categories.includes(p.category))) {
@@ -281,8 +247,7 @@ function buildDock(dom, game) {
 				title: part.title,
 				onclick: () => {
 					game.select(part.id);
-					// Selecting it is not the whole answer when you cannot buy
-					// it: say so rather than letting the tap look ignored.
+					// Say so, rather than letting the tap look ignored.
 					if (button.classList.contains("poor")) {
 						flash(button, "denied");
 						toast(`${part.title} costs $${fmt(part.cost)}`, "cash");
@@ -305,9 +270,8 @@ function buildDock(dom, game) {
 const showDock = (dom, label) => dom.dockTabs.select(label, dom.dockPages);
 
 /**
- * Take a transient element off the page when its animation ends - or after a
- * deadline, because a browser pauses animations in a tab nobody is looking at
- * and `animationend` would never come, leaving toasts stacked up on return.
+ * Remove a transient element on animationend, or after a deadline: a hidden tab
+ * pauses animations and animationend never comes.
  */
 function removeAfter(el, ms) {
 	const kill = () => el.remove();
@@ -315,17 +279,11 @@ function removeAfter(el, ms) {
 	setTimeout(kill, ms);
 }
 
-/** Say something to a screen reader without showing it. */
 function say(text) {
 	const live = document.getElementById("say");
 	if (live) live.textContent = text;
 }
 
-/**
- * A number rising out of the thing that produced it. Money earned by tapping
- * the power bar appears at the bar, not silently in the purse at the other end
- * of the row.
- */
 export function floatText(text, anchor, colour) {
 	if (!anchor) return;
 	const box = anchor.getBoundingClientRect();
@@ -337,7 +295,6 @@ export function floatText(text, anchor, colour) {
 	document.body.append(el);
 }
 
-/** A short message, and the same words to a screen reader. */
 export function toast(text, glyph) {
 	document.getElementById("toast")?.remove();
 	const el = h("div", { id: "toast" }, glyph ? icon(glyph) : [], h("span", { textContent: text }));
@@ -347,12 +304,8 @@ export function toast(text, glyph) {
 }
 
 /**
- * Flash an element to confirm it did something.
- *
- * The class has to come off again. An animation without `forwards` reverts to
- * the element's own state when it ends, and the meter wash has no opacity of
- * its own - so leaving the class on left a solid green or blue slab over the
- * bar, hiding the reading underneath it, for the rest of the session.
+ * Flash an element to confirm it did something. The class has to come off again:
+ * the meter wash has no opacity of its own, so it stayed on as a solid slab.
  */
 export const flash = (el, cls) => {
 	if (!el) return;
@@ -364,10 +317,6 @@ export const flash = (el, cls) => {
 	setTimeout(done, 1200);           // animationend never fires on a hidden tab
 };
 
-/**
- * The reactor is gone. Dismissing it in any way is the acknowledgement, so
- * there is no way to end up staring at an empty board wondering what happened.
- */
 function meltdownNotice(onAcknowledge) {
 	const dialog = h("dialog", { className: "sheet meltdown" },
 		h("h2", { textContent: "Meltdown" }),
@@ -393,13 +342,11 @@ export function ask(question, onYes) {
 	dialog.querySelector("button")?.focus();
 }
 
-/** What a placed part is doing right now, plus a way to sell it. */
 export function inspect(s, t, sell) {
 	const p = s.stats.get(t.id);
 	const placed = [...activeTiles(s)].filter((x) => x.id);
 	const sameKind = placed.filter((x) => x.id === t.id).length;
 	const rows = [
-		// What it is worth now, which is not what it cost once it has been used.
 		["Sells for", `$${fmt(sellValue(s, t))}`],
 		["Power", t.power ? fmt(t.power) : null],
 		["Heat", t.heat ? fmt(t.heat) : null],
@@ -415,8 +362,6 @@ export function inspect(s, t, sell) {
 		h("h2", { textContent: p.title }),
 		h("i", { textContent: p.desc ?? "" }),
 		h("dl", {}, rows.filter(([, v]) => v !== null).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
-		// Selling one at a time is fine for a mistake; clearing a whole kind, or
-		// the whole board, is what you want when the layout is wrong.
 		h("div", { className: "sheet-actions" }, [
 			h("button", { className: "danger", textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
 			sameKind > 1 && h("button", { className: "danger", textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
@@ -439,8 +384,6 @@ function buildUpgrades(dom, game) {
 		const was = h("s", {});
 		const now = h("b", {});
 		const delta = h("em", { className: "delta" }, was, now);
-		// Power, heat or utility, in the corner. Fixed per upgrade, so it is set
-		// here once rather than by the renderer.
 		const kind = kindOf(u);
 		const badge = h("i", { className: `kind ${kind}`, title: kind },
 			icon(kind === "utility" ? "options" : kind));
@@ -464,7 +407,6 @@ function buildObjectiveList(dom) {
 	});
 }
 
-/** Build the tile grid. The reactor never resizes, so this runs once. */
 function buildGrid(dom, s) {
 	dom.grid.replaceChildren();
 	dom.grid.style.setProperty("--cols", COLS);
@@ -489,11 +431,9 @@ const pct = (n, d) => (d > 0 ? Math.min(100, (n / d) * 100) : 0);
 // Quantising keeps a bar from triggering a repaint on every hairline change.
 const quant = (n) => Math.round(n / 4) * 4;
 
-/** Patch the whole interface to match the state. Cheap enough to run at 10fps. */
 export function render(dom, s, game) {
 	dom.money.textContent = fmt(s.money);
-	// Pending particles are shown alongside the spendable ones, because they are
-	// only worth anything once a reboot banks them.
+	// Pending particles are only worth anything once a reboot banks them.
 	dom.ep.textContent = s.exoticParticles
 		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
 		: `${fmt(s.currentExoticParticles)} EP`;
@@ -507,8 +447,6 @@ export function render(dom, s, game) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
 		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
 	}
-	// A meltdown empties the board in one tick. Say so once, rather than leaving
-	// the player looking at a reactor that lost everything without a word.
 	if (s.hasMeltedDown && !dom.meltdownShown) {
 		dom.meltdownShown = true;
 		meltdownNotice(() => {
@@ -517,7 +455,6 @@ export function render(dom, s, game) {
 		});
 	}
 
-	// Nothing has ticked yet on the first frame after a load.
 	const rate = s.rate ?? {};
 	for (const [id, el] of Object.entries(dom.rates)) el.textContent = fmt(rate[id] ?? 0);
 
@@ -527,15 +464,12 @@ export function render(dom, s, game) {
 
 	if (!dom.tiles) buildGrid(dom, s);
 
-	// Only the visible page is worth patching; the tile loop below is the one
-	// that always runs, because the reactor is what the player watches.
 	if (dom.page !== "reactor") {
 		renderPage(dom, s);
 		return;
 	}
 
-	// Play the explosions the last tick produced, then clear them so each one
-	// animates exactly once however often the renderer runs.
+	// Drained, so each explosion animates once however often this runs.
 	for (const i of s.exploded.splice(0)) {
 		const cell = dom.tiles[i]?.cell;
 		if (!cell) continue;
@@ -549,16 +483,12 @@ export function render(dom, s, game) {
 		const p = t.id ? s.stats.get(t.id) : null;
 		const heat = p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
-		// Spinning is not part of the signature: it changes every tick, and a
-		// class toggle is cheaper than rebuilding the tile for it.
 		row.fan.classList.toggle("spinning", Boolean(p?.vent) && t.vented > 0);
 
 		const sig = `${t.id}|${t.activated}|${heat}|${life}`;
 		if (sig === row.sig) continue;
 		row.sig = sig;
 
-		// A part that was not here a moment ago just got placed - say so, and
-		// pop it, so the tap that put it there is visibly the cause.
 		if (t.id && t.id !== row.had) flash(row.cell, "placed");
 		row.had = t.id;
 		row.cell.setAttribute("aria-label", p
@@ -574,12 +504,8 @@ export function render(dom, s, game) {
 		row.life.style.width = `${life}%`;
 	}
 
-	// The first locked tier in each family stands in for itself: a silhouette
-	// with the placements still owed and what it will cost. The tiers behind it
-	// stay hidden, so the column never grows a row it did not have before.
-	// A family you have started shows the next tier it owes; the first family
-	// you have not started shows its first tier, so there is always exactly one
-	// column of "what comes next" and never seven.
+	// One locked tier stands in for the rest, so a column never grows a row and
+	// there is exactly one "what comes next" on screen rather than seven.
 	const started = new Set();
 	const placeholders = new Set();
 	const nextFamilyShown = new Set();
@@ -598,8 +524,6 @@ export function render(dom, s, game) {
 			if (!started.has(family)) nextFamilyShown.add(tab);
 		}
 
-		// It was a locked strip a moment ago and now it is a part: that is the
-		// reward for placing ten of the last one, and it deserves to be seen.
 		if (visible && row.wasLocked) {
 			flash(button, "unlocked");
 			toast(`${part.title} unlocked`, "upgrades");
@@ -609,7 +533,6 @@ export function render(dom, s, game) {
 		button.disabled = !visible; // a placeholder is a signpost, not a part
 		button.classList.toggle("locked", !visible && !isNext);
 		button.classList.toggle("next", isNext);
-		// How far along the unlock is, for the strip's fill.
 		if (isNext) button.style.setProperty("--p", progress.have / progress.need);
 		button.classList.toggle("poor", visible && s.money < part.cost);
 		button.classList.toggle("on", game.selected === part.id);
@@ -621,16 +544,12 @@ export function render(dom, s, game) {
 			? `${part.title}: place ${progress.need} of the tier below to unlock (${progress.have} so far)`
 			: part.title;
 	}
-	// Hide a family entirely until at least one of its tiers is unlocked. Tabs
-	// need no such treatment: every category's tier 1 is visible from boot.
 	for (const col of dom.dockCols) col.hidden = !col.querySelector(".part:not(.locked)");
 	renderPage(dom, s);
 }
 
-/**
- * How many upgrades on a page can be bought right now. costOf returns Infinity
- * at max level, so a maxed-out upgrade never counts.
- */
+/** How many are affordable. costOf is Infinity at max level, so maxed ones
+ * never count. */
 function affordable(s, experiments) {
 	let n = 0;
 	for (const u of UPGRADES) {
@@ -640,7 +559,6 @@ function affordable(s, experiments) {
 	return n;
 }
 
-/** The tab badges. These run on every page, since the point is to be seen from another one. */
 function renderPips(dom, s) {
 	for (const [id, pip] of Object.entries(dom.pips)) {
 		const n = affordable(s, id === "experiments");
@@ -651,7 +569,6 @@ function renderPips(dom, s) {
 	}
 }
 
-/** The parts of the interface behind a tab, patched only while that tab is up. */
 function renderPage(dom, s) {
 	renderPips(dom, s);
 	renderObjectives(dom, s);
@@ -666,11 +583,6 @@ function renderPage(dom, s) {
 /** How many out-of-reach upgrades to leave visible as a preview. */
 const PREVIEW_COUNT = 3;
 
-/**
- * Show what you can buy and what you own; of the rest, show only the few
- * nearest to affordable, dithered, so the list stays short but you can still
- * see what you are saving towards.
- */
 function renderUpgrades(dom, s) {
 	const onThisPage = ({ u }) => Boolean(u.ecost) === (dom.page === "experiments");
 	const outOfReach = [];
@@ -690,8 +602,7 @@ function renderUpgrades(dom, s) {
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
 
-		// What the next level buys, measured against this one. The upgrades that
-		// only switch something on have nothing to show and say so by absence.
+		// Measured, not declared. A switch has nothing to show and says so.
 		const step = nextLevel(s, u);
 		delta.hidden = !step;
 		if (step) {
@@ -699,9 +610,8 @@ function renderUpgrades(dom, s) {
 			now.textContent = step.to;
 		}
 
-		// An upgrade already owned stays on the list at every level, so the price
-		// has to say when the next one is out of reach - otherwise buying level 1
-		// leaves level 2 looking just as affordable at twenty times the cost.
+		// An owned upgrade stays listed, so the price must say when the next level
+		// is out of reach.
 		button.classList.toggle("poor", !affordable && lv < maxLevel(u));
 
 		const shown = unlocked && (owned || affordable);
@@ -711,8 +621,6 @@ function renderUpgrades(dom, s) {
 		(affordable && lv < maxLevel(u) ? buyable : rest).push(row);
 	}
 
-	// Shown whenever nothing on the page can be bought - the preview rows below
-	// it are what you are saving towards, not something you can press.
 	if (dom.page === "upgrades") dom.upgradeEmpty.hidden = buyable.length > 0;
 
 	outOfReach.sort((a, b) => a.price - b.price);
@@ -721,9 +629,8 @@ function renderUpgrades(dom, s) {
 		row.button.classList.add("preview");
 	}
 
-	// What you can buy right now floats to the top, everything else keeps its
-	// catalog order. Re-appending moves the nodes, so only do it when the order
-	// actually changes rather than every hundred milliseconds.
+	// Buyable floats to the top. Re-appending moves nodes, so only when the order
+	// actually changes.
 	const ordered = [...buyable, ...rest];
 	const sig = ordered.map((r) => r.u.id).join();
 	if (dom.upgradeOrder[dom.page] !== sig) {
@@ -734,15 +641,9 @@ function renderUpgrades(dom, s) {
 
 function renderObjectives(dom, s) {
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("done", i < s.objective));
-	// The one you are on, so a long list opens at the right place.
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
 }
 
-/**
- * Open the full list. The reactor keeps running behind it: this is a glance at
- * what is next, not a page you leave the game for, which is why it is a dialog
- * and not the tab it used to be.
- */
 function showGoals(dom) {
 	dom.goalSheet.showModal();
 	dom.objective.setAttribute("aria-expanded", "true");

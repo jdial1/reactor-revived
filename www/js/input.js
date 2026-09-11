@@ -1,17 +1,8 @@
-// Touch input for the reactor grid.
+// Touch input for the reactor grid. The original's six modifier-key macros
+// become four gestures, with no mode to pick:
 //
-// The original leaned on hover, right-click, double-click and six
-// modifier-key macros (shift = all matching, ctrl = row, alt = column,
-// shift+ctrl, shift+alt, shift+ctrl+alt, plus digit keys for a stride). None of
-// that exists on a phone, so all of it becomes gestures:
-//
-//   tap            place, or inspect an occupied tile
-//   long press     sell
-//   drag           paint along the path
-//   two fingers    pinch to zoom, drag to pan
-//
-// Dragging covers what the macros were for - filling a row is a swipe - so
-// there is no mode to pick and no toolbar to pick it with.
+//   tap  place or inspect   long press  sell
+//   drag  paint the path    two fingers  pinch to zoom, drag to pan
 
 const LONG_PRESS_MS = 450;
 const DRAG_SLOP = 8;

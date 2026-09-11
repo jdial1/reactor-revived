@@ -1,6 +1,5 @@
-// The part catalog, as data. Every field is either flat or "scales by mul^(level-1)";
-// derive() below is the single place that expansion happens, replacing the eight
-// copy-pasted `if (base_X && X_multiplier)` blocks in the original.
+// The part catalog, as data. Every field is flat or scales by mul^(level-1),
+// and derive() below is the only place that expansion happens.
 
 // Cells come in single/dual/quad packs. Index by level-1.
 const CELL_POWER = [1, 4, 12];
@@ -37,8 +36,7 @@ const SCALED = [
 // Fuel cells: 7 elements x 3 pack sizes. `upgradeCost` drives the generated
 // cell_power / cell_tick / cell_perpetual upgrades.
 const CELLS = [
-	// Uranium is the one cell whose tiers the original hand-priced rather than
-	// scaling; an array of per-tier costs keeps those exact numbers.
+	// Uranium's tiers were hand-priced upstream, so its costs are a list.
 	{ type: "uranium",    title: "Uranium Cell",    cost: [10, 25, 60],           ticks: 15,    basePower: 1,           baseHeat: 1,           upgradeCosts: { tick: 100, power: 500, perpetual: 1000 } },
 	{ type: "plutonium",  title: "Plutonium Cell",  cost: 6e3,     costMul: 2.2,  ticks: 60,    basePower: 150,         baseHeat: 150,         upgradeCosts: { tick: 30e3, power: 30e3, perpetual: 60e3 } },
 	{ type: "thorium",    title: "Thorium Cell",    cost: 4.7e6,   costMul: 2.2,  ticks: 900,   basePower: 7400,        baseHeat: 7400,        upgradeCosts: { tick: 25e6, power: 25e6, perpetual: 50e6 } },
@@ -48,8 +46,7 @@ const CELLS = [
 	{ type: "protium",    title: "Protium Cell",    cost: 3e15,    costMul: 2.2,  ticks: 3600,  basePower: 1.25e12,     baseHeat: 1.25e12,     experimental: true, requires: "protium_cells" },
 ];
 
-// Everything else: tiers 1-5 scale by the SCALED table; tier 6 is the
-// hand-written experimental sibling, gated behind a research upgrade.
+// Tiers 1-5 scale by SCALED; tier 6 is experimental and gated by research.
 const COMPONENTS = [
 	{ category: "reflector", title: "Neutron Reflector", levels: 5, cost: 500, costMul: 50,
 	  ticks: 100, ticksMul: 2, powerIncrease: 5, powerIncreaseAdd: 1 },
@@ -106,9 +103,7 @@ function derive(def, level) {
 		const i = level - 1;
 		p.id = `${def.type}${level}`;
 		p.title = CELL_PREFIX[i] + def.title;
-		// A cell's output is basePower/baseHeat run through the pulse formula in
-		// sim.js; the pack size is carried by cellMultiplier and cellCount, so
-		// there is no per-tier power/heat field to keep in step.
+		// Output is basePower/baseHeat through the pulse formula in sim.js.
 		p.cellCount = CELL_COUNT[i];
 		p.cellMultiplier = CELL_POWER[i];
 		p.pulses = CELL_COUNT[i];
@@ -120,8 +115,6 @@ function derive(def, level) {
 		for (const [field, mul] of SCALED) {
 			if (def[field] && def[mul]) p[field] = def[field] * def[mul] ** (level - 1);
 		}
-		// The original wrote `base + add * level - 1`; `base + add * (level - 1)`
-		// is what it meant and, for the one part that uses it, the same numbers.
 		if (def.powerIncrease && def.powerIncreaseAdd) {
 			p.powerIncrease = def.powerIncrease + def.powerIncreaseAdd * (level - 1);
 		}
@@ -140,11 +133,8 @@ export const PART_BY_ID = new Map(PARTS.map((p) => [p.id, p]));
 /** How many of the previous part you must place before the next one appears. */
 export const UNLOCK_AFTER = 10;
 
-// Progressive reveal: each part stays hidden until ten of the one before it
-// have been placed, so the dock opens with a handful of buttons instead of
-// seventy-five. Fuel cells form one chain across every tier of every element;
-// each component category forms its own. Tier-6 parts are gated by research
-// instead, so they stay out of the chains.
+// Progressive reveal: a part is hidden until ten of the one before it have been
+// placed. Cells form one chain; each component category forms its own.
 const chains = new Map([["cell", []]]);
 for (const p of PARTS) {
 	if (p.experimental) continue;
@@ -160,9 +150,8 @@ for (const chain of chains.values()) {
 
 /** Is this part offered yet - research done, and enough of its predecessor placed? */
 /**
- * How close a part is to unlocking, as `{ have, need }`, or null when placing
- * more of the previous tier is not what it is waiting for - either because it
- * is already available, or because it wants an experimental upgrade instead.
+ * How close a part is to unlocking, as `{ have, need }` - or null when placing
+ * more of the tier below is not what it is waiting for.
  */
 export const unlockProgress = (s, p) =>
 	(p.after && (!p.requires || s.levels[p.requires] > 0)
@@ -173,6 +162,5 @@ export const isPartVisible = (s, p) =>
 	(!p.requires || s.levels[p.requires] > 0)
 	&& (!p.after || (s.placed[p.after] ?? 0) >= UNLOCK_AFTER);
 
-// The cell types that carry prices for the generated cell_power / cell_tick /
-// cell_perpetual upgrades. Protium has none - it is bought with particles.
+// The cells that carry prices for the generated cell_* upgrades.
 export const CELLS_WITH_UPGRADES = CELLS.filter((c) => c.upgradeCosts);

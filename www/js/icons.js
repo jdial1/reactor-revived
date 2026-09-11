@@ -1,19 +1,11 @@
-// Interface icons as inline SVG - markup, not image files.
-//
-// The style follows the original's 16px sprites: blocky shapes on whole-pixel
-// coordinates with a hard dark outline, a yellow bolt for power and a
-// red-to-yellow flame for heat. Nav icons are monochrome and take their colour
-// from the surrounding text, so the active tab lights up for free.
+// Interface icons as inline SVG - markup, not image files. Blocky shapes on
+// whole-pixel coordinates with a hard dark outline, as the original's were.
 
 const OUTLINE = "#07090c";
 
 /**
  * A pixel grid to one path, each run of matching cells becoming a rectangle.
- *
- * The power and heat icons are traced from Reactor Knockoff's own 8x8 art, and
- * a grid is how that art is legible in source - a hand-written path for a
- * fifteen-step zigzag is neither readable nor checkable against the original.
- * Cells are 2 units, so an 8x8 grid fills the 16-unit box like everything else.
+ * Cells are 2 units, so an 8x8 grid fills the 16-unit box.
  */
 const grid = (rows, ch) => rows.flatMap((row, y) => {
 	const runs = [];
@@ -27,8 +19,7 @@ const grid = (rows, ch) => rows.flatMap((row, y) => {
 	return runs;
 }).join(" ");
 
-// Traced pixel for pixel from Knockoff's img/icon_power.gif: a zigzag ribbon
-// with the outline cut flat at the top right and bottom left.
+// Traced from Knockoff's img/icon_power.gif.
 const BOLT = [
 	"...####.",
 	"..#AA#..",
@@ -87,8 +78,7 @@ const COIN = [
 	"...##...",
 ];
 
-// From img/icon_heat.gif: wide and forked at the top, tapering to a point at
-// the bottom - a fire seen head on rather than a symmetrical teardrop.
+// From img/icon_heat.gif: a fire seen head on, not a teardrop.
 const FLAME = [
 	"..#.....",
 	".#A#.#..",
@@ -121,7 +111,7 @@ const ICONS = {
 	play: [["M3 1 L14 8 L3 15 Z", null]],
 	pause: [["M3 1 h4 v14 h-4 z M9 1 h4 v14 h-4 z", null]],
 
-	// ---- bottom navigation ------------------------------------------------
+	// bottom navigation
 	// The reactor: a grid of tiles.
 	reactor: [["M1 1 h6 v6 h-6 z M9 1 h6 v6 h-6 z M1 9 h6 v6 h-6 z M9 9 h6 v6 h-6 z", null]],
 	// Upgrades: an arrow going up.
@@ -135,10 +125,7 @@ const ICONS = {
 		["M4 0 h2 v6 h-2 z M10 5 h2 v6 h-2 z M5 10 h2 v6 h-2 z", null]],
 };
 
-/**
- * One icon, as an <svg>. Coloured icons carry the original's dark outline;
- * monochrome ones inherit the text colour so an active tab lights up for free.
- */
+/** One icon, as an <svg>. Monochrome ones inherit the text colour. */
 export function icon(name, className = "icon") {
 	const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 	svg.setAttribute("viewBox", "0 0 16 16");

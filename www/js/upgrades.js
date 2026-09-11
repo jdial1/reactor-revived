@@ -1,9 +1,5 @@
-// Upgrades are data, not behaviour. The original gave every upgrade an
-// `onclick` closure that reached into the game and mutated part objects in
-// place, which made loading and rebooting a matter of replaying every closure
-// in the right order. Here levels are the only stored truth and
-// applyUpgrades() recomputes everything derived from them, so load, reboot and
-// refund all fall out for free.
+// Upgrades are data, not behaviour: levels are the only stored truth and
+// applyUpgrades() recomputes the rest, so load, reboot and refund fall out.
 import { PARTS, CELLS_WITH_UPGRADES } from "./parts.js";
 import { fmt } from "./fmt.js";
 
@@ -232,9 +228,8 @@ export function applyUpgrades(s) {
 }
 
 /**
- * Prestige. Banks this run's Exotic Particles, wipes the board, and drops every
- * money upgrade back to zero. A refund also clears the exotic upgrades and
- * hands back every particle ever earned.
+ * Prestige: bank this run's particles, wipe the board, zero the money upgrades.
+ * A refund also clears the exotic ones and returns every particle ever earned.
  */
 export function reboot(s, refund = false) {
 	s.totalExoticParticles += s.exoticParticles;
@@ -259,11 +254,8 @@ export function reboot(s, refund = false) {
 	return s;
 }
 
-// ---- "what does the next level actually buy me" ----------------------------
-//
-// Rather than restate every upgrade's numbers as display data - 63 chances to
-// drift from the sim - the effect is measured: run applyUpgrades at this level
-// and at the next and compare. Whatever changed is what the level buys.
+// What the next level buys, measured rather than restated: run applyUpgrades at
+// this level and the next and compare. 63 tables would drift from the sim.
 
 /** The scalar fields applyUpgrades derives, in the order they are worth showing. */
 const SCALARS = [
@@ -332,11 +324,7 @@ export function nextLevel(s, u) {
 	return null;
 }
 
-// ---- what kind of upgrade this is ------------------------------------------
-//
-// Power, heat, or neither. Worked out from the field the upgrade moves rather
-// than from a list of ids, for the same reason the numbers are: a list would be
-// 63 entries to keep in step with the sim by hand.
+// Power, heat or neither, from the field the upgrade moves - not a list of ids.
 
 const KIND_BY_FIELD = {
 	basePower: "power", reactorPower: "power", powerIncrease: "power",

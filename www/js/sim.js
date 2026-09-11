@@ -1,22 +1,16 @@
-// The reactor simulation. Pure: no DOM, no globals, no timers. Everything it
-// needs arrives in `s` and everything it changes lives in `s`, so the whole
-// thing is testable under `node --test` with no harness.
+// The reactor simulation. Pure: no DOM, no globals, no timers - everything
+// arrives in `s` and everything it changes lives in `s`.
 import { applyUpgrades } from "./upgrades.js";
-// Room for the base grid plus the twenty levels of each expansion upgrade.
-// The reactor is a fixed 12x8. The original grew from 11x14 to 32x35 through
-// two upgrades, but that was a desktop game: on a phone the whole board has to
-// be visible at once with tiles big enough to hit, and 12x8 already fills the
-// screen. There is no room to expand into, so there is no expansion.
+// Fixed 12x8: the whole board has to be visible at once on a phone, so the
+// original's two expansion upgrades have nothing to expand into.
 export const ROWS = 12;
 export const COLS = 8;
 
 export const tileAt = (s, r, c) => s.tiles[r * COLS + c];
 const inGrid = (s, r, c) => r >= 0 && c >= 0 && r < ROWS && c < COLS;
-// Part stats live on the state, not on the catalog: upgrades change them, and
-// a pure sim must not mutate module-level data shared with every other state.
+// Stats live on the state: a pure sim must not mutate the shared catalog.
 const partOf = (s, t) => (t.activated && t.id ? s.stats.get(t.id) : null);
 
-/** Every tile inside the playable grid, row-major. */
 export function* activeTiles(s) {
 	for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) yield tileAt(s, r, c);
 }
@@ -39,10 +33,8 @@ function* rowRange(s, t) {
 	if (inGrid(s, t.r + 1, t.c)) yield tileAt(s, t.r + 1, t.c);
 }
 
-// A vent's and a coolant_cell6's real capacity is larger than its containment -
-// a vent bleeds `vent` away every tick, and half of what a coolant_cell6 takes
-// turns into power. The exchanger has to know that to balance sanely. The
-// original repeated this if/else three times.
+// Real capacity exceeds containment: a vent bleeds `vent` away each tick and
+// a coolant_cell6 turns half of what it takes into power.
 function effectiveContainment(p) {
 	if (p.id === "coolant_cell6") return p.containment * 2;
 	if (p.category === "vent") return p.containment + p.vent;
@@ -51,10 +43,7 @@ function effectiveContainment(p) {
 
 /**
  * Push heat into a containment part. A thermionic coolant cell keeps half and
- * turns the other half into power, which is why this returns the power made -
- * the original inlined that special case at four separate points, and in one
- * of them credited the power straight to the reactor, where Forceful Fusion
- * could no longer multiply it.
+ * turns the rest into power, which is why this returns the power made.
  */
 function absorb(t, p, heat) {
 	if (p.id !== "coolant_cell6") {
@@ -69,11 +58,7 @@ function absorb(t, p, heat) {
 const ventOf = (s, p) => p.vent * (1 + s.ventMul / 100);
 const transferOf = (s, p) => p.transfer * (1 + s.transferMul / 100);
 
-/**
- * "Recompile the reactor": rebuild adjacency and per-cell output. Runs only
- * when the layout changes - a part placed, removed, exploded, or upgraded -
- * never per tick.
- */
+/** Rebuild adjacency and per-cell output. Only when the layout changes. */
 export function compile(s) {
 	s.transferMul = 0;
 	s.ventMul = 0;
@@ -92,7 +77,6 @@ export function compile(s) {
 		const p = partOf(s, t);
 		if (!p) continue;
 
-		// A spent cell contributes nothing and reaches nothing.
 		if (p.category !== "cell" || t.ticks) {
 			for (const n of p.id === "heat_exchanger6" ? rowRange(s, t) : neighbours(s, t, p.range ?? 1)) {
 				const np = partOf(s, n);
@@ -125,10 +109,8 @@ export function compile(s) {
 
 	for (const t of s.cells) {
 		const p = partOf(s, t);
-		// Adjacent cells pulse into this one: power scales linearly with the
-		// pulse count, heat quadratically. That gap is the whole game. With no
-		// neighbours this reduces to the cell's own rated output, so unlike the
-		// original there is no second branch for the lone-cell case.
+		// Power scales with the pulse count, heat with its square. That gap is the
+		// whole game. With no neighbours this reduces to the cell's rated output.
 		let pulses = 0;
 		for (const n of t.neighbourCells) pulses += s.stats.get(n.id).pulses;
 		t.heat = (p.baseHeat * (p.cellMultiplier + pulses) ** 2) / p.cellCount;
@@ -184,7 +166,6 @@ export function tick(s) {
 		const p = partOf(s, t);
 		if (!p) continue;
 
-		// A husk sits at zero waiting for auto-buy to afford it again.
 		if (p.category === "cell" && t.ticks === 0) {
 			refill(s, t, p);
 			continue;
@@ -210,7 +191,6 @@ export function tick(s) {
 		if (p.id === "capacitor6") extremeCapacitors.push(t);
 	}
 
-	// Inlets pull heat out of their neighbours and into the reactor.
 	for (const t of inlets) {
 		const pull = transferOf(s, partOf(s, t));
 		for (const n of t.containments) {
@@ -222,11 +202,8 @@ export function tick(s) {
 	}
 	s.heat += heatAdd;
 
-	// With the Heat Control Operator bought, outlets only push heat out when the
-	// reactor is actually over its limit - which is what lets Forceful Fusion be
-	// held. This used to be `s.heatControlled && s.heatControlOperator`, and
-	// nothing in the game could ever set the first of those, so a $1M upgrade
-	// did nothing at all.
+	// With the operator bought, outlets only push heat out above the limit, which
+	// is what lets Forceful Fusion be held.
 	const maxShared = s.heatControlOperator
 		? (s.heat > s.maxHeat ? (s.heat - s.maxHeat) / s.statOutlet : 0)
 		: s.heat / s.statOutlet;
@@ -280,7 +257,6 @@ export function tick(s) {
 		if (!p?.containment) continue;
 
 		if (p.vent) {
-			// An extreme vent burns reactor power to do its cooling.
 			const shed = p.id === "vent6"
 				? Math.min(ventOf(s, p), t.heatContained, s.power)
 				: Math.min(ventOf(s, p), t.heatContained);
@@ -335,7 +311,6 @@ function wear(s, t) {
 const replaces = (s, p) =>
 	s.perpetual.has(p.category === "cell" ? p.type : p.category);
 
-/** Buy a spent part again in place. True if it was refilled. */
 function refill(s, t, p) {
 	const price = p.cost * (p.category === "cell" ? 1.5 : 1);
 	if (!replaces(s, p) || s.money < price) return false;
@@ -346,11 +321,8 @@ function refill(s, t, p) {
 }
 
 /**
- * A cell or reflector has run out. The original wrote this twice.
- *
- * A spent part is cleared off the board. The one exception is a cell that
- * auto-buy owns but cannot currently afford: that stays as a husk, because the
- * husk is what auto-buy refills once the money is there.
+ * A cell or reflector has run out. Cleared off the board, unless auto-buy owns
+ * it and cannot afford it: that husk is what auto-buy refills later.
  */
 function expire(s, t, p) {
 	const isCell = p.category === "cell";
@@ -367,11 +339,7 @@ function expire(s, t, p) {
 	remove(s, t);
 }
 
-/**
- * What a part refunds. A part loses value as it is used, so a vent nearly full
- * of heat or a cell down to its last tick is worth a fraction of list price -
- * selling is a refund on what is left, not a way to launder worn parts.
- */
+/** What a part refunds: a fraction of list price, by how worn it is. */
 export function sellValue(s, t) {
 	if (!t.activated) return 0; // queued, never paid for
 	const p = s.stats.get(t.id);
@@ -394,9 +362,8 @@ function rollExoticParticles(s, t, p) {
 }
 
 /**
- * Heat exchangers move heat toward an even fill percentage across themselves
- * and their neighbours: pull from anything fuller than the target, push into
- * anything emptier. Returns the power made by any thermionic cells it fed.
+ * Move heat toward an even fill percentage across an exchanger and its
+ * neighbours. Returns the power made by any thermionic cells it fed.
  */
 function balance(s, t) {
 	let powerMade = 0;
@@ -441,7 +408,6 @@ function balance(s, t) {
 	return powerMade;
 }
 
-/** Drain the placement queue, buying as many pending tiles as money allows. */
 function buyQueued(s) {
 	while (s.queue.length) {
 		const t = s.queue[0];
@@ -499,7 +465,6 @@ function meltdown(s) {
 	}
 }
 
-/** Record that a part was bought. Only ever goes up; selling does not undo it. */
 export function countPlaced(s, id) {
 	s.placed[id] = (s.placed[id] ?? 0) + 1;
 }

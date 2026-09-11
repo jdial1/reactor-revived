@@ -1,6 +1,4 @@
-// Wiring: the four loops and the handful of actions the UI can trigger.
-// The original ran the same four chained setTimeouts; there is nothing wrong
-// with that, and it keeps the sim on a fixed 1s beat independent of frame rate.
+// Wiring: the loops, and the actions the UI can trigger.
 import { load, save, newState, place, exportSave as saveText, deserialize } from "./state.js";
 import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
@@ -57,8 +55,7 @@ const game = {
 	onTap(r, c) {
 		const t = tileAt(s, r, c);
 		if (!t.id) return placeAt(r, c);
-		// Hold the id, not the tile: selling clears t.id, and a test that reads
-		// it as it goes stops matching after the first tile it removes.
+		// Hold the id, not the tile: selling clears t.id mid-scan.
 		const kind = t.id;
 		inspect(s, t, {
 			sell: () => sellAt(r, c),
@@ -110,9 +107,7 @@ const game = {
 		floatText(`-${fmt(shed)}`, dom.heat.el, "var(--heat)");
 	},
 
-	// Acknowledging a meltdown clears the heat with it. The reactor is empty, so
-	// there is nothing left generating heat and nothing to be gained from making
-	// the player watch it cool.
+	// The board is empty, so there is nothing left making heat to watch cool.
 	clearMeltdown() {
 		s.hasMeltedDown = false;
 		s.heat = 0;
@@ -124,8 +119,7 @@ const game = {
 		autoPaused = false; // an explicit choice outranks the automatic one
 	},
 
-	// The reactor only runs while it is being watched. Stepping away to shop or
-	// read the goals pauses it; coming back resumes - but only if leaving is
+	// Leaving the reactor pauses it, coming back resumes - but only if leaving is
 	// what paused it, so a deliberate pause survives a trip to another tab.
 	viewing(page) {
 		if (page === "reactor") {
@@ -133,8 +127,7 @@ const game = {
 			s.paused = false;
 			autoPaused = false;
 		} else if (!s.paused) {
-			// Only latch on the way out of a running game. Walking from one
-			// page to another must not re-decide it, or the second hop reads
+			// Latch only on the way out of a running game, or the second hop reads
 			// its own pause as deliberate and the reactor never restarts.
 			s.paused = true;
 			autoPaused = true;
@@ -198,8 +191,7 @@ window.importSave = (json) => {
 	boot();
 };
 
-// Saving on the way out matters more on a phone than in a browser tab: Android
-// can kill the process without warning once the app is backgrounded.
+// Android can kill the process without warning once backgrounded.
 addEventListener("visibilitychange", () => {
 	if (document.visibilityState === "hidden") save(s);
 });

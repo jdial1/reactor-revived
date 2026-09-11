@@ -1,19 +1,14 @@
-/* Portrait phone layout: fixed stat bar, scrolling page, docked parts and tabs.
-   Everything sizes off CSS custom properties and safe-area insets - no
-   JavaScript measures pixels. */
+/* Portrait phone layout. Everything sizes off custom properties and safe-area
+   insets; no JavaScript measures pixels. */
 :root {
 	color-scheme: dark;
 	--bg: #0b0d10;
 	--panel: #151a21;
 	--edge: #262e39;
-	/* The colour each skinned frame ends on, just inside its slice - printed by
-	   docs/build_ui_skin.py, not chosen. Whatever sits inside a frame is painted
-	   its own frame's colour, or the piece reads as a plate with a hole in it.
-	   The meter's is --panel, which is why an empty bar is that and not black. */
+	/* Each frame's inner ring, printed by docs/build_ui_skin.py. A face must match
+	   its own frame or the piece reads as a plate with a hole in it. */
 	--face: #262e39;  /* button.png, button-on.png, panel.png */
-	/* A 2px checker over a face, so a panel is a surface with a grain rather
-	   than a flat fill - the art it frames is pixels, and this is too. The
-	   size belongs with the gradient, so a face is one declaration. */
+	/* 2px checker, so a face has a grain instead of being flat. */
 	--dither: repeating-conic-gradient(#0000 0% 25%, #ffffff0a 0% 50%) 0 0 / 2px 2px;
 	--ink: #c8d3de;
 	--dim: #7b8794;
@@ -61,22 +56,13 @@ button {
 }
 button:active { filter: brightness(1.4); }
 
-/* Buttons, dialogs and the meter frames are skinned from Buch's CC0 sci-fi UI
-   sheet - the same pack Reactor Knockoff used - recoloured onto this palette by
-   docs/build_ui_skin.py. border-image wants only the outer ring of each file,
-   which is why their middles are blank.
-
-   Skinning is opt-in per selector rather than applied to every button. A part
-   in the dock is a 31px sprite in a 63px box and has no eight pixels to give
-   to a frame, and the page tabs mark the current page by colouring one border
-   - which a border-image would paint straight over. */
-/* :not(.meter) matters more than it looks: a meter is a button inside #actions,
-   so this list was skinning the bars with the button frame and painting a flat
-   face over their colour ramp - an ID selector beats .meter.power. */
+/* Skinned from Buch's CC0 sheet by docs/build_ui_skin.py; border-image uses only
+   the outer ring, so the files' middles are blank. Opt-in per selector: a dock
+   part has no 8px to spare, and the page tabs mark themselves with a border. */
+/* :not(.meter): a meter is a button inside #actions, and an ID selector beats
+   .meter.power - this list was skinning the bars and covering their ramp. */
 #goal .pause, #actions button:not(.meter), #dock-tabs button, .upgrade,
 button.wide, .sheet-actions button, dialog .row button {
-	/* A steel edge, invisible under the image, is what shows if the image is
-	   ever missing - the same reasoning as the generated part sprites. */
 	border: 8px solid var(--edge);
 	background: var(--face) var(--dither);
 	border-image: url(../ui/button.png) 8 repeat;
@@ -86,8 +72,7 @@ button.wide, .sheet-actions button, dialog .row button {
 }
 a { color: var(--power); }
 
-/* ---- stat bar ---------------------------------------------------------- */
-/* The top of the screen carries the current goal and nothing else. */
+/* stat bar */
 #goal {
 	display: flex;
 	align-items: stretch;
@@ -96,10 +81,6 @@ a { color: var(--power); }
 	background: var(--panel);
 	border-bottom: 1px solid var(--edge);
 }
-/* Always two lines tall, so a long goal does not push the reactor down when
-   it arrives - and is clipped rather than allowed to run to three. */
-/* A button, because it opens the full list - but it has to go on reading as the
-   line of text it was, so everything a button brings is taken back off. */
 #goal .objective {
 	flex: 1;
 	margin: 0;
@@ -134,17 +115,13 @@ a { color: var(--power); }
 	padding: 0;
 	height: var(--bar-h);
 	background: #0007;
-	/* Clipped to the padding box, which is exactly what .unfilled covers. On
-	   border-box the ramp painted under the frame too and showed through the
-	   image's transparent corners, colouring an empty bar. */
+	/* Padding-box: exactly what .unfilled covers. On border-box the ramp showed
+	   through the frame image's transparent corners. */
 	background-clip: padding-box;
 	border: 8px solid var(--edge);
 	border-image: url(../ui/meter.png) 8 repeat;
 	overflow: hidden;
 }
-/* A watermark centred on the bar, over the fill. Both glyphs fill their
-   16-unit box top to bottom, so the bar's own height is the size that sits
-   inside it without overhanging. */
 .meter .icon.stat {
 	position: absolute;
 	left: 50%;
@@ -155,24 +132,18 @@ a { color: var(--power); }
 	opacity: 0.4;
 }
 
-/* The ramp is painted across the whole bar and then covered up from the right,
-   so a colour always means the same share of the bar: green while there is room
-   to spare, yellow as it tightens, red near the top. Growing a coloured fill
-   instead would stretch the ramp and make 10% and 90% the same shade. */
+/* Painted across the whole bar and covered from the right, so a colour always
+   means the same share of it. A growing fill would stretch the ramp. */
 .meter .unfilled {
 	position: absolute;
 	right: 0;
 	top: 0;
 	bottom: 0;
 	left: 0;
-	/* The meter frame's own inner ring is --panel, so an empty bar is that, not
-	   something darker: the track and the frame around it are one surface. */
 	background: var(--panel);
 	transition: left 120ms linear;
 }
-/* The segments: hard gaps ruled over the whole bar, ramp and cover alike. As a
-   pseudo-element it paints after every child, so the glyph and the reading have
-   to be lifted above it or the stripes cut through them. */
+/* Segment gaps, over ramp and cover alike; children must be lifted above it. */
 .meter::after {
 	content: "";
 	position: absolute;
@@ -183,14 +154,11 @@ a { color: var(--power); }
 }
 .meter .icon.stat { z-index: 2; }
 .meter b { z-index: 3; }
-/* Both bars fill towards trouble, so both read the same way. */
 .meter.power, .meter.heat {
-	/* background-image, not the shorthand: the shorthand would reset the
-	   padding-box clip set above and let the ramp paint under the frame. */
+	/* background-image, not the shorthand: the shorthand resets the clip above. */
 	background-image: linear-gradient(to right,
 		var(--power) 0 50%, var(--cash) 50% 80%, var(--heat) 80% 100%);
 }
-/* The reading rides on the bar, hard right, over whatever the fill is doing. */
 .meter b {
 	position: absolute;
 	right: 6px;
@@ -209,12 +177,10 @@ a { color: var(--power); }
 }
 .purse .money-row { display: flex; align-items: center; gap: 6px; }
 .cash { color: var(--cash); }
-/* The money is the number worth reading on this row, so it is the biggest. */
 .purse .cash { font-size: 19px; }
 .purse .icon.coin { width: 19px; height: 19px; }
 .ep { color: var(--ep); font-size: 11px; }
 
-/* The reactor visibly runs hot before it kills you. */
 body.hot #actions .readout { box-shadow: 0 0 0 1px var(--heat); }
 body.critical #app { animation: shake 220ms infinite; }
 @keyframes shake {
@@ -223,7 +189,7 @@ body.critical #app { animation: shake 220ms infinite; }
 	75% { transform: translate(-1px, 1px); }
 }
 
-/* ---- pages -------------------------------------------------------------- */
+/* pages */
 main { overflow: hidden; position: relative; }
 .page {
 	display: none;
@@ -233,31 +199,26 @@ main { overflow: hidden; position: relative; }
 	-webkit-overflow-scrolling: touch;
 	padding: 8px;
 }
-/* The reactor page is all board; every pixel of padding costs tile size. */
 #page-reactor { padding: 2px; }
 .page.showing { display: block; }
 
-/* ---- reactor grid ------------------------------------------------------- */
+/* reactor grid */
 #board {
 	overflow: auto;
 	display: grid;
 	place-content: safe center;
 	height: 100%;
 	touch-action: pan-x pan-y;
-	/* Makes cqw/cqh below mean "of the board", so the grid can size itself to
-	   the space it actually has without any JavaScript measuring pixels. */
+	/* Makes cqw/cqh below mean "of the board". */
 	container-type: size;
 }
 #grid {
-	/* The whole reactor is always visible: fit whichever direction runs out
-	   first, and never scroll. Pinch-zoom still scales up from there, and the
-	   cap stops tiles becoming absurd on a tablet. */
+	/* Fit whichever direction runs out first and never scroll; pinch zooms up. */
 	--tile: calc(var(--zoom, 1) * min(
 		calc((100cqw - 2px) / var(--cols) - var(--gap)),
 		calc((100cqh - 2px) / var(--rows) - var(--gap)),
 		72px
 	));
-	/* Gestures on the grid are ours; the board around it still scrolls. */
 	touch-action: none;
 	display: grid;
 	grid-template-columns: repeat(var(--cols), var(--tile));
@@ -279,8 +240,6 @@ main { overflow: hidden; position: relative; }
 }
 .tile.queued { opacity: 0.45; border-style: dashed; }
 
-/* A part that blew up. Four hard steps rather than a smooth fade, to match the
-   pixel art. */
 .tile.exploding { animation: boom 320ms steps(4); }
 @keyframes boom {
 	0% { background-color: #fff; box-shadow: 0 0 0 0 #ffb347; }
@@ -289,7 +248,6 @@ main { overflow: hidden; position: relative; }
 }
 .tile.spent { filter: grayscale(1) brightness(0.6); }
 
-/* Heat fills from the bottom, cell life drains along the top. */
 .tile .heat, .tile .life {
 	position: absolute;
 	left: 0;
@@ -300,7 +258,7 @@ main { overflow: hidden; position: relative; }
 .tile .heat { bottom: 0; background: var(--heat); }
 .tile .life { top: 0; background: var(--power); }
 
-/* ---- upgrades and goals ------------------------------------------------- */
+/* upgrades and goals */
 .upgrades { display: grid; gap: 6px; }
 .upgrade {
 	position: relative;
@@ -308,12 +266,10 @@ main { overflow: hidden; position: relative; }
 	gap: 2px;
 	text-align: left;
 }
-/* Which of the reactor's two numbers this moves, or neither. */
 .upgrade .kind { position: absolute; top: 6px; right: 7px; line-height: 0; }
 .upgrade .kind .icon { width: 15px; height: 15px; }
-/* Out of reach: the flat panel frame, not the raised button one, so the list
-   reads as what you can press and what you are saving towards. The narrower
-   frame is paid back in padding, or the row would shift as prices come in. */
+/* Out of reach: the flat frame, not the raised one. The narrower border is paid
+   back in padding, or rows shift as prices come into reach. */
 .upgrade.poor {
 	border-width: 6px;
 	border-image-source: url(../ui/panel.png);
@@ -321,7 +277,6 @@ main { overflow: hidden; position: relative; }
 	padding: 2px 4px;
 }
 .upgrade .kind.utility { color: var(--dim); }
-/* Keep a long title clear of the badge. */
 .upgrade > b { padding-right: 22px; }
 .upgrade b { color: var(--ink); }
 .upgrade i { color: var(--dim); font-style: normal; font-size: 11px; }
@@ -330,7 +285,6 @@ main { overflow: hidden; position: relative; }
 .upgrade s { text-decoration: none; color: var(--dim); }
 .upgrade.poor u { color: #8c5b5b; }
 
-/* What the next level moves this to: the new figure is the one worth reading. */
 .upgrade .delta { display: flex; align-items: center; gap: 5px; font-style: normal; font-size: 11px; }
 .upgrade .delta s { text-decoration: none; color: var(--dim); }
 .upgrade .delta s::after { content: " \2192  "; color: var(--dim); }
@@ -342,8 +296,6 @@ main { overflow: hidden; position: relative; }
 	padding: 0 5px;
 }
 
-/* Out of reach, but close enough to be worth saving for: dithered rather than
-   hidden, so the list stays short without hiding the next goal. */
 .upgrade.preview {
 	color: var(--dim);
 	background-image: repeating-conic-gradient(#0000 0% 25%, #0000000d 0% 50%);
@@ -359,21 +311,16 @@ main { overflow: hidden; position: relative; }
 	padding: 8px;
 	margin: 0 0 8px;
 }
-/* Room for two digits and the marker on the current one. At 1.4em the "10."
-   ran off the left edge of the scroller, which clips whatever sits in a list's
-   marker area. */
+/* Room for two digits: at 1.4em the "10." ran off the scroller's left edge. */
 .objectives { margin: 0; padding-left: 2.6em; color: var(--dim); }
 .objectives li { padding-left: 2px; }
 .objectives li { margin-bottom: 4px; }
 .objectives li b { font-weight: normal; }
 .objectives li i { color: var(--cash); font-style: normal; margin-left: 6px; }
 .objectives li.done { opacity: 0.4; text-decoration: line-through; }
-/* Where you are in the list. */
 .objectives li.current b { color: var(--ink); }
 .objectives li.current b::before { content: "▸"; color: var(--cash); margin-right: 6px; }
 
-/* The goal list, opened from the line at the top rather than a tab of its own.
-   It is the one sheet that can outgrow the screen, so it scrolls inside. */
 .sheet.goals .objectives {
 	max-height: min(60vh, 420px);
 	overflow-y: auto;
@@ -403,8 +350,6 @@ select.wide {
 .danger { color: #d87a7a; }
 .credit { color: var(--dim); font-size: 11px; line-height: 1.5; }
 
-/* The lineage, as a list rather than a sentence: five games handed this one
-   down and a run-on paragraph made them look like footnotes. */
 .credit-head { margin: 4px 0 8px; font-size: 12px; color: var(--dim); font-weight: normal; }
 .lineage {
 	margin: 0 0 12px;
@@ -418,7 +363,6 @@ select.wide {
 	padding: 0 0 10px 16px;
 	color: var(--dim);
 }
-/* A rail down the left with a node per generation: the descent is the point. */
 .lineage li::before {
 	content: "";
 	position: absolute;
@@ -443,7 +387,7 @@ select.wide {
 .lineage b { display: block; font-weight: normal; color: var(--ink); }
 .lineage i { display: block; font-style: normal; }
 
-/* ---- dock and tabs ------------------------------------------------------ */
+/* dock and tabs */
 footer {
 	background: var(--panel);
 	border-top: 1px solid var(--edge);
@@ -452,9 +396,6 @@ footer {
 
 #dock { display: grid; gap: 2px; padding: 0 4px 4px; }
 
-/* Twice the height of the old button strip: the readout it absorbed sits on
-   top of the controls. */
-/* What the reactor did this tick, as opposed to where it now stands. */
 #rates {
 	display: flex;
 	justify-content: space-between;
@@ -469,11 +410,8 @@ footer {
 #rates .power b { color: var(--power); }
 #rates .heat b { color: var(--heat); }
 
-/* One row: the bar that earns, what it earned, the bar that threatens it. */
 #actions { display: flex; align-items: center; gap: 6px; padding: 4px; }
 #actions .meter { flex: 1; min-width: 0; }
-/* The money sat in the hole between two framed bars. It gets the panel frame,
-   so the row reads as three surfaces rather than two and a gap. */
 #actions .purse {
 	flex: none;
 	align-self: stretch;
@@ -495,9 +433,6 @@ footer {
 	color: var(--dim);
 }
 #actions button { color: var(--ink); }
-/* Selected is Buch's pressed button: the highlight runs along the bottom-right
-   instead of the top-left, so the thing reads as pushed in. The green ring this
-   replaced was the interface shouting a state the bevel already tells you. */
 #dock-tabs button.on {
 	color: var(--ink);
 	border-image-source: url(../ui/button-on.png);
@@ -505,7 +440,6 @@ footer {
 #dock-body { overflow: hidden; }
 
 .dock-page { display: none; }
-/* Families run across; the page scrolls sideways when there are more than fit. */
 .dock-page.showing {
 	display: flex;
 	align-items: flex-start;
@@ -515,16 +449,13 @@ footer {
 	scrollbar-width: none;
 }
 
-/* One family per column, its tiers stacked down it and scrolling on their own,
-   so reaching vent 6 never scrolls the cells out of view. */
 .dock-col {
 	flex: none;
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
-	/* One tier, plus the strip that shows the next one. Unlocking a tier gives
-	   the column more to scroll rather than making the dock taller, and the
-	   height is fixed rather than a maximum so nothing above it ever moves. */
+	/* One tier plus a peek at the next. Fixed height, so unlocking a tier gives the
+	   column more to scroll rather than moving everything above it. */
 	height: calc(var(--part-h) + 4px + var(--peek-h));
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
@@ -549,21 +480,15 @@ footer {
 }
 .part em { font-style: normal; font-size: 9px; white-space: nowrap; }
 .part u { text-decoration: none; font-size: 9px; color: var(--dim); }
-/* A part is 70px wide with a 31px sprite in it and has no eight pixels to give
-   to a frame, so it gets the same lighting in one pixel: dark where the light
-   was, light where the shadow was. */
 .part.on {
 	border-color: #07090c;
 	background: var(--face) var(--dither);
 	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
 }
 .part.poor u { color: #8c5b5b; }
-/* The hub of a working vent, turning. No separate rotor sprite: the part's own
-   art is shown at 166%, so only the middle 60% - the round, rotatable part -
-   falls inside the box and the housing is cropped away.
-   The box is that middle 60% of the tile rather than the whole tile, which puts
-   the rotor back at the scale the rest of the art is drawn at. Filling the tile
-   meant a vent under a spin was half again the size of one at rest. */
+/* The part's own art at 166%, cropped by a box that is the same middle 60% of
+   the tile - which keeps the rotor at the scale the rest of the art is drawn at.
+   Filling the whole tile made a spinning vent half again the size of a still one. */
 .tile .fan {
 	position: absolute;
 	inset: 20%;
@@ -576,9 +501,6 @@ footer {
 
 .part.locked { display: none; }
 
-/* The tier you have not earned yet: how many more of the one below to place,
-   what it will cost, and the shape of the part with the detail masked out -
-   enough to aim at without spoiling the art. */
 .part.next {
 	height: var(--peek-h);
 	display: flex;
@@ -586,17 +508,14 @@ footer {
 	justify-content: center;
 	gap: 5px;
 	padding: 0 4px;
-	/* --p is how much of the way there you are, set by the renderer. The
-	   checkerboard is the empty track; the green is the part you have done.
-	   Without the fill this strip was a full-width texture with "0/10" written
-	   on it, which reads as a progress bar that is always complete. */
+	/* --p is progress, set by the renderer. Without the fill this was a full-width
+	   texture with "0/10" on it, which reads as a bar that is always complete. */
 	--p: 0;
 	background-image:
 		linear-gradient(to right, #c8d3de1f 0 calc(var(--p) * 100%), #0000 0),
 		repeating-conic-gradient(#0000 0% 25%, #ffffff0d 0% 50%);
 	background-size: auto, 4px 4px;
 }
-/* Flattened to a silhouette: the shape of the part without its detail. */
 .part.next i { width: 17px; height: 17px; filter: brightness(0) invert(1) brightness(0.42); }
 .part.next em { color: var(--ink); }
 .part.next u { color: var(--dim); }
@@ -617,9 +536,6 @@ footer {
 }
 #tabs button.on { color: var(--ink); border-top-color: var(--ink); }
 
-/* Something is affordable behind this tab. A bare dot says "one thing"; past
-   that the count is worth more than the dot, so it becomes a number. Coloured
-   by the currency it is asking to be spent. */
 #tabs button { position: relative; }
 .pip {
 	position: absolute;
@@ -643,7 +559,7 @@ footer {
 	color: var(--bg);
 }
 
-/* ---- dialogs ------------------------------------------------------------ */
+/* dialogs */
 dialog {
 	color: var(--ink);
 	background: var(--face) var(--dither);
@@ -675,7 +591,7 @@ dialog .row button { flex: 1; padding: 10px; }
 .sheet dt { color: var(--dim); }
 .sheet dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 
-/* ---- icons -------------------------------------------------------------- */
+/* icons */
 .icon {
 	width: 16px;
 	height: 16px;
@@ -683,15 +599,10 @@ dialog .row button { flex: 1; padding: 10px; }
 	shape-rendering: crispEdges;
 }
 #tabs .icon { width: 18px; height: 18px; }
-/* Keep the play/pause glyph from shifting the label when it swaps. */
 .swap { display: inline-flex; width: 16px; justify-content: center; }
 
-/* ---- feedback ----------------------------------------------------------- */
-/* The loop is: place a part, watch power climb, tap to sell it, spend it. Each
-   beat of that got something small to confirm it happened, because a tap that
-   changes a number somewhere else on screen does not feel like it did anything. */
+/* feedback */
 
-/* A part just landed. */
 .tile.placed { animation: pop 220ms ease-out; }
 @keyframes pop {
 	0% { transform: scale(0.7); filter: brightness(1.8); }
@@ -699,22 +610,20 @@ dialog .row button { flex: 1; padding: 10px; }
 	100% { transform: scale(1); }
 }
 
-/* A tier you just earned, in the dock. */
 .part.unlocked { animation: earned 700ms ease-out; }
 @keyframes earned {
 	0%, 100% { box-shadow: none; }
 	30% { box-shadow: 0 0 0 2px var(--power), 0 0 12px 2px var(--power); }
 }
 
-/* Power sold, heat vented, upgrade bought. */
 .meter.sold::before, .meter.vented::before {
 	content: "";
 	position: absolute;
 	inset: 0;
 	z-index: 4;
 	pointer-events: none;
-	/* forwards as well as the class removal in flash(): if the animation never
-	   runs, the last frame is what shows, and that has to be invisible. */
+	/* forwards as well as the class removal in flash(): if the animation never runs,
+	   the last frame is what shows, and it has to be invisible. */
 	animation: wash 320ms ease-out forwards;
 }
 .meter.sold::before { background: var(--power); }
@@ -723,7 +632,6 @@ dialog .row button { flex: 1; padding: 10px; }
 
 .upgrade.bought { animation: earned 600ms ease-out; }
 
-/* A number leaving the thing that produced it. */
 .floater {
 	position: fixed;
 	z-index: 50;
@@ -738,9 +646,6 @@ dialog .row button { flex: 1; padding: 10px; }
 	to { transform: translate(-50%, -34px); opacity: 0; }
 }
 
-/* Said once, then gone. */
-/* Under the goal bar, over the reactor: the only band of the screen with
-   nothing to press, so a message never covers a control. */
 #toast {
 	position: fixed;
 	left: 50%;
@@ -764,15 +669,13 @@ dialog .row button { flex: 1; padding: 10px; }
 	100% { opacity: 0; transform: translate(-50%, -6px); }
 }
 
-/* ---- keyboard and screen readers ---------------------------------------- */
-/* Nothing here had a focus style, so a keyboard had no idea where it was. */
+/* keyboard and screen readers */
 :focus-visible {
 	outline: 2px solid var(--power);
 	outline-offset: 2px;
 }
 .tile:focus-visible { outline-offset: -2px; }
 
-/* Announced, not shown. */
 .sr-only {
 	position: absolute;
 	width: 1px;
@@ -784,8 +687,7 @@ dialog .row button { flex: 1; padding: 10px; }
 	white-space: nowrap;
 }
 
-/* Some people get motion sick, and this game shakes the screen when it is hot.
-   The fan still appears over a working vent - it just stops turning. */
+/* The game shakes the screen when it is hot. The fan stops turning, not showing. */
 @media (prefers-reduced-motion: reduce) {
 	*, *::before, *::after {
 		animation-duration: 1ms !important;
@@ -794,12 +696,8 @@ dialog .row button { flex: 1; padding: 10px; }
 	}
 }
 
-/* ---- second pass: the small answers ------------------------------------- */
-
-/* 6. A tap that cannot do anything should still do something. */
 .part.denied { animation: shake 220ms; }
 
-/* 5. An empty list, explained. */
 .empty {
 	margin: 0 0 8px;
 	padding: 10px;
@@ -809,24 +707,17 @@ dialog .row button { flex: 1; padding: 10px; }
 	border-left: 3px solid var(--cash);
 }
 
-/* 3. Touch confirmation: the press is felt before the state catches up.
-   Tiles and parts had nothing, so a tap that missed looked like a tap that
-   worked. */
 .tile:active, .part:active { transform: scale(0.94); }
 .tile, .part { transition: transform 80ms ease-out; }
 
-/* 2. Hover, where there is a pointer to hover with. A phone has none, and
-   :hover on a touch screen sticks after the tap. */
+/* :hover sticks after a tap on glass, so only where there is a pointer. */
 @media (hover: hover) {
 	button:hover:not(:disabled) { filter: brightness(1.15); }
 	.tile:hover { border-color: var(--dim); }
 }
 
-/* 9. Selection and affordability change under you as money comes in, so they
-   fade rather than snap. */
 .part, .upgrade { transition: background-color 140ms linear, transform 80ms ease-out; }
 
-/* 7. --dim on a lit face was 3.1:1. On the faces the skin brought in, the
-   secondary text needs to be brighter than it was on near-black. */
+/* --dim measured 3.1:1 on the faces the skin brought in. */
 .upgrade p, .part u { color: #97a3b1; }
 .part.poor u { color: #c08383; }

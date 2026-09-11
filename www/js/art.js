@@ -1,13 +1,4 @@
-// Where part artwork comes from.
-//
-// One source, one path: Reactor Revival's art in www/parts/revival/, 75 PNGs
-// that ship in the APK. There was a pack system here once - a registry of every
-// game in the lineage, a manifest of which sprites each had, a saved setting and
-// a picker in Options - and with a single pack none of it earned its place.
-//
-// There was also a second copy of the whole set drawn from geometry at runtime,
-// as a fallback for a build with no image files. Nothing ever shipped without
-// them, so the fallback was 314 lines that only the tests ever ran.
+// One source, one path: Reactor Revival's art in www/parts/revival/.
 
 // The order fuels appear in the catalog; the art numbers cell files by that
 // position rather than by name.
