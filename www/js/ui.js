@@ -108,6 +108,8 @@ export function buildUI(game) {
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
 	dom.pause = h("button", { className: "pause", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 
+	dom.goalText = h("span", {});
+	dom.goalBar = h("i", { className: "goal-bar" });
 	dom.objective = h("button", {
 		className: "objective",
 		title: "Show every goal",
@@ -115,6 +117,7 @@ export function buildUI(game) {
 	});
 	dom.objective.setAttribute("aria-haspopup", "dialog");
 	dom.objective.setAttribute("aria-expanded", "false");
+	dom.objective.append(dom.goalText, dom.goalBar);
 	root.append(h("header", { id: "goal" }, dom.objective, dom.pause));
 	// One polite live region for the whole game: goals met, meltdowns, unlocks.
 	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
@@ -127,6 +130,7 @@ export function buildUI(game) {
 	}
 	root.append(main);
 
+	root.append(h("a", { className: "skip", href: "#dock", textContent: "Skip to parts" }));
 	dom.grid = h("div", { id: "grid" });
 	dom.board = h("div", { id: "board" }, dom.grid);
 	dom.pages.reactor.append(dom.board);
@@ -198,7 +202,7 @@ export function buildUI(game) {
 		meter("power", "power", game.sellAll, "Sell all power"),
 		dom.purse,
 		meter("heat", "heat", game.ventHeat, "Vent heat"));
-	dom.dock = h("div", { id: "dock" });
+	dom.dock = h("div", { id: "dock", tabIndex: -1 });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => { showPage(dom, id); game.viewing(id); });
 	dom.pips = {};
 	for (const id of ["upgrades", "experiments"]) {
@@ -365,7 +369,9 @@ export function inspect(s, t, sell) {
 		h("div", { className: "sheet-actions" }, [
 			h("button", { className: "danger", textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
 			sameKind > 1 && h("button", { className: "danger", textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
-			placed.length > sameKind && h("button", { className: "danger", textContent: `Sell everything (${placed.length} parts)`, onclick: () => { dialog.close(); sell.sellAll(); } }),
+			// One tap that empties the board deserves a second one.
+			placed.length > sameKind && h("button", { className: "danger", textContent: `Sell everything (${placed.length} parts)`,
+				onclick: () => { dialog.close(); ask(`Sell all ${placed.length} parts?`, sell.sellAll); } }),
 		].filter(Boolean)),
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dialog.close() })));
@@ -409,6 +415,8 @@ function buildObjectiveList(dom) {
 
 function buildGrid(dom, s) {
 	dom.grid.replaceChildren();
+	dom.grid.setAttribute("role", "grid");
+	dom.grid.setAttribute("aria-label", `Reactor, ${ROWS} rows by ${COLS} columns`);
 	dom.grid.style.setProperty("--cols", COLS);
 	dom.grid.style.setProperty("--rows", ROWS);
 	dom.tiles = [];
@@ -419,12 +427,26 @@ function buildGrid(dom, s) {
 		// vent is shifting heat.
 		const fan = h("i", { className: "fan" });
 		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, fan, heat, life);
+		cell.setAttribute("role", "gridcell");
 		cell.setAttribute("aria-label", `row ${t.r + 1} column ${t.c + 1}, empty`);
+		// Ninety-six tab stops is not navigation. One way in, arrows to move.
+		cell.tabIndex = t.r === 0 && t.c === 0 ? 0 : -1;
 		dom.grid.append(cell);
 		dom.tiles.push({ t, cell, heat, life, fan, sig: "", had: null });
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
+	dom.grid.onkeydown = (e) => {
+		const step = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+		if (!step || !e.target.dataset.r) return;
+		const r = Math.min(ROWS - 1, Math.max(0, Number(e.target.dataset.r) + step[0]));
+		const c = Math.min(COLS - 1, Math.max(0, Number(e.target.dataset.c) + step[1]));
+		const next = dom.tiles[r * COLS + c].cell;
+		e.target.tabIndex = -1;
+		next.tabIndex = 0;
+		next.focus();
+		e.preventDefault();
+	};
 }
 
 const pct = (n, d) => (d > 0 ? Math.min(100, (n / d) * 100) : 0);
@@ -449,6 +471,7 @@ export function render(dom, s, game) {
 	}
 	if (s.hasMeltedDown && !dom.meltdownShown) {
 		dom.meltdownShown = true;
+		flash(document.body, "melting");
 		meltdownNotice(() => {
 			dom.meltdownShown = false;
 			game.clearMeltdown();
@@ -458,7 +481,13 @@ export function render(dom, s, game) {
 	const rate = s.rate ?? {};
 	for (const [id, el] of Object.entries(dom.rates)) el.textContent = fmt(rate[id] ?? 0);
 
-	dom.objective.textContent = OBJECTIVES[s.objective]?.title ?? "Every goal met.";
+	const goal = OBJECTIVES[s.objective];
+	const step = goal?.progress?.(s);
+	dom.goalText.textContent = goal
+		? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}`
+		: "Every goal met.";
+	dom.goalBar.style.setProperty("--p", step ? step[0] / step[1] : 0);
+	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
@@ -498,7 +527,9 @@ export function render(dom, s, game) {
 		const art = p ? `url(${artFor(p)})` : "";
 		row.cell.style.backgroundImage = art;
 		row.fan.style.backgroundImage = p?.vent ? art : "";
-		row.cell.classList.toggle("queued", Boolean(t.id) && !t.activated);
+		const queued = Boolean(t.id) && !t.activated;
+		row.cell.classList.toggle("queued", queued);
+		row.cell.title = queued ? `Waiting for $${fmt(p.cost)}` : "";
 		row.cell.classList.toggle("spent", Boolean(p) && p.category === "cell" && !t.ticks);
 		row.heat.style.width = `${heat}%`;
 		row.life.style.width = `${life}%`;

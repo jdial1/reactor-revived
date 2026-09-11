@@ -26,14 +26,22 @@ export function attachInput(board, grid, handlers) {
 	let gesture = null;
 	let zoom = 1;
 
+	let holdNode = null;
 	const tileUnder = (x, y) => {
 		const node = document.elementFromPoint(x, y)?.closest(".tile");
 		return node ? [Number(node.dataset.r), Number(node.dataset.c)] : null;
+	};
+	// A gesture with a timer on it should show the timer.
+	const showHold = (node) => {
+		holdNode?.classList.remove("holding");
+		holdNode = node;
+		node?.classList.add("holding");
 	};
 
 	const cancelHold = () => {
 		clearTimeout(holdTimer);
 		holdTimer = 0;
+		showHold(null);
 	};
 
 	const reset = () => {
@@ -68,9 +76,11 @@ export function attachInput(board, grid, handlers) {
 		start = { x: e.clientX, y: e.clientY };
 		held = tileUnder(e.clientX, e.clientY);
 		if (!held) return;
+		showHold(document.elementFromPoint(e.clientX, e.clientY)?.closest(".tile"));
 		holdTimer = setTimeout(() => {
 			holdTimer = 0;
 			mode = "hold";
+			showHold(null);
 			handlers.onHold(...held);
 		}, LONG_PRESS_MS);
 	});

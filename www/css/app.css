@@ -721,3 +721,73 @@ dialog .row button { flex: 1; padding: 10px; }
 /* --dim measured 3.1:1 on the faces the skin brought in. */
 .upgrade p, .part u { color: #97a3b1; }
 .part.poor u { color: #c08383; }
+
+/* Keyboard first: one way on to the board, and a way past it. */
+.skip {
+	position: absolute;
+	left: -999px;
+	z-index: 60;
+}
+.skip:focus {
+	left: 6px;
+	top: 6px;
+	padding: 6px 10px;
+	color: var(--ink);
+	background: var(--face) var(--dither);
+	border: 1px solid var(--power);
+}
+
+/* How far into the current goal you are, under the words. */
+.goal-bar {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 2px;
+	background: linear-gradient(to right, var(--cash) 0 calc(var(--p, 0) * 100%), #0000 0);
+	transition: background 200ms linear;
+}
+#goal .objective { position: relative; }
+
+/* The long press has 450ms to run; show them. */
+.tile.holding::after {
+	content: "";
+	position: absolute;
+	inset: 2px;
+	border: 2px solid var(--heat);
+	border-radius: 2px;
+	clip-path: inset(0 0 0 0);
+	animation: hold 450ms linear;
+}
+@keyframes hold {
+	from { clip-path: inset(0 100% 0 0); }
+	to { clip-path: inset(0 0 0 0); }
+}
+
+/* The board just emptied itself. */
+body.melting { animation: melting 500ms ease-out; }
+@keyframes melting {
+	0% { background: var(--heat); }
+	100% { background: var(--bg); }
+}
+
+/* Paused because you walked away, said on the tab that undoes it. */
+#tabs button.paused .icon { opacity: 0.45; }
+#tabs button.paused::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	right: 50%;
+	margin-right: 5px;
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+	background: var(--heat);
+}
+
+/* Some people turn contrast up because they need it. */
+@media (prefers-contrast: more) {
+	:root { --dim: #c2ccd8; --edge: #4a5769; }
+	.tile { border-color: #55627a; }
+	.upgrade.preview { opacity: 1; }
+}

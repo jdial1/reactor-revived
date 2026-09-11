@@ -43,6 +43,13 @@ const liveCells = (id) => (p, t) => p.id === id && t.ticks;
 // Total power the board makes per tick.
 const statsPower = (s) => s.cells.reduce((n, t) => n + t.power, 0);
 
+// A goal you can be part of the way through. `progress` is what the goal line
+// draws a bar from; the check falls out of the same count.
+const atLeast = (n, match) => ({
+	check: (s) => count(s, match) >= n,
+	progress: (s) => [Math.min(count(s, match), n), n],
+});
+
 const anyUpgrade = (s, match) => Object.entries(s.levels).some(([id, lv]) => lv > 0 && match(id));
 
 export const OBJECTIVES = [
@@ -59,7 +66,7 @@ export const OBJECTIVES = [
 	{ title: "Place a Dual cell in the reactor", reward: 25,
 	  check: (s) => some(s, (p) => p.cellCount === 2) },
 	{ title: "Have 10 active cells in the reactor", reward: 200,
-	  check: (s) => count(s, (p, t) => p.category === "cell" && t.ticks) >= 10 },
+	  ...atLeast(10, (p, t) => p.category === "cell" && t.ticks) },
 	{ title: "Buy a Perpetual Cell upgrade", reward: 1000,
 	  check: (s) => anyUpgrade(s, (id) => id.startsWith("cell_perpetual_")) },
 	{ title: "Place a Capacitor to raise your max power", reward: 100,
@@ -71,7 +78,7 @@ export const OBJECTIVES = [
 	{ title: "Have 5 different kinds of part in the reactor", reward: 2000,
 	  check: (s) => new Set([...placed(s)].map(([, p]) => p.category)).size >= 5 },
 	{ title: "Have 10 Capacitors in the reactor", reward: 5000,
-	  check: (s) => count(s, (p) => p.category === "capacitor") >= 10 },
+	  ...atLeast(10, (p) => p.category === "capacitor") },
 	{ title: "Generate at least 500 power per tick", reward: 5000,
 	  check: (s) => statsPower(s) >= 500 && !s.paused },
 	{ title: "Upgrade Potent Uranium Cell to level 3 or higher", reward: 25000,
@@ -79,16 +86,16 @@ export const OBJECTIVES = [
 	{ title: "Auto-sell at least 500 power per tick", reward: 40000,
 	  check: (s) => Math.ceil(s.maxPower * s.autoSellMul) >= 500 },
 	{ title: "Have at least 5 active Quad Plutonium Cells in the reactor", reward: 1e6,
-	  check: (s) => count(s, liveCells("plutonium3")) >= 5 },
+	  ...atLeast(5, liveCells("plutonium3")) },
 	// Was "expand your reactor 4 times", which a fixed grid cannot ask for.
 	{ title: "Fill every tile in the reactor", reward: 1e8,
 	  check: (s) => [...activeTiles(s)].every((t) => t.id) },
 	{ title: "Have at least 5 active Quad Thorium Cells in the reactor", reward: 1e8,
-	  check: (s) => count(s, liveCells("thorium3")) >= 5 },
+	  ...atLeast(5, liveCells("thorium3")) },
 	{ title: `Have at least $${fmt(1e10)} total`, reward: 1e10,
 	  check: (s) => s.money >= 1e10 },
 	{ title: "Have at least 5 active Quad Seaborgium Cells in the reactor", reward: 1e11,
-	  check: (s) => count(s, liveCells("seaborgium3")) >= 5 },
+	  ...atLeast(5, liveCells("seaborgium3")) },
 	{ title: "Generate 10 Exotic Particles with Particle Accelerators", reward: 1e13,
 	  check: (s) => s.exoticParticles >= 10 },
 	{ title: "Generate 51 Exotic Particles with Particle Accelerators", epReward: 50,
@@ -98,11 +105,11 @@ export const OBJECTIVES = [
 	{ title: "Buy a research upgrade in the Experiments tab", epReward: 50,
 	  check: (s) => anyUpgrade(s, (id) => UPGRADE_BY_ID.get(id).ecost) },
 	{ title: "Have at least 5 active Quad Dolorium Cells in the reactor", reward: 1e15,
-	  check: (s) => count(s, liveCells("dolorium3")) >= 5 },
+	  ...atLeast(5, liveCells("dolorium3")) },
 	{ title: `Generate ${fmt(1000)} Exotic Particles with Particle Accelerators`, epReward: 1000,
 	  check: (s) => s.exoticParticles >= 1000 },
 	{ title: "Have at least 5 active Quad Nefastium Cells in the reactor", reward: 1e17,
-	  check: (s) => count(s, liveCells("nefastium3")) >= 5 },
+	  ...atLeast(5, liveCells("nefastium3")) },
 	{ title: "Place an experimental part from the Exotic tab", epReward: 10000,
 	  check: (s) => some(s, (p) => p.level === 6) },
 	{ title: "All objectives completed!", check: () => false },
