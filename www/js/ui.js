@@ -358,7 +358,7 @@ export const flash = (el, cls) => {
  * The reactor is gone. Dismissing it in any way is the acknowledgement, so
  * there is no way to end up staring at an empty board wondering what happened.
  */
-export function meltdownNotice(onAcknowledge) {
+function meltdownNotice(onAcknowledge) {
 	const dialog = h("dialog", { className: "sheet meltdown" },
 		h("h2", { textContent: "Meltdown" }),
 		h("i", { textContent: "Heat passed twice what the reactor could hold. Every part in it was destroyed." }),

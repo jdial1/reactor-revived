@@ -36,7 +36,10 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   a fallback away from running on nothing.
 - **No network access.** Nothing is fetched, ever.
 
-The result is about 2,000 lines of game code and a 100-line Android shell.
+The result is about 2,900 lines of game code, 800 of CSS, and a 105-line
+Android shell. The release APK is **146 KB**, of which the Android half is a
+9 KB `classes.dex`: R8 is on, because without it the Kotlin runtime shipped
+2.4 MB of itself to run one Activity.
 
 ## Layout
 

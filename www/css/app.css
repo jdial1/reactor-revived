@@ -12,8 +12,9 @@
 	   The meter's is --panel, which is why an empty bar is that and not black. */
 	--face: #262e39;  /* button.png, button-on.png, panel.png */
 	/* A 2px checker over a face, so a panel is a surface with a grain rather
-	   than a flat fill - the art it frames is pixels, and this is too. */
-	--dither: repeating-conic-gradient(#0000 0% 25%, #ffffff0a 0% 50%);
+	   than a flat fill - the art it frames is pixels, and this is too. The
+	   size belongs with the gradient, so a face is one declaration. */
+	--dither: repeating-conic-gradient(#0000 0% 25%, #ffffff0a 0% 50%) 0 0 / 2px 2px;
 	--ink: #c8d3de;
 	--dim: #7b8794;
 	--power: #58c470;
@@ -78,7 +79,6 @@ button.wide, .sheet-actions button, dialog .row button {
 	   ever missing - the same reasoning as the generated part sprites. */
 	border: 8px solid var(--edge);
 	background: var(--face) var(--dither);
-	background-size: 2px 2px;
 	border-image: url(../ui/button.png) 8 repeat;
 	border-radius: 0;
 	padding: 0 2px;
@@ -479,7 +479,6 @@ footer {
 	align-self: stretch;
 	padding: 0 4px;
 	background: var(--face) var(--dither);
-	background-size: 2px 2px;
 	border: 6px solid var(--edge);
 	border-image: url(../ui/panel.png) 6 repeat;
 	image-rendering: pixelated;
@@ -499,7 +498,7 @@ footer {
 /* Selected is Buch's pressed button: the highlight runs along the bottom-right
    instead of the top-left, so the thing reads as pushed in. The green ring this
    replaced was the interface shouting a state the bevel already tells you. */
-#dock-tabs button.on, .skin-on {
+#dock-tabs button.on {
 	color: var(--ink);
 	border-image-source: url(../ui/button-on.png);
 }
@@ -556,7 +555,6 @@ footer {
 .part.on {
 	border-color: #07090c;
 	background: var(--face) var(--dither);
-	background-size: 2px 2px;
 	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
 }
 .part.poor u { color: #8c5b5b; }
@@ -649,7 +647,6 @@ footer {
 dialog {
 	color: var(--ink);
 	background: var(--face) var(--dither);
-	background-size: 2px 2px;
 	border: 6px solid var(--edge);
 	border-image: url(../ui/panel.png) 6 repeat;
 	border-radius: 0;

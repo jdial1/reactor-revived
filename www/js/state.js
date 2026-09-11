@@ -4,7 +4,7 @@ import { PART_BY_ID } from "./parts.js";
 import { UPGRADES, applyUpgrades } from "./upgrades.js";
 
 const SAVE_KEY = "reactor-revived";
-export const SAVE_VERSION = 2; // 1 indexed tiles against a grid that could grow
+const SAVE_VERSION = 2; // 1 indexed tiles against a grid that could grow
 
 const BASE = {
 	money: 10,
