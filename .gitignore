@@ -8,3 +8,7 @@ docs/reference/
 
 # Python bytecode from the docs tooling.
 __pycache__/
+
+# The Kenney sound packs these six cues were picked out of. The picks live in
+# www/audio/; the packs are 3 MB of things this game does not play.
+assets/

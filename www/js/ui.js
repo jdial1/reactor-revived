@@ -6,6 +6,7 @@ import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upg
 import { OBJECTIVES } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
+import { play } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 
 function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -229,6 +230,14 @@ export function buildUI(game) {
 				h("button", { className: "wide", textContent: "Export save to a file", onclick: game.exportSave }),
 				h("button", { className: "wide", textContent: "Import save from a file", onclick: game.importSave }),
 			] : []),
+			h("button", {
+				className: "wide",
+				textContent: game.muted ? "Sound: off" : "Sound: on",
+				onclick: (e) => {
+					game.toggleSound();
+					e.currentTarget.textContent = game.muted ? "Sound: off" : "Sound: on";
+				},
+			}),
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
 			h("h3", { className: "credit-head", textContent: "Where this came from" }),
 			h("ol", { className: "lineage" }, LINEAGE.map(([name, url, what], i) =>
@@ -239,7 +248,9 @@ export function buildUI(game) {
 				"Interface skinned from ",
 				h("a", { href: "https://opengameart.org/content/sci-fi-user-interface-elements",
 					textContent: "Sci-fi User Interface Elements" }),
-				" by Buch (CC0) - the same pack Knockoff used.")),
+				" by Buch (CC0) - the same pack Knockoff used. Sounds from ",
+				h("a", { href: "https://kenney.nl/assets/impact-sounds", textContent: "Kenney's Impact Sounds" }),
+				" (CC0).")),
 	);
 
 	// A slim line of what the reactor did this tick, under the totals that say
@@ -317,6 +328,7 @@ function buildDock(dom, game) {
 					// Say so, rather than letting the tap look ignored.
 					if (button.classList.contains("poor")) {
 						flash(button, "denied");
+						play("deny");
 						toast(`${part.title} costs $${fmt(part.cost)}`, "cash");
 					}
 				},
@@ -549,6 +561,7 @@ export function render(dom, s, game) {
 	}
 	if (s.hasMeltedDown && !dom.meltdownShown) {
 		dom.meltdownShown = true;
+		play("boom");
 		flash(document.body, "melting");
 		meltdownNotice(() => {
 			dom.meltdownShown = false;
@@ -638,6 +651,7 @@ export function render(dom, s, game) {
 
 		if (visible && row.wasLocked) {
 			flash(button, "unlocked");
+			play("unlock");
 			toast(`${part.title} unlocked`, "upgrades");
 		}
 		row.wasLocked = !visible;

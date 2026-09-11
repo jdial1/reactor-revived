@@ -795,7 +795,7 @@ test("two adjacent cells produce what the live original produces", () => {
 test("every module imports cleanly", async () => {
 	// Catches missing or misspelled exports without a browser. main.js is
 	// excluded because it boots the game against a DOM on import.
-	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "ui"]) {
+	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "ui", "audio"]) {
 		await import(`../www/js/${m}.js`);
 	}
 });
@@ -894,4 +894,12 @@ test("the Heat Control Operator holds heat in until the reactor is over its limi
 	assert.equal(held.rate.outlet, 0,
 		"with the operator, nothing leaves the reactor while it is under its limit");
 	assert.ok(held.heat > plain.heat, "so the heat stays in the reactor instead");
+});
+
+test("every sound a cue names is on disk", async () => {
+	const { FILES } = await import("../www/js/audio.js");
+	assert.ok(FILES.length, "there are cues");
+	for (const f of FILES) {
+		assert.ok(existsSync(`www/audio/${f}.ogg`), `${f} has no file`);
+	}
 });

@@ -32,7 +32,7 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **No image files but the art itself.** Every interface icon is inline SVG;
   the only bitmaps in the APK are the 75 part sprites and four UI frames,
-  37 KB together.
+  37 KB together, and the only sounds are six impacts.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,400 lines of game code, 750 of CSS, and a 105-line
@@ -136,6 +136,30 @@ The other games' art is not here and cannot be: Knockoff's is unlicensed, and
 Incremental and Redux are commercial games whose sprites would have to be lifted
 out of a Unity bundle. The tooling that used to fetch and convert it went with
 the pack system.
+
+## Sound
+
+Six files in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One
+`<audio>` element per voice, two per file so a fast row of parts sounds like a
+row of parts; no library and no Web Audio graph, because the game plays one
+thud at a time.
+
+They were picked by measuring rather than by name. Every candidate in the pack
+was decoded in the browser and scored two ways: how much of its energy survives
+a 220 Hz low-pass, and how often it crosses zero. Heavy and dull wins on both -
+the bells and beeps score bright, and none of them are here. `impactWood_heavy`
+scored 0.95 deep at 77 crossings a second; `impactBell_heavy` scored 0.51 at
+874, which is the tinny sound this game is trying not to make.
+
+Nine cues come from six files: a lower playback rate is a bigger, longer version
+of the same impact, so a tier unlocking is a part being placed at 0.78, and a
+meltdown is a punch at 0.8. Nothing in `www/js/sim.js` knows any of this exists -
+audio is dispatched from the renderer and from `main.js`, and a test still
+asserts the simulation touches no DOM.
+
+Sound is on by default and the toggle is in Options; `muted` rides along in the
+save. The source packs live in `assets/`, which is gitignored: 3 MB of sounds
+this game does not play.
 
 ## Interface skin
 

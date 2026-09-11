@@ -19,6 +19,7 @@ const BASE = {
 	soldPower: false,
 	soldHeat: false,
 	paused: false,
+	muted: false,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -66,6 +67,7 @@ export function serialize(s) {
 		hasMeltedDown: s.hasMeltedDown,
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
 		paused: s.paused,
+		muted: s.muted,
 		levels: s.levels,
 		placed: s.placed,
 		tiles: [...s.tiles].map((t) =>

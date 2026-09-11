@@ -7,6 +7,7 @@ import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { fmt } from "./fmt.js";
 import { buildUI, render, ask, inspect, flash, floatText, toast } from "./ui.js";
 import { attachInput } from "./input.js";
+import { play, setMuted } from "./audio.js";
 
 // Set when a page change paused the game, so returning can undo exactly that.
 let autoPaused = false;
@@ -24,6 +25,7 @@ function placeAt(r, c) {
 	if (t.id) return;
 	if (!isPartVisible(s, s.stats.get(game.selected))) return;
 	place(s, r, c, game.selected);
+	play("place");
 }
 
 /** Take a part off a tile, refunding whatever life is left in it. */
@@ -31,6 +33,7 @@ function sellTile(t) {
 	if (!t.id) return;
 	s.money += sellValue(s, t);
 	remove(s, t);
+	play("sell");
 }
 
 function sellAt(r, c) {
@@ -80,11 +83,13 @@ const game = {
 		if (!buyUpgrade(s, id)) {
 			// It used to say nothing at all, which reads as a tap that missed.
 			flash(row?.button, "denied");
+			play("deny");
 			const u = UPGRADE_BY_ID.get(id);
 			toast(`Costs ${u?.ecost ? `${fmt(row.price)} EP` : `$${fmt(row.price)}`}`, u?.ecost ? "experiments" : "cash");
 			return;
 		}
 		compile(s);
+		play("buy");
 		flash(row?.button, "bought");
 	},
 
@@ -101,6 +106,7 @@ const game = {
 		s.money += earned;
 		s.power = 0;
 		s.soldPower = true;
+		play("coin");
 		flash(dom.power.el, "sold");
 		floatText(`+${fmt(earned)}`, dom.power.el, "var(--cash)");
 	},
@@ -110,6 +116,7 @@ const game = {
 		const shed = Math.min(s.heat, s.manualHeatReduce);
 		s.heat -= shed;
 		if (s.heat === 0) s.soldHeat = true;
+		play("vent");
 		flash(dom.heat.el, "vented");
 		floatText(`-${fmt(shed)}`, dom.heat.el, "var(--heat)");
 	},
@@ -154,6 +161,16 @@ const game = {
 		Android.importSave();
 	},
 
+	toggleSound() {
+		s.muted = !s.muted;
+		setMuted(s.muted);
+		if (!s.muted) play("place");   // hear what you just turned on
+	},
+
+	get muted() {
+		return Boolean(s.muted);
+	},
+
 	wipe() {
 		ask("Delete your save and start over?", () => {
 			s = newState();
@@ -164,6 +181,7 @@ const game = {
 };
 
 function boot() {
+	setMuted(s.muted);
 	dom = buildUI(game);
 	// render() builds the grid itself the first time it sees a size mismatch.
 	render(dom, s, game);
