@@ -186,6 +186,22 @@ page by colouring one border, which an image border would paint over. Each
 skinned rule keeps a plain steel `border-color` underneath, so a build without
 `www/ui/` still has visible edges.
 
+## Shipping it
+
+`docs/play/` carries everything Google asks for: the listing copy, the data
+safety and content rating answers, a submission checklist, and the graphics.
+
+```bash
+python docs/play/make_graphics.py     # icon and feature graphic, from the art
+python docs/play/capture_shots.py     # 1080x1920 screenshots of the real game
+./gradlew bundleRelease               # the .aab, about 147 KB
+```
+
+The screenshots are headless Chrome at the device scale Play wants, driving a
+real save through the game's own loader - not mock-ups. Signing is the one part
+this repo does not do for you: `keystore.properties` is gitignored and the build
+falls back to an unsigned bundle without it. See `docs/play/checklist.md`.
+
 ## Balance parity
 
 The numbers are checked against the *running* original at

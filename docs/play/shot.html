@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Reactor Revived</title>
+<script>
+const q = new URLSearchParams(location.search);
+if (q.get("save")) localStorage.setItem("reactor-revived", decodeURIComponent(q.get("save")));
+</script>
+<link rel="stylesheet" href="css/app.css">
+<div id="app"></div>
+<script type="module" src="js/main.js"></script>
+<script type="module">
+const q = new URLSearchParams(location.search);
+setTimeout(() => {
+	const page = q.get("page");
+	if (page) document.querySelector(`#tabs button[data-value="${page}"]`)?.click();
+	if (q.get("goals")) document.querySelector(".objective")?.click();
+	if (q.get("inspect")) {
+		// The grid listens for pointer events, not clicks.
+		const [r, c] = q.get("inspect").split(",");
+		const tile = document.querySelector(`.tile[data-r="${r}"][data-c="${c}"]`);
+		const box = tile.getBoundingClientRect();
+		const at = { bubbles: true, pointerId: 1, clientX: box.x + box.width / 2, clientY: box.y + box.height / 2 };
+		tile.dispatchEvent(new PointerEvent("pointerdown", at));
+		window.dispatchEvent(new PointerEvent("pointerup", at));
+	}
+	document.getElementById("toast")?.remove();
+}, 900);
+</script>

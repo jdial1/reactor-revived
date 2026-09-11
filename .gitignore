@@ -12,3 +12,9 @@ __pycache__/
 # The Kenney sound packs these six cues were picked out of. The picks live in
 # www/audio/; the packs are 3 MB of things this game does not play.
 assets/
+
+# The upload key and its passwords. Losing these means never updating the app
+# again; committing them means anyone can.
+keystore.properties
+*.jks
+*.keystore

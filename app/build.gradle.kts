@@ -1,7 +1,18 @@
+import java.util.Properties
+
 // AGP 9 has built-in Kotlin support, so there is no Kotlin plugin here - and no
 // dependencies block at all. The app is one Activity on the platform WebView.
 plugins {
 	id("com.android.application")
+}
+
+// Play needs an upload key, and a key is a secret: the passwords live in
+// keystore.properties beside this file, which is gitignored. Without it the
+// build still works and produces an unsigned bundle, which is what a clone of
+// this repo should get.
+val keystoreFile = rootProject.file("keystore.properties")
+val keystore = Properties().apply {
+	if (keystoreFile.exists()) keystoreFile.inputStream().use { load(it) }
 }
 
 android {
@@ -20,8 +31,20 @@ android {
 	// was classes.dex: the whole Kotlin runtime, shipped to run one Activity.
 	// R8 takes that dex to 9 KB. The default rules keep @JavascriptInterface
 	// members, which is what the save/load bridge needs.
+	signingConfigs {
+		if (keystore.isNotEmpty()) {
+			create("upload") {
+				storeFile = rootProject.file(keystore.getProperty("storeFile"))
+				storePassword = keystore.getProperty("storePassword")
+				keyAlias = keystore.getProperty("keyAlias")
+				keyPassword = keystore.getProperty("keyPassword")
+			}
+		}
+	}
+
 	buildTypes {
 		release {
+			if (keystore.isNotEmpty()) signingConfig = signingConfigs.getByName("upload")
 			isMinifyEnabled = true
 			isShrinkResources = true
 			proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
