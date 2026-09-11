@@ -32,7 +32,7 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **No image files but the art itself.** Every interface icon is inline SVG;
   the only bitmaps in the APK are the 75 part sprites and four UI frames,
-  60 KB together.
+  37 KB together.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,400 lines of game code, 750 of CSS, and a 105-line
@@ -107,7 +107,10 @@ picker for save export and import.
 ## Part artwork
 
 The parts are drawn with **Reactor Revival's** art, in `www/parts/revival/` —
-75 PNGs, one per part, 60 KB after a lossless repack, committed and shipped.
+75 PNGs, one per part, 36 KB, committed and shipped. They arrived at 128x128
+with up to 168 colours; nothing draws them that big, so `docs/resize_art.py`
+stores them at 64px and 32 colours - measured against the originals at every
+size the game draws, where the difference does not show.
 There is no picker and no second set. The game had a pack registry once, with a
 manifest of which sprites each game in the lineage had and a setting to choose
 between them; it also had a complete second copy of the art drawn from geometry
