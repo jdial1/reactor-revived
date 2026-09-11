@@ -94,10 +94,18 @@ a { color: var(--power); }
 }
 /* Always two lines tall, so a long goal does not push the reactor down when
    it arrives - and is clipped rather than allowed to run to three. */
+/* A button, because it opens the full list - but it has to go on reading as the
+   line of text it was, so everything a button brings is taken back off. */
 #goal .objective {
 	flex: 1;
 	margin: 0;
+	padding: 6px 8px;
+	text-align: left;
+	font: inherit;
+	color: inherit;
+	background: none;
 	border: 0;
+	border-radius: 0;
 	border-left: 3px solid var(--cash);
 	line-height: 1.35;
 	min-height: calc(2 * 1.35em);
@@ -352,6 +360,17 @@ main { overflow: hidden; position: relative; }
 .objectives li b { font-weight: normal; }
 .objectives li i { color: var(--cash); font-style: normal; margin-left: 6px; }
 .objectives li.done { opacity: 0.4; text-decoration: line-through; }
+/* Where you are in the list. */
+.objectives li.current b { color: var(--ink); }
+.objectives li.current b::before { content: "▸"; color: var(--cash); margin-right: 6px; }
+
+/* The goal list, opened from the line at the top rather than a tab of its own.
+   It is the one sheet that can outgrow the screen, so it scrolls inside. */
+.sheet.goals .objectives {
+	max-height: min(60vh, 420px);
+	overflow-y: auto;
+	margin-bottom: 10px;
+}
 
 .ep-status {
 	background: var(--panel);

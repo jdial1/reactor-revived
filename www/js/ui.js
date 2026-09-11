@@ -43,7 +43,6 @@ const PAGES = [
 	["reactor", "Reactor", "reactor"],
 	["upgrades", "Upgrades", "upgrades"],
 	["experiments", "Experiments", "experiments"],
-	["objectives", "Goals", "goals"],
 	["options", "Options", "options"],
 ];
 
@@ -105,7 +104,10 @@ export function buildUI(game) {
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
 	dom.pause = h("button", { className: "pause", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 
-	dom.objective = h("p", { className: "objective" });
+	// The current goal is also the way to see the rest of them: the list was a
+	// fifth tab that most players opened once, and the line at the top of the
+	// screen is already the thing they would tap to ask "what else is there".
+	dom.objective = h("button", { className: "objective", onclick: () => showGoals(dom) });
 	root.append(h("header", { id: "goal" }, dom.objective, dom.pause));
 	// One polite live region for the whole game: goals met, meltdowns, unlocks.
 	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
@@ -124,7 +126,12 @@ export function buildUI(game) {
 	dom.pages.reactor.append(dom.board);
 
 	dom.objectiveList = h("ol", { className: "objectives" });
-	dom.pages.objectives.append(dom.objectiveList);
+	dom.goalSheet = h("dialog", { className: "sheet goals" },
+		h("h2", { textContent: "Goals" }),
+		dom.objectiveList,
+		h("div", { className: "row" },
+			h("button", { textContent: "Close", onclick: () => dom.goalSheet.close() })));
+	root.append(dom.goalSheet);
 
 	dom.upgradeList = h("div", { className: "upgrades" });
 	dom.pages.upgrades.append(dom.upgradeList);
@@ -589,8 +596,8 @@ function renderPips(dom, s) {
 /** The parts of the interface behind a tab, patched only while that tab is up. */
 function renderPage(dom, s) {
 	renderPips(dom, s);
+	renderObjectives(dom, s);
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
-	if (dom.page === "objectives") renderObjectives(dom, s);
 	if (dom.page === "experiments") {
 		dom.epStatus.textContent = s.exoticParticles
 			? `${fmt(s.currentExoticParticles)} EP to spend, ${fmt(s.exoticParticles)} pending - reboot to bank them.`
@@ -665,4 +672,16 @@ function renderUpgrades(dom, s) {
 
 function renderObjectives(dom, s) {
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("done", i < s.objective));
+	// The one you are on, so a long list opens at the right place.
+	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
+}
+
+/**
+ * Open the full list. The reactor keeps running behind it: this is a glance at
+ * what is next, not a page you leave the game for, which is why it is a dialog
+ * and not the tab it used to be.
+ */
+function showGoals(dom) {
+	dom.goalSheet.showModal();
+	dom.objectiveList.querySelector(".current")?.scrollIntoView({ block: "center" });
 }
