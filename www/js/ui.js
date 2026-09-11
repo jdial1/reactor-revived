@@ -136,7 +136,7 @@ export function buildUI(game) {
 	dom.pages.reactor.append(dom.board);
 
 	dom.objectiveList = h("ol", { className: "objectives" });
-	dom.goalSheet = h("dialog", { className: "sheet goals" },
+	dom.goalSheet = h("dialog", { className: "sheet goals", ariaLabel: "Goals" },
 		h("h2", { textContent: "Goals" }),
 		dom.objectiveList,
 		h("div", { className: "row" },
@@ -271,7 +271,10 @@ function buildDock(dom, game) {
 	showDock(dom, DOCK_TABS[0][0]);
 }
 
-const showDock = (dom, label) => dom.dockTabs.select(label, dom.dockPages);
+const showDock = (dom, label) => {
+	dom.dockTab = label;
+	dom.dockTabs.select(label, dom.dockPages);
+};
 
 /**
  * Remove a transient element on animationend, or after a deadline: a hidden tab
@@ -334,7 +337,7 @@ function meltdownNotice(onAcknowledge) {
 
 /** A modal question. Replaces confirm(), which Android renders as a system dialog. */
 export function ask(question, onYes) {
-	const dialog = h("dialog", { className: "ask" },
+	const dialog = h("dialog", { className: "ask", ariaLabel: question },
 		h("p", { textContent: question }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Cancel", onclick: () => dialog.close() }),
@@ -362,7 +365,7 @@ export function inspect(s, t, sell) {
 		["Max heat", p.reactorHeat ? `+${fmt(p.reactorHeat)}` : null],
 	];
 
-	const dialog = h("dialog", { className: "sheet" },
+	const dialog = h("dialog", { className: "sheet", ariaLabel: p.title },
 		h("h2", { textContent: p.title }),
 		h("i", { textContent: p.desc ?? "" }),
 		h("dl", {}, rows.filter(([, v]) => v !== null).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
@@ -454,7 +457,15 @@ const pct = (n, d) => (d > 0 ? Math.min(100, (n / d) * 100) : 0);
 const quant = (n) => Math.round(n / 4) * 4;
 
 export function render(dom, s, game) {
-	dom.money.textContent = fmt(s.money);
+	// Money walks up to its new value over half a second: a number that jumps is
+	// a number you did not see change. Only upwards, and it snaps once it is
+	// within a percent - a readout that lags behind what you can spend is worse
+	// than one that never moved.
+	const gap = s.money - (dom.shownMoney ?? s.money);
+	dom.shownMoney = gap < 0 || gap < Math.max(1, s.money * 0.01)
+		? s.money
+		: dom.shownMoney + gap * 0.55;
+	dom.money.textContent = fmt(dom.shownMoney);
 	// Pending particles are only worth anything once a reboot banks them.
 	dom.ep.textContent = s.exoticParticles
 		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
@@ -462,8 +473,12 @@ export function render(dom, s, game) {
 	dom.epBox.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
 
 	dom.power.text.textContent = `${fmt(s.power)} / ${fmt(s.maxPower)}`;
+	dom.power.el.setAttribute("aria-label", `Sell all power, ${fmt(s.power)} of ${fmt(s.maxPower)}`);
+	// Power stops accumulating at the cap, so a full bar is output going nowhere.
+	dom.power.el.classList.toggle("full", s.power >= s.maxPower && s.maxPower > 0);
 	dom.power.fill.style.left = `${pct(s.power, s.maxPower)}%`;
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
+	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
 	dom.heat.fill.style.left = `${pct(s.heat, s.maxHeat)}%`;
 	if (dom.pauseLabel.textContent !== (s.paused ? "Resume" : "Pause")) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
@@ -483,8 +498,9 @@ export function render(dom, s, game) {
 
 	const goal = OBJECTIVES[s.objective];
 	const step = goal?.progress?.(s);
+	const prize = goal && (goal.reward ? `  $${fmt(goal.reward)}` : goal.epReward ? `  ${fmt(goal.epReward)} EP` : "");
 	dom.goalText.textContent = goal
-		? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}`
+		? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
 		: "Every goal met.";
 	dom.goalBar.style.setProperty("--p", step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
@@ -533,6 +549,8 @@ export function render(dom, s, game) {
 		row.cell.classList.toggle("spent", Boolean(p) && p.category === "cell" && !t.ticks);
 		row.heat.style.width = `${heat}%`;
 		row.life.style.width = `${life}%`;
+		// Green while there is life in it, amber at a fifth, red at a twentieth.
+		row.life.style.background = life > 20 ? "" : life > 5 ? "var(--cash)" : "var(--heat)";
 	}
 
 	// One locked tier stands in for the rest, so a column never grows a row and
@@ -576,6 +594,8 @@ export function render(dom, s, game) {
 			: part.title;
 	}
 	for (const col of dom.dockCols) col.hidden = !col.querySelector(".part:not(.locked)");
+	const page = dom.dockPages[dom.dockTab];
+	if (page) page.classList.toggle("more", page.scrollWidth > page.clientWidth + 4);
 	renderPage(dom, s);
 }
 
@@ -644,6 +664,7 @@ function renderUpgrades(dom, s) {
 		// An owned upgrade stays listed, so the price must say when the next level
 		// is out of reach.
 		button.classList.toggle("poor", !affordable && lv < maxLevel(u));
+		row.price = price;
 
 		const shown = unlocked && (owned || affordable);
 		button.hidden = !shown;

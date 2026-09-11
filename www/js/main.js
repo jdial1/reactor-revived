@@ -2,7 +2,7 @@
 import { load, save, newState, place, exportSave as saveText, deserialize } from "./state.js";
 import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
-import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
+import { buy as buyUpgrade, reboot as rebootState, UPGRADE_BY_ID } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { fmt } from "./fmt.js";
 import { buildUI, render, ask, inspect, flash, floatText, toast } from "./ui.js";
@@ -76,9 +76,16 @@ const game = {
 	},
 
 	buy(id) {
-		if (!buyUpgrade(s, id)) return;   // unaffordable or locked: say nothing
+		const row = dom.upgradeRows.find((r) => r.u.id === id);
+		if (!buyUpgrade(s, id)) {
+			// It used to say nothing at all, which reads as a tap that missed.
+			flash(row?.button, "denied");
+			const u = UPGRADE_BY_ID.get(id);
+			toast(`Costs ${u?.ecost ? `${fmt(row.price)} EP` : `$${fmt(row.price)}`}`, u?.ecost ? "experiments" : "cash");
+			return;
+		}
 		compile(s);
-		flash(dom.upgradeRows.find((r) => r.u.id === id)?.button, "bought");
+		flash(row?.button, "bought");
 	},
 
 	reboot(refund) {
@@ -180,6 +187,10 @@ setInterval(() => {
 }, OBJECTIVE_MS);
 setInterval(() => save(s), SAVE_MS);
 
+// Android calls these back when the picker has actually done something, so the
+// confirmation is the file existing rather than the button being pressed.
+window.saved = () => toast("Save exported", "options");
+
 // Called by the Android side once the player has picked a file to load.
 window.importSave = (json) => {
 	try {
@@ -189,6 +200,7 @@ window.importSave = (json) => {
 	}
 	save(s);
 	boot();
+	toast("Save imported", "options");
 };
 
 // Android can kill the process without warning once backgrounded.

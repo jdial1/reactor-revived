@@ -120,10 +120,22 @@ export function attachInput(board, grid, handlers) {
 		handlers.onPaint(...at);
 	});
 
+	let lastTap = 0;
 	const end = (e) => {
 		pointers.delete(e.pointerId);
 		if (pointers.size > 0) return; // still gesturing with another finger
-		if (mode === null && held) handlers.onTap(...held);
+		if (mode === null && held) {
+			// Two taps in a row put the board back where it started; a pinch had
+			// no way home.
+			const now = e.timeStamp;
+			if (zoom !== 1 && now - lastTap < 300) {
+				zoom = 1;
+				grid.style.setProperty("--zoom", 1);
+			} else {
+				handlers.onTap(...held);
+			}
+			lastTap = now;
+		}
 		reset();
 	};
 

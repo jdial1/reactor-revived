@@ -76,7 +76,10 @@ class MainActivity : Activity() {
 		super.onActivityResult(requestCode, resultCode, data)
 		val uri = data?.data ?: return
 		when (requestCode) {
-			EXPORT -> contentResolver.openOutputStream(uri)?.use { it.write(pending.orEmpty().toByteArray()) }
+			EXPORT -> {
+				contentResolver.openOutputStream(uri)?.use { it.write(pending.orEmpty().toByteArray()) }
+				web.evaluateJavascript("window.saved?.()", null)
+			}
 			IMPORT -> {
 				val json = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: return
 				web.evaluateJavascript("window.importSave(${JSONObject.quote(json)})", null)
