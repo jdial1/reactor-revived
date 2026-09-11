@@ -795,7 +795,7 @@ test("two adjacent cells produce what the live original produces", () => {
 test("every module imports cleanly", async () => {
 	// Catches missing or misspelled exports without a browser. main.js is
 	// excluded because it boots the game against a DOM on import.
-	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "sprites", "ui"]) {
+	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "ui"]) {
 		await import(`../www/js/${m}.js`);
 	}
 });
@@ -866,20 +866,7 @@ test("the shipped art covers every part", async () => {
 	}
 });
 
-test("with no art installed, every part still draws", async () => {
-	// sprites.js paints into a canvas; the fallback only needs it to exist.
-	globalThis.document = {
-		createElement: () => ({ getContext: () => ({ fillRect() {} }), toDataURL: () => "data:," }),
-	};
-	const { artFor, fileFor, loadArt } = await import("../www/js/art.js");
-
-	globalThis.fetch = async () => { throw new Error("no art in this build"); };
-	assert.equal(await loadArt(), false);
-	for (const part of PARTS) {
-		assert.ok(artFor(part).startsWith("data:"), `${part.id} should be drawn, not fetched`);
-	}
-
-	globalThis.fetch = async () => ({ ok: true });
-	assert.equal(await loadArt(), true);
+test("art paths follow the catalog", async () => {
+	const { artFor, fileFor } = await import("../www/js/art.js");
 	assert.equal(artFor(PARTS[0]), `parts/revival/${fileFor(PARTS[0])}.png`);
 });

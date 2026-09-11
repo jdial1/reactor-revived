@@ -8,7 +8,6 @@ import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { fmt } from "./fmt.js";
 import { buildUI, render, ask, inspect, flash, floatText, toast } from "./ui.js";
-import { loadArt } from "./art.js";
 import { attachInput } from "./input.js";
 
 // Set when a page change paused the game, so returning can undo exactly that.
@@ -178,7 +177,6 @@ function gameLoop() {
 	setTimeout(gameLoop, s.loopWait);
 }
 
-await loadArt();
 boot();
 gameLoop();
 setInterval(() => render(dom, s, game), UI_MS);

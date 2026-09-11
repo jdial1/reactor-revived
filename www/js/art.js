@@ -1,15 +1,13 @@
 // Where part artwork comes from.
 //
-// One source: Reactor Revival's art, in www/parts/revival/. There was a pack
-// system here - a registry of every game in the lineage, a manifest of which
-// sprites each one had, a saved setting and a picker in Options - and with a
-// single pack none of it earned its place.
+// One source, one path: Reactor Revival's art in www/parts/revival/, 75 PNGs
+// that ship in the APK. There was a pack system here once - a registry of every
+// game in the lineage, a manifest of which sprites each had, a saved setting and
+// a picker in Options - and with a single pack none of it earned its place.
 //
-// The generated sprites stay as a fallback, not as a choice. www/parts/ is
-// filled by docs/install_art_packs.py rather than committed art being a given,
-// so a build without it still runs, drawing every part from geometry: the
-// README's "the game can run with no image files at all" is a rule, not a boast.
-import { spriteFor } from "./sprites.js";
+// There was also a second copy of the whole set drawn from geometry at runtime,
+// as a fallback for a build with no image files. Nothing ever shipped without
+// them, so the fallback was 314 lines that only the tests ever ran.
 
 // The order fuels appear in the catalog; the art numbers cell files by that
 // position rather than by name.
@@ -39,18 +37,4 @@ export function fileFor(part) {
 	return `${CATEGORY[part.category]}_${part.level}`;
 }
 
-// Whether this build shipped the art at all. One probe at boot beats a manifest
-// listing all 75 names, because the pack is either installed or it is not.
-let installed = true;
-
-/** Check once whether the art is there. Everything falls back to drawn sprites if not. */
-export async function loadArt() {
-	try {
-		installed = (await fetch("parts/revival/cell_1_1.png")).ok;
-	} catch {
-		installed = false;
-	}
-	return installed;
-}
-
-export const artFor = (part) => (installed ? `parts/revival/${fileFor(part)}.png` : spriteFor(part));
+export const artFor = (part) => `parts/revival/${fileFor(part)}.png`;

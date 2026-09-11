@@ -30,10 +30,9 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   transpiler. `www/` is what runs, in the browser and in the APK.
 - **No Gradle dependencies.** The `app` module has no `dependencies` block at
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
-- **The game can run with no image files at all.** Every one of the 75 part
-  icons can be drawn at runtime from geometry, and every interface icon is
-  inline SVG. One artwork pack ships as well &mdash; see below &mdash; but it is
-  a fallback away from running on nothing.
+- **No image files but the art itself.** Every interface icon is inline SVG;
+  the only bitmaps in the APK are the 75 part sprites and three UI frames,
+  69 KB together.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,900 lines of game code, 800 of CSS, and a 105-line
@@ -48,7 +47,6 @@ www/            the game - open index.html in any browser
   js/sim.js     pure simulation: compile() and tick(), no DOM
   js/parts.js   the part catalog, as data
   js/upgrades.js  upgrades as data; one function derives every stat from levels
-  js/sprites.js procedural sprites - shapes from primitives, not pixel grids
   js/ui.js      build the DOM once, then patch what changed
   js/input.js   touch gestures
 test/           node --test, no test framework
@@ -108,10 +106,9 @@ The parts are drawn with **Reactor Revival's** art, in `www/parts/revival/` —
 game had one, along with a registry of every pack in the lineage and a manifest
 of which sprites each had, and with a single pack none of it earned its place.
 
-If that folder is missing, every part is drawn from geometry at runtime instead
-(`www/js/sprites.js`) — which is what keeps "runs with no image files at all"
-true rather than merely claimed. The game probes for the art once at boot and
-falls back wholesale.
+There was a second copy of the whole set, drawn from geometry at runtime, so a
+build with no image files could still run. Nothing ever shipped without them, so
+that was 314 lines only the tests exercised. The art is the art now.
 
 To install or reinstall it:
 
@@ -192,14 +189,10 @@ IndustrialCraft&sup2;'s nuclear reactor in Minecraft: a component reference with
 IC&sup2;'s published figures, and a table mapping each of its parts to the part it
 became here. Rebuild it with `python docs/build_lineage_chart.py`.
 
-`docs/build_sprite_sheet.py` builds a companion sprite sheet showing the same
-component drawn by all six generations side by side &mdash; IndustrialCraft&sup2;,
-Reactor Incremental, Reactor Redux, Reactor Knockoff, Reactor Revival and this
-game. It fetches the others' sprites into `docs/reference/`, which is gitignored
-&mdash; the point of generating our own art was to not redistribute anyone
-else's. Incremental and Redux are Unity WebGL builds, so their icons come out of
-the asset bundle via `docs/extract_unity_sprites.py` (needs `pip install
-UnityPy`).
+There was a companion sprite sheet showing one component drawn by all six
+generations side by side. It needed this game's own generated sprites for its
+last column, so it went when they did; `docs/extract_unity_sprites.py`, which
+fed it the Unity-bundle icons, is now unused.
 
 The short version: IC&sup2;'s fuel rods make `5 x n` power and `2n(n+1)` heat,
 where `n` counts the rod and its neighbours. Power linear, heat quadratic. Every
