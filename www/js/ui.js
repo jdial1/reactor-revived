@@ -65,6 +65,27 @@ const DOCK_TABS = [
 	["Exotic", ["particle_accelerator"]],
 ];
 
+// Who handed this game down, oldest first; the last entry is this one.
+// [name, url, what it contributed]
+const LINEAGE = [
+	["IndustrialCraft 2", null,
+		"Minecraft mod, 2011. Its nuclear reactor is the original puzzle: fuel rods heat their "
+		+ "neighbours, vents and exchangers move that heat around, and a full grid melts down."],
+	["IC2 Reactor Planner", "https://forum.industrial-craft.net/thread/2147-new-reactor-planner-made-by-talonius/",
+		"by Talonius. A desktop tool for laying a reactor out and simulating it before mining "
+		+ "anything. The grid stops being a build and becomes a puzzle you solve on its own."],
+	["Reactor Incremental", "http://www.kongregate.com/games/Cael/reactor-incremental",
+		"by Cael, 2014. The planner made into an idle game: sell the power, buy upgrades, reboot "
+		+ "for Exotic Particles. Every number this game uses starts here."],
+	["Reactor Knockoff", "https://github.com/cwmonkey/reactor-knockoff",
+		"by cwmonkey. Incremental rebuilt in HTML5 - no engine, no build step. The direct parent "
+		+ "of this one, and the version the balance is checked against."],
+	["Reactor Revival", null,
+		"a later remake in the same line. Its part artwork is what you are looking at on the board."],
+	["Reactor Revived", null,
+		"this one: a clean-room rewrite for a phone, no dependencies, no network."],
+];
+
 // Fuels are their own families so uranium and plutonium never share a row.
 const familyOf = (p) => (p.category === "cell" ? p.type : p.category);
 
@@ -170,26 +191,15 @@ export function buildUI(game) {
 			] : []),
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
 			h("h3", { className: "credit-head", textContent: "Where this came from" }),
-			h("ol", { className: "lineage", innerHTML:
-				'<li><b>IndustrialCraft 2</b><i>Minecraft mod, 2011. Its nuclear reactor is the '
-				+ 'original puzzle: fuel rods heat their neighbours, vents and exchangers move that heat '
-				+ 'around, and a full grid melts down.</i></li>'
-				+ '<li><b><a href="https://forum.industrial-craft.net/thread/2147-new-reactor-planner-made-by-talonius/">IC2 Reactor Planner</a></b>'
-				+ '<i>by Talonius. A desktop tool for laying a reactor out and simulating it before '
-				+ 'mining anything. The grid stops being a build and becomes a puzzle you solve on its own.</i></li>'
-				+ '<li><b><a href="http://www.kongregate.com/games/Cael/reactor-incremental">Reactor Incremental</a></b>'
-				+ '<i>by Cael, 2014. The planner made into an idle game: sell the power, buy upgrades, '
-				+ 'reboot for Exotic Particles. Every number this game uses starts here.</i></li>'
-				+ '<li><b><a href="https://github.com/cwmonkey/reactor-knockoff">Reactor Knockoff</a></b>'
-				+ '<i>by cwmonkey. Incremental rebuilt in HTML5 - no engine, no build step. The direct '
-				+ 'parent of this one, and the version the balance is checked against.</i></li>'
-				+ '<li><b>Reactor Revival</b><i>a later remake in the same line. Its part artwork is what '
-				+ 'you are looking at on the board.</i></li>'
-				+ '<li class="here"><b>Reactor Revived</b><i>this one: a clean-room rewrite for a phone, '
-				+ 'no dependencies, no network.</i></li>' }),
-			h("p", { className: "credit", innerHTML:
-				'Interface skinned from <a href="https://opengameart.org/content/sci-fi-user-interface-elements">'
-				+ 'Sci-fi User Interface Elements</a> by Buch (CC0) - the same pack Knockoff used.' })),
+			h("ol", { className: "lineage" }, LINEAGE.map(([name, url, what], i) =>
+				h("li", { className: i === LINEAGE.length - 1 ? "here" : "" },
+					h("b", {}, url ? h("a", { href: url, textContent: name }) : name),
+					h("i", { textContent: what })))),
+			h("p", { className: "credit" },
+				"Interface skinned from ",
+				h("a", { href: "https://opengameart.org/content/sci-fi-user-interface-elements",
+					textContent: "Sci-fi User Interface Elements" }),
+				" by Buch (CC0) - the same pack Knockoff used.")),
 	);
 
 	// A slim line of what the reactor did this tick, under the totals that say

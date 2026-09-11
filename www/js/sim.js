@@ -222,9 +222,12 @@ export function tick(s) {
 	}
 	s.heat += heatAdd;
 
-	// With the Heat Control Operator on, outlets only push heat out when the
-	// reactor is actually over its limit.
-	const maxShared = s.heatControlled && s.heatControlOperator
+	// With the Heat Control Operator bought, outlets only push heat out when the
+	// reactor is actually over its limit - which is what lets Forceful Fusion be
+	// held. This used to be `s.heatControlled && s.heatControlOperator`, and
+	// nothing in the game could ever set the first of those, so a $1M upgrade
+	// did nothing at all.
+	const maxShared = s.heatControlOperator
 		? (s.heat > s.maxHeat ? (s.heat - s.maxHeat) / s.statOutlet : 0)
 		: s.heat / s.statOutlet;
 
@@ -330,7 +333,7 @@ function wear(s, t) {
 
 /** Whether auto-buy owns this part and will replace it when it runs out. */
 const replaces = (s, p) =>
-	!s.autoBuyDisabled && s.perpetual.has(p.category === "cell" ? p.type : p.category);
+	s.perpetual.has(p.category === "cell" ? p.type : p.category);
 
 /** Buy a spent part again in place. True if it was refilled. */
 function refill(s, t, p) {
@@ -459,7 +462,7 @@ function buyQueued(s) {
 function explode(s, t, p) {
 	// A perpetual capacitor buys itself out of trouble, dumping its heat into
 	// the reactor on the next tick instead of blowing up.
-	if (!s.autoBuyDisabled && t.heat <= 0 && p.category === "capacitor"
+	if (t.heat <= 0 && p.category === "capacitor"
 		&& s.perpetualCapacitors && s.money >= p.cost * 10) {
 		s.money -= p.cost * 10;
 		s.heatAddNextTick += t.heatContained;
@@ -472,7 +475,6 @@ function explode(s, t, p) {
 }
 
 function sell(s, extremeCapacitors) {
-	if (s.autoSellDisabled) return;
 	let amount = Math.ceil(s.maxPower * s.autoSellMul);
 	if (!amount) return;
 

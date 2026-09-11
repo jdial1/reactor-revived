@@ -18,11 +18,7 @@ const BASE = {
 	hasMeltedDown: false,
 	soldPower: false,
 	soldHeat: false,
-	// Player-facing toggles.
 	paused: false,
-	autoSellDisabled: false,
-	autoBuyDisabled: false,
-	heatControlled: false,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -70,9 +66,6 @@ export function serialize(s) {
 		hasMeltedDown: s.hasMeltedDown,
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
 		paused: s.paused,
-		autoSellDisabled: s.autoSellDisabled,
-		autoBuyDisabled: s.autoBuyDisabled,
-		heatControlled: s.heatControlled,
 		levels: s.levels,
 		placed: s.placed,
 		tiles: [...s.tiles].map((t) =>

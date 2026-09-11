@@ -870,3 +870,28 @@ test("art paths follow the catalog", async () => {
 	const { artFor, fileFor } = await import("../www/js/art.js");
 	assert.equal(artFor(PARTS[0]), `parts/revival/${fileFor(PARTS[0])}.png`);
 });
+
+test("the Heat Control Operator holds heat in until the reactor is over its limit", () => {
+	// Two cells feeding an outlet that feeds a vent. Without the upgrade the
+	// outlet pushes heat out at any temperature; with it, only above maxHeat.
+	const build = (levels) => {
+		const s = rich();
+		Object.assign(s.levels, levels);
+		applyUpgrades(s);
+		put(s, 0, 0, "uranium1");
+		put(s, 0, 1, "uranium1");
+		put(s, 1, 0, "heat_outlet1");
+		put(s, 1, 1, "vent1");
+		compile(s);
+		for (let i = 0; i < 5; i++) tick(s);
+		return s;
+	};
+
+	const plain = build({});
+	const held = build({ heat_control_operator: 1 });
+
+	assert.ok(plain.rate.outlet > 0, "an outlet with no operator pushes heat out");
+	assert.equal(held.rate.outlet, 0,
+		"with the operator, nothing leaves the reactor while it is under its limit");
+	assert.ok(held.heat > plain.heat, "so the heat stays in the reactor instead");
+});
