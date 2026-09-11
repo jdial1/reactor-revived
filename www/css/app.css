@@ -11,6 +11,9 @@
 	   its own frame's colour, or the piece reads as a plate with a hole in it.
 	   The meter's is --panel, which is why an empty bar is that and not black. */
 	--face: #262e39;  /* button.png, button-on.png, panel.png */
+	/* A 2px checker over a face, so a panel is a surface with a grain rather
+	   than a flat fill - the art it frames is pixels, and this is too. */
+	--dither: repeating-conic-gradient(#0000 0% 25%, #ffffff0a 0% 50%);
 	--ink: #c8d3de;
 	--dim: #7b8794;
 	--power: #58c470;
@@ -74,7 +77,8 @@ button.wide, .sheet-actions button, dialog .row button {
 	/* A steel edge, invisible under the image, is what shows if the image is
 	   ever missing - the same reasoning as the generated part sprites. */
 	border: 8px solid var(--edge);
-	background: var(--face);
+	background: var(--face) var(--dither);
+	background-size: 2px 2px;
 	border-image: url(../ui/button.png) 8 repeat;
 	border-radius: 0;
 	padding: 0 2px;
@@ -430,7 +434,8 @@ footer {
 	flex: none;
 	align-self: stretch;
 	padding: 0 4px;
-	background: var(--face);
+	background: var(--face) var(--dither);
+	background-size: 2px 2px;
 	border: 6px solid var(--edge);
 	border-image: url(../ui/panel.png) 6 repeat;
 	image-rendering: pixelated;
@@ -506,7 +511,8 @@ footer {
    was, light where the shadow was. */
 .part.on {
 	border-color: #07090c;
-	background: var(--face);
+	background: var(--face) var(--dither);
+	background-size: 2px 2px;
 	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
 }
 .part.poor u { color: #8c5b5b; }
@@ -598,7 +604,8 @@ footer {
 /* ---- dialogs ------------------------------------------------------------ */
 dialog {
 	color: var(--ink);
-	background: var(--face);
+	background: var(--face) var(--dither);
+	background-size: 2px 2px;
 	border: 6px solid var(--edge);
 	border-image: url(../ui/panel.png) 6 repeat;
 	border-radius: 0;
