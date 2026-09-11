@@ -16,6 +16,63 @@ function h(tag, { dataset, ...props } = {}, ...kids) {
 	return node;
 }
 
+/**
+ * A number on digit wheels, the way a mechanical counter or an EarthBound HP
+ * readout does it. Each digit is one element holding "0123456789" stacked as
+ * lines; showing a digit is a translate, and the transition rolls it.
+ *
+ * Wheels only ever turn one way. The strip is two cycles of ten, so 9 -> 0
+ * rolls forward onto the second cycle and is quietly rewound afterwards rather
+ * than spinning backwards through eight digits.
+ */
+const DIGITS = [...Array(20).keys()].map((i) => i % 10).join(String.fromCharCode(10));
+
+function roller(className) {
+	const el = h("span", { className: `roll ${className}` });
+	const wheels = [];
+
+	return {
+		el,
+		set(text) {
+			if (wheels.length !== text.length) {
+				el.replaceChildren();
+				wheels.length = 0;
+				for (const ch of text) {
+					const face = h("b", { textContent: /\d/.test(ch) ? DIGITS : ch });
+					el.append(h("i", { className: "wheel" }, face));
+					wheels.push({ face, pos: 0, digit: null });
+				}
+			}
+			text.split("").forEach((ch, i) => {
+				const w = wheels[i];
+				if (!/\d/.test(ch)) {
+					if (w.digit !== ch) {
+						w.face.textContent = ch;
+						w.face.style.transform = "";
+						w.digit = ch;
+						w.pos = 0;
+					}
+					return;
+				}
+				if (w.digit === null) w.face.textContent = DIGITS;
+				const want = Number(ch);
+				if (w.digit === ch) return;
+				// Past the second cycle, snap back a cycle without a transition.
+				if (w.pos >= 10) {
+					w.face.style.transition = "none";
+					w.pos -= 10;
+					w.face.style.transform = `translateY(${-w.pos}em)`;
+					void w.face.offsetHeight;
+					w.face.style.transition = "";
+				}
+				w.pos = want > w.pos ? want : want + 10;
+				w.face.style.transform = `translateY(${-w.pos}em)`;
+				w.digit = ch;
+			});
+		},
+	};
+}
+
 /** A row of buttons where exactly one is lit: the page tabs and the dock's. */
 function tabStrip(id, items, onPick) {
 	const el = h("div", { id });
@@ -96,12 +153,12 @@ export function buildUI(game) {
 		return el;
 	};
 
-	dom.money = h("b", {});
-	dom.ep = h("b", {});
-	dom.epBox = h("span", { className: "ep" }, dom.ep);
+	dom.money = roller("cash");
+	dom.ep = roller("");
+	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
 	// Money on top, particles under: on one line they read as one long number.
 	dom.purse = h("div", { className: "purse" },
-		h("div", { className: "money-row" }, icon("cash", "icon coin"), h("span", { className: "cash" }, dom.money)),
+		h("div", { className: "money-row" }, icon("cash", "icon coin"), dom.money.el),
 		dom.epBox);
 
 	dom.pauseLabel = h("span", {});
@@ -465,11 +522,11 @@ export function render(dom, s, game) {
 	dom.shownMoney = gap < 0 || gap < Math.max(1, s.money * 0.01)
 		? s.money
 		: dom.shownMoney + gap * 0.55;
-	dom.money.textContent = fmt(dom.shownMoney);
+	dom.money.set(fmt(dom.shownMoney));
 	// Pending particles are only worth anything once a reboot banks them.
-	dom.ep.textContent = s.exoticParticles
+	dom.ep.set(s.exoticParticles
 		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
-		: `${fmt(s.currentExoticParticles)} EP`;
+		: `${fmt(s.currentExoticParticles)} EP`);
 	dom.epBox.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
 
 	dom.power.text.textContent = `${fmt(s.power)} / ${fmt(s.maxPower)}`;
