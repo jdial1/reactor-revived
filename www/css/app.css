@@ -359,7 +359,11 @@ main { overflow: hidden; position: relative; }
 	padding: 8px;
 	margin: 0 0 8px;
 }
-.objectives { margin: 0; padding-left: 1.4em; color: var(--dim); }
+/* Room for two digits and the marker on the current one. At 1.4em the "10."
+   ran off the left edge of the scroller, which clips whatever sits in a list's
+   marker area. */
+.objectives { margin: 0; padding-left: 2.6em; color: var(--dim); }
+.objectives li { padding-left: 2px; }
 .objectives li { margin-bottom: 4px; }
 .objectives li b { font-weight: normal; }
 .objectives li i { color: var(--cash); font-style: normal; margin-left: 6px; }
