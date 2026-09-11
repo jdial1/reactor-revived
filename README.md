@@ -31,8 +31,8 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
 - **No Gradle dependencies.** The `app` module has no `dependencies` block at
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **No image files but the art itself.** Every interface icon is inline SVG;
-  the only bitmaps in the APK are the 75 part sprites and three UI frames,
-  69 KB together.
+  the only bitmaps in the APK are the 75 part sprites and four UI frames,
+  60 KB together.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,600 lines of game code, 850 of CSS, and a 105-line
@@ -105,7 +105,7 @@ picker for save export and import.
 ## Part artwork
 
 The parts are drawn with **Reactor Revival's** art, in `www/parts/revival/` —
-75 PNGs, one per part, 68 KB after a lossless repack, committed and shipped.
+75 PNGs, one per part, 60 KB after a lossless repack, committed and shipped.
 There is no picker and no second set. The game had a pack registry once, with a
 manifest of which sprites each game in the lineage had and a setting to choose
 between them; it also had a complete second copy of the art drawn from geometry
@@ -113,10 +113,15 @@ at runtime, for a build with no image files. Nothing ever shipped without the
 art, and nothing ever selected another pack, so both went. `www/js/art.js` is a
 filename rule and a path.
 
-The repack is worth keeping: the sprites are 32-bit RGBA but use at most a
-couple of hundred colours, so `docs/optimize_art.py` re-encodes them as palette
-PNGs and verifies every file pixel for pixel, taking about a third off. It runs
-over any directory of PNGs:
+The repack is worth keeping. `docs/optimize_art.py` reads with Pillow and then
+writes the PNG itself, out of `zlib` and `struct`, because three things cost
+real bytes and none of them are reachable through a library call: the palette is
+ordered so the one or two see-through colours come first, which lets the tRNS
+chunk stop after a byte instead of carrying one per entry; the bit depth drops
+to whatever the colour count needs; and every filter, deflate strategy and
+window size is simply tried, because these are palette indices, where filtering
+usually makes things *worse*. Every file is verified pixel for pixel afterwards
+and left alone if it would not round-trip. It runs over any directory of PNGs:
 
 ```bash
 python docs/optimize_art.py www/parts/revival
