@@ -807,12 +807,31 @@ body.melting { animation: melting 500ms ease-out; }
 
 /* Digit wheels. Each wheel is one element holding ten lines; showing a digit is
    a translate, and the clip is what makes it a wheel rather than a list. */
-.roll { display: inline-flex; }
+.roll { display: inline-flex; align-items: center; gap: 1px; }
 .roll .wheel {
+	position: relative;
 	display: block;
 	height: 1em;
 	overflow: hidden;
 	font-style: normal;
+}
+/* A digit sits in its own window, the way a counter's drum shows through the
+   plate in front of it. Only digits - the separators and the units are print -
+   and only on the money, which is the one readout with the height for a frame;
+   at the EP line's 11px the border and the shading eat the glyph. */
+.roll.cash .wheel.digit {
+	padding: 2px 3px;
+	background: #07090c;
+	border: 1px solid var(--edge);
+	border-radius: 1px;
+}
+/* The drum is round, so the digit falls into shadow as it turns away. */
+.roll.cash .wheel.digit::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: linear-gradient(#000c, #0000 38%, #0000 62%, #000c);
 }
 .roll .wheel b {
 	display: block;

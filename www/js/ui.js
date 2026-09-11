@@ -39,12 +39,15 @@ function roller(className) {
 				wheels.length = 0;
 				for (const ch of text) {
 					const face = h("b", { textContent: /\d/.test(ch) ? DIGITS : ch });
-					el.append(h("i", { className: "wheel" }, face));
-					wheels.push({ face, pos: 0, digit: null });
+					const cell = h("i", { className: `wheel${/\d/.test(ch) ? " digit" : ""}` }, face);
+					el.append(cell);
+					wheels.push({ cell, face, pos: 0, digit: null });
 				}
 			}
 			text.split("").forEach((ch, i) => {
 				const w = wheels[i];
+				// Only digits get a window; "1.234K" frames five of its six cells.
+				w.cell.classList.toggle("digit", /\d/.test(ch));
 				if (!/\d/.test(ch)) {
 					if (w.digit !== ch) {
 						w.face.textContent = ch;
@@ -54,7 +57,10 @@ function roller(className) {
 					}
 					return;
 				}
-				if (w.digit === null) w.face.textContent = DIGITS;
+				if (w.digit === null || !/\d/.test(w.digit)) {
+					w.face.textContent = DIGITS;
+					w.digit = null;
+				}
 				const want = Number(ch);
 				if (w.digit === ch) return;
 				// Past the second cycle, snap back a cycle without a transition.
