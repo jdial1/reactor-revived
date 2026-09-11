@@ -35,7 +35,7 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   69 KB together.
 - **No network access.** Nothing is fetched, ever.
 
-The result is about 2,900 lines of game code, 800 of CSS, and a 105-line
+The result is about 2,600 lines of game code, 850 of CSS, and a 105-line
 Android shell. The release APK is **146 KB**, of which the Android half is a
 9 KB `classes.dex`: R8 is on, because without it the Kotlin runtime shipped
 2.4 MB of itself to run one Activity.
@@ -49,9 +49,12 @@ www/            the game - open index.html in any browser
   js/upgrades.js  upgrades as data; one function derives every stat from levels
   js/ui.js      build the DOM once, then patch what changed
   js/input.js   touch gestures
+  parts/revival/  the 75 part sprites
+  ui/           three frames the interface is skinned from
 test/           node --test, no test framework
 tools/serve.js  a 12-line dev server
 app/            the Android module; one Activity, one WebView
+docs/           three scripts: the art repacker, the UI skin, the lineage chart
 ```
 
 Gradle points the APK's assets at `../www`, so the browser and the phone run
@@ -102,31 +105,27 @@ picker for save export and import.
 ## Part artwork
 
 The parts are drawn with **Reactor Revival's** art, in `www/parts/revival/` —
-75 PNGs, one per part, 67 KB after a lossless repack. There is no picker: the
-game had one, along with a registry of every pack in the lineage and a manifest
-of which sprites each had, and with a single pack none of it earned its place.
+75 PNGs, one per part, 68 KB after a lossless repack, committed and shipped.
+There is no picker and no second set. The game had a pack registry once, with a
+manifest of which sprites each game in the lineage had and a setting to choose
+between them; it also had a complete second copy of the art drawn from geometry
+at runtime, for a build with no image files. Nothing ever shipped without the
+art, and nothing ever selected another pack, so both went. `www/js/art.js` is a
+filename rule and a path.
 
-There was a second copy of the whole set, drawn from geometry at runtime, so a
-build with no image files could still run. Nothing ever shipped without them, so
-that was 314 lines only the tests exercised. The art is the art now.
-
-To install or reinstall it:
+The repack is worth keeping: the sprites are 32-bit RGBA but use at most a
+couple of hundred colours, so `docs/optimize_art.py` re-encodes them as palette
+PNGs and verifies every file pixel for pixel, taking about a third off. It runs
+over any directory of PNGs:
 
 ```bash
-python docs/install_art_packs.py revival
+python docs/optimize_art.py www/parts/revival
 ```
 
-Art is repacked losslessly on the way in — the sprites are 32-bit RGBA but use
-at most a couple of hundred colours, so `docs/optimize_art.py` re-encodes them
-as palette PNGs and verifies every file pixel for pixel, taking about a third
-off.
-
-Knockoff, Incremental and Redux can still be installed for comparison and are
-gitignored: Knockoff's art is unlicensed and the other two are commercial games
-whose sprites have to be lifted out of a Unity bundle, so they are not ours to
-redistribute. `docs/build_revived_pack.py` and `docs/split_sheet.py` build
-alternative sets the same way. None of them is wired into the game — to try
-one, copy it over `www/parts/revival/`.
+The other games' art is not here and cannot be: Knockoff's is unlicensed, and
+Incremental and Redux are commercial games whose sprites would have to be lifted
+out of a Unity bundle. The tooling that used to fetch and convert it went with
+the pack system.
 
 ## Interface skin
 
@@ -188,11 +187,6 @@ passive cooling runs first.
 IndustrialCraft&sup2;'s nuclear reactor in Minecraft: a component reference with
 IC&sup2;'s published figures, and a table mapping each of its parts to the part it
 became here. Rebuild it with `python docs/build_lineage_chart.py`.
-
-There was a companion sprite sheet showing one component drawn by all six
-generations side by side. It needed this game's own generated sprites for its
-last column, so it went when they did; `docs/extract_unity_sprites.py`, which
-fed it the Unity-bundle icons, is now unused.
 
 The short version: IC&sup2;'s fuel rods make `5 x n` power and `2n(n+1)` heat,
 where `n` counts the rod and its neighbours. Power linear, heat quadratic. Every

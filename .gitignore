@@ -2,18 +2,9 @@
 build/
 local.properties
 
-# Working files for the reference tooling: downloaded Unity bundles, extracted
-# sprites, the comparison sheet. Regenerate with docs/extract_unity_sprites.py
-# and docs/build_sprite_sheet.py.
+# Working files for the docs tooling: the downloaded UI sheet, chart drafts.
 docs/reference/
 
 
 # Python bytecode from the docs tooling.
 __pycache__/
-
-# Art packs belonging to other games. docs/install_art_packs.py can put them
-# here to play with locally, but only Reactor Revival's own art is committed
-# and shipped - the rest is not ours to redistribute.
-www/parts/knockoff/
-www/parts/incremental/
-www/parts/redux/
