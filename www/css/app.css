@@ -752,3 +752,40 @@ dialog .row button { flex: 1; padding: 10px; }
 		transition-duration: 1ms !important;
 	}
 }
+
+/* ---- second pass: the small answers ------------------------------------- */
+
+/* 6. A tap that cannot do anything should still do something. */
+.part.denied { animation: shake 220ms; }
+
+/* 5. An empty list, explained. */
+.empty {
+	margin: 0 0 8px;
+	padding: 10px;
+	color: var(--dim);
+	background: var(--panel) var(--dither);
+	background-size: 2px 2px;
+	border-left: 3px solid var(--cash);
+}
+
+/* 3. Touch confirmation: the press is felt before the state catches up.
+   Tiles and parts had nothing, so a tap that missed looked like a tap that
+   worked. */
+.tile:active, .part:active { transform: scale(0.94); }
+.tile, .part { transition: transform 80ms ease-out; }
+
+/* 2. Hover, where there is a pointer to hover with. A phone has none, and
+   :hover on a touch screen sticks after the tap. */
+@media (hover: hover) {
+	button:hover:not(:disabled) { filter: brightness(1.15); }
+	.tile:hover { border-color: var(--dim); }
+}
+
+/* 9. Selection and affordability change under you as money comes in, so they
+   fade rather than snap. */
+.part, .upgrade { transition: background-color 140ms linear, transform 80ms ease-out; }
+
+/* 7. --dim on a lit face was 3.1:1. On the faces the skin brought in, the
+   secondary text needs to be brighter than it was on near-black. */
+.upgrade p, .part u { color: #97a3b1; }
+.part.poor u { color: #c08383; }

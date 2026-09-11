@@ -32,7 +32,12 @@ function tabStrip(id, items, onPick) {
 	}
 	/** Light up one button and show its matching page. */
 	el.select = (value, pages) => {
-		for (const b of el.children) b.classList.toggle("on", b.dataset.value === value);
+		for (const b of el.children) {
+			const on = b.dataset.value === value;
+			b.classList.toggle("on", on);
+			// Tabs say which page you are on; the dock's say which set is open.
+			b.setAttribute(pages ? "aria-current" : "aria-pressed", pages ? (on ? "page" : "false") : String(on));
+		}
 		for (const [key, page] of Object.entries(pages)) page.classList.toggle("showing", key === value);
 	};
 	return el;
@@ -107,7 +112,13 @@ export function buildUI(game) {
 	// The current goal is also the way to see the rest of them: the list was a
 	// fifth tab that most players opened once, and the line at the top of the
 	// screen is already the thing they would tap to ask "what else is there".
-	dom.objective = h("button", { className: "objective", onclick: () => showGoals(dom) });
+	dom.objective = h("button", {
+		className: "objective",
+		title: "Show every goal",
+		onclick: () => showGoals(dom),
+	});
+	dom.objective.setAttribute("aria-haspopup", "dialog");
+	dom.objective.setAttribute("aria-expanded", "false");
 	root.append(h("header", { id: "goal" }, dom.objective, dom.pause));
 	// One polite live region for the whole game: goals met, meltdowns, unlocks.
 	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
@@ -134,7 +145,10 @@ export function buildUI(game) {
 	root.append(dom.goalSheet);
 
 	dom.upgradeList = h("div", { className: "upgrades" });
-	dom.pages.upgrades.append(dom.upgradeList);
+	// An empty list looks broken. Say what fills it.
+	dom.upgradeEmpty = h("p", { className: "empty", textContent:
+		"Nothing you can afford yet. Sell power by tapping the power bar." });
+	dom.pages.upgrades.append(dom.upgradeEmpty, dom.upgradeList);
 
 	dom.experimentList = h("div", { className: "upgrades" });
 	dom.epStatus = h("p", { className: "ep-status" });
@@ -169,7 +183,9 @@ export function buildUI(game) {
 	const rateCell = (id, glyph, title) => {
 		const value = h("b", {});
 		dom.rates[id] = value;
-		return h("span", { className: `rate ${id}`, title }, icon(glyph, "icon"), value);
+		const cell = h("span", { className: `rate ${id}`, title }, icon(glyph, "icon"), value);
+		cell.setAttribute("aria-label", title);
+		return cell;
 	};
 	dom.rateBar = h("div", { id: "rates" },
 		rateCell("power", "power", "Power generated per tick"),
@@ -238,7 +254,15 @@ function buildDock(dom, game) {
 			const button = h("button", {
 				className: "part",
 				title: part.title,
-				onclick: () => game.select(part.id),
+				onclick: () => {
+					game.select(part.id);
+					// Selecting it is not the whole answer when you cannot buy
+					// it: say so rather than letting the tap look ignored.
+					if (button.classList.contains("poor")) {
+						flash(button, "denied");
+						toast(`${part.title} costs $${fmt(part.cost)}`, "cash");
+					}
+				},
 			}, h("i", { style: `background-image:url(${artFor(part)})` }),
 				label,
 				h("u", { textContent: fmt(part.cost) }));
@@ -340,6 +364,8 @@ export function ask(question, onYes) {
 	dialog.addEventListener("close", () => dialog.remove());
 	document.body.append(dialog);
 	dialog.showModal();
+	// The safe choice takes focus, so a stray Enter cancels rather than wipes.
+	dialog.querySelector("button")?.focus();
 }
 
 /** What a placed part is doing right now, plus a way to sell it. */
@@ -562,7 +588,13 @@ export function render(dom, s, game) {
 		if (isNext) button.style.setProperty("--p", progress.have / progress.need);
 		button.classList.toggle("poor", visible && s.money < part.cost);
 		button.classList.toggle("on", game.selected === part.id);
+		button.setAttribute("aria-pressed", String(game.selected === part.id));
 		label.textContent = isNext ? `${progress.have}/${progress.need}` : part.short;
+		// A greyed-out row with "4/10" on it is a riddle unless it says what the
+		// ten are.
+		button.title = isNext
+			? `${part.title}: place ${progress.need} of the tier below to unlock (${progress.have} so far)`
+			: part.title;
 	}
 	// Hide a family entirely until at least one of its tiers is unlocked. Tabs
 	// need no such treatment: every category's tier 1 is visible from boot.
@@ -590,6 +622,7 @@ function renderPips(dom, s) {
 		pip.hidden = !n;
 		pip.textContent = n > 1 ? n : "";
 		pip.classList.toggle("many", n > 1);
+		pip.setAttribute("aria-label", n === 1 ? "1 affordable" : `${n} affordable`);
 	}
 }
 
@@ -653,6 +686,10 @@ function renderUpgrades(dom, s) {
 		(affordable && lv < maxLevel(u) ? buyable : rest).push(row);
 	}
 
+	// Shown whenever nothing on the page can be bought - the preview rows below
+	// it are what you are saving towards, not something you can press.
+	if (dom.page === "upgrades") dom.upgradeEmpty.hidden = buyable.length > 0;
+
 	outOfReach.sort((a, b) => a.price - b.price);
 	for (const { row } of outOfReach.slice(0, PREVIEW_COUNT)) {
 		row.button.hidden = false;
@@ -683,5 +720,8 @@ function renderObjectives(dom, s) {
  */
 function showGoals(dom) {
 	dom.goalSheet.showModal();
+	dom.objective.setAttribute("aria-expanded", "true");
+	dom.goalSheet.addEventListener("close",
+		() => dom.objective.setAttribute("aria-expanded", "false"), { once: true });
 	dom.objectiveList.querySelector(".current")?.scrollIntoView({ block: "center" });
 }
