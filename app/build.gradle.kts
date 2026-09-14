@@ -23,8 +23,8 @@ android {
 		applicationId = "com.jdial.reactor"
 		minSdk = 28
 		targetSdk = 36
-		versionCode = 1
-		versionName = "1.0"
+		versionCode = 2
+		versionName = "1.1"
 	}
 
 	// Without this the release APK was 2.24 MB, of which 2.42 MB uncompressed

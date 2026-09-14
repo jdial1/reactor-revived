@@ -795,7 +795,7 @@ test("two adjacent cells produce what the live original produces", () => {
 test("every module imports cleanly", async () => {
 	// Catches missing or misspelled exports without a browser. main.js is
 	// excluded because it boots the game against a DOM on import.
-	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "ui", "audio"]) {
+	for (const m of ["fmt", "parts", "sim", "state", "upgrades", "objectives", "input", "ui", "audio", "tutorial"]) {
 		await import(`../www/js/${m}.js`);
 	}
 });
@@ -902,4 +902,27 @@ test("every sound a cue names is on disk", async () => {
 	for (const f of FILES) {
 		assert.ok(existsSync(`www/audio/${f}.ogg`), `${f} has no file`);
 	}
+});
+
+test("the tutorial is complete data", async () => {
+	const { STEPS } = await import("../www/js/tutorial.js");
+	assert.ok(STEPS.length >= 10, "it is detailed");
+	for (const step of STEPS) {
+		assert.ok(step.title && step.text, `a step needs words: ${JSON.stringify(step.title)}`);
+		if (step.waitFor) {
+			assert.equal(typeof step.waitFor, "function");
+			assert.ok(step.doing, `${step.title} waits for something without saying what`);
+			assert.equal(step.waitFor(fresh()), false, `${step.title} is already satisfied on a new game`);
+		}
+	}
+});
+
+test("a new game gets the tutorial; a save from before it existed does not", () => {
+	assert.equal(fresh().tutorialDone, false);
+	const old = serialize(fresh());
+	delete old.tutorialDone;
+	assert.equal(deserialize(old).tutorialDone, true);
+	const done = fresh();
+	done.tutorialDone = true;
+	assert.equal(deserialize(serialize(done)).tutorialDone, true);
 });

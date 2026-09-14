@@ -20,6 +20,7 @@ const BASE = {
 	soldHeat: false,
 	paused: false,
 	muted: false,
+	tutorialDone: false,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -68,6 +69,7 @@ export function serialize(s) {
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
 		paused: s.paused,
 		muted: s.muted,
+		tutorialDone: s.tutorialDone,
 		levels: s.levels,
 		placed: s.placed,
 		tiles: [...s.tiles].map((t) =>
@@ -82,6 +84,9 @@ export function deserialize(saved, random = Math.random) {
 	if (!saved || saved.v !== SAVE_VERSION) return s;
 
 	for (const k of Object.keys(BASE)) if (k in saved) s[k] = saved[k];
+	// A save from before the tutorial existed belongs to someone who has already
+	// learned the game the hard way; do not start teaching them now.
+	if (!("tutorialDone" in saved)) s.tutorialDone = true;
 	for (const id of Object.keys(s.levels)) if (saved.levels?.[id]) s.levels[id] = saved.levels[id];
 	Object.assign(s.placed, saved.placed);
 

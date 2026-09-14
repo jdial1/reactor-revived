@@ -9,7 +9,7 @@ import { icon } from "./icons.js";
 import { play } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 
-function h(tag, { dataset, ...props } = {}, ...kids) {
+export function h(tag, { dataset, ...props } = {}, ...kids) {
 	// `dataset` is getter-only, so it cannot ride along with Object.assign.
 	const node = Object.assign(document.createElement(tag), props);
 	Object.assign(node.dataset, dataset);
@@ -238,6 +238,11 @@ export function buildUI(game) {
 					e.currentTarget.textContent = game.muted ? "Sound: off" : "Sound: on";
 				},
 			}),
+			h("button", { className: "wide", textContent: "How to play", onclick: () => {
+				showPage(dom, "reactor");
+				game.viewing("reactor");
+				game.startTutorial();
+			} }),
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
 			h("h3", { className: "credit-head", textContent: "Where this came from" }),
 			h("ol", { className: "lineage" }, LINEAGE.map(([name, url, what], i) =>
@@ -361,7 +366,7 @@ function removeAfter(el, ms) {
 	setTimeout(kill, ms);
 }
 
-function say(text) {
+export function say(text) {
 	const live = document.getElementById("say");
 	if (live) live.textContent = text;
 }
@@ -411,12 +416,12 @@ function meltdownNotice(onAcknowledge) {
 }
 
 /** A modal question. Replaces confirm(), which Android renders as a system dialog. */
-export function ask(question, onYes) {
+export function ask(question, onYes, yes = "Do it") {
 	const dialog = h("dialog", { className: "ask", ariaLabel: question },
 		h("p", { textContent: question }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Cancel", onclick: () => dialog.close() }),
-			h("button", { className: "danger", textContent: "Do it", onclick: () => { dialog.close(); onYes(); } })));
+			h("button", { className: "danger", textContent: yes, onclick: () => { dialog.close(); onYes(); } })));
 	dialog.addEventListener("close", () => dialog.remove());
 	document.body.append(dialog);
 	dialog.showModal();

@@ -75,6 +75,14 @@ clean-room rewrite of that for a phone, with Reactor Revival's artwork and
 sounds from Kenney. The full lineage is in the game, under Options.
 ```
 
+## Release notes (500) — version 1.1
+
+```
+- A guided tutorial that explains every part, how they interact, upgrades and
+  Exotic Particles - with a few steps you do rather than read. Skip it any time,
+  replay it from Options.
+```
+
 ## Release notes (500) — version 1.0
 
 ```

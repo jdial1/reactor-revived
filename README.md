@@ -137,6 +137,19 @@ Incremental and Redux are commercial games whose sprites would have to be lifted
 out of a Unity bundle. The tooling that used to fetch and convert it went with
 the pack system.
 
+## Tutorial
+
+`www/js/tutorial.js` is seventeen steps of data: a selector to spotlight, a
+title, the text, and for four of them a `waitFor` predicate on game state - place
+a cell, sell power, vent the heat to zero, put a vent beside the cell. Those
+steps will not advance until the player has really done it, and they reuse the
+same board checks the goals do rather than restating them.
+
+It starts on a new game, ends for good once finished or skipped, and replays from
+Options. A save from before the tutorial existed loads with `tutorialDone` set,
+so nobody mid-game gets taught what they already know. The overlay takes no taps
+except on its own card, and the game keeps running underneath it.
+
 ## Sound
 
 Six files in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One

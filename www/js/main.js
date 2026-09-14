@@ -8,6 +8,7 @@ import { fmt } from "./fmt.js";
 import { buildUI, render, ask, inspect, flash, floatText, toast } from "./ui.js";
 import { attachInput } from "./input.js";
 import { play, setMuted } from "./audio.js";
+import { startTutorial, renderTutorial } from "./tutorial.js";
 
 // Set when a page change paused the game, so returning can undo exactly that.
 let autoPaused = false;
@@ -171,6 +172,8 @@ const game = {
 		return Boolean(s.muted);
 	},
 
+	startTutorial,
+
 	wipe() {
 		ask("Delete your save and start over?", () => {
 			s = newState();
@@ -186,6 +189,7 @@ function boot() {
 	// render() builds the grid itself the first time it sees a size mismatch.
 	render(dom, s, game);
 	attachInput(dom.board, dom.grid, game);
+	if (!s.tutorialDone) startTutorial();
 }
 
 // The reactor's own beat. Reschedules itself because Improved Chronometers
@@ -197,7 +201,10 @@ function gameLoop() {
 
 boot();
 gameLoop();
-setInterval(() => render(dom, s, game), UI_MS);
+setInterval(() => {
+	render(dom, s, game);
+	renderTutorial(s);
+}, UI_MS);
 setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
 	const done = OBJECTIVES[s.objective];

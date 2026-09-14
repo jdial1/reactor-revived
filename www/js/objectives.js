@@ -19,13 +19,13 @@ const count = (s, match) => {
 	return n;
 };
 
-const some = (s, match) => {
+export const some = (s, match) => {
 	for (const [t, p] of placed(s)) if (match(p, t)) return true;
 	return false;
 };
 
 /** True when any live cell has an orthogonal neighbour matching `match`. */
-function adjacentToCell(s, match) {
+export function adjacentToCell(s, match) {
 	for (const [t, p] of placed(s)) {
 		if (p.category !== "cell" || !t.ticks) continue;
 		for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {

@@ -841,3 +841,39 @@ body.melting { animation: melting 500ms ease-out; }
 	transition: transform 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 .purse .cash { font-size: 19px; color: var(--cash); }
+
+/* Tutorial. The overlay takes no taps - the game underneath has to stay playable
+   for the steps that wait on it - except on the card itself. */
+.tut { position: fixed; inset: 0; z-index: 70; pointer-events: none; }
+.tut-ring {
+	position: fixed;
+	border: 2px solid var(--cash);
+	border-radius: 4px;
+	box-shadow: 0 0 0 9999px #000a;
+	transition: left 200ms ease, top 200ms ease, width 200ms ease, height 200ms ease;
+}
+.tut-ring.empty { border-color: transparent; }
+.tut-card {
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	width: min(92vw, 360px);
+	pointer-events: auto;
+	padding: 10px 12px;
+	color: var(--ink);
+	background: var(--face) var(--dither);
+	border: 6px solid var(--edge);
+	border-image: url(../ui/panel.png) 6 repeat;
+	image-rendering: pixelated;
+	box-shadow: 0 6px 24px #000c;
+}
+.tut-card.centred { top: 50%; transform: translate(-50%, -50%); }
+.tut-card small { color: var(--dim); font-size: 10px; }
+.tut-card h2 { margin: 2px 0 6px; font-size: 15px; color: var(--cash); }
+.tut-card p { margin: 0 0 8px; font-size: 12px; line-height: 1.45; }
+.tut-doing { color: var(--heat); }
+.tut-doing.done { color: var(--power); }
+.tut-row { display: flex; gap: 6px; }
+.tut-row button { flex: 1; padding: 8px 4px; }
+.tut-row .tut-skip { color: var(--dim); }
+.tut-row button:disabled { opacity: 0.55; }
