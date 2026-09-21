@@ -1,10 +1,11 @@
 // Wiring: the loops, and the actions the UI can trigger.
-import { load, save, newState, place, exportSave as saveText, deserialize } from "./state.js";
+import { load, save, newState, place, exportSave as saveText, deserialize, isSave } from "./state.js";
 import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet } from "./ui.js";
+import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId } from "./module.js";
 import { play, setMuted } from "./audio.js";
@@ -223,16 +224,26 @@ setInterval(() => save(s), SAVE_MS);
 // confirmation is the file existing rather than the button being pressed.
 window.saved = () => toast("Save exported", "options");
 
-// Called by the Android side once the player has picked a file to load.
+// Called by the Android side once the player has picked a file to load. A file
+// that is not a save we can read is refused, and one that is still asks first:
+// importing replaces the game in front of you.
 window.importSave = (json) => {
+	let saved = null;
 	try {
-		s = deserialize(JSON.parse(json));
+		saved = JSON.parse(json);
 	} catch {
-		return; // not one of ours; leave the running game alone
+		// not JSON at all
 	}
-	save(s);
-	boot();
-	toast("Save imported", "options");
+	if (!isSave(saved)) {
+		toast("That file is not a Reactor Revived save this version can read", "options");
+		return;
+	}
+	ask(`Replace your current game with this save ($${fmt(saved.money ?? 0)})?`, () => {
+		s = deserialize(saved);
+		save(s);
+		boot();
+		toast("Save imported", "options");
+	}, "Replace");
 };
 
 // Android can kill the process without warning once backgrounded.

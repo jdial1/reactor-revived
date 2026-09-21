@@ -86,6 +86,11 @@ export function serialize(s) {
 	};
 }
 
+/** Is this one of our saves, in a version this build can read? */
+export const isSave = (saved) =>
+	Boolean(saved) && typeof saved === "object" && (saved.v === SAVE_VERSION || saved.v === 2)
+	&& Array.isArray(saved.tiles) && typeof saved.levels === "object";
+
 export function deserialize(saved, random = Math.random) {
 	const s = newState(random);
 	if (!saved || (saved.v !== SAVE_VERSION && saved.v !== 2)) return s;

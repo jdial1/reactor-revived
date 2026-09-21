@@ -1027,3 +1027,12 @@ test("every upgrade sits in a section, and each fuel's three sit together", asyn
 	assert.equal(sectionOf(UPGRADE_BY_ID.get("active_exchangers")), "transfer");
 	assert.equal(sectionOf(UPGRADE_BY_ID.get("perpetual_reflectors")), "power");
 });
+
+test("only a readable save counts as one", async () => {
+	const { isSave } = await import("../www/js/state.js");
+	assert.equal(isSave(serialize(fresh())), true);
+	assert.equal(isSave(null), false);
+	assert.equal(isSave({ hello: "world" }), false);
+	assert.equal(isSave({ ...serialize(fresh()), v: 99 }), false);
+	assert.equal(isSave({ ...serialize(fresh()), v: 2 }), true);
+});
