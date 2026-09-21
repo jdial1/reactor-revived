@@ -6,13 +6,14 @@ import { applyUpgrades } from "./upgrades.js";
 export const ROWS = 12;
 export const COLS = 8;
 
-export const tileAt = (s, r, c) => s.tiles[r * COLS + c];
-const inGrid = (s, r, c) => r >= 0 && c >= 0 && r < ROWS && c < COLS;
+// The main board is ROWS x COLS; a module's casing runs the same sim on 3x3.
+export const tileAt = (s, r, c) => s.tiles[r * s.cols + c];
+const inGrid = (s, r, c) => r >= 0 && c >= 0 && r < s.rows && c < s.cols;
 // Stats live on the state: a pure sim must not mutate the shared catalog.
 const partOf = (s, t) => (t.activated && t.id ? s.stats.get(t.id) : null);
 
 export function* activeTiles(s) {
-	for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) yield tileAt(s, r, c);
+	for (let r = 0; r < s.rows; r++) for (let c = 0; c < s.cols; c++) yield tileAt(s, r, c);
 }
 
 /** Diamond (Manhattan) neighbourhood of radius `range`, excluding the tile itself. */
@@ -29,7 +30,7 @@ function* neighbours(s, t, range) {
 /** heat_exchanger6 reaches its whole row plus the tile above and below. */
 function* rowRange(s, t) {
 	if (inGrid(s, t.r - 1, t.c)) yield tileAt(s, t.r - 1, t.c);
-	for (let c = 0; c < COLS; c++) if (c !== t.c) yield tileAt(s, t.r, c);
+	for (let c = 0; c < s.cols; c++) if (c !== t.c) yield tileAt(s, t.r, c);
 	if (inGrid(s, t.r + 1, t.c)) yield tileAt(s, t.r + 1, t.c);
 }
 
@@ -77,6 +78,7 @@ export function compile(s) {
 		const p = partOf(s, t);
 		if (!p) continue;
 
+		if (p.category === "module") continue;
 		if (p.category !== "cell" || t.ticks) {
 			for (const n of p.id === "heat_exchanger6" ? rowRange(s, t) : neighbours(s, t, p.range ?? 1)) {
 				const np = partOf(s, n);
@@ -184,6 +186,29 @@ export function tick(s) {
 			continue;
 		}
 
+		// A module is sealed: its 3x3 was simulated once, and the tile passes on
+		// that profile at the casing's efficiency.
+		if (p.category === "module") {
+			if (p.ticks && t.ticks === 0) {
+				refill(s, t, p);
+				continue;
+			}
+			powerAdd += p.modPower * s.casingEff;
+			heatAdd += p.modHeat * s.casingEff;
+			t.ep = (t.ep ?? 0) + p.modEP * s.casingEff;
+			if (t.ep >= 1) {
+				s.exoticParticles += Math.floor(t.ep);
+				t.ep %= 1;
+			}
+			t.age = (t.age ?? 0) + 1;
+			if (p.failTick && t.age >= p.failTick) {
+				explode(s, t, p);
+				continue;
+			}
+			if (p.ticks && --t.ticks === 0) expire(s, t, p);
+			continue;
+		}
+
 		if (p.category === "cell") {
 			const throttled = s.throttle && s.heat > s.maxHeat * 0.8 ? 0.5 : 1;
 			powerAdd += t.power * throttled;
@@ -240,13 +265,14 @@ export function tick(s) {
 	s.heat -= heatRemove;
 
 	// Passive cooling. Under the limit it is a trickle; over it, the reactor
-	// dumps the excess into every containment part it has.
-	if (s.heat > 0) {
+	// dumps the excess into every containment part it has. A casing has no
+	// reactor around it: its pool is what leaks out.
+	if (s.heat > 0 && !s.sealed) {
 		const trickle = s.maxHeat / 10000;
 		let reduce = trickle;
 		if (s.heat > s.maxHeat) {
 			reduce = Math.max((s.heat - s.maxHeat) / 20, trickle);
-			const per = reduce / (ROWS * COLS);
+			const per = reduce / (s.rows * s.cols);
 			for (const t of activeTiles(s)) {
 				const p = partOf(s, t);
 				if (p?.containment) powerAdd += absorb(t, p, per);
@@ -256,7 +282,7 @@ export function tick(s) {
 	}
 
 	// Forceful Fusion: a hot reactor generates more power.
-	if (s.heatPowerMul && s.heat > 1000) {
+	if (s.heatPowerMul && s.heat > 1000 && !s.sealed) {
 		powerAdd *= 1 + s.heatPowerMul * (Math.log(s.heat) / Math.log(1000) / 100);
 	}
 	s.power += powerAdd;
@@ -264,7 +290,7 @@ export function tick(s) {
 	rate.heat = heatAdd;
 	s.rate = rate;
 
-	buyQueued(s);
+	if (!s.sealed) buyQueued(s);
 
 	for (const t of activeTiles(s)) {
 		const p = partOf(s, t);
@@ -296,6 +322,10 @@ export function tick(s) {
 		if (t.heatContained > p.containment) explode(s, t, p);
 	}
 
+	if (s.sealed) {
+		if (s.dirty) compile(s);
+		return s;
+	}
 	sell(s, extremeCapacitors);
 
 	s.power = Math.min(s.power, s.maxPower);
@@ -322,14 +352,20 @@ function wear(s, t) {
 }
 
 /** Whether auto-buy owns this part and will replace it when it runs out. */
-const replaces = (s, p) =>
-	s.perpetual.has(p.category === "cell" ? p.type : p.category);
+const replaces = (s, p) => p.category === "module"
+	? p.consumables.length > 0 && p.consumables.every((k) => s.perpetual.has(k))
+	: s.perpetual.has(p.category === "cell" ? p.type : p.category);
+
+/** What auto-buy pays to replace a spent part. */
+export const rebuyPrice = (p) =>
+	p.category === "module" ? p.rebuy : p.cost * (p.category === "cell" ? 1.5 : 1);
 
 function refill(s, t, p) {
-	const price = p.cost * (p.category === "cell" ? 1.5 : 1);
+	const price = rebuyPrice(p);
 	if (!replaces(s, p) || s.money < price) return false;
 	s.money -= price;
 	t.ticks = p.ticks;
+	t.age = 0;
 	s.dirty = true;
 	return true;
 }
@@ -339,8 +375,8 @@ function refill(s, t, p) {
  * it and cannot afford it: that husk is what auto-buy refills later.
  */
 function expire(s, t, p) {
-	const isCell = p.category === "cell";
-	if (isCell && p.type === "protium") {
+	const isCell = p.category === "cell" || p.category === "module";
+	if (p.type === "protium") {
 		s.protiumParticles += p.cellCount;
 		s.statsDirty = true;
 	}
@@ -463,7 +499,7 @@ function explode(s, t, p) {
 	}
 	if (p.category === "particle_accelerator") s.meltdown = true;
 	if (s.salvage) s.money += p.cost * 0.5;
-	s.exploded.push(t.r * COLS + t.c);
+	s.exploded.push(t.r * s.cols + t.c);
 	remove(s, t);
 }
 
@@ -487,7 +523,7 @@ function meltdown(s) {
 	s.hasMeltedDown = true;
 	for (const t of activeTiles(s)) {
 		if (!t.id) continue;
-		s.exploded.push(t.r * COLS + t.c);
+		s.exploded.push(t.r * s.cols + t.c);
 		remove(s, t);
 	}
 }
@@ -503,5 +539,7 @@ export function remove(s, t) {
 	t.heatContained = 0;
 	t.heat = 0;
 	t.power = 0;
+	t.age = 0;
+	t.ep = 0;
 	s.dirty = true;
 }

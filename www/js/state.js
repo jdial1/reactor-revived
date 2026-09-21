@@ -1,10 +1,9 @@
 // Game state: its shape, its defaults, and how it round-trips to storage.
 import { ROWS, COLS, compile, tileAt, countPlaced } from "./sim.js";
-import { PART_BY_ID } from "./parts.js";
 import { UPGRADES, applyUpgrades } from "./upgrades.js";
 
 const SAVE_KEY = "reactor-revived";
-const SAVE_VERSION = 2; // 1 indexed tiles against a grid that could grow
+const SAVE_VERSION = 3; // 1 indexed tiles against a grid that could grow; 2 had no modules
 
 const BASE = {
 	money: 10,
@@ -39,6 +38,8 @@ export function newState(random = Math.random) {
 	const s = {
 		...BASE,
 		random,
+		rows: ROWS,
+		cols: COLS,
 		tiles: Array.from({ length: ROWS * COLS }, (_, i) => newTile(Math.floor(i / COLS), i % COLS)),
 		queue: [],
 		levels: {},
@@ -48,6 +49,9 @@ export function newState(random = Math.random) {
 		heatAddNextTick: 0,
 		statsDirty: false,
 		exploded: [],
+		// Saved designs, oldest first. A design only ever holds older ones.
+		modules: [],
+		nextModuleId: 1,
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -72,8 +76,10 @@ export function serialize(s) {
 		tutorialDone: s.tutorialDone,
 		levels: s.levels,
 		placed: s.placed,
+		modules: s.modules,
+		nextModuleId: s.nextModuleId,
 		tiles: [...s.tiles].map((t) =>
-			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained } : null,
+			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined } : null,
 		).filter(Boolean),
 		queue: s.queue.map((t) => t.r * COLS + t.c),
 	};
@@ -81,7 +87,7 @@ export function serialize(s) {
 
 export function deserialize(saved, random = Math.random) {
 	const s = newState(random);
-	if (!saved || saved.v !== SAVE_VERSION) return s;
+	if (!saved || (saved.v !== SAVE_VERSION && saved.v !== 2)) return s;
 
 	for (const k of Object.keys(BASE)) if (k in saved) s[k] = saved[k];
 	// A save from before the tutorial existed belongs to someone who has already
@@ -89,10 +95,13 @@ export function deserialize(saved, random = Math.random) {
 	if (!("tutorialDone" in saved)) s.tutorialDone = true;
 	for (const id of Object.keys(s.levels)) if (saved.levels?.[id]) s.levels[id] = saved.levels[id];
 	Object.assign(s.placed, saved.placed);
+	s.modules = saved.modules ?? [];
+	s.nextModuleId = saved.nextModuleId ?? s.modules.length + 1;
+	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {
-		if (!PART_BY_ID.has(t.id)) continue;
-		Object.assign(s.tiles[t.i], { id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained });
+		if (!s.stats.has(t.id)) continue;
+		Object.assign(s.tiles[t.i], { id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age ?? 0 });
 	}
 	s.queue = (saved.queue ?? []).map((i) => s.tiles[i]);
 
@@ -116,8 +125,9 @@ export function load(storage = localStorage, random = Math.random) {
 /** Place a part on a tile, buying it now if affordable or queueing it if not. */
 export function place(s, r, c, id) {
 	const t = tileAt(s, r, c);
-	const p = PART_BY_ID.get(id);
+	const p = s.stats.get(id);
 	t.id = id;
+	t.age = 0;
 	t.ticks = p.ticks ?? 0;
 	t.heatContained = 0;
 	if (s.money >= p.cost) {

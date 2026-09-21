@@ -2,6 +2,7 @@
 // applyUpgrades() recomputes the rest, so load, reboot and refund fall out.
 import { PARTS, CELLS_WITH_UPGRADES } from "./parts.js";
 import { fmt } from "./fmt.js";
+import { refreshModules } from "./module.js";
 
 const BASE_MAX_POWER = 100;
 const BASE_MAX_HEAT = 1000;
@@ -94,6 +95,12 @@ const EXOTIC = [
 	  desc: "Allows you to use protium cells." },
 	{ id: "unstable_protium", group: "cells", title: "Unstable Protium", ecost: 500, mul: 2, requires: "protium_cells",
 	  desc: "Protium cells last half as long and produce twice the power and heat per level." },
+	{ id: "modular_casings", group: "casings", title: "Modular Casings", ecost: 500, levels: 1,
+	  desc: "Design sealed 3x3 modules and place each one as a single part. Opens the Modules page." },
+	{ id: "casing_tolerances", group: "casings", title: "Casing Tolerances", ecost: 250, mul: 2, levels: 7, requires: "modular_casings",
+	  desc: "A module passes on 5% more of what its parts make per level, from 25% up to 60%." },
+	{ id: "nested_casings", group: "casings", title: "Nested Casings", ecost: 5000, mul: 4, levels: 3, requires: "modular_casings",
+	  desc: "A module can hold modules one layer deeper per level. Each layer takes its own efficiency cut." },
 ];
 
 // The nine unlocks for the tier-6 parts. Identical but for the part they open,
@@ -212,6 +219,9 @@ export function applyUpgrades(s) {
 	s.isolatedCores = L("isolated_cores") > 0;
 	s.baseMaxPower = BASE_MAX_POWER * 4 ** L("phlembotinum_core");
 	s.baseMaxHeat = BASE_MAX_HEAT * 4 ** L("phlembotinum_core");
+	s.modulesUnlocked = L("modular_casings") > 0;
+	s.casingEff = 0.25 + 0.05 * L("casing_tolerances");
+	s.maxNest = 1 + L("nested_casings");
 
 	// Which parts replace themselves when they run out, keyed by category for
 	// components and by cell type for cells.
@@ -250,6 +260,7 @@ export function applyUpgrades(s) {
 
 		s.stats.set(p.id, p);
 	}
+	if (s.modules) refreshModules(s);
 	return s;
 }
 
@@ -287,7 +298,7 @@ export function reboot(s, refund = false) {
 const SCALARS = [
 	"loopWait", "autoSellMul", "manualHeatReduce", "heatPowerMul",
 	"baseMaxPower", "baseMaxHeat", "transferPlatingMul", "transferCapacitorMul",
-	"ventPlatingMul", "ventCapacitorMul",
+	"ventPlatingMul", "ventCapacitorMul", "casingEff", "maxNest",
 ];
 
 /** The part fields worth showing, in the order a row should prefer them. */
@@ -297,7 +308,7 @@ const PERCENT = new Set(["autoSellMul", "transferPlatingMul", "transferCapacitor
 
 /** The one-off switches, which have no number to show - only a state. */
 const SWITCHES = ["heatControlOperator", "heatOutletControlled", "perpetualCapacitors",
-	"cascadeVents", "salvage", "overclock", "throttle", "diagonalPulse", "isolatedCores"];
+	"cascadeVents", "salvage", "overclock", "throttle", "diagonalPulse", "isolatedCores", "modulesUnlocked"];
 
 // fmt() drops the decimals below 1000, which is right for money and wrong for
 // a vent going 4 -> 4.5, so small numbers are written out instead.
@@ -307,6 +318,8 @@ const num = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 100) / 100) : fmt
 function show(field, v) {
 	if (field === "loopWait") return `${num(1000 / v)}/s`;
 	if (field === "manualHeatReduce") return `${num(v)}x`;
+	if (field === "casingEff") return `${num(v * 100)}%`;
+	if (field === "maxNest") return `${num(v)} deep`;
 	if (PERCENT.has(field)) return `${num(field === "autoSellMul" ? v * 100 : v)}%`;
 	return num(v);
 }
@@ -355,7 +368,7 @@ export function nextLevel(s, u) {
 
 const KIND_BY_FIELD = {
 	overclock: "power", diagonalPulse: "power", isolatedCores: "power",
-	throttle: "heat", cascadeVents: "heat",
+	throttle: "heat", cascadeVents: "heat", casingEff: "power",
 	basePower: "power", reactorPower: "power", powerIncrease: "power",
 	autoSellMul: "power", baseMaxPower: "power", heatPowerMul: "power",
 
