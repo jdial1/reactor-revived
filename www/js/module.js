@@ -199,7 +199,6 @@ function asPart(s, m, prof) {
 		category: "module",
 		title: m.name,
 		short: m.name,
-		requires: "modular_casings",
 		art: icon.art ?? artFor(icon),
 		tint: m.tint,
 		fuel: fuelOf(s, m.layout),

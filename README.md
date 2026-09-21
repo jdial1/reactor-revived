@@ -100,6 +100,15 @@ out, and reboot clears them, so each run picks a side again:
 | $50K | **Overclocked Cells** - 1.5x power, 2x heat | **Throttled Cells** - above 80% heat, cells run at half power and half heat |
 | $5M | **Diagonal Pulse** - cells also pulse into their corners | **Isolated Cores** - a cell with no neighbouring cell makes 3x power |
 
+**Upgrades are grouped by what they act on**, the way Incremental and Knockoff
+laid their pages out: the reactor, then each fuel on its own (power, life and
+perpetual for uranium together, the same for plutonium, and so on, each under
+its own cell), then capacitors and reflectors, vents, coolant and plating, and
+exchangers, inlets and outlets - the dock's own families - then doctrines. The
+research page uses the same headings, plus the laboratory, modules, particle
+accelerators and the experimental parts. A heading with nothing under it yet
+is not shown.
+
 Every other upgrade makes a number bigger. These change the shape of a good
 layout, so they are what a second reactor does differently from the first.
 
@@ -179,8 +188,9 @@ be. This gives it one.
 
 ## Modules
 
-After the Modular Casings research, a Modules page appears in the bottom bar, and
-a Modules tab in the dock. Before that, neither exists. On the page you design a
+Once the fifth goal on the log is done - the first upgrade bought - a Modules
+page appears in the bottom bar, and a Modules tab in the dock. Before that,
+neither exists. On the page you design a
 sealed 3x3: pick an icon and a colour, fill the slots, and the readout says what
 the casing will do - power, heat that leaks out, heat vented inside, particles,
 net money per tick after rebuying its fuel, life, cost, and whether it holds or

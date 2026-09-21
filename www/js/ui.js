@@ -1,8 +1,8 @@
 // The DOM layer. Built once, then patched: a tile is touched only when its
 // signature changes.
 import { fmt } from "./fmt.js";
-import { PARTS, isPartVisible, unlockProgress } from "./parts.js";
-import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
+import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen } from "./parts.js";
+import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
@@ -485,7 +485,24 @@ export function inspect(s, t, sell) {
 
 function buildUpgrades(dom, game) {
 	dom.upgradeRows = [];
-	dom.upgradeOrder = {};
+	// One heading and list per section and page, in SECTIONS order; a fuel's
+	// heading carries its cell.
+	dom.upgradeSections = [];
+	const sectionFor = new Map();
+	for (const experiments of [false, true]) {
+		for (const [id, title, fuel] of SECTIONS) {
+			if (!UPGRADES.some((u) => Boolean(u.ecost) === experiments && sectionOf(u) === id)) continue;
+			const list = h("div", { className: "upgrades" });
+			const head = h("h3", { className: "section" },
+				fuel ? h("i", { style: `background-image:url(${artFor(PART_BY_ID.get(`${fuel}1`))})` }) : "",
+				h("span", { textContent: title }));
+			const el = h("section", { className: "upgrade-section" }, head, list);
+			(experiments ? dom.experimentList : dom.upgradeList).append(el);
+			const entry = { el, list, rows: [] };
+			dom.upgradeSections.push(entry);
+			sectionFor.set(`${experiments}:${id}`, entry);
+		}
+	}
 	for (const u of UPGRADES) {
 		const cost = h("u", {});
 		const level = h("s", {});
@@ -502,8 +519,11 @@ function buildUpgrades(dom, game) {
 			h("i", { textContent: u.desc }),
 			delta,
 			h("span", {}, cost, level));
-		dom.upgradeRows.push({ u, button, cost, level, delta, was, now });
-		(u.ecost ? dom.experimentList : dom.upgradeList).append(button);
+		const row = { u, button, cost, level, delta, was, now };
+		dom.upgradeRows.push(row);
+		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
+		section.rows.push(row);
+		section.list.append(button);
 	}
 }
 
@@ -770,7 +790,6 @@ function renderUpgrades(dom, s) {
 	const onThisPage = ({ u }) => Boolean(u.ecost) === (dom.page === "experiments");
 	const outOfReach = [];
 	const buyable = [];
-	const rest = [];
 
 	for (const row of dom.upgradeRows) {
 		// The other tab's rows are not on screen; leave them until they are.
@@ -802,7 +821,7 @@ function renderUpgrades(dom, s) {
 		button.hidden = !shown;
 		button.classList.toggle("preview", false);
 		if (!shown && unlocked) outOfReach.push({ row, price });
-		(affordable && lv < maxLevel(u) ? buyable : rest).push(row);
+		if (affordable && lv < maxLevel(u)) buyable.push(row);
 	}
 
 	if (dom.page === "upgrades") dom.upgradeEmpty.hidden = buyable.length > 0;
@@ -813,14 +832,8 @@ function renderUpgrades(dom, s) {
 		row.button.classList.add("preview");
 	}
 
-	// Buyable floats to the top. Re-appending moves nodes, so only when the order
-	// actually changes.
-	const ordered = [...buyable, ...rest];
-	const sig = ordered.map((r) => r.u.id).join();
-	if (dom.upgradeOrder[dom.page] !== sig) {
-		dom.upgradeOrder[dom.page] = sig;
-		(dom.page === "experiments" ? dom.experimentList : dom.upgradeList).append(...ordered.map((r) => r.button));
-	}
+	// A section with nothing showing is not a heading over nothing.
+	for (const section of dom.upgradeSections) section.el.hidden = section.rows.every((r) => r.button.hidden);
 }
 
 function renderObjectives(dom, s) {
@@ -841,8 +854,13 @@ function showGoals(dom) {
 
 /** Modules stay out of sight entirely until the research that opens them. */
 function renderLocks(dom, s) {
-	const open = Boolean(s.modulesUnlocked);
+	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
+	// Announced when it happens, not on every load of a game already past it.
+	if (open && dom.modulesOpen === false) {
+		play("unlock");
+		toast("Modules unlocked - design one on the Modules page", "modules");
+	}
 	dom.modulesOpen = open;
 	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
 	dom.dockTabs.querySelector('[data-value="Modules"]').hidden = !open;

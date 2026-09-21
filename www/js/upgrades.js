@@ -95,11 +95,9 @@ const EXOTIC = [
 	  desc: "Allows you to use protium cells." },
 	{ id: "unstable_protium", group: "cells", title: "Unstable Protium", ecost: 500, mul: 2, requires: "protium_cells",
 	  desc: "Protium cells last half as long and produce twice the power and heat per level." },
-	{ id: "modular_casings", group: "casings", title: "Modular Casings", ecost: 500, levels: 1,
-	  desc: "Design sealed 3x3 modules and place each one as a single part. Opens the Modules page." },
-	{ id: "casing_tolerances", group: "casings", title: "Casing Tolerances", ecost: 250, mul: 2, levels: 7, requires: "modular_casings",
+	{ id: "casing_tolerances", group: "casings", title: "Casing Tolerances", ecost: 250, mul: 2, levels: 7,
 	  desc: "A module passes on 5% more of what its parts make per level, from 25% up to 60%." },
-	{ id: "nested_casings", group: "casings", title: "Nested Casings", ecost: 5000, mul: 4, levels: 3, requires: "modular_casings",
+	{ id: "nested_casings", group: "casings", title: "Nested Casings", ecost: 5000, mul: 4, levels: 3,
 	  desc: "A module can hold modules one layer deeper per level. Each layer takes its own efficiency cut." },
 ];
 
@@ -150,6 +148,44 @@ const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, desc, mul, levels }) =>
 );
 
 export const UPGRADES = [...CASH, ...DOCTRINES, ...EXOTIC, ...PART_UNLOCKS, ...PA_UPGRADES, ...CELL_UPGRADES];
+
+// Grouped by what an upgrade acts on, the way Incremental and Knockoff laid
+// their pages out: the reactor, each fuel on its own, then the dock's families.
+// [id, title, fuel type for the heading's art]. Order is page order.
+export const SECTIONS = [
+	["lab", "Laboratory"],
+	["reactor", "Reactor"],
+	["cells", "Cells"],
+	...CELLS_WITH_UPGRADES.map((c) => [c.type, c.title.replace(" Cell", ""), c.type]),
+	["power", "Capacitors and reflectors"],
+	["cooling", "Vents, coolant and plating"],
+	["transfer", "Exchangers, inlets and outlets"],
+	["casings", "Modules"],
+	["accelerators", "Particle accelerators"],
+	["parts", "Experimental parts"],
+	["doctrine", "Doctrines - one of each pair per run"],
+];
+
+const SECTION_BY_ID = {
+	chronometer: "reactor", forceful_fusion: "reactor", heat_control_operator: "reactor",
+	heat_outlet_control_operator: "reactor", improved_piping: "reactor", improved_power_lines: "reactor",
+	phlembotinum_core: "reactor",
+	improved_wiring: "power", perpetual_capacitors: "power", quantum_buffering: "power",
+	improved_reflector_density: "power", improved_neutron_reflection: "power",
+	perpetual_reflectors: "power", full_spectrum_reflectors: "power",
+	improved_heat_vents: "cooling", improved_heatsinks: "cooling", active_venting: "cooling",
+	improved_coolant_cells: "cooling", improved_alloys: "cooling", ultracryonics: "cooling",
+	fractal_piping: "cooling",
+	improved_heat_exchangers: "transfer", reinforced_heat_exchangers: "transfer",
+	active_exchangers: "transfer", fluid_hyperdynamics: "transfer",
+	infused_cells: "cells", unleashed_cells: "cells", protium_cells: "cells", unstable_protium: "cells",
+	laboratory: "lab",
+};
+
+/** Which section of its page an upgrade is listed under. */
+export const sectionOf = (u) => SECTION_BY_ID[u.id] ?? u.cellType ?? {
+	doctrine: "doctrine", casings: "casings", parts: "parts", accelerators: "accelerators",
+}[u.group] ?? "reactor";
 export const UPGRADE_BY_ID = new Map(UPGRADES.map((u) => [u.id, u]));
 
 export const maxLevel = (u) => u.levels ?? DEFAULT_MAX_LEVEL;
@@ -219,7 +255,6 @@ export function applyUpgrades(s) {
 	s.isolatedCores = L("isolated_cores") > 0;
 	s.baseMaxPower = BASE_MAX_POWER * 4 ** L("phlembotinum_core");
 	s.baseMaxHeat = BASE_MAX_HEAT * 4 ** L("phlembotinum_core");
-	s.modulesUnlocked = L("modular_casings") > 0;
 	s.casingEff = 0.25 + 0.05 * L("casing_tolerances");
 	s.maxNest = 1 + L("nested_casings");
 
@@ -308,7 +343,7 @@ const PERCENT = new Set(["autoSellMul", "transferPlatingMul", "transferCapacitor
 
 /** The one-off switches, which have no number to show - only a state. */
 const SWITCHES = ["heatControlOperator", "heatOutletControlled", "perpetualCapacitors",
-	"cascadeVents", "salvage", "overclock", "throttle", "diagonalPulse", "isolatedCores", "modulesUnlocked"];
+	"cascadeVents", "salvage", "overclock", "throttle", "diagonalPulse", "isolatedCores"];
 
 // fmt() drops the decimals below 1000, which is right for money and wrong for
 // a vent going 4 -> 4.5, so small numbers are written out instead.

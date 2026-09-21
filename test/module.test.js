@@ -15,7 +15,7 @@ const at = (pairs) => {
 function unlocked(extra = {}) {
 	const s = newState(() => 1);
 	s.levels.laboratory = 1;
-	s.levels.modular_casings = 1;
+	s.objective = 5;
 	Object.assign(s.levels, extra);
 	applyUpgrades(s);
 	s.money = 1e30;
@@ -221,4 +221,17 @@ test("a placed module's inner heat survives a save", () => {
 	back.heat = 0;
 	tick(back);
 	assert.deepEqual(tileAt(back, 5, 5).inner.tiles.map((x) => x.heatContained > 0), held.map((h) => h > 0));
+});
+
+test("modules open after the fifth goal, with no research", async () => {
+	const { isPartVisible, modulesOpen } = await import("../www/js/parts.js");
+	const s = newState(() => 1);
+	s.money = 1e9;
+	const m = saveModule(s, { name: "Core", icon: "uranium1", tint: "uranium", layout: at({ 4: "uranium1" }) });
+	s.objective = 4;
+	assert.equal(modulesOpen(s), false);
+	assert.equal(isPartVisible(s, s.stats.get(modId(m))), false);
+	s.objective = 5;
+	assert.equal(modulesOpen(s), true);
+	assert.equal(isPartVisible(s, s.stats.get(modId(m))), true);
 });

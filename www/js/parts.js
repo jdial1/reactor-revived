@@ -133,6 +133,10 @@ export const PART_BY_ID = new Map(PARTS.map((p) => [p.id, p]));
 /** How many of the previous part you must place before the next one appears. */
 export const UNLOCK_AFTER = 10;
 
+/** Modules open once this many goals are done: after the first upgrade is bought. */
+export const MODULES_AFTER = 5;
+export const modulesOpen = (s) => s.objective >= MODULES_AFTER;
+
 // Progressive reveal: a part is hidden until ten of the one before it have been
 // placed. Cells form one chain; each component category forms its own.
 const chains = new Map([["cell", []]]);
@@ -159,7 +163,8 @@ export const unlockProgress = (s, p) =>
 		: null);
 
 export const isPartVisible = (s, p) =>
-	(!p.requires || s.levels[p.requires] > 0)
+	(p.category !== "module" || modulesOpen(s))
+	&& (!p.requires || s.levels[p.requires] > 0)
 	&& (!p.after || (s.placed[p.after] ?? 0) >= UNLOCK_AFTER);
 
 // The cells that carry prices for the generated cell_* upgrades.

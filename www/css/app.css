@@ -964,3 +964,25 @@ body.melting { animation: melting 500ms ease-out; }
 .mod-editor > .row { display: flex; gap: 6px; }
 .mod-editor > .row button { flex: 1; padding: 10px; }
 .module-row button:disabled { opacity: 0.35; }
+
+/* Upgrade sections: what an upgrade acts on, as Incremental and Knockoff grouped them. */
+.upgrade-section { margin-bottom: 10px; }
+.upgrade-section h3 {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 4px 0 6px;
+	font-size: 10px;
+	font-weight: normal;
+	color: var(--dim);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	border-bottom: 1px solid var(--edge);
+	padding-bottom: 3px;
+}
+.upgrade-section h3 i {
+	width: 16px;
+	height: 16px;
+	background: center / contain no-repeat;
+	image-rendering: pixelated;
+}

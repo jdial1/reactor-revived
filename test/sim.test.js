@@ -1014,3 +1014,16 @@ test("Cascade Vents hand the excess to a neighbour with room", () => {
 	assert.equal(tileAt(s, 5, 3).id, "vent1", "it survived");
 	assert.ok(spare.heatContained > 0, "the neighbour took the heat");
 });
+
+test("every upgrade sits in a section, and each fuel's three sit together", async () => {
+	const { SECTIONS, sectionOf } = await import("../www/js/upgrades.js");
+	const ids = new Set(SECTIONS.map(([id]) => id));
+	for (const u of UPGRADES) assert.ok(ids.has(sectionOf(u)), u.id);
+	for (const type of ["uranium", "plutonium", "thorium", "seaborgium", "dolorium", "nefastium"]) {
+		const mine = UPGRADES.filter((u) => sectionOf(u) === type).map((u) => u.id).sort();
+		assert.deepEqual(mine, [`cell_perpetual_${type}`, `cell_power_${type}`, `cell_tick_${type}`]);
+	}
+	assert.equal(sectionOf(UPGRADE_BY_ID.get("improved_heat_vents")), "cooling");
+	assert.equal(sectionOf(UPGRADE_BY_ID.get("active_exchangers")), "transfer");
+	assert.equal(sectionOf(UPGRADE_BY_ID.get("perpetual_reflectors")), "power");
+});
