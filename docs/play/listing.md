@@ -75,6 +75,16 @@ clean-room rewrite of that for a phone, with Reactor Revival's artwork and
 sounds from Kenney. The full lineage is in the game, under Options.
 ```
 
+## Release notes (500) — version 1.2
+
+```
+- The reactor hums, and the hum rises as it heats.
+- Heat shows on the board: parts glow at the edges, the room warms, and the grid
+  shimmers near the limit.
+- Cells, vents and accelerators light up while they work.
+- Three pairs of doctrine upgrades - pick one side of each, every run.
+```
+
 ## Release notes (500) — version 1.1
 
 ```

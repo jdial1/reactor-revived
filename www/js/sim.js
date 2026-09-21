@@ -89,6 +89,14 @@ export function compile(s) {
 				} else if (np.category === "cell" && n.ticks !== 0) t.neighbourCells.push(n);
 				else if (np.category === "reflector") t.reflectors.push(n);
 			}
+			if (s.diagonalPulse && p.category === "cell") {
+				for (const [dr, dc] of [[-1, -1], [-1, 1], [1, -1], [1, 1]]) {
+					if (!inGrid(s, t.r + dr, t.c + dc)) continue;
+					const n = tileAt(s, t.r + dr, t.c + dc);
+					const np = partOf(s, n);
+					if (np?.category === "cell" && n.ticks !== 0) t.neighbourCells.push(n);
+				}
+			}
 		}
 
 		if (p.category === "capacitor") {
@@ -115,6 +123,11 @@ export function compile(s) {
 		for (const n of t.neighbourCells) pulses += s.stats.get(n.id).pulses;
 		t.heat = (p.baseHeat * (p.cellMultiplier + pulses) ** 2) / p.cellCount;
 		t.power = p.basePower * (p.cellMultiplier + pulses);
+		if (s.isolatedCores && !t.neighbourCells.length) t.power *= 3;
+		if (s.overclock) {
+			t.power *= 1.5;
+			t.heat *= 2;
+		}
 
 		let powerBonus = 0;
 		let heatBonus = 0;
@@ -172,8 +185,9 @@ export function tick(s) {
 		}
 
 		if (p.category === "cell") {
-			powerAdd += t.power;
-			heatAdd += t.heat;
+			const throttled = s.throttle && s.heat > s.maxHeat * 0.8 ? 0.5 : 1;
+			powerAdd += t.power * throttled;
+			heatAdd += t.heat * throttled;
 			t.ticks--;
 			for (const n of t.reflectors) wear(s, n);
 			if (t.ticks === 0) expire(s, t, p);
@@ -435,7 +449,20 @@ function explode(s, t, p) {
 		t.heatContained = 0;
 		return;
 	}
+	if (s.cascadeVents && p.category === "vent") {
+		const excess = t.heatContained - p.containment;
+		const taker = t.containments.find((n) => {
+			const np = partOf(s, n);
+			return np?.category === "vent" && np.containment - n.heatContained >= excess;
+		});
+		if (taker) {
+			taker.heatContained += excess;
+			t.heatContained -= excess;
+			return;
+		}
+	}
 	if (p.category === "particle_accelerator") s.meltdown = true;
+	if (s.salvage) s.money += p.cost * 0.5;
 	s.exploded.push(t.r * COLS + t.c);
 	remove(s, t);
 }

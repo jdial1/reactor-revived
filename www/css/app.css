@@ -16,6 +16,14 @@
 	--heat: #d8703a;
 	--cash: #d8c15a;
 	--ep: #b06fd8;
+	/* Fuel glows: each cell's light has its own colour. */
+	--uranium: #7fe07a;
+	--plutonium: #6fd0e8;
+	--thorium: #e8d06f;
+	--seaborgium: #e87fb0;
+	--dolorium: #b08cff;
+	--nefastium: #ff6f5a;
+	--protium: #f0f4ff;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
@@ -211,6 +219,15 @@ main { overflow: hidden; position: relative; }
 	touch-action: pan-x pan-y;
 	/* Makes cqw/cqh below mean "of the board". */
 	container-type: size;
+	/* The room warms with the reactor. */
+	background: color-mix(in srgb, var(--bg), #3a1406 calc(var(--hot, 0) * 70%));
+	transition: background 600ms linear;
+}
+/* Near the limit the grid shimmers like air over a hot plate. */
+body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
+@keyframes haze {
+	from { filter: none; transform: none; }
+	to { filter: brightness(1.1) saturate(1.2); transform: skewX(0.35deg) scaleY(1.004); }
 }
 #grid {
 	/* Fit whichever direction runs out first and never scroll; pinch zooms up. */
@@ -237,10 +254,50 @@ main { overflow: hidden; position: relative; }
 	border-radius: 2px;
 	image-rendering: pixelated;
 	overflow: hidden; /* a spinning fan sweeps its corners past the tile edge */
+	/* Its own heat, as an ember at the edges rather than a number. */
+	box-shadow: inset 0 0 calc(var(--tile) * 0.35) rgb(255 110 40 / calc(var(--warm, 0) * 0.85));
 }
 .tile.queued { opacity: 0.45; border-style: dashed; }
 
+/* Light masks (Kenney, CC0), tinted: white alpha shapes coloured by CSS. */
+.tile .glow {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: var(--tint, var(--power));
+	-webkit-mask: center / 100% no-repeat;
+	mask: center / 100% no-repeat;
+	mix-blend-mode: screen;
+	opacity: 0;
+}
+.tile .glow.bar1 { -webkit-mask-image: url(../fx/bar1.png); mask-image: url(../fx/bar1.png); }
+.tile .glow.bar2 { -webkit-mask-image: url(../fx/bar2.png); mask-image: url(../fx/bar2.png); }
+.tile .glow.bar4 { -webkit-mask-image: url(../fx/bar4.png); mask-image: url(../fx/bar4.png); }
+.tile .glow.orb { -webkit-mask-image: url(../fx/orb.png); mask-image: url(../fx/orb.png); --tint: var(--ep); }
+.tile .glow.puff { -webkit-mask-image: url(../fx/puff.png); mask-image: url(../fx/puff.png); --tint: #cfe3f0; }
+.tile .glow:is(.bar1, .bar2, .bar4) { animation: breathe 1.8s ease-in-out infinite alternate; }
+.tile .glow.orb { animation: breathe 0.9s ease-in-out infinite alternate; }
+.tile .glow.puff { animation: puff 1.2s ease-out infinite; }
+@keyframes breathe { from { opacity: 0.35; } to { opacity: 0.8; } }
+@keyframes puff {
+	from { opacity: 0.5; transform: translateY(10%) scale(0.6); }
+	to { opacity: 0; transform: translateY(-25%) scale(1.1); }
+}
+
 .tile.exploding { animation: boom 320ms steps(4); }
+.tile.exploding::before {
+	content: "";
+	position: absolute;
+	inset: -10%;
+	background: #ffd08a;
+	-webkit-mask: url(../fx/spark.png) center / 100% no-repeat;
+	mask: url(../fx/spark.png) center / 100% no-repeat;
+	animation: spark 320ms ease-out forwards;
+}
+@keyframes spark {
+	from { transform: scale(0.4) rotate(0); opacity: 1; }
+	to { transform: scale(1.3) rotate(40deg); opacity: 0; }
+}
 @keyframes boom {
 	0% { background-color: #fff; box-shadow: 0 0 0 0 #ffb347; }
 	60% { background-color: var(--heat); box-shadow: 0 0 10px 3px #ff8c2e; }
@@ -632,6 +689,7 @@ dialog .row button { flex: 1; padding: 10px; }
 
 .upgrade.bought { animation: earned 600ms ease-out; }
 
+.floater, #toast, .meter::before { filter: opacity(var(--quiet, 1)); }
 .floater {
 	position: fixed;
 	z-index: 50;

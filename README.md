@@ -91,6 +91,18 @@ order. Here, levels are the only stored truth and one `applyUpgrades()`
 recomputes everything derived from them — so load, reboot and refund fall out
 for free.
 
+**Doctrines are choices, not volume.** Three pairs of upgrades rule each other
+out, and reboot clears them, so each run picks a side again:
+
+| Pair | One side | The other |
+| --- | --- | --- |
+| $2.5K | **Cascade Vents** - a failing vent hands its excess to a neighbouring vent with room | **Salvage Crews** - an exploded part refunds half its price |
+| $50K | **Overclocked Cells** - 1.5x power, 2x heat | **Throttled Cells** - above 80% heat, cells run at half power and half heat |
+| $5M | **Diagonal Pulse** - cells also pulse into their corners | **Isolated Cores** - a cell with no neighbouring cell makes 3x power |
+
+Every other upgrade makes a number bigger. These change the shape of a good
+layout, so they are what a second reactor does differently from the first.
+
 **Sprites are computed.** A part's look comes from three things: a steel body
 with a derived black outline, a tier colour shared across every category
 (plain, gold, green, blue, red, violet), and a function colour that never
@@ -140,8 +152,8 @@ the pack system.
 ## Tutorial
 
 `www/js/tutorial.js` is seventeen steps of data: a selector to spotlight, a
-title, the text, and for four of them a `waitFor` predicate on game state - place
-a cell, sell power, vent the heat to zero, put a vent beside the cell. Those
+title, the text, and for five of them a `waitFor` predicate on game state - place
+a cell, put a second cell touching it, sell power, vent the heat to zero, put a vent beside the cell. Those
 steps will not advance until the player has really done it, and they reuse the
 same board checks the goals do rather than restating them.
 
@@ -150,12 +162,45 @@ Options. A save from before the tutorial existed loads with `tutorialDone` set,
 so nobody mid-game gets taught what they already know. The overlay takes no taps
 except on its own card, and the game keeps running underneath it.
 
+It teaches how to do things and never states the rule. The step that used to
+explain why packed cells run hot now asks the player to put two cells together
+and watch the rate line; the square law is theirs to find.
+
+## Heat you can see
+
+Heat is shown on the board as well as in the bar:
+
+- Each tile carries `--warm`, its own containment as a fraction, drawn as an
+  inset ember at its edges. A part about to fail glows before it goes.
+- The board behind the grid warms toward red with the reactor's heat (`--hot`).
+- Above 80% of maximum the grid shimmers, like air over a hot plate. Past the
+  maximum the screen shakes, as before.
+- Everything else goes quiet: toasts, floaters and the sell and vent washes fade
+  with `--quiet`, and the impact sounds drop by up to 60%. At the limit the
+  loudest thing in the game is the reactor.
+
+Parts wear light masks from **Kenney's Light Masks** and **Particle Pack**
+(CC0), six white alpha PNGs in `www/fx/` (6.7 KB), tinted by CSS
+(`mask-image` over a `background-color`). A cell's glow matches its shape - one
+bar, two bars, or a 2x2 for a quad - in its fuel's own colour, and breathes while
+it has life left. An accelerator holding heat shows a violet orb, a working vent
+puffs steam while its fan turns, and an exploding part throws a spark.
+
 ## Sound
 
-Six files in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One
+Six impacts in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One
 `<audio>` element per voice, two per file so a fast row of parts sounds like a
-row of parts; no library and no Web Audio graph, because the game plays one
-thud at a time.
+row of parts.
+
+And one hum: `hum.webm`, 6.7 KB, a 2.4 s slice of `spaceEngine_001` from
+**Kenney's Sci-fi Sounds** (CC0), cut with a crossfaded seam and re-encoded to
+24 kbps Opus. It is the one sound on Web Audio, because only a buffer source loops
+without a gap and bends pitch smoothly. It starts on the first tap, runs while
+the reactor is producing, and rises with heat: from 0.75x speed and a murmur when
+cold to 1.3x and three times louder at the limit, and higher again past it. Muted,
+paused, idle or backgrounded, it fades out. It was picked by measurement like the
+rest - 0.96 deep, 115 crossings a second, and the steadiest of forty candidates
+by the variation in its loudness.
 
 They were picked by measuring rather than by name. Every candidate in the pack
 was decoded in the browser and scored two ways: how much of its energy survives

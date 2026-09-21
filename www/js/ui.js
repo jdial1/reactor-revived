@@ -6,7 +6,7 @@ import { UPGRADES, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upg
 import { OBJECTIVES } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
-import { play } from "./audio.js";
+import { play, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -255,7 +255,13 @@ export function buildUI(game) {
 					textContent: "Sci-fi User Interface Elements" }),
 				" by Buch (CC0) - the same pack Knockoff used. Sounds from ",
 				h("a", { href: "https://kenney.nl/assets/impact-sounds", textContent: "Kenney's Impact Sounds" }),
-				" (CC0).")),
+				" and ",
+				h("a", { href: "https://kenney.nl/assets/sci-fi-sounds", textContent: "Sci-fi Sounds" }),
+				", light from ",
+				h("a", { href: "https://kenney.nl/assets/light-masks", textContent: "Light Masks" }),
+				" and ",
+				h("a", { href: "https://kenney.nl/assets/particle-pack", textContent: "Particle Pack" }),
+				" (all CC0).")),
 	);
 
 	// A slim line of what the reactor did this tick, under the totals that say
@@ -509,13 +515,15 @@ function buildGrid(dom, s) {
 		// The vent's own art, blown up so only the hub shows, turning while the
 		// vent is shifting heat.
 		const fan = h("i", { className: "fan" });
-		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, fan, heat, life);
+		// A light mask over the art: what the part is doing, rather than a number.
+		const glow = h("i", { className: "glow" });
+		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, glow, fan, heat, life);
 		cell.setAttribute("role", "gridcell");
 		cell.setAttribute("aria-label", `row ${t.r + 1} column ${t.c + 1}, empty`);
 		// Ninety-six tab stops is not navigation. One way in, arrows to move.
 		cell.tabIndex = t.r === 0 && t.c === 0 ? 0 : -1;
 		dom.grid.append(cell);
-		dom.tiles.push({ t, cell, heat, life, fan, sig: "", had: null });
+		dom.tiles.push({ t, cell, heat, life, fan, glow, sig: "", had: null, lit: "" });
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
@@ -585,6 +593,17 @@ export function render(dom, s, game) {
 		: "Every goal met.";
 	dom.goalBar.style.setProperty("--p", step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
+	// Heat is something you see and hear, not read: the board warms, the
+	// feedback goes quiet, and the hum climbs.
+	const f = s.maxHeat > 0 ? s.heat / s.maxHeat : 0;
+	const warm = Math.round(Math.min(f, 1) * 20) / 20;
+	if (warm !== dom.warm) {
+		dom.warm = warm;
+		document.body.style.setProperty("--hot", warm);
+		document.body.style.setProperty("--quiet", 1 - 0.6 * warm);
+	}
+	document.body.classList.toggle("near", f > 0.8);
+	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0);
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
@@ -609,7 +628,17 @@ export function render(dom, s, game) {
 		const p = t.id ? s.stats.get(t.id) : null;
 		const heat = p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
-		row.fan.classList.toggle("spinning", Boolean(p?.vent) && t.vented > 0);
+		const venting = Boolean(p?.vent) && t.vented > 0;
+		row.fan.classList.toggle("spinning", venting);
+		const lit = !p || !t.activated ? ""
+			: p.category === "cell" ? (t.ticks ? `bar${p.cellCount}` : "")
+			: p.category === "particle_accelerator" ? (t.heatContained > 0 ? "orb" : "")
+			: venting ? "puff" : "";
+		if (lit !== row.lit) {
+			row.lit = lit;
+			row.glow.className = lit ? `glow ${lit}` : "glow";
+			row.glow.style.setProperty("--tint", p?.type ? `var(--${p.type}, var(--power))` : "");
+		}
 
 		const sig = `${t.id}|${t.activated}|${heat}|${life}`;
 		if (sig === row.sig) continue;
@@ -629,6 +658,7 @@ export function render(dom, s, game) {
 		row.cell.title = queued ? `Waiting for $${fmt(p.cost)}` : "";
 		row.cell.classList.toggle("spent", Boolean(p) && p.category === "cell" && !t.ticks);
 		row.heat.style.width = `${heat}%`;
+		row.cell.style.setProperty("--warm", heat / 100);
 		row.life.style.width = `${life}%`;
 		// Green while there is life in it, amber at a fifth, red at a twentieth.
 		row.life.style.background = life > 20 ? "" : life > 5 ? "var(--cash)" : "var(--heat)";

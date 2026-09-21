@@ -106,4 +106,5 @@ private val MIME = mapOf(
 	"css" to "text/css",
 	"png" to "image/png",
 	"ogg" to "audio/ogg",
+	"webm" to "audio/webm",
 )

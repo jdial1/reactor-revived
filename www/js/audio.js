@@ -1,5 +1,5 @@
-// Sound. Six files, no library, no Web Audio graph - an <audio> element per
-// voice, which is all a game that plays one thud at a time needs.
+// Sound. Six impacts on <audio> elements, and one hum on Web Audio, because
+// only Web Audio loops without a gap and bends pitch smoothly.
 //
 // Everything here is a dull, low impact rather than a click or a chime: the
 // sounds were picked by measuring, not by name. Each candidate was decoded and
@@ -29,6 +29,7 @@ export const FILES = [...new Set(Object.values(CUES).map(([file]) => file))];
 // importing this module outside a browser - the tests do - costs nothing.
 const voices = {};
 let on = true;
+let hot = 0;
 
 const voiceFor = (file) => (voices[file] ??= {
 	turn: 0,
@@ -48,8 +49,44 @@ export function play(cue) {
 	voice.turn ^= 1;
 	el.currentTime = 0;
 	el.playbackRate = rate;
-	el.volume = gain;
+	// Heat takes the room: the hotter the reactor, the less the rest is heard.
+	el.volume = gain * (1 - 0.6 * hot);
 	// Before the first tap a browser refuses to play at all; there is nothing
 	// to do about it and nothing worth saying.
 	el.play().catch(() => {});
+}
+
+// The machine's own voice: a loop that climbs in pitch and loudness with heat.
+// Needs a gesture before a browser will start it, so it is built on the first.
+let ctx = null;
+let hum = null;
+
+async function wake() {
+	if (ctx || typeof AudioContext === "undefined") return;
+	ctx = new AudioContext();
+	const gain = ctx.createGain();
+	gain.gain.value = 0;
+	gain.connect(ctx.destination);
+	hum = { gain, src: null };
+	try {
+		const buf = await ctx.decodeAudioData(await (await fetch("audio/hum.webm")).arrayBuffer());
+		const src = ctx.createBufferSource();
+		src.buffer = buf;
+		src.loop = true;
+		src.connect(gain);
+		src.start();
+		hum.src = src;
+	} catch { /* no hum is a quieter game, not a broken one */ }
+}
+if (typeof addEventListener === "function") addEventListener("pointerdown", wake, { once: true });
+
+/** Heat as a fraction of maximum, and whether the reactor is running at all. */
+export function setHeat(f, running) {
+	hot = Math.min(1, Math.max(0, f));
+	if (!hum?.src) return;
+	if (ctx.state === "suspended") ctx.resume().catch(() => {});
+	const live = on && running && !document.hidden;
+	const t = ctx.currentTime;
+	hum.gain.gain.setTargetAtTime(live ? 0.12 + 0.3 * hot : 0, t, 0.4);
+	hum.src.playbackRate.setTargetAtTime(0.75 + 0.55 * hot + 0.2 * Math.max(0, Math.min(f, 2) - 1), t, 0.6);
 }

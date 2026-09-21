@@ -52,6 +52,24 @@ const CASH = [
 	  desc: "Each capacitor adds 1% vent throughput per level." },
 ];
 
+// Choices rather than multipliers. Each pair is either/or for the run: buying
+// one rules the other out until a reboot clears both. They change how a
+// reactor is built, not how big its numbers are.
+const DOCTRINES = [
+	{ id: "cascade_vents", group: "doctrine", title: "Cascade Vents", cost: 2500, levels: 1, excludes: "salvage_crews",
+	  desc: "A vent about to fail passes its excess heat to a neighbouring vent with room instead. Rules out Salvage Crews." },
+	{ id: "salvage_crews", group: "doctrine", title: "Salvage Crews", cost: 2500, levels: 1, excludes: "cascade_vents",
+	  desc: "A part that explodes refunds half its price. Rules out Cascade Vents." },
+	{ id: "overclocked_cells", group: "doctrine", title: "Overclocked Cells", cost: 50000, levels: 1, excludes: "throttled_cells",
+	  desc: "Cells produce 50% more power and twice the heat. Rules out Throttled Cells." },
+	{ id: "throttled_cells", group: "doctrine", title: "Throttled Cells", cost: 50000, levels: 1, excludes: "overclocked_cells",
+	  desc: "Above 80% of maximum heat, cells produce half their power and half their heat. Rules out Overclocked Cells." },
+	{ id: "diagonal_pulse", group: "doctrine", title: "Diagonal Pulse", cost: 5e6, levels: 1, excludes: "isolated_cores",
+	  desc: "Cells also pulse into the cells at their corners. Rules out Isolated Cores." },
+	{ id: "isolated_cores", group: "doctrine", title: "Isolated Cores", cost: 5e6, levels: 1, excludes: "diagonal_pulse",
+	  desc: "A cell with no other cell beside it produces three times the power. Rules out Diagonal Pulse." },
+];
+
 // Exotic-particle upgrades. `laboratory` gates the rest.
 const EXOTIC = [
 	{ id: "laboratory", group: "lab", title: "Laboratory", ecost: 1, levels: 1,
@@ -124,7 +142,7 @@ const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, desc, mul, levels }) =>
 	})),
 );
 
-export const UPGRADES = [...CASH, ...EXOTIC, ...PART_UNLOCKS, ...PA_UPGRADES, ...CELL_UPGRADES];
+export const UPGRADES = [...CASH, ...DOCTRINES, ...EXOTIC, ...PART_UNLOCKS, ...PA_UPGRADES, ...CELL_UPGRADES];
 export const UPGRADE_BY_ID = new Map(UPGRADES.map((u) => [u.id, u]));
 
 export const maxLevel = (u) => u.levels ?? DEFAULT_MAX_LEVEL;
@@ -142,7 +160,9 @@ export function costOf(s, u) {
 }
 
 export const isUnlocked = (s, u) =>
-	(!u.requires || s.levels[u.requires] > 0) && (!u.ecost || u.id === "laboratory" || s.levels.laboratory > 0);
+	(!u.requires || s.levels[u.requires] > 0)
+	&& (!u.excludes || !(s.levels[u.excludes] > 0))
+	&& (!u.ecost || u.id === "laboratory" || s.levels.laboratory > 0);
 
 /** Buy one level. Returns true if it happened. */
 export function buy(s, id) {
@@ -184,6 +204,12 @@ export function applyUpgrades(s) {
 	s.ventPlatingMul = L("improved_heatsinks");
 	s.ventCapacitorMul = L("active_venting");
 	s.perpetualCapacitors = L("perpetual_capacitors") > 0;
+	s.cascadeVents = L("cascade_vents") > 0;
+	s.salvage = L("salvage_crews") > 0;
+	s.overclock = L("overclocked_cells") > 0;
+	s.throttle = L("throttled_cells") > 0;
+	s.diagonalPulse = L("diagonal_pulse") > 0;
+	s.isolatedCores = L("isolated_cores") > 0;
 	s.baseMaxPower = BASE_MAX_POWER * 4 ** L("phlembotinum_core");
 	s.baseMaxHeat = BASE_MAX_HEAT * 4 ** L("phlembotinum_core");
 
@@ -270,7 +296,8 @@ const STAT_FIELDS = ["basePower", "baseHeat", "vent", "transfer", "reactorPower"
 const PERCENT = new Set(["autoSellMul", "transferPlatingMul", "transferCapacitorMul", "ventPlatingMul", "ventCapacitorMul"]);
 
 /** The one-off switches, which have no number to show - only a state. */
-const SWITCHES = ["heatControlOperator", "heatOutletControlled", "perpetualCapacitors"];
+const SWITCHES = ["heatControlOperator", "heatOutletControlled", "perpetualCapacitors",
+	"cascadeVents", "salvage", "overclock", "throttle", "diagonalPulse", "isolatedCores"];
 
 // fmt() drops the decimals below 1000, which is right for money and wrong for
 // a vent going 4 -> 4.5, so small numbers are written out instead.
@@ -327,6 +354,8 @@ export function nextLevel(s, u) {
 // Power, heat or neither, from the field the upgrade moves - not a list of ids.
 
 const KIND_BY_FIELD = {
+	overclock: "power", diagonalPulse: "power", isolatedCores: "power",
+	throttle: "heat", cascadeVents: "heat",
 	basePower: "power", reactorPower: "power", powerIncrease: "power",
 	autoSellMul: "power", baseMaxPower: "power", heatPowerMul: "power",
 

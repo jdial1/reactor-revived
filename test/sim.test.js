@@ -926,3 +926,91 @@ test("a new game gets the tutorial; a save from before it existed does not", () 
 	done.tutorialDone = true;
 	assert.equal(deserialize(serialize(done)).tutorialDone, true);
 });
+
+test("the paired upgrades rule each other out until a reboot", () => {
+	const s = rich();
+	assert.equal(buy(s, "cascade_vents"), true);
+	assert.equal(buy(s, "salvage_crews"), false, "the other half of the pair is closed");
+	reboot(s);
+	s.money = 1e30;
+	assert.equal(buy(s, "salvage_crews"), true, "a reboot reopens the choice");
+	assert.equal(buy(s, "cascade_vents"), false);
+});
+
+// One cell's output, alone or beside another, under a set of upgrade levels.
+function cellOutput(levels, layout) {
+	const s = rich();
+	Object.assign(s.levels, levels);
+	applyUpgrades(s);
+	for (const [r, c] of layout) put(s, r, c, "uranium1");
+	compile(s);
+	return tileAt(s, layout[0][0], layout[0][1]);
+}
+
+test("Diagonal Pulse lets corner cells pulse", () => {
+	const corner = [[5, 3], [6, 4]];
+	const plain = cellOutput({}, corner);
+	const diag = cellOutput({ diagonal_pulse: 1 }, corner);
+	assert.equal(plain.power, cellOutput({}, [[5, 3]]).power, "corners do nothing without it");
+	assert.ok(diag.power > plain.power, "with it, a corner neighbour pulses");
+	assert.ok(diag.heat > plain.heat);
+});
+
+test("Isolated Cores triples a lone cell and leaves a pair alone", () => {
+	const lone = cellOutput({}, [[5, 3]]);
+	const coreLone = cellOutput({ isolated_cores: 1 }, [[5, 3]]);
+	assert.equal(coreLone.power, lone.power * 3);
+	assert.equal(coreLone.heat, lone.heat, "heat is untouched");
+	const pair = [[5, 3], [5, 4]];
+	assert.equal(cellOutput({ isolated_cores: 1 }, pair).power, cellOutput({}, pair).power);
+});
+
+test("Overclocked Cells: half again the power, twice the heat", () => {
+	const lone = cellOutput({}, [[5, 3]]);
+	const hot = cellOutput({ overclocked_cells: 1 }, [[5, 3]]);
+	assert.equal(hot.power, lone.power * 1.5);
+	assert.equal(hot.heat, lone.heat * 2);
+});
+
+test("Throttled Cells halve output only above 80% heat", () => {
+	const run = (heatShare) => {
+		const s = rich();
+		s.levels.throttled_cells = 1;
+		applyUpgrades(s);
+		put(s, 5, 3, "uranium1");
+		compile(s);
+		s.heat = s.maxHeat * heatShare;
+		const before = s.power;
+		tick(s);
+		return s.power - before;
+	};
+	assert.equal(run(0.9), run(0.5) / 2);
+});
+
+test("Salvage Crews refund half an exploding part", () => {
+	const s = rich();
+	s.levels.salvage_crews = 1;
+	applyUpgrades(s);
+	const t = put(s, 5, 3, "vent1");
+	compile(s);
+	t.heatContained = s.stats.get("vent1").containment * 10;
+	s.money = 1000; // rich() is 1e30, where a $25 refund vanishes in rounding
+	const before = s.money;
+	tick(s);
+	assert.equal(tileAt(s, 5, 3).id, null, "the vent blew");
+	assert.equal(s.money - before, s.stats.get("vent1").cost * 0.5);
+});
+
+test("Cascade Vents hand the excess to a neighbour with room", () => {
+	const s = rich();
+	s.levels.cascade_vents = 1;
+	applyUpgrades(s);
+	const failing = put(s, 5, 3, "vent1");
+	const spare = put(s, 5, 4, "vent1");
+	compile(s);
+	const cap = s.stats.get("vent1").containment;
+	failing.heatContained = cap + 10;
+	tick(s);
+	assert.equal(tileAt(s, 5, 3).id, "vent1", "it survived");
+	assert.ok(spare.heatContained > 0, "the neighbour took the heat");
+});
