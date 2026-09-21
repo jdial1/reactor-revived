@@ -1,6 +1,7 @@
 // Game state: its shape, its defaults, and how it round-trips to storage.
 import { ROWS, COLS, compile, tileAt, countPlaced } from "./sim.js";
 import { UPGRADES, applyUpgrades } from "./upgrades.js";
+import { innerSave } from "./module.js";
 
 const SAVE_KEY = "reactor-revived";
 const SAVE_VERSION = 3; // 1 indexed tiles against a grid that could grow; 2 had no modules
@@ -79,7 +80,7 @@ export function serialize(s) {
 		modules: s.modules,
 		nextModuleId: s.nextModuleId,
 		tiles: [...s.tiles].map((t) =>
-			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined } : null,
+			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
 		queue: s.queue.map((t) => t.r * COLS + t.c),
 	};
@@ -101,7 +102,7 @@ export function deserialize(saved, random = Math.random) {
 
 	for (const t of saved.tiles ?? []) {
 		if (!s.stats.has(t.id)) continue;
-		Object.assign(s.tiles[t.i], { id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age ?? 0 });
+		Object.assign(s.tiles[t.i], { id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age ?? 0, inner: null, saved: t.inner ?? null });
 	}
 	s.queue = (saved.queue ?? []).map((i) => s.tiles[i]);
 
@@ -128,6 +129,7 @@ export function place(s, r, c, id) {
 	const p = s.stats.get(id);
 	t.id = id;
 	t.age = 0;
+	t.inner = null;
 	t.ticks = p.ticks ?? 0;
 	t.heatContained = 0;
 	if (s.money >= p.cost) {

@@ -456,7 +456,8 @@ export function inspect(s, t, sell) {
 		["Transfers", p.transfer ? `${fmt(p.transfer)}/tick` : null],
 		["Max power", p.reactorPower ? `+${fmt(p.reactorPower)}` : null],
 		["Max heat", p.reactorHeat ? `+${fmt(p.reactorHeat)}` : null],
-		["Makes", p.category === "module" ? `${exact(p.modPower * s.casingEff)} power, ${exact(p.modHeat * s.casingEff)} heat` : null],
+		["Power", p.category === "module" ? `+${exact(p.modPower * s.casingEff)}/tick` : null],
+		["Heat", p.category === "module" ? `${exact(p.modHeat)} cold, ${exact(p.modHeatHot)} at the limit` : null],
 		["Fails at", p.failTick ? `tick ${fmt(p.failTick)} (at ${fmt(t.age ?? 0)})` : null],
 	];
 

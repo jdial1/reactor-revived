@@ -1,6 +1,7 @@
 // The reactor simulation. Pure: no DOM, no globals, no timers - everything
 // arrives in `s` and everything it changes lives in `s`.
 import { applyUpgrades } from "./upgrades.js";
+import { stepModule } from "./module.js";
 // Fixed 12x8: the whole board has to be visible at once on a phone, so the
 // original's two expansion upgrades have nothing to expand into.
 export const ROWS = 12;
@@ -186,22 +187,24 @@ export function tick(s) {
 			continue;
 		}
 
-		// A module is sealed: its 3x3 was simulated once, and the tile passes on
-		// that profile at the casing's efficiency.
+		// A module runs its own 3x3 against this reactor's pool. Heat crosses at
+		// full strength, both ways; power and particles are cut to the casing's
+		// efficiency.
 		if (p.category === "module") {
 			if (p.ticks && t.ticks === 0) {
 				refill(s, t, p);
 				continue;
 			}
-			powerAdd += p.modPower * s.casingEff;
-			heatAdd += p.modHeat * s.casingEff;
-			t.ep = (t.ep ?? 0) + p.modEP * s.casingEff;
+			const out = stepModule(s, t, p);
+			powerAdd += out.power * s.casingEff;
+			heatAdd += out.heat;
+			t.ep = (t.ep ?? 0) + out.ep * s.casingEff;
 			if (t.ep >= 1) {
 				s.exoticParticles += Math.floor(t.ep);
 				t.ep %= 1;
 			}
 			t.age = (t.age ?? 0) + 1;
-			if (p.failTick && t.age >= p.failTick) {
+			if (out.failed) {
 				explode(s, t, p);
 				continue;
 			}
@@ -366,6 +369,7 @@ function refill(s, t, p) {
 	s.money -= price;
 	t.ticks = p.ticks;
 	t.age = 0;
+	t.inner = null; // a rebuilt casing starts cold and full
 	s.dirty = true;
 	return true;
 }
@@ -541,5 +545,7 @@ export function remove(s, t) {
 	t.power = 0;
 	t.age = 0;
 	t.ep = 0;
+	t.inner = null;
+	t.saved = null;
 	s.dirty = true;
 }

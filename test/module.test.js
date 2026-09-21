@@ -80,7 +80,8 @@ test("a saved module is a part the board can place and run", () => {
 	s.power = 0;
 	tick(s);
 	assert.equal(s.power, 0.25);
-	assert.equal(s.rate.heat, 0.25);
+	// Heat is not cut by the casing: it crosses whole.
+	assert.equal(s.rate.heat, 1);
 	assert.equal(tileAt(s, 0, 0).ticks, p.ticks - 1);
 });
 
@@ -180,8 +181,44 @@ test("buying an upgrade re-measures every module", () => {
 	assert.equal(s.stats.get(modId(m)).modPower, before * 2);
 });
 
-test("a casing never leaks negative heat", () => {
+test("a module of bare cells dumps all of its heat into the reactor", () => {
 	const s = unlocked();
-	const p = profile(s, at({ 1: "vent1", 3: "vent1", 4: "uranium1", 5: "vent1", 7: "vent1" }));
-	assert.ok(p.heat >= 0);
+	const layout = at({ 0: "uranium1", 1: "uranium1", 3: "uranium1", 4: "uranium1" });
+	const m = saveModule(s, { name: "Stove", icon: "uranium1", tint: "heat", layout });
+	place(s, 5, 5, modId(m));
+	s.heat = 0;
+	tick(s);
+	// Four cells in a square: each pulses three times, heat 9 apiece.
+	assert.equal(s.rate.heat, 4 * 9);
+	assert.equal(s.stats.get(modId(m)).modHeat, 4 * 9);
+});
+
+test("an outlet inside a casing pulls heat out of the reactor", () => {
+	const s = unlocked();
+	const layout = at({ 1: "vent1", 3: "vent1", 4: "heat_outlet1", 5: "vent1", 7: "vent1" });
+	const m = saveModule(s, { name: "Chiller", icon: "vent1", tint: "plutonium", layout });
+	const p = s.stats.get(modId(m));
+	// Nothing to pull beside a cold reactor; a hot one gives it plenty.
+	assert.equal(p.modHeat, 0);
+	assert.ok(p.modHeatHot < 0);
+	place(s, 5, 5, modId(m));
+	s.heat = 500;
+	tick(s);
+	assert.ok(s.rate.heat < 0);
+	assert.ok(s.heat < 500);
+});
+
+test("a placed module's inner heat survives a save", () => {
+	const s = unlocked();
+	const layout = at({ 1: "vent1", 3: "vent1", 4: "heat_outlet1", 5: "vent1", 7: "vent1" });
+	const m = saveModule(s, { name: "Chiller", icon: "vent1", tint: "plutonium", layout });
+	place(s, 5, 5, modId(m));
+	s.heat = 500;
+	tick(s);
+	const held = tileAt(s, 5, 5).inner.tiles.map((x) => x.heatContained);
+	assert.ok(held.some((h) => h > 0));
+	const back = deserialize(JSON.parse(JSON.stringify(serialize(s))), () => 1);
+	back.heat = 0;
+	tick(back);
+	assert.deepEqual(tileAt(back, 5, 5).inner.tiles.map((x) => x.heatContained > 0), held.map((h) => h > 0));
 });

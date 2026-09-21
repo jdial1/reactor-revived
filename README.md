@@ -187,20 +187,26 @@ net money per tick after rebuying its fuel, life, cost, and whether it holds or
 the tick it fails. Save it, and it is a part you place in one tile.
 
 `www/js/module.js` runs the 3x3 through the same `compile` and `tick` as the
-board - the sim takes any grid size, and a *sealed* state has no reactor around
-its pool, so what reaches the pool is what leaks out. It runs up to 2,000 ticks
-or one fuel life; a part still filling when that window closes has its line drawn
-on to the tick it would fail. The profile is cached against the layout and the
-upgrade levels, and `applyUpgrades` refreshes it, so buying an upgrade re-measures
-every design.
+board - the sim takes any grid size, and a *sealed* state has no reactor of its
+own. A placed module ticks its 3x3 every tick with the reactor's pool as its
+pool, so **heat crosses the casing at full strength, both ways**: a module of
+bare cells dumps every bit of its heat into the reactor, and a module of vents
+around an outlet pulls heat out of the reactor into those vents. Net-negative is
+allowed. Nothing else reaches in - outside cells do not pulse into a casing, and
+outside vents and exchangers do not touch it.
 
-Nothing crosses the casing but power, heat and particles: outside cells do not
-pulse into it, and outside vents and exchangers do not touch it. A casing passes
-on 25% of what its parts make; **Casing Tolerances** raises that to 60%.
-**Nested Casings** lets a module hold modules, one layer deeper per level, and
-each layer takes its own cut - a module inside a module at 60% passes on 36%. A
-spent module rebuys itself when every fuel inside it is perpetual, and an
-unstable one blows on the tick its profile said it would.
+Power and particles are what the casing cuts: it passes on 25% of what its parts
+make, and **Casing Tolerances** raises that to 60%. **Nested Casings** lets a
+module hold modules, one layer deeper per level, and each layer takes its own
+cut - at 60%, a module inside a module passes on 36% of its power. Heat is never
+cut, however deep. A spent module rebuys itself when every fuel inside it is
+perpetual, and a module whose inside part fails blows as a whole.
+
+The editor measures a design twice - beside a cold reactor, and beside one held
+at its base maximum heat, where an outlet has the most to pull - for up to 2,000
+ticks or one fuel life, drawing the line on to the tick a still-filling part
+would fail. That profile is cached against the layout and the upgrades. A placed
+module's inner heat and fuel ride along in the save.
 
 A design never changes once saved. "Edit as copy" opens a copy, so a module on
 the board is always the one that was placed. A design can be deleted only when

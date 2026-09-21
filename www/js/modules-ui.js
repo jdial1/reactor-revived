@@ -13,6 +13,9 @@ const EMPTY = () => Array(SIZE * SIZE).fill(null);
 
 /** Small numbers keep their decimals; a module at 25% makes fractions. */
 const num = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 100) / 100) : fmt(v));
+const signed = (v) => `${v < 0 ? "-" : "+"}${num(Math.abs(v))}`;
+/** Heat into the reactor beside a cold one, and beside one at its limit. */
+const heatRange = (cold, hot) => (num(cold) === num(hot) ? signed(cold) : `${signed(cold)} cold, ${signed(hot)} hot`);
 
 export function buildModulesPage(dom, game) {
 	dom.modList = h("div", { className: "modules" });
@@ -34,7 +37,7 @@ function summary(s, p) {
 	const upkeep = p.ticks ? p.rebuy / p.ticks : 0;
 	return [
 		`+${num(p.modPower * e)} power`,
-		`+${num(p.modHeat * e)} heat`,
+		`${heatRange(p.modHeat, p.modHeatHot)} heat`,
 		p.modEP ? `+${num(p.modEP * e)} EP` : null,
 		`${p.modPower * e - upkeep < 0 ? "-" : "+"}$${num(Math.abs(p.modPower * e - upkeep))}/tick`,
 	].filter(Boolean).join("  ");
@@ -187,7 +190,8 @@ function renderEditor(dom, s) {
 	const r = readout(s, d.layout);
 	const rows = [
 		["Power", `+${num(r.power)}/tick`],
-		["Heat out", `+${num(r.heat)}/tick`],
+		["Heat, cold reactor", `${signed(r.heat)}/tick`],
+		["Heat, at its limit", `${signed(r.heatHot)}/tick`],
 		["Vented inside", `${num(r.vented)}/tick`],
 		r.ep ? ["Particles", `+${num(r.ep)}/tick`] : null,
 		["Money", `${r.money < 0 ? "-" : "+"}$${num(Math.abs(r.money))}/tick`],
