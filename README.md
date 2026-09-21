@@ -168,7 +168,7 @@ and watch the rate line; the square law is theirs to find.
 
 ## The operator's log
 
-The thirty goals are a checklist from one place: Harrow Station, a plant cold for
+The goals are a checklist from one place: Harrow Station, a plant cold for
 eleven years above a town that has been on candles since it closed. Each item is
 the job, what it pays, and a one-line note from whoever asked for it - the mill
 wanting a second shift, the clinic keeping its lights on overnight, the
@@ -176,6 +176,35 @@ university that sends an accelerator and stops saying what the particles are
 for. The checks are unchanged; only the reason for them is new. IC2 players ran
 their reactors inside a base they had built, so the reactor had somewhere to
 be. This gives it one.
+
+## Modules
+
+After the Modular Casings research, a Modules page appears in the bottom bar, and
+a Modules tab in the dock. Before that, neither exists. On the page you design a
+sealed 3x3: pick an icon and a colour, fill the slots, and the readout says what
+the casing will do - power, heat that leaks out, heat vented inside, particles,
+net money per tick after rebuying its fuel, life, cost, and whether it holds or
+the tick it fails. Save it, and it is a part you place in one tile.
+
+`www/js/module.js` runs the 3x3 through the same `compile` and `tick` as the
+board - the sim takes any grid size, and a *sealed* state has no reactor around
+its pool, so what reaches the pool is what leaks out. It runs up to 2,000 ticks
+or one fuel life; a part still filling when that window closes has its line drawn
+on to the tick it would fail. The profile is cached against the layout and the
+upgrade levels, and `applyUpgrades` refreshes it, so buying an upgrade re-measures
+every design.
+
+Nothing crosses the casing but power, heat and particles: outside cells do not
+pulse into it, and outside vents and exchangers do not touch it. A casing passes
+on 25% of what its parts make; **Casing Tolerances** raises that to 60%.
+**Nested Casings** lets a module hold modules, one layer deeper per level, and
+each layer takes its own cut - a module inside a module at 60% passes on 36%. A
+spent module rebuys itself when every fuel inside it is perpetual, and an
+unstable one blows on the tick its profile said it would.
+
+A design never changes once saved. "Edit as copy" opens a copy, so a module on
+the board is always the one that was placed. A design can be deleted only when
+nothing uses it - not the board, and not another design.
 
 ## Heat you can see
 

@@ -87,7 +87,9 @@ export function profile(s, layout) {
 	for (let n = 1; n <= run; n++) {
 		tick(inner);
 		power += inner.power;
-		heat += inner.heat;
+		// compile() rounds each cell's share up, which can leave a cell owing
+		// heat; a casing must not become a cooler for the board around it.
+		heat += Math.max(0, inner.heat);
 		vented += inner.rate.vent;
 		inner.power = 0;
 		inner.heat = 0;

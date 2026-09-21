@@ -8,6 +8,8 @@ import { artFor } from "./art.js";
 import { icon } from "./icons.js";
 import { play, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
+import { modId } from "./module.js";
+import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
 	// `dataset` is getter-only, so it cannot ride along with Object.assign.
@@ -106,6 +108,7 @@ const PAGES = [
 	["reactor", "Reactor", "reactor"],
 	["upgrades", "Upgrades", "upgrades"],
 	["experiments", "Experiments", "experiments"],
+	["modules", "Modules", "modules"],
 	["options", "Options", "options"],
 ];
 
@@ -117,6 +120,8 @@ const DOCK_TABS = [
 	["Cooling", ["vent", "coolant_cell", "reactor_plating"]],
 	["Transfer", ["heat_exchanger", "heat_inlet", "heat_outlet"]],
 	["Exotic", ["particle_accelerator"]],
+	// Filled from the saved designs, not the catalog.
+	["Modules", ["module"]],
 ];
 
 // Who handed this game down, oldest first; the last entry is this one.
@@ -302,8 +307,10 @@ export function buildUI(game) {
 	}
 	root.append(h("footer", {}, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
+	dom.game = game;
 	buildDock(dom, game);
 	buildUpgrades(dom, game);
+	buildModulesPage(dom, game);
 	buildObjectiveList(dom);
 	showPage(dom, "reactor");
 	return dom;
@@ -432,6 +439,9 @@ export function ask(question, onYes, yes = "Do it") {
 	dialog.querySelector("button")?.focus();
 }
 
+// fmt() drops decimals, and a module at 25% makes fractions.
+const exact = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 100) / 100) : fmt(v));
+
 export function inspect(s, t, sell) {
 	const p = s.stats.get(t.id);
 	const placed = [...activeTiles(s)].filter((x) => x.id);
@@ -446,11 +456,17 @@ export function inspect(s, t, sell) {
 		["Transfers", p.transfer ? `${fmt(p.transfer)}/tick` : null],
 		["Max power", p.reactorPower ? `+${fmt(p.reactorPower)}` : null],
 		["Max heat", p.reactorHeat ? `+${fmt(p.reactorHeat)}` : null],
+		["Makes", p.category === "module" ? `${exact(p.modPower * s.casingEff)} power, ${exact(p.modHeat * s.casingEff)} heat` : null],
+		["Fails at", p.failTick ? `tick ${fmt(p.failTick)} (at ${fmt(t.age ?? 0)})` : null],
 	];
 
 	const dialog = h("dialog", { className: "sheet", ariaLabel: p.title },
 		h("h2", { textContent: p.title }),
 		h("i", { textContent: p.desc ?? "" }),
+		p.category === "module" ? h("div", { className: "mod-grid mini" }, ...p.module.layout.map((id) => {
+			const q = id && s.stats.get(id);
+			return h("i", { className: "slot", style: q ? `background-image:url(${q.art ?? artFor(q)})` : "" });
+		})) : "",
 		h("dl", {}, rows.filter(([, v]) => v !== null).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "sheet-actions" }, [
 			h("button", { className: "danger", textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
@@ -606,6 +622,7 @@ export function render(dom, s, game) {
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
 	if (!dom.tiles) buildGrid(dom, s);
+	renderLocks(dom, s);
 
 	if (dom.page !== "reactor") {
 		renderPage(dom, s);
@@ -630,12 +647,14 @@ export function render(dom, s, game) {
 		row.fan.classList.toggle("spinning", venting);
 		const lit = !p || !t.activated ? ""
 			: p.category === "cell" ? (t.ticks ? `bar${p.cellCount}` : "")
+			: p.category === "module" ? (p.modPower > 0 && (!p.ticks || t.ticks) ? "bar1" : "")
 			: p.category === "particle_accelerator" ? (t.heatContained > 0 ? "orb" : "")
 			: venting ? "puff" : "";
 		if (lit !== row.lit) {
 			row.lit = lit;
 			row.glow.className = lit ? `glow ${lit}` : "glow";
-			row.glow.style.setProperty("--tint", p?.type ? `var(--${p.type}, var(--power))` : "");
+			const hue = p?.category === "module" ? p.tint : p?.type;
+			row.glow.style.setProperty("--tint", hue ? `var(--${hue}, var(--power))` : "");
 		}
 
 		const sig = `${t.id}|${t.activated}|${heat}|${life}`;
@@ -652,7 +671,9 @@ export function render(dom, s, game) {
 		const queued = Boolean(t.id) && !t.activated;
 		row.cell.classList.toggle("queued", queued);
 		row.cell.title = queued ? `Waiting for $${fmt(p.cost)}` : "";
-		row.cell.classList.toggle("spent", Boolean(p) && p.category === "cell" && !t.ticks);
+		row.cell.classList.toggle("spent", Boolean(p?.ticks) && (p.category === "cell" || p.category === "module") && !t.ticks);
+		row.cell.classList.toggle("module", p?.category === "module");
+		if (p?.category === "module") row.cell.style.setProperty("--mtint", `var(--${p.tint})`);
 		row.heat.style.width = `${heat}%`;
 		row.cell.style.setProperty("--warm", heat / 100);
 		row.life.style.width = `${life}%`;
@@ -702,6 +723,7 @@ export function render(dom, s, game) {
 			: part.title;
 	}
 	for (const col of dom.dockCols) col.hidden = !col.querySelector(".part:not(.locked)");
+	renderDockModules(dom, s, game);
 	const page = dom.dockPages[dom.dockTab];
 	if (page) page.classList.toggle("more", page.scrollWidth > page.clientWidth + 4);
 	renderPage(dom, s);
@@ -731,6 +753,7 @@ function renderPips(dom, s) {
 function renderPage(dom, s) {
 	renderPips(dom, s);
 	renderObjectives(dom, s);
+	if (dom.page === "modules") renderModules(dom, s, dom.game);
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
 	if (dom.page === "experiments") {
 		dom.epStatus.textContent = s.exoticParticles
@@ -813,4 +836,46 @@ function showGoals(dom) {
 	dom.goalSheet.addEventListener("close",
 		() => dom.objective.setAttribute("aria-expanded", "false"), { once: true });
 	dom.objectiveList.querySelector(".current")?.scrollIntoView({ block: "center" });
+}
+
+/** Modules stay out of sight entirely until the research that opens them. */
+function renderLocks(dom, s) {
+	const open = Boolean(s.modulesUnlocked);
+	if (dom.modulesOpen === open) return;
+	dom.modulesOpen = open;
+	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
+	dom.dockTabs.querySelector('[data-value="Modules"]').hidden = !open;
+	if (!open && dom.page === "modules") {
+		showPage(dom, "reactor");
+		dom.game.viewing("reactor");
+	}
+	if (!open && dom.dockTab === "Modules") showDock(dom, DOCK_TABS[0][0]);
+}
+
+/** The dock's Modules tab: one button per saved design, newest first. */
+function renderDockModules(dom, s, game) {
+	const page = dom.dockPages.Modules;
+	const sig = s.modules.map((m) => m.id).join();
+	if (sig !== dom.dockModSig) {
+		dom.dockModSig = sig;
+		dom.moduleButtons = [...s.modules].reverse().map((m) => {
+			const p = s.stats.get(modId(m));
+			const button = h("button", { className: "part", title: p.title, onclick: () => {
+				game.select(p.id);
+				if (button.classList.contains("poor")) {
+					flash(button, "denied");
+					play("deny");
+				}
+			} }, face(p, "mod-face"), h("em", { textContent: p.short }), h("u", { textContent: fmt(p.cost) }));
+			return { button, p };
+		});
+		page.replaceChildren(...[dom.moduleButtons.length
+			? dom.moduleButtons.map((b) => h("div", { className: "dock-col" }, b.button))
+			: h("p", { className: "empty", textContent: "No designs yet. Make one on the Modules page." })].flat());
+	}
+	for (const { button, p } of dom.moduleButtons) {
+		button.classList.toggle("poor", s.money < p.cost);
+		button.classList.toggle("on", game.selected === p.id);
+		button.setAttribute("aria-pressed", String(game.selected === p.id));
+	}
 }

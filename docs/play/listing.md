@@ -83,6 +83,8 @@ sounds from Kenney. The full lineage is in the game, under Options.
   shimmers near the limit.
 - Cells, vents and accelerators light up while they work.
 - Three pairs of doctrine upgrades - pick one side of each, every run.
+- Modules: design a sealed 3x3 and place it as a single part.
+- The goals are now the operator's log at Harrow Station.
 ```
 
 ## Release notes (500) — version 1.1

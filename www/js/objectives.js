@@ -140,6 +140,9 @@ export const OBJECTIVES = [
 	{ title: "Place an experimental part (Exotic)",
 	  note: "The last crate from the lab came without a manual.", epReward: 10000,
 	  check: (s) => some(s, (p) => p.level === 6) },
+	{ title: "Place a module (Modules)",
+	  note: "The university wants the core in boxes. Design one and put it in.", epReward: 1000,
+	  check: (s) => some(s, (p) => p.category === "module") },
 	{ title: "Nothing left on the list",
 	  note: "The valley has power. Keep it that way.", check: () => false },
 ];

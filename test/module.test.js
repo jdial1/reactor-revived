@@ -179,3 +179,9 @@ test("buying an upgrade re-measures every module", () => {
 	assert.ok(buy(s, "cell_power_uranium"));
 	assert.equal(s.stats.get(modId(m)).modPower, before * 2);
 });
+
+test("a casing never leaks negative heat", () => {
+	const s = unlocked();
+	const p = profile(s, at({ 1: "vent1", 3: "vent1", 4: "uranium1", 5: "vent1", 7: "vent1" }));
+	assert.ok(p.heat >= 0);
+});

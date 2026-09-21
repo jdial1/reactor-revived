@@ -6,6 +6,7 @@ import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet } from "./ui.js";
 import { attachInput } from "./input.js";
+import { saveModule, deleteModule, modId } from "./module.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
@@ -164,6 +165,21 @@ const game = {
 	},
 
 	startTutorial,
+
+	get state() {
+		return s;
+	},
+
+	saveModule(design) {
+		const m = saveModule(s, design);
+		game.selected = modId(m);
+		play("buy");
+	},
+
+	deleteModule(m) {
+		if (!deleteModule(s, m)) return;
+		if (game.selected === modId(m)) game.selected = "uranium1";
+	},
 
 	wipe() {
 		ask("Delete your save and start over?", () => {

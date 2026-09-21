@@ -28,4 +28,5 @@ export function fileFor(part) {
 	return `${CATEGORY[part.category]}_${part.level}`;
 }
 
-export const artFor = (part) => `parts/revival/${fileFor(part)}.png`;
+// A module wears the art of whichever part its designer chose.
+export const artFor = (part) => part.art ?? `parts/revival/${fileFor(part)}.png`;

@@ -105,6 +105,8 @@ const ICONS = {
 	upgrades: [["M8 0 L15 8 h-4 v8 h-6 v-8 h-4 z", null]],
 	// Experiments: a flask.
 	experiments: [["M4 0 h8 v2 h-2 v4 l4 9 v1 h-12 v-1 l4 -9 v-4 h-2 z", null]],
+	// Modules: a casing of nine.
+	modules: [["M1 1 h4 v4 h-4 z M6 1 h4 v4 h-4 z M11 1 h4 v4 h-4 z M1 6 h4 v4 h-4 z M6 6 h4 v4 h-4 z M11 6 h4 v4 h-4 z M1 11 h4 v4 h-4 z M6 11 h4 v4 h-4 z M11 11 h4 v4 h-4 z", null]],
 	// Options: sliders.
 	options: [["M1 2 h14 v2 h-14 z M1 7 h14 v2 h-14 z M1 12 h14 v2 h-14 z", null],
 		["M4 0 h2 v6 h-2 z M10 5 h2 v6 h-2 z M5 10 h2 v6 h-2 z", null]],
