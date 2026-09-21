@@ -166,6 +166,17 @@ It teaches how to do things and never states the rule. The step that used to
 explain why packed cells run hot now asks the player to put two cells together
 and watch the rate line; the square law is theirs to find.
 
+## The operator's log
+
+The thirty goals are a checklist from one place: Harrow Station, a plant cold for
+eleven years above a town that has been on candles since it closed. Each item is
+the job, what it pays, and a one-line note from whoever asked for it - the mill
+wanting a second shift, the clinic keeping its lights on overnight, the
+university that sends an accelerator and stops saying what the particles are
+for. The checks are unchanged; only the reason for them is new. IC2 players ran
+their reactors inside a base they had built, so the reactor had somewhere to
+be. This gives it one.
+
 ## Heat you can see
 
 Heat is shown on the board as well as in the bar:

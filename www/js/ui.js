@@ -199,8 +199,8 @@ export function buildUI(game) {
 	dom.pages.reactor.append(dom.board);
 
 	dom.objectiveList = h("ol", { className: "objectives" });
-	dom.goalSheet = h("dialog", { className: "sheet goals", ariaLabel: "Goals" },
-		h("h2", { textContent: "Goals" }),
+	dom.goalSheet = h("dialog", { className: "sheet goals", ariaLabel: "Operator's log" },
+		h("h2", { textContent: "Harrow Station - operator's log" }),
 		dom.objectiveList,
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dom.goalSheet.close() })));
@@ -486,7 +486,8 @@ function buildUpgrades(dom, game) {
 function buildObjectiveList(dom) {
 	dom.objectiveRows = OBJECTIVES.map((o) => {
 		const row = h("li", {}, h("b", { textContent: o.title }),
-			h("i", { textContent: o.reward ? `$${fmt(o.reward)}` : o.epReward ? `${fmt(o.epReward)} EP` : "" }));
+			h("i", { textContent: o.reward ? `$${fmt(o.reward)}` : o.epReward ? `${fmt(o.epReward)} EP` : "" }),
+			h("small", { textContent: o.note }));
 		dom.objectiveList.append(row);
 		return row;
 	});

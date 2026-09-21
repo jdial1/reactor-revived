@@ -9,7 +9,7 @@ const cell = (p) => p.category === "cell";
 // { target: selector to spotlight or null, title, text, waitFor?: (s) => bool, doing?: what to do }
 export const STEPS = [
 	{ target: null, title: "Welcome to the reactor",
-	  text: "You run a nuclear reactor. Fuel cells make power, which you sell for money, which buys better parts. They also make heat, and heat is what ends reactors. This walks you through every part of it. Skip any time - it lives in Options." },
+	  text: "You run the reactor at Harrow Station, cold for eleven years, and the town below it wants its power back. Fuel cells make power, which you sell for money, which buys better parts. They also make heat, and heat is what ends reactors. This walks you through every part of it. Skip any time - it lives in Options." },
 	{ target: "#grid", title: "The grid",
 	  text: "Twelve rows, eight columns. Tap an empty tile to place the part selected in the dock. Drag to paint a line of them. Long press a part to sell it. Pinch to zoom; double tap to zoom back out." },
 	{ target: ".part.on", title: "Place a fuel cell",
@@ -46,8 +46,8 @@ export const STEPS = [
 	  text: "Parts come in tiers. The strip under a part shows the next tier and how many of the current one you still need to place to unlock it - 0/10 means place ten. Higher tiers hold, vent and produce far more, and cost far more." },
 	{ target: '#tabs button[data-value="upgrades"]', title: "Upgrades",
 	  text: "Upgrades make every part better at once, and they stay through a reboot. The badge shows how many you can afford. Raised rows are affordable, flat ones are not yet, and each row shows the number it changes and what it becomes. Perpetual upgrades rebuy spent cells for you automatically." },
-	{ target: "#goal .objective", title: "Goals",
-	  text: "This line is always your next goal, with a reward in money and a bar when it has a count to reach. Tap it to see every goal. They follow this tutorial's order, then carry on long after it." },
+	{ target: "#goal .objective", title: "The log",
+	  text: "This line is the next job on the operator's log, with what it pays and a bar when it has a count to reach. Tap it to read the whole log - who asked for what, and why. It follows this tutorial's order, then carries on long after it." },
 	{ target: '#tabs button[data-value="experiments"]', title: "Starting over, stronger",
 	  text: "Late on, Particle Accelerators turn heat into Exotic Particles. Rebooting the reactor from Experiments banks them and wipes the board and your money, but the particles buy research that makes the next reactor better than this one could ever be. That is the long game." },
 	{ target: null, title: "That is everything",
