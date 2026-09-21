@@ -319,6 +319,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 .objectives li i { color: var(--cash); font-style: normal; margin-left: 6px; }
 .objectives li small { display: block; font-style: italic; font-size: 11px; opacity: 0.8; }
 .objectives li.done { opacity: 0.45; }
+.objectives li.done :is(b, i) { text-decoration: line-through; }
 .objectives li.current b { color: var(--ink); }
 .objectives li.current::before { box-shadow: inset 0 0 0 1px var(--cash); }
 .objectives li.current small { color: var(--ink); }
