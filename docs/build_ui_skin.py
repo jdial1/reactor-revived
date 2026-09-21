@@ -10,11 +10,9 @@ this one. So only the *shape* is taken: every colour is remapped onto this
 project's own steel ramp by brightness, which keeps Buch's bevels and loses his
 palette.
 
-Output is www/ui/*.png, used by CSS border-image. Three pieces earn their
-place: a button, a panel, and a frame for the meters. Buch's fill bar does not:
-this game paints its meters as a fixed green-amber-red ramp and covers up the
-empty part, so that a colour always means the same share of the bar, and a
-sprite fill would stretch the ramp instead.
+Output is www/ui/*.png, used by CSS border-image: a button, the same button
+pressed, and a panel. The gauges are plain CSS bars inside one panel, the way
+Incremental and Knockoff drew them.
 """
 
 import os
@@ -44,7 +42,6 @@ PIECES = [
     # state for anything skinned - no colour needed to say "this one".
     ("button-on", (138, 138, 158, 158), RAMP, 8),
     ("panel", (82, 69, 127, 86), RAMP, 6),
-    ("meter", (98, 118, 164, 138), RAMP, 8),
 ]
 
 
@@ -94,9 +91,7 @@ def flatten(im, slice_):
     border-image tiles the middle of each edge. Buch drew his bevels with the
     corner highlight running a pixel or two into that middle, so tiling a 4px
     strip that starts with one bright pixel puts a bright pixel every 4px along
-    the top of the button - a dotted line where an unbroken one belongs. The
-    meter frame had it worse: its crop caught the rounded end of the fill, and
-    that notch repeated across the bar.
+    the top of the button - a dotted line where an unbroken one belongs.
 
     Each row of the top and bottom strips, and each column of the left and
     right, is set to the colour that already dominates it. Corners are left

@@ -148,15 +148,16 @@ export function buildUI(game) {
 	const root = document.getElementById("app");
 	root.replaceChildren();
 
-	const meter = (id, glyph, onclick, title) => {
-		// `fill` covers what is *not* full, pinning the colours to their share.
-		const fill = h("i", { className: "unfilled" });
+	// A gauge is a label, a reading and one plain bar - the way Incremental and
+	// Knockoff showed them. The bar is the button.
+	const gauge = (id, label, onclick, title) => {
+		const fill = h("i", {});
 		const text = h("b", {});
-		dom[id] = { fill, text };
-		const el = h("button", { className: `meter ${id}`, onclick, title },
-			fill, icon(glyph, "icon stat"), text);
+		const el = h("button", { className: `gauge ${id}`, onclick, title },
+			h("span", {}, h("small", { textContent: label }), text),
+			h("span", { className: "track" }, fill));
 		el.setAttribute("aria-label", title);
-		dom[id].el = el;
+		dom[id] = { el, fill, text };
 		return el;
 	};
 
@@ -164,9 +165,7 @@ export function buildUI(game) {
 	dom.ep = roller("");
 	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
 	// Money on top, particles under: on one line they read as one long number.
-	dom.purse = h("div", { className: "purse" },
-		h("div", { className: "money-row" }, icon("cash", "icon coin"), dom.money.el),
-		dom.epBox);
+	dom.purse = h("div", { className: "purse" }, dom.money.el, dom.epBox);
 
 	dom.pauseLabel = h("span", {});
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
@@ -284,9 +283,9 @@ export function buildUI(game) {
 	// dock and tabs
 	// Money between the bar that makes it and the bar that threatens it.
 	dom.actions = h("div", { id: "actions" },
-		meter("power", "power", game.sellAll, "Sell all power"),
+		gauge("power", "Power", game.sellAll, "Sell all power"),
 		dom.purse,
-		meter("heat", "heat", game.ventHeat, "Vent heat"));
+		gauge("heat", "Heat", game.ventHeat, "Vent heat"));
 	dom.dock = h("div", { id: "dock", tabIndex: -1 });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => { showPage(dom, id); game.viewing(id); });
 	dom.pips = {};
@@ -340,7 +339,6 @@ function buildDock(dom, game) {
 					if (button.classList.contains("poor")) {
 						flash(button, "denied");
 						play("deny");
-						toast(`${part.title} costs $${fmt(part.cost)}`, "cash");
 					}
 				},
 			}, h("i", { style: `background-image:url(${artFor(part)})` }),
@@ -377,15 +375,10 @@ export function say(text) {
 	if (live) live.textContent = text;
 }
 
-export function floatText(text, anchor, colour) {
-	if (!anchor) return;
-	const box = anchor.getBoundingClientRect();
-	const el = h("span", { className: "floater", textContent: text });
-	el.style.color = colour;
-	el.style.left = `${box.left + box.width / 2}px`;
-	el.style.top = `${box.top + box.height / 4}px`;
-	removeAfter(el, 1500);
-	document.body.append(el);
+/** A goal met is a tick on the goal line, not a toast. */
+export function goalMet(dom, title) {
+	flash(dom.objective, "met");
+	say(`Goal met - ${title}`);
 }
 
 export function toast(text, glyph) {
@@ -396,10 +389,7 @@ export function toast(text, glyph) {
 	say(text);
 }
 
-/**
- * Flash an element to confirm it did something. The class has to come off again:
- * the meter wash has no opacity of its own, so it stayed on as a solid slab.
- */
+/** Flash an element; the class has to come off again for the next one. */
 export const flash = (el, cls) => {
 	if (!el) return;
 	el.classList.remove(cls);
@@ -523,7 +513,7 @@ function buildGrid(dom, s) {
 		// Ninety-six tab stops is not navigation. One way in, arrows to move.
 		cell.tabIndex = t.r === 0 && t.c === 0 ? 0 : -1;
 		dom.grid.append(cell);
-		dom.tiles.push({ t, cell, heat, life, fan, glow, sig: "", had: null, lit: "" });
+		dom.tiles.push({ t, cell, heat, life, fan, glow, sig: "", lit: "" });
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
@@ -553,7 +543,7 @@ export function render(dom, s, game) {
 	dom.shownMoney = gap < 0 || gap < Math.max(1, s.money * 0.01)
 		? s.money
 		: dom.shownMoney + gap * 0.55;
-	dom.money.set(fmt(dom.shownMoney));
+	dom.money.set(`$${fmt(dom.shownMoney)}`);
 	// Pending particles are only worth anything once a reboot banks them.
 	dom.ep.set(s.exoticParticles
 		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
@@ -564,10 +554,10 @@ export function render(dom, s, game) {
 	dom.power.el.setAttribute("aria-label", `Sell all power, ${fmt(s.power)} of ${fmt(s.maxPower)}`);
 	// Power stops accumulating at the cap, so a full bar is output going nowhere.
 	dom.power.el.classList.toggle("full", s.power >= s.maxPower && s.maxPower > 0);
-	dom.power.fill.style.left = `${pct(s.power, s.maxPower)}%`;
+	dom.power.fill.style.width = `${pct(s.power, s.maxPower)}%`;
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
-	dom.heat.fill.style.left = `${pct(s.heat, s.maxHeat)}%`;
+	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
 	if (dom.pauseLabel.textContent !== (s.paused ? "Resume" : "Pause")) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
 		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
@@ -644,8 +634,6 @@ export function render(dom, s, game) {
 		if (sig === row.sig) continue;
 		row.sig = sig;
 
-		if (t.id && t.id !== row.had) flash(row.cell, "placed");
-		row.had = t.id;
 		row.cell.setAttribute("aria-label", p
 			? `row ${t.r + 1} column ${t.c + 1}, ${p.title}${t.activated ? "" : ", unpaid"}`
 			: `row ${t.r + 1} column ${t.c + 1}, empty`);

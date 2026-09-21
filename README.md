@@ -175,9 +175,25 @@ Heat is shown on the board as well as in the bar:
 - The board behind the grid warms toward red with the reactor's heat (`--hot`).
 - Above 80% of maximum the grid shimmers, like air over a hot plate. Past the
   maximum the screen shakes, as before.
-- Everything else goes quiet: toasts, floaters and the sell and vent washes fade
-  with `--quiet`, and the impact sounds drop by up to 60%. At the limit the
-  loudest thing in the game is the reactor.
+- Everything else goes quiet: toasts fade with `--quiet`, and the impact
+  sounds drop by up to 60%. At the limit the loudest thing in the game is the
+  reactor.
+
+Because the reactor now shows what it is doing, the interface stopped repeating
+it. If the board, the hum or a bar already says it, nothing else does: no pop on
+placement, no wash or floating number on a sell or vent, no flash on an upgrade,
+no toast for a goal (a tick appears on the goal line instead) or for a price the
+button already shows. What stays is what the board cannot say - a refused tap
+shakes, a tier unlocking is announced, and a meltdown stops everything.
+
+## Gauges
+
+Power, money and heat sit in one panel with nothing framed inside it. Power
+and heat are a small label, a reading and one plain bar each - how Reactor
+Incremental and Knockoff showed them - and the bar is the button that sells or
+vents. The heat bar reddens past 60%; a full power bar brightens and dims,
+because output going nowhere is worth noticing. Money rolls on digit drums
+behind a single recessed slot, with Exotic Particles as plain text under it.
 
 Parts wear light masks from **Kenney's Light Masks** and **Particle Pack**
 (CC0), six white alpha PNGs in `www/fx/` (6.7 KB), tinted by CSS
@@ -221,7 +237,7 @@ this game does not play.
 
 ## Interface skin
 
-The buttons, dialogs and meter frames are cut from **"Sci-fi User Interface
+The buttons, dialogs and the gauge panel are cut from **"Sci-fi User Interface
 Elements" by Buch** on OpenGameArt, which is **CC0** — the same pack Reactor
 Knockoff drew its buttons from, so this is a lineage inheritance rather than a
 new dependency. Three files in `www/ui/`, 1.4 KB together, applied with CSS

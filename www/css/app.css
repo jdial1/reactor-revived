@@ -27,7 +27,6 @@
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
-	--bar-h: 64px;    /* a meter bar, and the icon that labels it */
 }
 
 * { box-sizing: border-box; }
@@ -67,9 +66,7 @@ button:active { filter: brightness(1.4); }
 /* Skinned from Buch's CC0 sheet by docs/build_ui_skin.py; border-image uses only
    the outer ring, so the files' middles are blank. Opt-in per selector: a dock
    part has no 8px to spare, and the page tabs mark themselves with a border. */
-/* :not(.meter): a meter is a button inside #actions, and an ID selector beats
-   .meter.power - this list was skinning the bars and covering their ramp. */
-#goal .pause, #actions button:not(.meter), #dock-tabs button, .upgrade,
+#goal .pause, #dock-tabs button, .upgrade,
 button.wide, .sheet-actions button, dialog .row button {
 	border: 8px solid var(--edge);
 	background: var(--face) var(--dither);
@@ -117,65 +114,6 @@ a { color: var(--power); }
 	font-size: 11px;
 }
 
-.meter {
-	position: relative;
-	display: block;
-	padding: 0;
-	height: var(--bar-h);
-	background: #0007;
-	/* Padding-box: exactly what .unfilled covers. On border-box the ramp showed
-	   through the frame image's transparent corners. */
-	background-clip: padding-box;
-	border: 8px solid var(--edge);
-	border-image: url(../ui/meter.png) 8 repeat;
-	overflow: hidden;
-}
-.meter .icon.stat {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
-	width: var(--bar-h);
-	height: var(--bar-h);
-	opacity: 0.4;
-}
-
-/* Painted across the whole bar and covered from the right, so a colour always
-   means the same share of it. A growing fill would stretch the ramp. */
-.meter .unfilled {
-	position: absolute;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	background: var(--panel);
-	transition: left 120ms linear;
-}
-/* Segment gaps, over ramp and cover alike; children must be lifted above it. */
-.meter::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: 1;
-	background: repeating-linear-gradient(to right, #0000 0 7px, #0b0d10 7px 10px);
-	pointer-events: none;
-}
-.meter .icon.stat { z-index: 2; }
-.meter b { z-index: 3; }
-.meter.power, .meter.heat {
-	/* background-image, not the shorthand: the shorthand resets the clip above. */
-	background-image: linear-gradient(to right,
-		var(--power) 0 50%, var(--cash) 50% 80%, var(--heat) 80% 100%);
-}
-.meter b {
-	position: absolute;
-	right: 6px;
-	top: 50%;
-	transform: translateY(-50%);
-	font-variant-numeric: tabular-nums;
-	text-shadow: 0 1px 2px #000a;
-}
-
 .purse {
 	display: grid;
 	justify-items: center;
@@ -183,13 +121,9 @@ a { color: var(--power); }
 	gap: 1px;
 	white-space: nowrap;
 }
-.purse .money-row { display: flex; align-items: center; gap: 6px; }
 .cash { color: var(--cash); }
-.purse .cash { font-size: 19px; }
-.purse .icon.coin { width: 19px; height: 19px; }
 .ep { color: var(--ep); font-size: 11px; }
 
-body.hot #actions .readout { box-shadow: 0 0 0 1px var(--heat); }
 body.critical #app { animation: shake 220ms infinite; }
 @keyframes shake {
 	0%, 100% { transform: translate(0, 0); }
@@ -467,19 +401,44 @@ footer {
 #rates .power b { color: var(--power); }
 #rates .heat b { color: var(--heat); }
 
-#actions { display: flex; align-items: center; gap: 6px; padding: 4px; }
-#actions .meter { flex: 1; min-width: 0; }
-#actions .purse {
-	flex: none;
-	align-self: stretch;
-	padding: 0 4px;
+/* One frame, three readouts, no frames inside it. Incremental and Knockoff
+   showed power, money and heat as a label, a number and a plain bar. */
+#actions {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	margin: 4px;
 	background: var(--face) var(--dither);
 	border: 6px solid var(--edge);
 	border-image: url(../ui/panel.png) 6 repeat;
 	image-rendering: pixelated;
 }
+.gauge {
+	display: grid;
+	gap: 4px;
+	min-width: 0;
+	padding: 4px 6px;
+	font: inherit;
+	color: var(--ink);
+	text-align: left;
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+.gauge > span:first-child { display: flex; justify-content: space-between; gap: 6px; white-space: nowrap; }
+.gauge small { color: var(--dim); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.gauge b { font-weight: normal; font-size: 11px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+.gauge .track { display: block; height: 6px; background: #07090c; box-shadow: inset 0 0 0 1px var(--edge); }
+.gauge .track i { display: block; height: 100%; width: 0; transition: width 120ms linear; }
+.gauge.power .track i { background: var(--power); }
+/* Heat reddens as it nears the limit; the board says the rest. */
+.gauge.heat .track i { background: color-mix(in srgb, var(--heat), #ff3b2f clamp(0%, (var(--hot, 0) - 0.6) * 250%, 100%)); }
+/* Power is capped: what the reactor makes now goes nowhere until it is sold. */
+.gauge.full .track i { animation: brim 1.4s ease-in-out infinite; }
+@keyframes brim { 50% { filter: brightness(1.6); } }
+.purse { padding: 0 8px; border-inline: 1px solid var(--edge); }
 #dock-tabs { display: flex; gap: 3px; }
-#actions button, #dock-tabs button {
+#dock-tabs button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -489,7 +448,6 @@ footer {
 	font-size: 11px;
 	color: var(--dim);
 }
-#actions button { color: var(--ink); }
 #dock-tabs button.on {
 	color: var(--ink);
 	border-image-source: url(../ui/button-on.png);
@@ -660,7 +618,6 @@ dialog .row button { flex: 1; padding: 10px; }
 
 /* feedback */
 
-.tile.placed { animation: pop 220ms ease-out; }
 @keyframes pop {
 	0% { transform: scale(0.7); filter: brightness(1.8); }
 	60% { transform: scale(1.08); }
@@ -673,37 +630,7 @@ dialog .row button { flex: 1; padding: 10px; }
 	30% { box-shadow: 0 0 0 2px var(--power), 0 0 12px 2px var(--power); }
 }
 
-.meter.sold::before, .meter.vented::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: 4;
-	pointer-events: none;
-	/* forwards as well as the class removal in flash(): if the animation never runs,
-	   the last frame is what shows, and it has to be invisible. */
-	animation: wash 320ms ease-out forwards;
-}
-.meter.sold::before { background: var(--power); }
-.meter.vented::before { background: var(--coolant, #4aa8d8); }
-@keyframes wash { from { opacity: 0.55; } to { opacity: 0; } }
-
-.upgrade.bought { animation: earned 600ms ease-out; }
-
-.floater, #toast, .meter::before { filter: opacity(var(--quiet, 1)); }
-.floater {
-	position: fixed;
-	z-index: 50;
-	pointer-events: none;
-	font-variant-numeric: tabular-nums;
-	font-weight: bold;
-	text-shadow: 0 1px 3px #000;
-	animation: rise 900ms ease-out forwards;
-}
-@keyframes rise {
-	from { transform: translate(-50%, 0); opacity: 1; }
-	to { transform: translate(-50%, -34px); opacity: 0; }
-}
-
+#toast { filter: opacity(var(--quiet, 1)); }
 #toast {
 	position: fixed;
 	left: 50%;
@@ -850,13 +777,6 @@ body.melting { animation: melting 500ms ease-out; }
 	.upgrade.preview { opacity: 1; }
 }
 
-/* Power is capped: what the reactor makes now goes nowhere until it is sold. */
-.meter.full { animation: brim 1.4s ease-in-out infinite; }
-@keyframes brim {
-	0%, 100% { box-shadow: inset 0 0 0 0 #0000; }
-	50% { box-shadow: inset 0 0 12px 2px var(--power); }
-}
-
 /* There are more part families to the right than fit. */
 .dock-page.more { -webkit-mask-image: linear-gradient(to right, #000 88%, #0006); mask-image: linear-gradient(to right, #000 88%, #0006); }
 
@@ -873,23 +793,21 @@ body.melting { animation: melting 500ms ease-out; }
 	overflow: hidden;
 	font-style: normal;
 }
-/* A digit sits in its own window, the way a counter's drum shows through the
-   plate in front of it. Only digits - the separators and the units are print -
-   and only on the money, which is the one readout with the height for a frame;
-   at the EP line's 11px the border and the shading eat the glyph. */
-.roll.cash .wheel.digit {
-	padding: 2px 3px;
+/* The money reads through one recessed strip, the way a counter's drums show
+   through a slot in the plate - one frame, not one per digit. */
+.roll.cash {
+	position: relative;
+	padding: 3px 5px;
 	background: #07090c;
-	border: 1px solid var(--edge);
-	border-radius: 1px;
+	box-shadow: inset 0 0 0 1px var(--edge);
 }
-/* The drum is round, so the digit falls into shadow as it turns away. */
-.roll.cash .wheel.digit::after {
+/* The drums are round, so the digits fall into shadow top and bottom. */
+.roll.cash::after {
 	content: "";
 	position: absolute;
 	inset: 0;
 	pointer-events: none;
-	background: linear-gradient(#000c, #0000 38%, #0000 62%, #000c);
+	background: linear-gradient(#000b, #0000 35%, #0000 65%, #000b);
 }
 .roll .wheel b {
 	display: block;
@@ -898,7 +816,7 @@ body.melting { animation: melting 500ms ease-out; }
 	font-weight: inherit;
 	transition: transform 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
-.purse .cash { font-size: 19px; color: var(--cash); }
+.purse .cash { font-size: 17px; color: var(--cash); }
 
 /* Tutorial. The overlay takes no taps - the game underneath has to stay playable
    for the steps that wait on it - except on the card itself. */
@@ -935,3 +853,11 @@ body.melting { animation: melting 500ms ease-out; }
 .tut-row button { flex: 1; padding: 8px 4px; }
 .tut-row .tut-skip { color: var(--dim); }
 .tut-row button:disabled { opacity: 0.55; }
+
+/* A goal met: a tick at the start of the goal line, then gone. */
+#goal .objective.met::before {
+	content: "\2713\00a0";
+	color: var(--power);
+	animation: met 1.6s ease-out forwards;
+}
+@keyframes met { 70% { opacity: 1; } to { opacity: 0; } }

@@ -2,10 +2,9 @@
 import { load, save, newState, place, exportSave as saveText, deserialize } from "./state.js";
 import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
-import { buy as buyUpgrade, reboot as rebootState, UPGRADE_BY_ID } from "./upgrades.js";
+import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
-import { fmt } from "./fmt.js";
-import { buildUI, render, ask, inspect, flash, floatText, toast } from "./ui.js";
+import { buildUI, render, ask, inspect, flash, toast, goalMet } from "./ui.js";
 import { attachInput } from "./input.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
@@ -85,13 +84,10 @@ const game = {
 			// It used to say nothing at all, which reads as a tap that missed.
 			flash(row?.button, "denied");
 			play("deny");
-			const u = UPGRADE_BY_ID.get(id);
-			toast(`Costs ${u?.ecost ? `${fmt(row.price)} EP` : `$${fmt(row.price)}`}`, u?.ecost ? "experiments" : "cash");
 			return;
 		}
 		compile(s);
 		play("buy");
-		flash(row?.button, "bought");
 	},
 
 	reboot(refund) {
@@ -103,13 +99,10 @@ const game = {
 
 	sellAll() {
 		if (s.power <= 0) return;         // nothing to sell; do not flash a lie
-		const earned = s.power;
-		s.money += earned;
+		s.money += s.power;
 		s.power = 0;
 		s.soldPower = true;
 		play("coin");
-		flash(dom.power.el, "sold");
-		floatText(`+${fmt(earned)}`, dom.power.el, "var(--cash)");
 	},
 
 	ventHeat() {
@@ -118,8 +111,6 @@ const game = {
 		s.heat -= shed;
 		if (s.heat === 0) s.soldHeat = true;
 		play("vent");
-		flash(dom.heat.el, "vented");
-		floatText(`-${fmt(shed)}`, dom.heat.el, "var(--heat)");
 	},
 
 	// The board is empty, so there is nothing left making heat to watch cool.
@@ -208,7 +199,7 @@ setInterval(() => {
 setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
 	const done = OBJECTIVES[s.objective];
-	if (checkObjectives(s)) toast(`Goal met - ${done.title}`, "goals");
+	if (checkObjectives(s)) goalMet(dom, done.title);
 }, OBJECTIVE_MS);
 setInterval(() => save(s), SAVE_MS);
 

@@ -66,18 +66,6 @@ const OUTLET = [
 	"..####..",
 ];
 
-// From img/icon_cash.gif: a coin, not a dollar sign.
-const COIN = [
-	"...##...",
-	"..#AA#..",
-	".#AAAA#.",
-	".#AA##..",
-	"..#AAA#.",
-	".#AAAA#.",
-	"..#AA#..",
-	"...##...",
-];
-
 // From img/icon_heat.gif: a fire seen head on, not a teardrop.
 const FLAME = [
 	"..#.....",
@@ -102,7 +90,6 @@ const ICONS = {
 		[grid(FLAME, "D"), "#ffff00"],
 	],
 
-	cash: [[grid(COIN, "#"), OUTLINE], [grid(COIN, "A"), "#00c000"]],
 
 	vent: [[grid(FAN, "#"), OUTLINE], [grid(FAN, "A"), "#c0c0c0"], [grid(FAN, "B"), "#808080"]],
 	inlet: [[grid(INLET, "#"), OUTLINE], [grid(INLET, "A"), "#ff8a00"], [grid(INLET, "B"), "#ff4e00"]],
@@ -118,8 +105,6 @@ const ICONS = {
 	upgrades: [["M8 0 L15 8 h-4 v8 h-6 v-8 h-4 z", null]],
 	// Experiments: a flask.
 	experiments: [["M4 0 h8 v2 h-2 v4 l4 9 v1 h-12 v-1 l4 -9 v-4 h-2 z", null]],
-	// Goals: a tick.
-	goals: [["M2 8 l2 -2 l3 3 l7 -7 l2 2 l-9 9 z", null]],
 	// Options: sliders.
 	options: [["M1 2 h14 v2 h-14 z M1 7 h14 v2 h-14 z M1 12 h14 v2 h-14 z", null],
 		["M4 0 h2 v6 h-2 z M10 5 h2 v6 h-2 z M5 10 h2 v6 h-2 z", null]],
