@@ -1004,3 +1004,22 @@ body.melting { animation: melting 500ms ease-out; }
 	background: center / contain no-repeat;
 	image-rendering: pixelated;
 }
+
+/* Layout codes. */
+textarea.code {
+	display: block;
+	width: 100%;
+	margin: 8px 0;
+	padding: 8px;
+	font: 11px/1.3 inherit;
+	font-family: inherit;
+	color: var(--ink);
+	background: #07090c;
+	border: 1px solid var(--edge);
+	word-break: break-all;
+	resize: none;
+	user-select: text;
+	-webkit-user-select: text;
+}
+dialog .note { margin: 0 0 8px; color: #d87a7a; }
+dialog .note:empty { display: none; }

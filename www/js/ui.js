@@ -241,6 +241,8 @@ export function buildUI(game) {
 				h("button", { className: "wide", textContent: "Export save to a file", onclick: game.exportSave }),
 				h("button", { className: "wide", textContent: "Import save from a file", onclick: game.importSave }),
 			] : []),
+			h("button", { className: "wide", textContent: "Copy layout code", onclick: () => showCode(game.layoutCode()) }),
+			h("button", { className: "wide", textContent: "Build from a layout code", onclick: () => askCode(game.buildLayout) }),
 			h("button", {
 				className: "wide",
 				textContent: game.muted ? "Sound: off" : "Sound: on",
@@ -426,6 +428,55 @@ function meltdownNotice(onAcknowledge) {
 }
 
 /** A modal question. Replaces confirm(), which Android renders as a system dialog. */
+/** The board as a code, selected and ready to copy. */
+function showCode(code) {
+	const box = h("textarea", { className: "code", readOnly: true, value: code, rows: 5 });
+	const copy = h("button", { textContent: "Copy", onclick: async () => {
+		box.select();
+		try {
+			await navigator.clipboard.writeText(code);
+			copy.textContent = "Copied";
+		} catch {
+			// No clipboard access: the text is selected, so a long press copies it.
+			copy.textContent = "Selected - copy it";
+		}
+	} });
+	const dialog = h("dialog", { className: "sheet", ariaLabel: "Layout code" },
+		h("h2", { textContent: "Layout code" }),
+		h("i", { textContent: "The whole board, and any module designs on it. Paste it into Build from a layout code - here or in anyone's game." }),
+		box,
+		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() }), copy));
+	dialog.addEventListener("close", () => dialog.remove());
+	document.body.append(dialog);
+	dialog.showModal();
+	box.select();
+}
+
+/** Paste a code and build it; `build` returns what happened, in words. */
+function askCode(build) {
+	const box = h("textarea", { className: "code", rows: 5, placeholder: "RR1..." });
+	const note = h("p", { className: "note" });
+	const dialog = h("dialog", { className: "sheet", ariaLabel: "Build from a layout code" },
+		h("h2", { textContent: "Build from a layout code" }),
+		h("i", { textContent: "Fills empty tiles only. Parts you cannot afford yet wait for the money; parts you have not unlocked are left out." }),
+		box, note,
+		h("div", { className: "row" },
+			h("button", { textContent: "Cancel", onclick: () => dialog.close() }),
+			h("button", { textContent: "Build", onclick: () => {
+				const said = build(box.value);
+				if (said === null) {
+					note.textContent = "That is not a layout code.";
+					return;
+				}
+				dialog.close();
+				toast(said, "reactor");
+			} })));
+	dialog.addEventListener("close", () => dialog.remove());
+	document.body.append(dialog);
+	dialog.showModal();
+	box.focus();
+}
+
 export function ask(question, onYes, yes = "Do it") {
 	const dialog = h("dialog", { className: "ask", ariaLabel: question },
 		h("p", { textContent: question }),

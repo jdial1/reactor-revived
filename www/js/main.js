@@ -8,6 +8,7 @@ import { buildUI, render, ask, inspect, flash, toast, goalMet } from "./ui.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId } from "./module.js";
+import { layoutCode, readLayout, applyLayout, describe } from "./layout.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
@@ -169,6 +170,17 @@ const game = {
 
 	get state() {
 		return s;
+	},
+
+	layoutCode: () => layoutCode(s),
+
+	/** Build a pasted code onto the board; null when it is not a code. */
+	buildLayout(code) {
+		const layout = readLayout(code);
+		if (!layout) return null;
+		const said = describe(applyLayout(s, layout));
+		play("place");
+		return said;
 	},
 
 	saveModule(design) {
