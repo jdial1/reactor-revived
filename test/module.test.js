@@ -235,3 +235,20 @@ test("modules open after the fifth goal, with no research", async () => {
 	assert.equal(modulesOpen(s), true);
 	assert.equal(isPartVisible(s, s.stats.get(modId(m))), true);
 });
+
+test("a module's heat bar is the average fill of the parts inside", async () => {
+	const { heatFill } = await import("../www/js/module.js");
+	const s = unlocked();
+	const layout = at({ 3: "vent1", 4: "uranium1", 5: "vent1" });
+	const m = saveModule(s, { name: "Pair", icon: "vent1", tint: "uranium", layout });
+	place(s, 0, 0, modId(m));
+	const t = tileAt(s, 0, 0);
+	assert.equal(heatFill(s, t), 0);
+	tick(s);
+	const [a, b] = [t.inner.tiles[3], t.inner.tiles[5]];
+	const cap = s.stats.get("vent1").containment;
+	assert.equal(heatFill(s, t), (a.heatContained / cap + b.heatContained / cap) / 2);
+	// Survives a save, before the casing has ticked again.
+	const back = deserialize(JSON.parse(JSON.stringify(serialize(s))), () => 1);
+	assert.equal(heatFill(back, tileAt(back, 0, 0)), heatFill(s, t));
+});

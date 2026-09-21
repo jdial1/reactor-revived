@@ -8,7 +8,7 @@ import { artFor } from "./art.js";
 import { icon } from "./icons.js";
 import { play, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
-import { modId } from "./module.js";
+import { modId, heatFill } from "./module.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -452,6 +452,7 @@ export function inspect(s, t, sell) {
 		["Heat", t.heat ? fmt(t.heat) : null],
 		["Life", p.ticks ? `${fmt(t.ticks)} / ${fmt(p.ticks)}` : null],
 		["Heat held", p.containment ? `${fmt(t.heatContained)} / ${fmt(p.containment)}` : null],
+		["Parts full", p.category === "module" ? `${Math.round(heatFill(s, t) * 100)}% on average` : null],
 		["Vents", p.vent ? `${fmt(p.vent)}/tick` : null],
 		["Transfers", p.transfer ? `${fmt(p.transfer)}/tick` : null],
 		["Max power", p.reactorPower ? `+${fmt(p.reactorPower)}` : null],
@@ -669,7 +670,8 @@ export function render(dom, s, game) {
 	for (const row of dom.tiles) {
 		const { t } = row;
 		const p = t.id ? s.stats.get(t.id) : null;
-		const heat = p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
+		const heat = p?.category === "module" ? quant(heatFill(s, t) * 100)
+			: p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
 		const venting = Boolean(p?.vent) && t.vented > 0;
 		row.fan.classList.toggle("spinning", venting);

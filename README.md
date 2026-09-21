@@ -211,7 +211,9 @@ make, and **Casing Tolerances** raises that to 60%. **Nested Casings** lets a
 module hold modules, one layer deeper per level, and each layer takes its own
 cut - at 60%, a module inside a module passes on 36% of its power. Heat is never
 cut, however deep. A spent module rebuys itself when every fuel inside it is
-perpetual, and a module whose inside part fails blows as a whole.
+perpetual, and a module whose inside part fails blows as a whole. Its tile carries a
+heat bar like any other part: the average fill of everything inside that holds
+heat, nested casings included, so a casing warns before it goes.
 
 The editor measures a design twice - beside a cold reactor, and beside one held
 at its base maximum heat, where an outlet has the most to pull - for up to 2,000

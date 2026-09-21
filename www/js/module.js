@@ -94,6 +94,30 @@ export function stepModule(s, t, p) {
 	};
 }
 
+/**
+ * How full a placed module's parts are, as one fraction: the average fill of
+ * everything inside that holds heat, nested casings included. The tile's heat
+ * bar, so a casing warns before it goes like any other part.
+ */
+export function heatFill(s, t) {
+	const tiles = t.inner?.tiles ?? (t.saved && innerTiles(s, s.stats.get(t.id).module.layout)
+		.map((x, i) => ({ ...x, heatContained: t.saved[i][1] })));
+	if (!tiles) return 0;
+	let sum = 0;
+	let n = 0;
+	for (const x of tiles) {
+		const p = x.id && s.stats.get(x.id);
+		if (p?.category === "module") {
+			sum += heatFill(s, x);
+			n++;
+		} else if (p?.containment) {
+			sum += Math.min(1, x.heatContained / p.containment);
+			n++;
+		}
+	}
+	return n ? sum / n : 0;
+}
+
 /** A placed module's inner parts, for the save: [ticks, heat held] per slot. */
 export const innerSave = (t) => t.inner?.tiles.map((x) => [x.ticks, x.heatContained]) ?? t.saved ?? undefined;
 
