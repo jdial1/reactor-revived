@@ -199,8 +199,15 @@ export function buildUI(game) {
 	dom.pages.reactor.append(dom.board);
 
 	dom.objectiveList = h("ol", { className: "objectives" });
+	// Finished jobs fold into one line; what comes after the current one stays
+	// unwritten until it is the current one.
+	dom.doneToggle = h("button", { className: "done-toggle", ariaExpanded: "false", onclick: () => {
+		const open = dom.objectiveList.classList.toggle("open");
+		dom.doneToggle.setAttribute("aria-expanded", String(open));
+	} });
 	dom.goalSheet = h("dialog", { className: "sheet goals", ariaLabel: "Operator's log" },
 		h("h2", { textContent: "Harrow Station - operator's log" }),
+		dom.doneToggle,
 		dom.objectiveList,
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dom.goalSheet.close() })));
@@ -793,6 +800,9 @@ function renderUpgrades(dom, s) {
 }
 
 function renderObjectives(dom, s) {
+	const done = Math.min(s.objective, OBJECTIVES.length - 1);
+	dom.doneToggle.hidden = !done;
+	dom.doneToggle.textContent = `${done} ${done === 1 ? "job" : "jobs"} done`;
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("done", i < s.objective));
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
 }
