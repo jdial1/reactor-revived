@@ -107,7 +107,8 @@ its own cell), then capacitors and reflectors, vents, coolant and plating, and
 exchangers, inlets and outlets - the dock's own families - then doctrines. The
 research page uses the same headings, plus the laboratory, modules, particle
 accelerators and the experimental parts. A heading with nothing under it yet
-is not shown.
+is not shown. Each heading folds its section away, and carries a count of what
+in it you can afford right now, so a folded section still says when to open it.
 
 Every other upgrade makes a number bigger. These change the shape of a good
 layout, so they are what a second reactor does differently from the first.

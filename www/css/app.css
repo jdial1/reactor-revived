@@ -967,20 +967,38 @@ body.melting { animation: melting 500ms ease-out; }
 
 /* Upgrade sections: what an upgrade acts on, as Incremental and Knockoff grouped them. */
 .upgrade-section { margin-bottom: 10px; }
-.upgrade-section h3 {
+.upgrade-section h3 { margin: 4px 0 6px; font: inherit; }
+.section-head {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	margin: 4px 0 6px;
+	width: 100%;
+	padding: 4px 2px;
 	font-size: 10px;
-	font-weight: normal;
 	color: var(--dim);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
+	text-align: left;
+	background: none;
+	border: 0;
 	border-bottom: 1px solid var(--edge);
-	padding-bottom: 3px;
+	border-radius: 0;
 }
-.upgrade-section h3 i {
+.section-head::before { content: "\25BE"; width: 1em; }
+.section-head[aria-expanded="false"]::before { content: "\25B8"; }
+.section-head .count {
+	margin-left: auto;
+	min-width: 18px;
+	padding: 1px 5px;
+	font-weight: normal;
+	text-align: center;
+	color: #07090c;
+	background: var(--cash);
+	border-radius: 999px;
+}
+.section-head .count:empty { display: none; }
+#page-experiments .section-head .count { background: var(--ep); }
+.section-head i {
 	width: 16px;
 	height: 16px;
 	background: center / contain no-repeat;

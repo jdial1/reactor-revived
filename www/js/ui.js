@@ -493,12 +493,19 @@ function buildUpgrades(dom, game) {
 		for (const [id, title, fuel] of SECTIONS) {
 			if (!UPGRADES.some((u) => Boolean(u.ecost) === experiments && sectionOf(u) === id)) continue;
 			const list = h("div", { className: "upgrades" });
-			const head = h("h3", { className: "section" },
-				fuel ? h("i", { style: `background-image:url(${artFor(PART_BY_ID.get(`${fuel}1`))})` }) : "",
-				h("span", { textContent: title }));
-			const el = h("section", { className: "upgrade-section" }, head, list);
+			// The heading folds its section away; the count says what is in there
+			// to buy, so a folded section still speaks up.
+			const count = h("b", { className: "count" });
+			const head = h("button", { className: "section-head", ariaExpanded: "true", onclick: () => {
+				const open = list.hidden;
+				list.hidden = !open;
+				head.setAttribute("aria-expanded", String(open));
+			} },
+			fuel ? h("i", { style: `background-image:url(${artFor(PART_BY_ID.get(`${fuel}1`))})` }) : "",
+			h("span", { textContent: title }), count);
+			const el = h("section", { className: "upgrade-section" }, h("h3", {}, head), list);
 			(experiments ? dom.experimentList : dom.upgradeList).append(el);
-			const entry = { el, list, rows: [] };
+			const entry = { el, list, count, rows: [] };
 			dom.upgradeSections.push(entry);
 			sectionFor.set(`${experiments}:${id}`, entry);
 		}
@@ -833,7 +840,12 @@ function renderUpgrades(dom, s) {
 	}
 
 	// A section with nothing showing is not a heading over nothing.
-	for (const section of dom.upgradeSections) section.el.hidden = section.rows.every((r) => r.button.hidden);
+	for (const section of dom.upgradeSections) {
+		section.el.hidden = section.rows.every((r) => r.button.hidden);
+		const n = section.rows.filter((r) => buyable.includes(r)).length;
+		section.count.textContent = n ? String(n) : "";
+		section.count.title = n ? `${n} affordable` : "";
+	}
 }
 
 function renderObjectives(dom, s) {
