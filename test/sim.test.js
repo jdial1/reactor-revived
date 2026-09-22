@@ -1063,3 +1063,28 @@ test("an exchanger feeds the vents around it evenly, whatever side they are on (
 	const given = [[4, 5], [5, 4], [5, 6], [6, 5]].map(([r, c], i) => tileAt(s, r, c).heatContained + tileAt(s, r, c).vented - before[i]);
 	for (const g of given) assert.ok(Math.abs(g - given[0]) < 1e-9, `uneven: ${given}`);
 });
+
+test("heat made is what the cells make, never less than zero", () => {
+	const s = rich();
+	put(s, 5, 3, "uranium1");
+	put(s, 5, 4, "uranium1");
+	for (const [r, c] of [[4, 3], [6, 3], [4, 4], [6, 4], [5, 2], [5, 5]]) put(s, r, c, "vent1");
+	compile(s);
+	tick(s);
+	// Two touching uranium cells: each pulses twice, heat 4 apiece.
+	assert.equal(s.rate.heat, 8);
+	assert.equal(tileAt(s, 5, 3).made, 4);
+	// Each vent took its share in, and says so.
+	assert.ok(tileAt(s, 4, 3).heatIn > 0);
+});
+
+test("an exchanger's flows add up: what it takes in, it passes on or keeps", () => {
+	const s = rich();
+	const x = put(s, 5, 5, "heat_exchanger1");
+	for (const [r, c] of [[4, 5], [5, 4], [5, 6], [6, 5]]) put(s, r, c, "vent1");
+	compile(s);
+	x.heatContained = 8;
+	tick(s);
+	const given = [[4, 5], [5, 4], [5, 6], [6, 5]].reduce((a, [r, c]) => a + tileAt(s, r, c).heatIn, 0);
+	assert.equal(x.heatOut, given);
+});

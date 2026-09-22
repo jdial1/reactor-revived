@@ -58,6 +58,9 @@ export function newState(random = Math.random) {
 		// Saved designs, oldest first. A design only ever holds older ones.
 		modules: [],
 		nextModuleId: 1,
+		// A save state per goal finished, and the example layouts already shown.
+		snapshots: [],
+		lessonsSeen: [],
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -85,6 +88,8 @@ export function serialize(s) {
 		placed: s.placed,
 		modules: s.modules,
 		nextModuleId: s.nextModuleId,
+		snapshots: s.snapshots,
+		lessonsSeen: s.lessonsSeen,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -109,6 +114,8 @@ export function deserialize(saved, random = Math.random) {
 	Object.assign(s.placed, saved.placed);
 	s.modules = saved.modules ?? [];
 	s.nextModuleId = saved.nextModuleId ?? s.modules.length + 1;
+	s.snapshots = saved.snapshots ?? [];
+	s.lessonsSeen = saved.lessonsSeen ?? [];
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

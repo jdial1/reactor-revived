@@ -1,7 +1,7 @@
 // Layout codes: a whole board as a line of text, the way IC2 planner links let
 // players pass designs around. A code carries every module design its board
 // uses, so it builds the same reactor in anyone's game.
-import { tileAt } from "./sim.js";
+import { tileAt, sellValue, remove, countPlaced, compile } from "./sim.js";
 import { place } from "./state.js";
 import { isPartVisible } from "./parts.js";
 import { modId, moduleOf, saveModule } from "./module.js";
@@ -90,3 +90,31 @@ export const describe = (r) => [
 	r.locked && `${r.locked} not unlocked yet`,
 	r.taken && `${r.taken} tiles already taken`,
 ].filter(Boolean).join(", ") || "Nothing to build - the board already matches";
+
+/**
+ * What replacing every `from` on the board with `to` costs: the new parts at
+ * list price, less what the old ones sell back for.
+ */
+export function replaceQuote(s, from, to) {
+	const tiles = s.tiles.filter((t) => t.id === from);
+	const cost = tiles.length * s.stats.get(to).cost;
+	const refund = tiles.reduce((a, t) => a + sellValue(s, t), 0);
+	return { count: tiles.length, cost, refund, net: cost - refund };
+}
+
+/** Replace every `from` with `to`, all or nothing: false if it cannot be paid for. */
+export function replaceAll(s, from, to) {
+	const q = replaceQuote(s, from, to);
+	if (!q.count || s.money < q.net) return false;
+	const p = s.stats.get(to);
+	s.money -= q.net;
+	for (const t of s.tiles) {
+		if (t.id !== from) continue;
+		s.queue = s.queue.filter((x) => x !== t);
+		remove(s, t);
+		Object.assign(t, { id: to, activated: true, ticks: p.ticks ?? 0, heatContained: 0 });
+		countPlaced(s, to);
+	}
+	compile(s);
+	return true;
+}

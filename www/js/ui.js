@@ -10,6 +10,10 @@ import { play, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
 import { span } from "./flux.js";
+import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog } from "./tools-ui.js";
+import { snapshotFor } from "./snapshots.js";
+import { LESSON_AT } from "./lessons.js";
+import { tutorialActive } from "./tutorial.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -318,7 +322,7 @@ export function buildUI(game) {
 		const button = [...dom.tabs.children].find((b) => b.dataset.value === id);
 		dom.pips[id] = button.appendChild(h("span", { className: `pip ${id}`, hidden: true }));
 	}
-	root.append(h("footer", {}, dom.rateBar, dom.actions, dom.dock, dom.tabs));
+	root.append(h("footer", {}, buildVerdict(dom, game), dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	dom.game = game;
 	buildDock(dom, game);
@@ -533,6 +537,8 @@ export function inspect(s, t, sell) {
 		})) : "",
 		h("dl", {}, rows.filter(([, v]) => v !== null).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "sheet-actions" }, [
+			h("button", { textContent: sameKind > 1 ? `Replace or upgrade all ${sameKind}` : "Replace or upgrade",
+				onclick: () => { dialog.close(); replaceDialog(s, p, sell.game); } }),
 			h("button", { className: "danger", textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
 			sameKind > 1 && h("button", { className: "danger", textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
 			// One tap that empties the board deserves a second one.
@@ -598,10 +604,14 @@ function buildUpgrades(dom, game) {
 }
 
 function buildObjectiveList(dom) {
-	dom.objectiveRows = OBJECTIVES.map((o) => {
+	dom.objectiveRows = OBJECTIVES.map((o, i) => {
+		const load = h("button", { className: "snap", textContent: "Saved - load", hidden: true });
+		const lesson = LESSON_AT[i] && h("button", { className: "snap", textContent: "See an example layout",
+			onclick: () => lessonDialog(dom.game.state, LESSON_AT[i], dom.game) });
 		const row = h("li", {}, h("b", { textContent: o.title }),
 			h("i", { textContent: o.reward ? `$${fmt(o.reward)}` : o.epReward ? `${fmt(o.epReward)} EP` : "" }),
-			h("small", { textContent: o.note }));
+			h("small", { textContent: o.note }), lesson || "", load);
+		row.load = load;
 		dom.objectiveList.append(row);
 		return row;
 	});
@@ -622,13 +632,14 @@ function buildGrid(dom, s) {
 		const fan = h("i", { className: "fan" });
 		// A light mask over the art: what the part is doing, rather than a number.
 		const glow = h("i", { className: "glow" });
-		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, glow, fan, heat, life);
+		const flow = h("i", { className: "flow" });
+		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, glow, fan, heat, life, flow);
 		cell.setAttribute("role", "gridcell");
 		cell.setAttribute("aria-label", `row ${t.r + 1} column ${t.c + 1}, empty`);
 		// Ninety-six tab stops is not navigation. One way in, arrows to move.
 		cell.tabIndex = t.r === 0 && t.c === 0 ? 0 : -1;
 		dom.grid.append(cell);
-		dom.tiles.push({ t, cell, heat, life, fan, glow, sig: "", lit: "" });
+		dom.tiles.push({ t, cell, heat, life, fan, glow, flow, sig: "", lit: "" });
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
@@ -726,6 +737,9 @@ export function render(dom, s, game) {
 
 	if (!dom.tiles) buildGrid(dom, s);
 	renderLocks(dom, s);
+	renderVerdict(dom, s);
+	dom.flowOn = document.body.classList.contains("flow");
+	renderLesson(dom, s, game);
 
 	if (dom.page !== "reactor") {
 		renderPage(dom, s);
@@ -747,6 +761,10 @@ export function render(dom, s, game) {
 		const heat = p?.category === "module" ? quant(heatFill(s, t) * 100)
 			: p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
+		if (dom.flowOn) {
+			const text = flowText(t, p);
+			if (row.flow.textContent !== text) row.flow.textContent = text;
+		}
 		const venting = Boolean(p?.vent) && t.vented > 0;
 		row.fan.classList.toggle("spinning", venting);
 		const lit = !p || !t.activated ? ""
@@ -928,7 +946,12 @@ function renderObjectives(dom, s) {
 	const done = Math.min(s.objective, OBJECTIVES.length - 1);
 	dom.doneToggle.hidden = !done;
 	dom.doneToggle.textContent = `${done} ${done === 1 ? "job" : "jobs"} done`;
-	dom.objectiveRows.forEach((row, i) => row.classList.toggle("done", i < s.objective));
+	dom.objectiveRows.forEach((row, i) => {
+		row.classList.toggle("done", i < s.objective);
+		const snap = i < s.objective && snapshotFor(s, i);
+		row.load.hidden = !snap;
+		if (snap) row.load.onclick = () => snapshotDialog(s, snap, dom.game);
+	});
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
 }
 
@@ -985,4 +1008,13 @@ function renderDockModules(dom, s, game) {
 		button.classList.toggle("on", game.selected === p.id);
 		button.setAttribute("aria-pressed", String(game.selected === p.id));
 	}
+}
+
+/** An example layout, shown once, when the goal it belongs to becomes the next job. */
+function renderLesson(dom, s, game) {
+	const name = LESSON_AT[s.objective];
+	if (!name || s.planner || s.lessonsSeen.includes(name) || tutorialActive()) return;
+	if (document.querySelector("dialog[open]")) return;
+	s.lessonsSeen.push(name);
+	lessonDialog(s, name, game);
 }

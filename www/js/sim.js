@@ -141,6 +141,7 @@ export function compile(s) {
 		}
 		t.power *= 1 + powerBonus / 100;
 		t.heat *= 1 + heatBonus / 100;
+		t.heatMade = t.heat;
 
 		// A cell pre-distributes its heat into the containment parts around it;
 		// whatever is left over goes to the reactor.
@@ -179,6 +180,11 @@ export function tick(s) {
 	const extremeCapacitors = [];
 
 	for (const t of activeTiles(s)) {
+		// What each tile did this tick, for the heat-flow overlay.
+		t.made = 0;
+		t.heatIn = 0;
+		t.heatOut = 0;
+		t.vented = 0;
 		const p = partOf(s, t);
 		if (!p) continue;
 
@@ -198,6 +204,14 @@ export function tick(s) {
 			const out = stepModule(s, t, p);
 			powerAdd += out.power * s.casingEff;
 			heatAdd += out.heat;
+			// A casing that dumps heat made it; one that pulls heat is cooling.
+			if (out.heat > 0) {
+				t.made = out.heat;
+				rate.heat += out.heat;
+			} else {
+				t.heatIn = -out.heat;
+				rate.outlet -= out.heat;
+			}
 			t.ep = (t.ep ?? 0) + out.ep * s.casingEff;
 			if (t.ep >= 1) {
 				s.exoticParticles += Math.floor(t.ep);
@@ -216,12 +230,19 @@ export function tick(s) {
 			const throttled = s.throttle && s.heat > s.maxHeat * 0.8 ? 0.5 : 1;
 			powerAdd += t.power * throttled;
 			heatAdd += t.heat * throttled;
+			// Made, not what is left after the vents beside it took their share -
+			// the leftover can round below zero, and "heat made: -2" is a lie.
+			t.made = t.heatMade * throttled;
+			rate.heat += t.made;
 			t.ticks--;
 			for (const n of t.reflectors) wear(s, n);
 			if (t.ticks === 0) expire(s, t, p);
 		}
 
-		if (p.containment) powerAdd += absorb(t, p, t.heat);
+		if (p.containment) {
+			t.heatIn += t.heat;
+			powerAdd += absorb(t, p, t.heat);
+		}
 
 		if (p.category === "particle_accelerator" && t.heatContained) rollExoticParticles(s, t, p);
 
@@ -238,6 +259,9 @@ export function tick(s) {
 		for (const n of t.containments) {
 			const moved = Math.min(pull, n.heatContained);
 			n.heatContained -= moved;
+			n.heatOut += moved;
+			t.heatIn += moved;
+			t.heatOut += moved;
 			heatAdd += moved;
 			rate.inlet += moved;
 		}
@@ -261,6 +285,9 @@ export function tick(s) {
 				share = Math.min(share, ventOf(s, np) - n.heatContained);
 			}
 			powerAdd += absorb(n, np, share);
+			t.heatIn += share;
+			t.heatOut += share;
+			n.heatIn += share;
 			heatRemove += share;
 			rate.outlet += share;
 		}
@@ -278,7 +305,9 @@ export function tick(s) {
 			const per = reduce / (s.rows * s.cols);
 			for (const t of activeTiles(s)) {
 				const p = partOf(s, t);
-				if (p?.containment) powerAdd += absorb(t, p, per);
+				if (!p?.containment) continue;
+				t.heatIn += per;
+				powerAdd += absorb(t, p, per);
 			}
 		}
 		s.heat -= reduce;
@@ -290,7 +319,6 @@ export function tick(s) {
 	}
 	s.power += powerAdd;
 	rate.power = powerAdd;
-	rate.heat = heatAdd;
 	s.rate = rate;
 
 	if (!s.sealed) buyQueued(s);
@@ -319,6 +347,7 @@ export function tick(s) {
 				s.power -= moved;
 				s.heat -= moved;
 				t.heatContained += moved;
+				t.heatIn += moved;
 			}
 		}
 
@@ -439,7 +468,9 @@ function balance(s, t) {
 		const moved = Math.min((pct - target) * contained, rate, n.heatContained);
 		if (moved >= 1) {
 			n.heatContained -= moved;
+			n.heatOut += moved;
 			t.heatContained += moved;
+			t.heatIn += moved;
 		}
 	}
 
@@ -465,6 +496,8 @@ function balance(s, t) {
 		const moved = wants[i] * scale;
 		if (moved < 1) return;
 		powerMade += absorb(n, s.stats.get(n.id), moved);
+		n.heatIn += moved;
+		t.heatOut += moved;
 		t.heatContained = Math.max(0, t.heatContained - moved);
 	});
 	return powerMade;

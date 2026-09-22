@@ -204,7 +204,9 @@ test("an outlet inside a casing pulls heat out of the reactor", () => {
 	place(s, 5, 5, modId(m));
 	s.heat = 500;
 	tick(s);
-	assert.ok(s.rate.heat < 0);
+	// Reported as heat moved out of the reactor, never as negative heat made.
+	assert.equal(s.rate.heat, 0);
+	assert.ok(s.rate.outlet > 0);
 	assert.ok(s.heat < 500);
 });
 

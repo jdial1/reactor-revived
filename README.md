@@ -246,6 +246,29 @@ of this line loved, what broke, and what they asked for. What came of it:
   game is out of sight; the time is banked, up to eight hours, and coming back
   says how long you were gone. The bank sits in the header and, when tapped,
   runs at ten times speed, counting down, until it is empty or tapped again.
+- **The verdict line**, above the rates: what the board makes, whether it
+  holds - or the tick it fails and what goes first - and profit after fuel.
+  `www/js/forecast.js` copies the board, keeps its fuel topped up, and runs it
+  600 ticks, then follows any heat still climbing (the reactor's, or any part's)
+  on to where it gives out. It is what the IC2 planners told you, and it runs
+  in the planner too.
+- **Flow**, beside the verdict: an overlay of what each tile did with heat this
+  tick - made (+), taken in (▼), passed on (▲), vented (≈). Players
+  of this line kept calculators for exchangers and outlets; this is that, live.
+- **Heat made** on the rate line is what the cells make. It used to be what was
+  left after the vents beside them took their share, which rounds below zero -
+  the line the tutorial points at said two uranium cells made -2 heat.
+- **Replace or upgrade all**, from any part's sheet: pick what to replace it
+  with, and see the new parts' cost, the refund, what you pay, each part's stats
+  before and after, and the whole reactor's verdict before and after - measured,
+  not guessed - before anything is bought. All or nothing.
+- **A save state for every goal finished.** The game as it stood, with its
+  verdict, filed in the log under the job. From there: rebuild that board onto
+  today's, or roll the whole game back to that moment.
+- **Example layouts** as the goals reach them - direct cooling, indirect
+  cooling through outlets, and exchangers spreading a hot block across many
+  first-tier vents - each shown once, kept on its job in the log, and one tap
+  from the planner. A test holds every one to holding and paying.
 - **Import asks first** and refuses a file it cannot read (Knockoff #36 - and
   here an unknown version used to load as a brand-new game).
 - **Exchangers share evenly** (Knockoff #4). Every share is worked out before any

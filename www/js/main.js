@@ -10,6 +10,8 @@ import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId } from "./module.js";
 import { layoutCode, readLayout, applyLayout, describe, layoutOf } from "./layout.js";
 import { bankTime, spendFlux, span } from "./flux.js";
+import { takeSnapshot, rollBack, layoutOfSnapshot } from "./snapshots.js";
+import { replaceAll } from "./layout.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
@@ -68,6 +70,7 @@ const game = {
 		// Hold the id, not the tile: selling clears t.id mid-scan.
 		const kind = t.id;
 		inspect(s, t, {
+			game,
 			sell: () => sellAt(r, c),
 			sellKind: () => sellEvery((x) => x.id === kind),
 			sellAll: () => sellEvery(() => true),
@@ -182,17 +185,40 @@ const game = {
 
 	layoutCode: () => layoutCode(s),
 
+	replaceAll(from, to) {
+		if (!replaceAll(s, from, to)) return;
+		play("buy");
+		toast(`Replaced with ${s.stats.get(to).title}`, "reactor");
+	},
+
+	rebuildSnapshot(snap) {
+		toast(describe(applyLayout(s, layoutOfSnapshot(snap))), "reactor");
+		play("place");
+	},
+
+	rollBack(snap) {
+		s = rollBack(s, snap);
+		save(s);
+		boot();
+		toast(`Rolled back to: ${snap.title}`, "goals");
+	},
+
 	// A copy of the board where everything is free and nothing is kept. Money
 	// is infinite, goals do not count, and saves keep writing the real game.
-	startPlanner() {
+	// With a layout (an example, say) the copy starts from that instead of the
+	// board. As a click handler it gets an event, which is not a layout.
+	startPlanner(layout) {
 		if (real) return;
+		const plan = layout?.tiles ? layout : null;
 		real = s;
 		s = deserialize(serialize(real));
+		if (plan) for (const t of s.tiles) if (t.id) remove(s, t);
 		s.planner = true;
 		s.money = Infinity;
 		// Spent parts rebuy themselves, so a plan keeps its shape while it runs.
 		s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
 		s.paused = false;
+		if (plan) applyLayout(s, plan);
 		boot();
 	},
 
@@ -283,7 +309,11 @@ setInterval(() => {
 setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
 	const done = OBJECTIVES[s.objective];
-	if (!s.planner && checkObjectives(s)) goalMet(dom, done.title);
+	if (!s.planner && checkObjectives(s)) {
+		goalMet(dom, done.title);
+		// A save state for the job just done, to come back to from the log.
+		takeSnapshot(s, s.objective - 1);
+	}
 }, OBJECTIVE_MS);
 setInterval(() => save(theGame()), SAVE_MS);
 
