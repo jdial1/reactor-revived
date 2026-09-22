@@ -53,8 +53,9 @@ function roller(className) {
 			const drums = wheels.filter((w) => w.cell.classList.contains("digit"));
 			if (!drums.length) return;
 			busy = true;
-			const down = 900;
-			const stagger = 70;
+			// Slow enough to watch every drum go: an odometer, not a slot machine.
+			const down = 1800;
+			const stagger = 140;
 			drums.forEach((w, i) => {
 				if (w.pos >= 10) {
 					w.face.style.transition = "none";
@@ -67,10 +68,10 @@ function roller(className) {
 				w.pos = 0;
 				w.face.style.transform = "translateY(0)";
 			});
-			const flipAt = down + drums.length * stagger + 250;
+			const flipAt = down + drums.length * stagger + 500;
 			setTimeout(() => {
 				drums.forEach((w, i) => {
-					w.face.style.transition = `transform 160ms steps(3) ${i * 45}ms`;
+					w.face.style.transition = `transform 320ms steps(3) ${i * 90}ms`;
 					w.pos = Number(w.digit);
 					w.face.style.transform = `translateY(${-w.pos}em)`;
 				});
@@ -80,7 +81,7 @@ function roller(className) {
 					if (waiting !== null) api.set(waiting);
 					waiting = null;
 					done?.();
-				}, 160 + drums.length * 45 + 60);
+				}, 320 + drums.length * 90 + 120);
 			}, flipAt);
 		},
 		set(text) {
