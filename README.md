@@ -411,6 +411,14 @@ passive cooling runs first.
 - Touch instead of a mouse. Tap to place, tap a placed part to inspect it,
   long press to sell, drag to paint, pinch to zoom. The original's six
   modifier-key macros are gone; dragging covers what they were for.
+- Families arrive with the log: a new game opens on one cell and one dock tab.
+  Vents, coolant and plating come with the goal that asks for a vent; capacitors
+  and reflectors with the one that asks for a capacitor; exchangers, inlets and
+  outlets with the first example layout that uses them; accelerators when
+  particles become the job. Each arrival is announced once.
+- The dock's **123** toggle swaps each part's name for its numbers - a cell's
+  power, heat and life, a vent's rate and capacity, and so on - with the price
+  kept underneath.
 - Parts reveal progressively — each stays hidden until ten of the one before it
   have been placed — so the dock opens with ten buttons instead of seventy-five.
 - Upgrades show only what you own or can afford, plus the three nearest to

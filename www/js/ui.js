@@ -1,7 +1,7 @@
 // The DOM layer. Built once, then patched: a tile is touched only when its
 // signature changes.
 import { fmt } from "./fmt.js";
-import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen } from "./parts.js";
+import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
 import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
 import { artFor } from "./art.js";
@@ -361,6 +361,7 @@ function buildDock(dom, game) {
 				dom.dockCols.push(column);
 			}
 			const label = h("em", { textContent: part.short });
+			const info = h("span", { className: "info" });
 			const button = h("button", {
 				className: "part",
 				title: part.title,
@@ -373,15 +374,19 @@ function buildDock(dom, game) {
 					}
 				},
 			}, h("i", { style: `background-image:url(${artFor(part)})` }),
-				label,
+				label, info,
 				h("u", { textContent: fmt(part.cost) }));
 			// Prepending puts the newest tier on top, and the locked tier that
 			// comes after them all above it.
 			column.prepend(button);
-			dom.partButtons.push({ button, part, label, tab });
+			dom.partButtons.push({ button, part, label, info, tab });
 		}
 	}
 
+	// Names or numbers: the same buttons, showing what each part does.
+	dom.infoToggle = h("button", { className: "info-toggle", title: "Show each part's numbers", ariaPressed: "false",
+		onclick: () => game.togglePartInfo() }, "123");
+	dom.dockTabs.append(dom.infoToggle);
 	dom.dock.append(dom.dockTabs, body);
 	showDock(dom, DOCK_TABS[0][0]);
 }
@@ -846,6 +851,12 @@ export function render(dom, s, game) {
 	}
 	for (const col of dom.dockCols) col.hidden = !col.querySelector(".part:not(.locked)");
 	renderDockModules(dom, s, game);
+	document.body.classList.toggle("part-info", Boolean(s.partInfo));
+	dom.infoToggle.setAttribute("aria-pressed", String(Boolean(s.partInfo)));
+	if (s.partInfo && dom.infoFor !== s.stats) {
+		dom.infoFor = s.stats;
+		for (const row of dom.partButtons) row.info.textContent = partInfo(s.stats.get(row.part.id));
+	}
 	const page = dom.dockPages[dom.dockTab];
 	if (page) page.classList.toggle("more", page.scrollWidth > page.clientWidth + 4);
 	renderPage(dom, s);
@@ -963,8 +974,27 @@ function showGoals(dom) {
 	dom.objectiveList.querySelector(".current")?.scrollIntoView({ block: "center" });
 }
 
-/** Modules stay out of sight entirely until the research that opens them. */
+// Which categories open each dock tab. A tab shows once any of them has.
+const TAB_CATEGORIES = Object.fromEntries(DOCK_TABS);
+
+/**
+ * Tabs appear as the log reaches the job that needs them, so a new game opens
+ * on one cell and one tab; each is announced when it arrives.
+ */
 function renderLocks(dom, s) {
+	const tabs = DOCK_TABS.map(([label]) => label).filter((label) => TAB_CATEGORIES[label].some((c) => categoryOpen(s, c)));
+	const sig = tabs.join();
+	if (sig !== dom.tabsOpen) {
+		const fresh = dom.tabsOpen !== undefined
+			? tabs.filter((label) => !dom.tabsOpen.split(",").includes(label) && label !== "Modules") : [];
+		dom.tabsOpen = sig;
+		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.hidden = !tabs.includes(b.dataset.value);
+		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
+		if (fresh.length) {
+			play("unlock");
+			toast(`New in the dock: ${fresh.join(", ")}`, "reactor");
+		}
+	}
 	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
 	// Announced when it happens, not on every load of a game already past it.
@@ -974,7 +1004,6 @@ function renderLocks(dom, s) {
 	}
 	dom.modulesOpen = open;
 	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
-	dom.dockTabs.querySelector('[data-value="Modules"]').hidden = !open;
 	if (!open && dom.page === "modules") {
 		showPage(dom, "reactor");
 		dom.game.viewing("reactor");
@@ -1017,4 +1046,27 @@ function renderLesson(dom, s, game) {
 	if (document.querySelector("dialog[open]")) return;
 	s.lessonsSeen.push(name);
 	lessonDialog(s, name, game);
+}
+
+// Small numbers keep their decimals: a vent at 4.5, a reflector at 5%.
+const brief = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 10) / 10) : fmt(v));
+
+/** A part's numbers, in the two short lines a dock button has room for. */
+function partInfo(p) {
+	if (!p) return "";
+	switch (p.category) {
+		case "cell": {
+			const alone = { power: p.basePower * p.cellMultiplier, heat: (p.baseHeat * p.cellMultiplier ** 2) / p.cellCount };
+			return `\u26A1${brief(alone.power)} \u2668${brief(alone.heat)}\n${brief(p.ticks)} ticks`;
+		}
+		case "vent": return `vents ${brief(p.vent)}\nholds ${brief(p.containment)}`;
+		case "heat_exchanger": return `moves ${brief(p.transfer)}\nholds ${brief(p.containment)}`;
+		case "heat_inlet": case "heat_outlet": return `moves ${brief(p.transfer)}\nper side`;
+		case "coolant_cell": return `holds\n${brief(p.containment)}`;
+		case "reactor_plating": return `+${brief(p.reactorHeat)}\nmax heat`;
+		case "capacitor": return `+${brief(p.reactorPower)} max\nholds ${brief(p.containment)}`;
+		case "reflector": return `+${brief(p.powerIncrease)}% power\n${brief(p.ticks)} ticks`;
+		case "particle_accelerator": return `EP from ${brief(p.epHeat)}\nholds ${brief(p.containment)}`;
+		default: return "";
+	}
 }

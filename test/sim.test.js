@@ -517,8 +517,13 @@ test("every experimental part has an unlock upgrade", () => {
 	}
 });
 
-test("the dock opens with one part per family, not seventy-five", () => {
+test("a new game opens on one cell; the families arrive with the log", () => {
 	const s = fresh();
+	assert.deepEqual(PARTS.filter((p) => isPartVisible(s, p)).map((p) => p.id), ["uranium1"]);
+	s.objective = 3;
+	assert.ok(isPartVisible(s, PART_BY_ID.get("vent1")));
+	assert.equal(isPartVisible(s, PART_BY_ID.get("capacitor1")), false);
+	s.objective = 30;
 	const visible = PARTS.filter((p) => isPartVisible(s, p));
 	assert.equal(visible.length, 10, "one fuel plus nine component families");
 	assert.ok(visible.every((p) => !p.after && !p.requires));
@@ -625,6 +630,7 @@ test("research gates the tier-6 parts", () => {
 	assert.equal(isPartVisible(s, vent6), false, "locked before research");
 
 	const r = researched("vortex_cooling");
+	r.objective = 30;
 	assert.ok(isPartVisible(r, vent6), "unlocked after research");
 	// Its siblings stay locked - each part has its own research.
 	assert.equal(isPartVisible(r, PART_BY_ID.get("coolant_cell6")), false);

@@ -1088,3 +1088,12 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .objectives li .snap { display: block; margin-top: 3px; padding: 2px 8px; font-size: 10px; }
 .objectives li:not(.current) .snap:not([hidden]) { display: inline-block; }
 .sheet.tool dd .same { color: var(--ink); font-weight: normal; }
+
+/* Numbers mode: each dock button trades its name for what the part does. */
+.part .info { display: none; font-size: 8px; line-height: 1.15; white-space: pre; text-align: center; color: var(--ink); }
+body.part-info .part .info { display: block; }
+body.part-info .part em { display: none; }
+body.part-info .part.next .info { display: none; }
+body.part-info .part.next em { display: block; }
+.info-toggle { flex: none !important; padding: 4px 8px !important; font-size: 10px; }
+.info-toggle[aria-pressed="true"] { color: var(--ink); border-image-source: url(../ui/button-on.png); }

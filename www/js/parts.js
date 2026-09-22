@@ -137,6 +137,21 @@ export const UNLOCK_AFTER = 10;
 export const MODULES_AFTER = 5;
 export const modulesOpen = (s) => s.objective >= MODULES_AFTER;
 
+/**
+ * The goal each family waits for, so a new game opens on one cell and nothing
+ * else: vents when the log asks for a vent, capacitors and reflectors when it
+ * asks for a capacitor, transfer parts when the first layout that needs them
+ * comes up, accelerators when particles become the job.
+ */
+export const CATEGORY_AFTER = {
+	vent: 3, coolant_cell: 3, reactor_plating: 3,
+	reflector: 8, capacitor: 8,
+	heat_exchanger: 10, heat_inlet: 10, heat_outlet: 10,
+	particle_accelerator: 22,
+	module: MODULES_AFTER,
+};
+export const categoryOpen = (s, category) => s.objective >= (CATEGORY_AFTER[category] ?? 0);
+
 // Progressive reveal: a part is hidden until ten of the one before it have been
 // placed. Cells form one chain; each component category forms its own.
 const chains = new Map([["cell", []]]);
@@ -163,7 +178,7 @@ export const unlockProgress = (s, p) =>
 		: null);
 
 export const isPartVisible = (s, p) =>
-	(p.category !== "module" || modulesOpen(s))
+	categoryOpen(s, p.category)
 	&& (!p.requires || s.levels[p.requires] > 0)
 	&& (!p.after || (s.placed[p.after] ?? 0) >= UNLOCK_AFTER);
 
