@@ -1089,12 +1089,33 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .objectives li:not(.current) .snap:not([hidden]) { display: inline-block; }
 .sheet.tool dd .same { color: var(--ink); font-weight: normal; }
 
-/* Numbers mode: each dock button trades its name for what the part does. */
-.part .info { display: none; font-size: 8px; line-height: 1.15; white-space: pre; text-align: center; color: var(--ink); }
+/* Numbers mode: each dock button shows what its part does, one number per
+   corner in the rate bar's icons - power blue, heat red, life purple, money green. */
+.part { position: relative; }
+.part .info { display: none; position: absolute; inset: 2px 3px; pointer-events: none; }
 body.part-info .part .info { display: block; }
-body.part-info .part em { display: none; }
+body.part-info .part em, body.part-info .part u { visibility: hidden; }
 body.part-info .part.next .info { display: none; }
-body.part-info .part.next em { display: block; }
+body.part-info .part.next em, body.part-info .part.next u { visibility: visible; }
+.part .info span {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	gap: 1px;
+	font-size: 9px;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	text-shadow: 0 1px 1px #000;
+}
+.part .info .icon { width: 9px; height: 9px; }
+.part .info .tl { top: 0; left: 0; }
+.part .info .tr { top: 0; right: 0; }
+.part .info .bl { bottom: 0; left: 0; }
+.part .info .br { bottom: 0; right: 0; }
+.part .info .power { color: #5aa8f0; }
+.part .info .heat { color: #f0584a; }
+.part .info .ticks { color: #b77be8; }
+.part .info .money { color: #58c470; }
 .info-toggle { flex: none !important; padding: 4px 8px !important; font-size: 10px; }
 .info-toggle[aria-pressed="true"] { color: var(--ink); border-image-source: url(../ui/button-on.png); }
 

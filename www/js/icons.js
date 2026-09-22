@@ -98,6 +98,8 @@ const ICONS = {
 	play: [["M3 1 L14 8 L3 15 Z", null]],
 	pause: [["M3 1 h4 v14 h-4 z M9 1 h4 v14 h-4 z", null]],
 	flux: [["M1 2 L8 8 L1 14 Z M8 2 L15 8 L8 14 Z", null]],
+	// Life: an hourglass.
+	ticks: [["M3 1 h10 v2 l-4 5 l4 5 v2 h-10 v-2 l4 -5 l-4 -5 z", null]],
 	// Plan: a pencil.
 	plan: [["M11 1 L15 5 L5 15 L1 15 L1 11 Z", null]],
 

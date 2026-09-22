@@ -411,7 +411,8 @@ passive cooling runs first.
   and reflectors with the one that asks for a capacitor; exchangers, inlets and
   outlets with the first example layout that uses them; accelerators when
   particles become the job. Each arrival is announced once.
-- The dock's **123** toggle swaps each part's name for its numbers - a cell's
+- The dock's **123** toggle shows each part's numbers in its corners, with the rate
+  bar's icons: power in blue, heat in red, life in purple, price in green - a cell's
   power, heat and life, a vent's rate and capacity, and so on - with the price
   kept underneath.
 - Parts reveal progressively — each stays hidden until ten of the one before it

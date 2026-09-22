@@ -865,7 +865,7 @@ export function render(dom, s, game) {
 	dom.infoToggle.setAttribute("aria-pressed", String(Boolean(s.partInfo)));
 	if (s.partInfo && dom.infoFor !== s.stats) {
 		dom.infoFor = s.stats;
-		for (const row of dom.partButtons) row.info.textContent = partInfo(s.stats.get(row.part.id));
+		for (const row of dom.partButtons) row.info.replaceChildren(...partInfo(s.stats.get(row.part.id)));
 	}
 	const page = dom.dockPages[dom.dockTab];
 	if (page) page.classList.toggle("more", page.scrollWidth > page.clientWidth + 4);
@@ -1071,22 +1071,36 @@ function renderLesson(dom, s, game) {
 // Small numbers keep their decimals: a vent at 4.5, a reflector at 5%.
 const brief = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 10) / 10) : fmt(v));
 
-/** A part's numbers, in the two short lines a dock button has room for. */
+/**
+ * A part's numbers for the dock's numbers mode, one per corner, each with the
+ * rate bar's icon and a colour for what it measures: power blue, heat red,
+ * life purple, money green. [corner, icon, text, kind]; money is always the
+ * bottom right.
+ */
 function partInfo(p) {
-	if (!p) return "";
+	if (!p) return [];
+	const c = [];
+	const heat = (corner, glyph, v) => c.push([corner, glyph, brief(v), "heat"]);
+	const power = (corner, v, suffix = "") => c.push([corner, "power", `${brief(v)}${suffix}`, "power"]);
+	const life = (v) => c.push(["bl", "ticks", brief(v), "ticks"]);
 	switch (p.category) {
-		case "cell": {
-			const alone = { power: p.basePower * p.cellMultiplier, heat: (p.baseHeat * p.cellMultiplier ** 2) / p.cellCount };
-			return `\u26A1${brief(alone.power)} \u2668${brief(alone.heat)}\n${brief(p.ticks)} ticks`;
-		}
-		case "vent": return `vents ${brief(p.vent)}\nholds ${brief(p.containment)}`;
-		case "heat_exchanger": return `moves ${brief(p.transfer)}\nholds ${brief(p.containment)}`;
-		case "heat_inlet": case "heat_outlet": return `moves ${brief(p.transfer)}\nper side`;
-		case "coolant_cell": return `holds\n${brief(p.containment)}`;
-		case "reactor_plating": return `+${brief(p.reactorHeat)}\nmax heat`;
-		case "capacitor": return `+${brief(p.reactorPower)} max\nholds ${brief(p.containment)}`;
-		case "reflector": return `+${brief(p.powerIncrease)}% power\n${brief(p.ticks)} ticks`;
-		case "particle_accelerator": return `EP from ${brief(p.epHeat)}\nholds ${brief(p.containment)}`;
-		default: return "";
+		case "cell":
+			power("tl", p.basePower * p.cellMultiplier);
+			heat("tr", "heat", (p.baseHeat * p.cellMultiplier ** 2) / p.cellCount);
+			life(p.ticks);
+			break;
+		case "vent": heat("tl", "vent", p.vent); heat("tr", "heat", p.containment); break;
+		case "heat_exchanger": heat("tl", "outlet", p.transfer); heat("tr", "heat", p.containment); break;
+		case "heat_inlet": heat("tl", "inlet", p.transfer); break;
+		case "heat_outlet": heat("tl", "outlet", p.transfer); break;
+		case "coolant_cell": heat("tr", "heat", p.containment); break;
+		case "reactor_plating": heat("tl", "heat", p.reactorHeat); break;
+		case "capacitor": power("tl", p.reactorPower); heat("tr", "heat", p.containment); break;
+		case "reflector": power("tl", p.powerIncrease, "%"); life(p.ticks); break;
+		case "particle_accelerator": heat("tl", "heat", p.epHeat); heat("tr", "vent", p.containment); break;
+		default: break;
 	}
+	c.push(["br", null, `$${fmt(p.cost)}`, "money"]);
+	return c.map(([corner, glyph, text, kind]) =>
+		h("span", { className: `${corner} ${kind}` }, glyph ? icon(glyph, "icon") : "", text));
 }
