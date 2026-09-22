@@ -505,7 +505,12 @@ footer {
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
+	/* A flick stops on a part, never between two - the last one included, which
+	   needs the room below it to reach the top. */
+	scroll-snap-type: y mandatory;
+	padding-bottom: calc(var(--peek-h) + 4px);
 }
+.dock-col > * { scroll-snap-align: start; scroll-snap-stop: always; }
 .dock-page::-webkit-scrollbar, .dock-col::-webkit-scrollbar { display: none; }
 
 .part {
