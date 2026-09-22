@@ -26,8 +26,6 @@ const BASE = {
 	flux: 0,
 	fluxOn: false,
 	lastSeen: 0,
-	// The dock shows each part's numbers instead of its name.
-	partInfo: false,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -87,7 +85,7 @@ export function serialize(s) {
 		paused: s.paused,
 		muted: s.muted,
 		tutorialDone: s.tutorialDone,
-		flux: s.flux, fluxOn: s.fluxOn, lastSeen: s.lastSeen, partInfo: s.partInfo,
+		flux: s.flux, fluxOn: s.fluxOn, lastSeen: s.lastSeen,
 		levels: s.levels,
 		placed: s.placed,
 		modules: s.modules,

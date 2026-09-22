@@ -411,10 +411,9 @@ passive cooling runs first.
   and reflectors with the one that asks for a capacitor; exchangers, inlets and
   outlets with the first example layout that uses them; accelerators when
   particles become the job. Each arrival is announced once.
-- The dock's **123** toggle shows each part's numbers in its corners, with the rate
-  bar's icons: power in blue, heat in red, life in purple, price in green - a cell's
-  power, heat and life, a vent's rate and capacity, and so on - with the price
-  kept underneath.
+- Every dock part shows its numbers in its corners, with the rate bar's icons:
+  power in blue, heat in red, life in purple, price in green, and its art in
+  the middle.
 - Parts reveal progressively — each stays hidden until ten of the one before it
   have been placed — so the dock opens with ten buttons instead of seventy-five.
 - Upgrades show only what you own or can afford, plus the three nearest to

@@ -1090,16 +1090,15 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .objectives li:not(.current) .snap:not([hidden]) { display: inline-block; }
 .sheet.tool dd .same { color: var(--ink); font-weight: normal; }
 
-/* Numbers mode: each dock button shows what its part does, one number per
-   corner in the rate bar's icons - power blue, heat red, life purple, money green. */
+/* Each dock part shows what it does, one number per corner in the rate bar's
+   icons - power blue, heat red, life purple, money green - with its art in the
+   middle. The name is on the button's title; the next-tier strip keeps its label. */
 .part { position: relative; }
 .part .info { display: none; position: absolute; inset: 2px 3px; pointer-events: none; }
-body.part-info .part .info { display: block; }
-/* The name and price give way to the corners, and the art sits in the middle. */
-body.part-info .part { align-content: center; }
-body.part-info .part em, body.part-info .part u { display: none; }
-body.part-info .part.next .info { display: none; }
-body.part-info .part.next em, body.part-info .part.next u { display: block; }
+.part.numbers .info { display: block; }
+.part.numbers em, .part.numbers u { display: none; }
+.part.numbers.next .info { display: none; }
+.part.numbers.next em, .part.numbers.next u { display: block; }
 .part .info span {
 	position: absolute;
 	display: flex;
@@ -1119,8 +1118,6 @@ body.part-info .part.next em, body.part-info .part.next u { display: block; }
 .part .info .heat { color: #f0584a; }
 .part .info .ticks { color: #b77be8; }
 .part .info .money { color: #58c470; }
-.info-toggle { flex: none !important; padding: 4px 8px !important; font-size: 10px; }
-.info-toggle[aria-pressed="true"] { color: var(--ink); border-image-source: url(../ui/button-on.png); }
 
 /* A doctrine set's two sides: pick one, switch any time. */
 .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: -2px 0 4px; }

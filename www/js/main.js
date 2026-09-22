@@ -139,10 +139,6 @@ const game = {
 		play("place");
 	},
 
-	togglePartInfo() {
-		s.partInfo = !s.partInfo;
-	},
-
 	toggleFlux() {
 		s.fluxOn = !s.fluxOn && s.flux >= s.loopWait;
 	},

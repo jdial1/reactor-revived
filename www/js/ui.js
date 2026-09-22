@@ -363,7 +363,7 @@ function buildDock(dom, game) {
 			const label = h("em", { textContent: part.short });
 			const info = h("span", { className: "info" });
 			const button = h("button", {
-				className: "part",
+				className: "part numbers",
 				title: part.title,
 				onclick: () => {
 					game.select(part.id);
@@ -383,10 +383,6 @@ function buildDock(dom, game) {
 		}
 	}
 
-	// Names or numbers: the same buttons, showing what each part does.
-	dom.infoToggle = h("button", { className: "info-toggle", title: "Show each part's numbers", ariaPressed: "false",
-		onclick: () => game.togglePartInfo() }, "123");
-	dom.dockTabs.append(dom.infoToggle);
 	dom.dock.append(dom.dockTabs, body);
 	showDock(dom, DOCK_TABS[0][0]);
 }
@@ -861,9 +857,8 @@ export function render(dom, s, game) {
 	}
 	for (const col of dom.dockCols) col.hidden = !col.querySelector(".part:not(.locked)");
 	renderDockModules(dom, s, game);
-	document.body.classList.toggle("part-info", Boolean(s.partInfo));
-	dom.infoToggle.setAttribute("aria-pressed", String(Boolean(s.partInfo)));
-	if (s.partInfo && dom.infoFor !== s.stats) {
+	// Each part's numbers, redrawn when the upgrades change them.
+	if (dom.infoFor !== s.stats) {
 		dom.infoFor = s.stats;
 		for (const row of dom.partButtons) row.info.replaceChildren(...partInfo(s.stats.get(row.part.id)));
 	}
