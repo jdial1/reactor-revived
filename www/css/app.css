@@ -1154,3 +1154,34 @@ body.flow .tile .flow { display: flex; background: #0009; }
 /* A folded dock keeps its tabs and gives the board the rest. */
 #dock.folded #dock-body { display: none; }
 #dock.folded #dock-tabs button.on { border-image-source: url(../ui/button.png); color: var(--dim); }
+
+/* The board's tool strip: Flow, and planning. */
+#verdict .tool {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 1px 7px;
+	font-size: 10px;
+}
+#verdict .tool .icon { width: 10px; height: 10px; }
+#verdict .tool[hidden] { display: none; }
+
+/* A module design closed is one line: face, name, holds and what it earns. */
+details.module-row { display: block; }
+details.module-row > summary {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 10px;
+	align-items: center;
+	list-style: none;
+	cursor: pointer;
+}
+details.module-row > summary::-webkit-details-marker { display: none; }
+details.module-row > summary > span { display: grid; gap: 2px; }
+details.module-row > small { display: block; margin-top: 6px; }
+details.module-row .row { margin-top: 8px; }
+.module-row small.holds, .mod-verdict.holds { color: var(--power); }
+.mod-verdict { margin: 0 0 4px; font-size: 12px; }
+.mod-numbers summary { font-size: 10px; color: var(--dim); cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; }
+.mod-numbers dl { margin-top: 4px; }

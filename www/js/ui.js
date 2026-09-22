@@ -193,15 +193,15 @@ export function buildUI(game) {
 	dom.objective.append(dom.goalText, dom.goalBar);
 	// The planner: a free copy of the board to try things on, as the IC2
 	// planners let you. Build puts it onto the real board; Discard forgets it.
-	dom.plan = h("button", { className: "pause squeeze", title: "Try a layout for free", ariaLabel: "Plan", onclick: game.startPlanner },
-		icon("plan"), h("span", { textContent: "Plan" }));
-	dom.planBuild = h("button", { className: "pause", onclick: game.buildPlan }, h("span", { textContent: "Build" }));
-	dom.planDiscard = h("button", { className: "pause", onclick: game.discardPlan }, h("span", { textContent: "Discard" }));
+	dom.plan = h("button", { className: "tool", title: "Try a layout for free", onclick: game.startPlanner }, icon("plan"), "Plan");
+	dom.planBuild = h("button", { className: "tool", onclick: game.buildPlan }, "Build");
+	dom.planDiscard = h("button", { className: "tool", onclick: game.discardPlan }, "Discard");
 	// Banked time, counting down while it is spent; the same tap stops it.
 	dom.fluxText = h("span", {});
 	dom.flux = h("button", { className: "pause flux", title: "Time Flux: run banked time at ten times speed", onclick: game.toggleFlux },
 		icon("flux"), dom.fluxText);
-	root.append(h("header", { id: "goal" }, dom.objective, dom.flux, dom.plan, dom.planBuild, dom.planDiscard, dom.pause));
+	// The header is the goal and the clock: time banked, and time stopped.
+	root.append(h("header", { id: "goal" }, dom.objective, dom.flux, dom.pause));
 	// One polite live region for the whole game: goals met, meltdowns, unlocks.
 	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
 
@@ -322,7 +322,10 @@ export function buildUI(game) {
 		const button = [...dom.tabs.children].find((b) => b.dataset.value === id);
 		dom.pips[id] = button.appendChild(h("span", { className: `pip ${id}`, hidden: true }));
 	}
-	root.append(h("footer", {}, buildVerdict(dom, game), dom.rateBar, dom.actions, dom.dock, dom.tabs));
+	// The board's tools sit on the strip that says what the board does.
+	const verdict = buildVerdict(dom, game);
+	verdict.append(dom.plan, dom.planBuild, dom.planDiscard);
+	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	dom.game = game;
 	buildDock(dom, game);

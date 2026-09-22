@@ -31,7 +31,16 @@ export function buildModulesPage(dom, game) {
 export const face = (p, className = "mod-face") =>
 	h("i", { className, style: `background-image:url(${p.art});--mtint:var(--${p.tint})` });
 
-/** What a design does, in one line. */
+/** The one thing to know about a design: does it hold, and what does it earn. */
+function headline(s, p) {
+	const upkeep = p.ticks ? p.rebuy / p.ticks : 0;
+	const money = p.modPower * s.casingEff - upkeep;
+	return p.failTick
+		? `Fails at tick ${fmt(p.failTick)}`
+		: `Holds  \u00B7  ${money < 0 ? "-" : "+"}$${num(Math.abs(money))}/tick`;
+}
+
+/** The rest of what a design does, for when the headline is not enough. */
 function summary(s, p) {
 	const e = s.casingEff;
 	const upkeep = p.ticks ? p.rebuy / p.ticks : 0;
@@ -59,16 +68,16 @@ export function renderModules(dom, s, game) {
 	dom.modList.replaceChildren(...[...s.modules].reverse().map((m) => {
 		const p = s.stats.get(modId(m));
 		const used = inUse(s, m);
-		return h("div", { className: "module-row" },
-			face(p),
-			h("div", {},
-				h("b", { textContent: m.name }),
-				h("small", { textContent: summary(s, p) }),
-				h("small", {
-					className: p.failTick ? "unstable" : "",
-					textContent: `${p.ticks ? `lasts ${fmt(p.ticks)} ticks, rebuys for $${fmt(p.rebuy)}` : "no fuel"}`
-						+ (p.failTick ? ` - fails at tick ${fmt(p.failTick)}` : ""),
-				})),
+		// Closed, a design is its face, its name and its headline; open, the
+		// numbers and what can be done with it.
+		return h("details", { className: "module-row" },
+			h("summary", {},
+				face(p),
+				h("span", {},
+					h("b", { textContent: m.name }),
+					h("small", { className: p.failTick ? "unstable" : "holds", textContent: headline(s, p) }))),
+			h("small", { textContent: summary(s, p) }),
+			h("small", { textContent: `${p.ticks ? `Lasts ${fmt(p.ticks)} ticks, rebuys for $${fmt(p.rebuy)}` : "No fuel"} \u00B7 costs $${fmt(p.cost)}` }),
 			h("div", { className: "row" },
 				h("button", { textContent: "Edit as copy", onclick: () => openEditor(dom, game, m) }),
 				h("button", {
@@ -123,6 +132,7 @@ function buildEditor(dom, game) {
 		}))),
 		picker: h("div", { className: "mod-strip" }),
 		stats: h("dl", {}),
+		verdict: h("p", { className: "mod-verdict" }),
 		preview: h("i", { className: "mod-face big" }),
 	};
 	const e = dom.modEd;
@@ -130,7 +140,8 @@ function buildEditor(dom, game) {
 		h("div", { className: "mod-head" }, e.preview, name),
 		h("small", { textContent: "Icon" }), e.icons,
 		h("small", { textContent: "Colour" }), e.tints,
-		h("div", { className: "mod-body" }, e.grid, e.stats),
+		h("div", { className: "mod-body" }, e.grid,
+			h("div", {}, e.verdict, h("details", { className: "mod-numbers" }, h("summary", { textContent: "Numbers" }), e.stats))),
 		h("small", { textContent: "Place - tap a slot; tap it again, or use Empty, to clear" }), e.picker,
 		h("div", { className: "row" },
 			h("button", { textContent: "Cancel", onclick: () => closeEditor(dom) }),
@@ -200,6 +211,10 @@ function renderEditor(dom, s) {
 		["Casing", `${Math.round(s.casingEff * 100)}%`],
 		["Holds", r.failTick ? `fails at tick ${fmt(r.failTick)}` : "yes"],
 	].filter(Boolean);
+	e.verdict.className = `mod-verdict ${r.failTick ? "unstable" : "holds"}`;
+	e.verdict.textContent = !d.layout.some(Boolean) ? "Fill a slot to see what it does"
+		: r.failTick ? `Fails at tick ${fmt(r.failTick)}`
+			: `Holds \u00B7 ${r.money < 0 ? "-" : "+"}$${num(Math.abs(r.money))}/tick`;
 	e.stats.replaceChildren(...rows.flatMap(([k, v]) =>
 		[h("dt", { textContent: k }), h("dd", { textContent: v, className: k === "Holds" && r.failTick ? "unstable" : "" })]));
 }

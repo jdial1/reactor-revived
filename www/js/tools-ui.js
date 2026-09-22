@@ -33,7 +33,7 @@ const holds = (f) => (!f.failTick ? "Holds"
 
 export function buildVerdict(dom, game) {
 	dom.verdictText = h("span", {});
-	dom.flowToggle = h("button", { className: "flow-toggle", ariaPressed: "false", title: "Show each part's heat in, out and vented", onclick: () => {
+	dom.flowToggle = h("button", { className: "tool flow-toggle", ariaPressed: "false", title: "Show each part's heat in, out and vented", onclick: () => {
 		const on = document.body.classList.toggle("flow");
 		dom.flowToggle.setAttribute("aria-pressed", String(on));
 	} }, "Flow");
