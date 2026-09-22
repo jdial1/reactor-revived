@@ -78,6 +78,18 @@ const FLAME = [
 	"...##...",
 ];
 
+// From Knockoff's img/icon_cash.gif: a coin, not a dollar sign.
+const COIN = [
+	"...##...",
+	"..#AA#..",
+	".#AAAA#.",
+	".#AA##..",
+	"..#AAA#.",
+	".#AAAA#.",
+	"..#AA#..",
+	"...##...",
+];
+
 // [path, fill]. A fill of null means "inherit from the text colour".
 const ICONS = {
 	// Knockoff's bolt and flame, in Knockoff's colours.
@@ -91,6 +103,7 @@ const ICONS = {
 	],
 
 
+	cash: [[grid(COIN, "#"), OUTLINE], [grid(COIN, "A"), "#00c000"]],
 	vent: [[grid(FAN, "#"), OUTLINE], [grid(FAN, "A"), "#c0c0c0"], [grid(FAN, "B"), "#808080"]],
 	inlet: [[grid(INLET, "#"), OUTLINE], [grid(INLET, "A"), "#ff8a00"], [grid(INLET, "B"), "#ff4e00"]],
 	outlet: [[grid(OUTLET, "#"), OUTLINE], [grid(OUTLET, "A"), "#ff8a00"], [grid(OUTLET, "B"), "#ff4e00"]],

@@ -1100,7 +1100,7 @@ function partInfo(p) {
 		case "particle_accelerator": heat("tl", "heat", p.epHeat); heat("tr", "vent", p.containment); break;
 		default: break;
 	}
-	c.push(["br", null, `$${fmt(p.cost)}`, "money"]);
+	c.push(["br", "cash", fmt(p.cost), "money"]);
 	return c.map(([corner, glyph, text, kind]) =>
 		h("span", { className: `${corner} ${kind}` }, glyph ? icon(glyph, "icon") : "", text));
 }
