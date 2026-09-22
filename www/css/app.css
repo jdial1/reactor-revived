@@ -852,7 +852,14 @@ body.melting { animation: melting 500ms ease-out; }
 	font-weight: inherit;
 	transition: transform 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
-.purse .cash { font-size: 17px; color: var(--cash); }
+.purse .cash {
+	font-size: 17px;
+	color: var(--cash);
+	/* One width for $0 and $999.999Qa alike - ten characters and their gaps -
+	   so the gauges beside it never shift as the money grows. */
+	min-width: calc(10ch + 19px);
+	justify-content: center;
+}
 
 /* Tutorial. The overlay takes no taps - the game underneath has to stay playable
    for the steps that wait on it - except on the card itself. */
