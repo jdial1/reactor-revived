@@ -619,7 +619,10 @@ function buildUpgrades(dom, game) {
 			row.sides = ["left", "right"].map((side) => h("button", {
 				className: "side", dataset: { side },
 				onclick: () => game.pickDoctrine(u.id, side),
-			}, h("b", { textContent: u.set[side].title }), h("i", { textContent: u.set[side].desc })));
+			}, h("b", { textContent: u.set[side].title }),
+			h("span", { className: "nums" }, ...u.set[side].nums.map(([text, kind, down]) =>
+				h("em", { className: `${kind}${down ? " down" : ""}`, textContent: text }))),
+			h("i", { textContent: u.set[side].desc })));
 			row.sideBox = h("div", { className: "sides" }, ...row.sides);
 			section.list.append(row.sideBox);
 		}

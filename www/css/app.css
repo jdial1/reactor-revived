@@ -1185,3 +1185,17 @@ details.module-row .row { margin-top: 8px; }
 .mod-verdict { margin: 0 0 4px; font-size: 12px; }
 .mod-numbers summary { font-size: 10px; color: var(--dim); cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; }
 .mod-numbers dl { margin-top: 4px; }
+/* A doctrine's numbers first, in the dock's colours; a downside is dimmer. */
+.sides .side .nums { display: flex; flex-wrap: wrap; gap: 3px; }
+.sides .side .nums em {
+	padding: 1px 4px;
+	font-size: 9px;
+	font-style: normal;
+	border: 1px solid currentColor;
+	border-radius: 2px;
+}
+.sides .side .nums .power { color: #5aa8f0; }
+.sides .side .nums .heat { color: #f0584a; }
+.sides .side .nums .money { color: #58c470; }
+.sides .side .nums .ticks { color: #b77be8; }
+.sides .side .nums .down { opacity: 0.7; border-style: dashed; }

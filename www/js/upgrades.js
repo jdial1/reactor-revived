@@ -56,26 +56,28 @@ const CASH = [
 // Doctrines: a set opens every five goals, each a choice between two ways to run
 // a reactor. Buying a set opens it; which side is in force can be switched at
 // any time, for nothing. Each set costs ten times the last. A reboot clears
-// what was bought, like any cash upgrade, but remembers the sides.
+// what was bought, like any cash upgrade, but remembers the sides. Each side's
+// `nums` lead its card: [text, kind, downside], kind being power, heat, money
+// or ticks.
 export const DOCTRINE_SETS = [
 	{ title: "Vents or markets",
-	  left: { key: "openVents", title: "Open Vents", desc: "Vents shed half again as much heat each tick, but hold a quarter less before they fail." },
-	  right: { key: "sellBonus", title: "Power Brokers", desc: "Every sale pays a quarter more, by hand or down the power lines." } },
+	  left: { key: "openVents", title: "Open Vents", nums: [["+50% venting", "heat"], ["-25% vent capacity", "heat", true]], desc: "Vents shed half again as much heat each tick, but hold a quarter less before they fail." },
+	  right: { key: "sellBonus", title: "Power Brokers", nums: [["+25% sale price", "money"]], desc: "Every sale pays a quarter more, by hand or down the power lines." } },
 	{ title: "When a part fails",
-	  left: { key: "cascadeVents", title: "Cascade Vents", desc: "A vent about to fail passes its excess to a neighbouring vent with room instead." },
-	  right: { key: "salvage", title: "Salvage Crews", desc: "A part that explodes refunds half its price." } },
+	  left: { key: "cascadeVents", title: "Cascade Vents", nums: [["100% of a failing vent's excess passed on", "heat"]], desc: "A vent about to fail passes its excess to a neighbouring vent with room instead." },
+	  right: { key: "salvage", title: "Salvage Crews", nums: [["50% refund on explosion", "money"]], desc: "A part that explodes refunds half its price." } },
 	{ title: "How hard the cells run",
-	  left: { key: "overclock", title: "Overclocked Cells", desc: "Cells make half again the power and twice the heat." },
-	  right: { key: "throttle", title: "Throttled Cells", desc: "Above 80% of maximum heat, cells make half their power and half their heat." } },
+	  left: { key: "overclock", title: "Overclocked Cells", nums: [["+50% power", "power"], ["+100% heat", "heat", true]], desc: "Cells make half again the power and twice the heat." },
+	  right: { key: "throttle", title: "Throttled Cells", nums: [["-50% power over 80% heat", "power", true], ["-50% heat over 80% heat", "heat"]], desc: "Above 80% of maximum heat, cells make half their power and half their heat." } },
 	{ title: "The shape of a core",
-	  left: { key: "diagonalPulse", title: "Diagonal Pulse", desc: "Cells also pulse into the cells at their corners." },
-	  right: { key: "isolatedCores", title: "Isolated Cores", desc: "A cell with no other cell beside it makes three times the power." } },
+	  left: { key: "diagonalPulse", title: "Diagonal Pulse", nums: [["+4 neighbours per cell", "power"]], desc: "Cells also pulse into the cells at their corners." },
+	  right: { key: "isolatedCores", title: "Isolated Cores", nums: [["x3 power for a lone cell", "power"]], desc: "A cell with no other cell beside it makes three times the power." } },
 	{ title: "Where heat is kept",
-	  left: { key: "pressurised", title: "Pressurised Core", desc: "The reactor holds twice the heat before it shakes, but outlets move a quarter less." },
-	  right: { key: "fastExchange", title: "Fast Exchange", desc: "Exchangers, inlets and outlets move half again as much heat, but the reactor holds a quarter less." } },
+	  left: { key: "pressurised", title: "Pressurised Core", nums: [["x2 max heat", "heat"], ["-25% outlet transfer", "heat", true]], desc: "The reactor holds twice the heat before it shakes, but outlets move a quarter less." },
+	  right: { key: "fastExchange", title: "Fast Exchange", nums: [["+50% transfer", "heat"], ["-25% max heat", "heat", true]], desc: "Exchangers, inlets and outlets move half again as much heat, but the reactor holds a quarter less." } },
 	{ title: "What parts last",
-	  left: { key: "reflectorLattice", title: "Reflector Lattice", desc: "Reflectors never wear out, but give half the boost." },
-	  right: { key: "deepCapacitors", title: "Deep Capacitors", desc: "Capacitors raise maximum power three times as much." } },
+	  left: { key: "reflectorLattice", title: "Reflector Lattice", nums: [["reflectors never wear", "ticks"], ["-50% reflector boost", "power", true]], desc: "Reflectors never wear out, but give half the boost." },
+	  right: { key: "deepCapacitors", title: "Deep Capacitors", nums: [["x3 capacitor max power", "power"]], desc: "Capacitors raise maximum power three times as much." } },
 ];
 
 const NUMERALS = ["I", "II", "III", "IV", "V", "VI"];
