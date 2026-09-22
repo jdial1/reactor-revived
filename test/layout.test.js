@@ -75,3 +75,24 @@ test("a code carries its module designs, nested ones too, and reuses a match", (
 	applyLayout(b, readLayout(code));
 	assert.equal(b.modules.length, 3);
 });
+
+test("an old reactor's name, where a code goes, builds its checkerboard", async () => {
+	const { forecast } = await import("../www/js/forecast.js");
+	for (const name of ["MARK I", "mark-1", "IC2"]) assert.ok(readLayout(name), name);
+	const s = game(1e9);
+	s.objective = 5;
+	const r = applyLayout(s, readLayout("Mark I"));
+	assert.equal(r.placed, 96);
+	const f = forecast(s);
+	assert.equal(f.failTick, 0, "every vent takes exactly what its four cells make");
+	assert.equal(f.power, 48);
+});
+
+test("a design named for an ancestor wears gold", async () => {
+	const { isAncestor } = await import("../www/js/module.js");
+	const s = game();
+	const m = saveModule(s, { name: "Knockoff", icon: "uranium1", tint: "uranium", layout: [null, null, null, null, "uranium1", null, null, null, null] });
+	assert.equal(s.stats.get(modId(m)).tint, "cash");
+	assert.equal(isAncestor("Reactor Incremental"), true);
+	assert.equal(isAncestor("My knockoff design"), false);
+});

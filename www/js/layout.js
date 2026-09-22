@@ -33,9 +33,18 @@ export function layoutOf(s) {
 
 export const layoutCode = (s) => PREFIX + pack(JSON.stringify(layoutOf(s)));
 
+// IC2's Mark I: cells and vents in a checkerboard, every cell with four vents
+// and every vent with four cells. Not a code anyone is given - a name someone
+// who played IC2 might try.
+const MARK_I = {
+	tiles: Array.from({ length: 96 }, (_, i) => [i, (Math.floor(i / 8) + (i % 8)) % 2 ? "vent1" : "uranium1"]),
+	modules: [],
+};
+
 /** A layout from a code, or null if it is not one. */
 export function readLayout(code) {
 	const text = String(code ?? "").trim();
+	if (/^(mark[\s-]?i|mark[\s-]?1|ic2)$/i.test(text)) return MARK_I;
 	if (!text.startsWith(PREFIX)) return null;
 	try {
 		const layout = JSON.parse(unpack(text.slice(PREFIX.length)));

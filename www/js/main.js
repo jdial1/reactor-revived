@@ -26,6 +26,7 @@ let s = load();
 let dom;
 // While planning, `s` is a free copy of the board and this is the real game.
 let real = null;
+let coldTaps = 0;
 const theGame = () => real ?? s;
 
 /** Put the selected part on one tile, buying or queueing it. */
@@ -116,7 +117,13 @@ const game = {
 	},
 
 	ventHeat() {
-		if (s.heat <= 0) return;
+		if (s.heat <= 0) {
+			// Ten taps on a cold reactor earn a word about it.
+			coldTaps++;
+			if (coldTaps === 10) toast("It is already cold.", "heat");
+			return;
+		}
+		coldTaps = 0;
 		const shed = Math.min(s.heat, s.manualHeatReduce);
 		s.heat -= shed;
 		if (s.heat === 0) s.soldHeat = true;

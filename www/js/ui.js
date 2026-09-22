@@ -41,6 +41,21 @@ function roller(className) {
 
 	return {
 		el,
+		/** Every digit once all the way round, landing where it started. */
+		spin() {
+			for (const w of wheels) {
+				if (!w.cell.classList.contains("digit")) continue;
+				if (w.pos >= 10) {
+					w.face.style.transition = "none";
+					w.pos -= 10;
+					w.face.style.transform = `translateY(${-w.pos}em)`;
+					void w.face.offsetHeight;
+					w.face.style.transition = "";
+				}
+				w.pos += 10;
+				w.face.style.transform = `translateY(${-w.pos}em)`;
+			}
+		},
 		set(text) {
 			if (wheels.length !== text.length) {
 				el.replaceChildren();
@@ -176,6 +191,17 @@ export function buildUI(game) {
 	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
 	// Money on top, particles under: on one line they read as one long number.
 	dom.purse = h("div", { className: "purse" }, dom.money.el, dom.epBox);
+	// Five quick taps on the money and the drums go round, the way a counter
+	// does when someone leans on it.
+	let taps = [];
+	dom.money.el.addEventListener("click", () => {
+		const now = Date.now();
+		taps = [...taps.filter((t) => now - t < 1500), now];
+		if (taps.length < 5) return;
+		taps = [];
+		dom.money.spin();
+		play("coin");
+	});
 
 	dom.pauseLabel = h("span", {});
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));

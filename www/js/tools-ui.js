@@ -60,7 +60,9 @@ export function renderVerdict(dom, s) {
 		const bar = dom.verdictBar;
 		bar.classList.toggle("fails", Boolean(f.failTick));
 		bar.classList.toggle("holds", Boolean(f.parts) && !f.failTick);
+		const fan = f.parts >= 12 && s.tiles.every((t) => !t.id || s.stats.get(t.id).category === "vent");
 		dom.verdictText.textContent = !f.parts ? "Place parts to see what this layout does"
+			: fan ? "A very expensive fan"
 			: [
 				holds(f),
 				`${num(f.power)} power`,

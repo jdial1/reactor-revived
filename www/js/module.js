@@ -215,6 +215,10 @@ function fuelOf(s, layout) {
 	return best?.type ?? null;
 }
 
+// The games this one came down from. A design named for one wears gold.
+const ANCESTORS = /^(ic2|industrialcraft( 2)?|reactor incremental|incremental|reactor knockoff|knockoff|reactor revival|revival)$/i;
+export const isAncestor = (name) => ANCESTORS.test(String(name).trim());
+
 /** A module as a part, the way the board, dock and sim expect one. */
 function asPart(s, m, prof) {
 	const icon = s.stats.get(m.icon) ?? PART_BY_ID.get(m.icon) ?? PART_BY_ID.get("uranium1");
@@ -224,7 +228,7 @@ function asPart(s, m, prof) {
 		title: m.name,
 		short: m.name,
 		art: icon.art ?? artFor(icon),
-		tint: m.tint,
+		tint: isAncestor(m.name) ? "cash" : m.tint,
 		fuel: fuelOf(s, m.layout),
 		module: m,
 		cost: prof.cost,
