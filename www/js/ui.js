@@ -343,7 +343,7 @@ function buildDock(dom, game) {
 	dom.partButtons = [];
 	dom.dockCols = [];
 	dom.dockPages = {};
-	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label));
+	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label, true));
 	const body = h("div", { id: "dock-body" });
 
 	for (const [tab, categories] of DOCK_TABS) {
@@ -387,9 +387,18 @@ function buildDock(dom, game) {
 	showDock(dom, DOCK_TABS[0][0]);
 }
 
-const showDock = (dom, label) => {
+/**
+ * Open a dock tab. Tapping the tab that is already open folds the parts away,
+ * giving the board the room; tapping any tab again brings them back.
+ */
+const showDock = (dom, label, tapped = false) => {
+	dom.dockFolded = tapped && label === dom.dockTab && !dom.dockFolded;
 	dom.dockTab = label;
 	dom.dockTabs.select(label, dom.dockPages);
+	dom.dock.classList.toggle("folded", dom.dockFolded);
+	for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) {
+		b.setAttribute("aria-expanded", String(b.dataset.value === label && !dom.dockFolded));
+	}
 };
 
 /**

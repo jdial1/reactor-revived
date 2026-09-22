@@ -1139,3 +1139,6 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .sides .side.on b { color: var(--cash); }
 .sides .side:disabled { opacity: 0.6; }
 .part .mod-face { width: 36px; height: 36px; }
+/* A folded dock keeps its tabs and gives the board the rest. */
+#dock.folded #dock-body { display: none; }
+#dock.folded #dock-tabs button.on { border-image-source: url(../ui/button.png); color: var(--dim); }
