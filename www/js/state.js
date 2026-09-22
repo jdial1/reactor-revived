@@ -63,6 +63,8 @@ export function newState(random = Math.random) {
 		// A save state per goal finished, and the example layouts already shown.
 		snapshots: [],
 		lessonsSeen: [],
+		// Which side of each doctrine set: { doctrine1: "left" }.
+		doctrines: {},
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -92,6 +94,7 @@ export function serialize(s) {
 		nextModuleId: s.nextModuleId,
 		snapshots: s.snapshots,
 		lessonsSeen: s.lessonsSeen,
+		doctrines: s.doctrines,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -118,6 +121,7 @@ export function deserialize(saved, random = Math.random) {
 	s.nextModuleId = saved.nextModuleId ?? s.modules.length + 1;
 	s.snapshots = saved.snapshots ?? [];
 	s.lessonsSeen = saved.lessonsSeen ?? [];
+	s.doctrines = saved.doctrines ?? {};
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

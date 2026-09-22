@@ -605,6 +605,16 @@ function buildUpgrades(dom, game) {
 		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
 		section.rows.push(row);
 		section.list.append(button);
+		// A doctrine set's two sides, beside the row that buys it: readable
+		// before buying, switchable after.
+		if (u.set) {
+			row.sides = ["left", "right"].map((side) => h("button", {
+				className: "side", dataset: { side },
+				onclick: () => game.pickDoctrine(u.id, side),
+			}, h("b", { textContent: u.set[side].title }), h("i", { textContent: u.set[side].desc })));
+			row.sideBox = h("div", { className: "sides" }, ...row.sides);
+			section.list.append(row.sideBox);
+		}
 	}
 }
 
@@ -917,7 +927,8 @@ function renderUpgrades(dom, s) {
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
 
 		// Measured, not declared. A switch has nothing to show and says so.
-		const step = nextLevel(s, u);
+		// A doctrine set's two sides say what it does; a single delta cannot.
+		const step = u.set ? null : nextLevel(s, u);
 		delta.hidden = !step;
 		if (step) {
 			was.textContent = step.from;
@@ -931,6 +942,14 @@ function renderUpgrades(dom, s) {
 
 		const shown = unlocked && (owned || affordable);
 		button.hidden = !shown;
+		if (row.sides) {
+			const chosen = owned ? (s.doctrines[u.id] ?? "left") : null;
+			for (const b of row.sides) {
+				b.disabled = !owned;
+				b.classList.toggle("on", b.dataset.side === chosen);
+				b.setAttribute("aria-pressed", String(b.dataset.side === chosen));
+			}
+		}
 		button.classList.toggle("preview", false);
 		if (!shown && unlocked) outOfReach.push({ row, price });
 		if (affordable && lv < maxLevel(u)) buyable.push(row);
@@ -945,6 +964,7 @@ function renderUpgrades(dom, s) {
 	}
 
 	// A section with nothing showing is not a heading over nothing.
+	for (const row of dom.upgradeRows) if (row.sideBox) row.sideBox.hidden = row.button.hidden;
 	for (const section of dom.upgradeSections) {
 		section.el.hidden = section.rows.every((r) => r.button.hidden);
 		const n = section.rows.filter((r) => buyable.includes(r)).length;

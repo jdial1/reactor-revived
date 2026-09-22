@@ -2,7 +2,7 @@
 import { load, save, newState, place, exportSave as saveText, deserialize, serialize, isSave } from "./state.js";
 import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
-import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
+import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet } from "./ui.js";
 import { fmt } from "./fmt.js";
@@ -109,7 +109,7 @@ const game = {
 
 	sellAll() {
 		if (s.power <= 0) return;         // nothing to sell; do not flash a lie
-		s.money += s.power;
+		s.money += s.power * s.sellMul;
 		s.power = 0;
 		s.soldPower = true;
 		play("coin");
@@ -128,6 +128,15 @@ const game = {
 		s.hasMeltedDown = false;
 		s.heat = 0;
 		compile(s);
+	},
+
+	/** Put one side of a bought doctrine set in force. Free, any time. */
+	pickDoctrine(id, side) {
+		if (!(s.levels[id] > 0)) return;
+		s.doctrines[id] = side;
+		applyUpgrades(s);
+		compile(s);
+		play("place");
 	},
 
 	togglePartInfo() {

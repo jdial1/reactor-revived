@@ -127,7 +127,7 @@ export function forecast(s, swap) {
 		power: perTick,
 		heat: (f.heat - start) / ran,
 		vented: vented / ran,
-		profit: perTick - upkeep,
+		profit: perTick * (s.sellMul ?? 1) - upkeep,
 		upkeep,
 		failTick,
 		failed,

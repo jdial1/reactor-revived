@@ -933,20 +933,41 @@ test("a new game gets the tutorial; a save from before it existed does not", () 
 	assert.equal(deserialize(serialize(done)).tutorialDone, true);
 });
 
-test("the paired upgrades rule each other out until a reboot", () => {
+test("doctrine sets open every five goals, cost ten times the last, and switch for free", () => {
 	const s = rich();
-	assert.equal(buy(s, "cascade_vents"), true);
-	assert.equal(buy(s, "salvage_crews"), false, "the other half of the pair is closed");
+	const sets = UPGRADES.filter((u) => u.group === "doctrine");
+	assert.equal(sets.length, 6);
+	assert.deepEqual(sets.map((u) => u.after), [5, 10, 15, 20, 25, 30]);
+	assert.deepEqual(sets.map((u) => u.cost), [1e3, 1e4, 1e5, 1e6, 1e7, 1e8]);
+	const titles = sets.flatMap((u) => [u.set.left.title, u.set.right.title]);
+	assert.equal(new Set(titles).size, 12, "twelve different doctrines");
+
+	s.objective = 4;
+	assert.equal(buy(s, "doctrine1"), false, "not before the fifth goal");
+	s.objective = 5;
+	assert.equal(buy(s, "doctrine1"), true);
+	assert.equal(buy(s, "doctrine2"), false, "the next set waits for goal ten");
+	assert.equal(s.openVents, true, "the left side is in force until another is picked");
+	s.doctrines.doctrine1 = "right";
+	applyUpgrades(s);
+	assert.equal(s.openVents, false);
+	assert.equal(s.sellBonus, true);
 	reboot(s);
-	s.money = 1e30;
-	assert.equal(buy(s, "salvage_crews"), true, "a reboot reopens the choice");
-	assert.equal(buy(s, "cascade_vents"), false);
+	assert.equal(s.sellBonus, false, "a reboot clears what was bought");
+	assert.equal(s.doctrines.doctrine1, "right", "but remembers the side");
 });
 
 // One cell's output, alone or beside another, under a set of upgrade levels.
 function cellOutput(levels, layout) {
 	const s = rich();
-	Object.assign(s.levels, levels);
+	for (const [id, lv] of Object.entries(levels)) {
+		const side = { diagonal_pulse: ["doctrine4", "left"], isolated_cores: ["doctrine4", "right"],
+			overclocked_cells: ["doctrine3", "left"] }[id];
+		if (side) {
+			s.levels[side[0]] = lv;
+			s.doctrines[side[0]] = side[1];
+		} else s.levels[id] = lv;
+	}
 	applyUpgrades(s);
 	for (const [r, c] of layout) put(s, r, c, "uranium1");
 	compile(s);
@@ -981,7 +1002,8 @@ test("Overclocked Cells: half again the power, twice the heat", () => {
 test("Throttled Cells halve output only above 80% heat", () => {
 	const run = (heatShare) => {
 		const s = rich();
-		s.levels.throttled_cells = 1;
+		s.levels.doctrine3 = 1;
+		s.doctrines.doctrine3 = "right";
 		applyUpgrades(s);
 		put(s, 5, 3, "uranium1");
 		compile(s);
@@ -995,7 +1017,8 @@ test("Throttled Cells halve output only above 80% heat", () => {
 
 test("Salvage Crews refund half an exploding part", () => {
 	const s = rich();
-	s.levels.salvage_crews = 1;
+	s.levels.doctrine2 = 1;
+	s.doctrines.doctrine2 = "right";
 	applyUpgrades(s);
 	const t = put(s, 5, 3, "vent1");
 	compile(s);
@@ -1009,7 +1032,8 @@ test("Salvage Crews refund half an exploding part", () => {
 
 test("Cascade Vents hand the excess to a neighbour with room", () => {
 	const s = rich();
-	s.levels.cascade_vents = 1;
+	s.levels.doctrine2 = 1;
+	s.doctrines.doctrine2 = "left";
 	applyUpgrades(s);
 	const failing = put(s, 5, 3, "vent1");
 	const spare = put(s, 5, 4, "vent1");
@@ -1093,4 +1117,45 @@ test("an exchanger's flows add up: what it takes in, it passes on or keeps", () 
 	tick(s);
 	const given = [[4, 5], [5, 4], [5, 6], [6, 5]].reduce((a, [r, c]) => a + tileAt(s, r, c).heatIn, 0);
 	assert.equal(x.heatOut, given);
+});
+
+test("the new doctrines each do what they say", () => {
+	const set = (id, side) => {
+		const s = rich();
+		s.levels[id] = 1;
+		s.doctrines[id] = side;
+		applyUpgrades(s);
+		return s;
+	};
+	const base = rich();
+	const open = set("doctrine1", "left");
+	assert.equal(open.stats.get("vent1").vent, base.stats.get("vent1").vent * 1.5);
+	assert.equal(open.stats.get("vent1").containment, base.stats.get("vent1").containment * 0.75);
+
+	const brokers = set("doctrine1", "right");
+	brokers.levels.improved_power_lines = 1;
+	applyUpgrades(brokers);
+	compile(brokers);
+	brokers.power = 100;
+	brokers.money = 0;
+	tick(brokers);
+	assert.equal(brokers.money, Math.ceil(brokers.maxPower * 0.01) * 1.25);
+
+	const pressure = set("doctrine5", "left");
+	assert.equal(pressure.baseMaxHeat, base.baseMaxHeat * 2);
+	assert.equal(pressure.stats.get("heat_outlet1").transfer, base.stats.get("heat_outlet1").transfer * 0.75);
+	const fast = set("doctrine5", "right");
+	assert.equal(fast.baseMaxHeat, base.baseMaxHeat * 0.75);
+	assert.equal(fast.stats.get("heat_exchanger1").transfer, base.stats.get("heat_exchanger1").transfer * 1.5);
+
+	const lattice = set("doctrine6", "left");
+	assert.equal(lattice.stats.get("reflector1").powerIncrease, base.stats.get("reflector1").powerIncrease * 0.5);
+	put(lattice, 5, 5, "uranium1");
+	const r = put(lattice, 5, 6, "reflector1");
+	compile(lattice);
+	const life = r.ticks;
+	tick(lattice);
+	assert.equal(r.ticks, life, "a lattice reflector does not wear");
+	const deep = set("doctrine6", "right");
+	assert.equal(deep.stats.get("capacitor1").reactorPower, base.stats.get("capacitor1").reactorPower * 3);
 });

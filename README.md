@@ -91,24 +91,19 @@ order. Here, levels are the only stored truth and one `applyUpgrades()`
 recomputes everything derived from them — so load, reboot and refund fall out
 for free.
 
-**Doctrines are choices, not volume.** Three pairs of upgrades rule each other
-out, and reboot clears them, so each run picks a side again:
+**Doctrines are choices, not volume.** A set opens every five goals, and each is
+a choice between two ways to run a reactor. Buying a set opens it; which side is
+in force can be switched at any time, for nothing. Each set costs ten times the
+last. A reboot clears what was bought but remembers the sides.
 
-| Pair | One side | The other |
-| --- | --- | --- |
-| $2.5K | **Cascade Vents** - a failing vent hands its excess to a neighbouring vent with room | **Salvage Crews** - an exploded part refunds half its price |
-| $50K | **Overclocked Cells** - 1.5x power, 2x heat | **Throttled Cells** - above 80% heat, cells run at half power and half heat |
-| $5M | **Diagonal Pulse** - cells also pulse into their corners | **Isolated Cores** - a cell with no neighbouring cell makes 3x power |
-
-**Upgrades are grouped by what they act on**, the way Incremental and Knockoff
-laid their pages out: the reactor, then each fuel on its own (power, life and
-perpetual for uranium together, the same for plutonium, and so on, each under
-its own cell), then capacitors and reflectors, vents, coolant and plating, and
-exchangers, inlets and outlets - the dock's own families - then doctrines. The
-research page uses the same headings, plus the laboratory, modules, particle
-accelerators and the experimental parts. A heading with nothing under it yet
-is not shown. Each heading folds its section away, and carries a count of what
-in it you can afford right now, so a folded section still says when to open it.
+| Set | Opens | Cost | Left | Right |
+| --- | --- | --- | --- | --- |
+| I - Vents or markets | 5 goals | $1K | **Open Vents** - vents shed +50%, hold 25% less | **Power Brokers** - every sale pays 25% more |
+| II - When a part fails | 10 | $10K | **Cascade Vents** - a failing vent hands its excess to a neighbour with room | **Salvage Crews** - an exploded part refunds half its price |
+| III - How hard the cells run | 15 | $100K | **Overclocked Cells** - 1.5x power, 2x heat | **Throttled Cells** - above 80% heat, half power and half heat |
+| IV - The shape of a core | 20 | $1M | **Diagonal Pulse** - cells pulse into their corners | **Isolated Cores** - a lone cell makes 3x power |
+| V - Where heat is kept | 25 | $10M | **Pressurised Core** - reactor max heat x2, outlets move 25% less | **Fast Exchange** - exchangers, inlets and outlets move +50%, max heat 25% less |
+| VI - What parts last | 30 | $100M | **Reflector Lattice** - reflectors never wear, half the boost | **Deep Capacitors** - capacitors add 3x max power |
 
 Every other upgrade makes a number bigger. These change the shape of a good
 layout, so they are what a second reactor does differently from the first.

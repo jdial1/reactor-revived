@@ -53,23 +53,42 @@ const CASH = [
 	  desc: "Each capacitor adds 1% vent throughput per level." },
 ];
 
-// Choices rather than multipliers. Each pair is either/or for the run: buying
-// one rules the other out until a reboot clears both. They change how a
-// reactor is built, not how big its numbers are.
-const DOCTRINES = [
-	{ id: "cascade_vents", group: "doctrine", title: "Cascade Vents", cost: 2500, levels: 1, excludes: "salvage_crews",
-	  desc: "A vent about to fail passes its excess heat to a neighbouring vent with room instead. Rules out Salvage Crews." },
-	{ id: "salvage_crews", group: "doctrine", title: "Salvage Crews", cost: 2500, levels: 1, excludes: "cascade_vents",
-	  desc: "A part that explodes refunds half its price. Rules out Cascade Vents." },
-	{ id: "overclocked_cells", group: "doctrine", title: "Overclocked Cells", cost: 50000, levels: 1, excludes: "throttled_cells",
-	  desc: "Cells produce 50% more power and twice the heat. Rules out Throttled Cells." },
-	{ id: "throttled_cells", group: "doctrine", title: "Throttled Cells", cost: 50000, levels: 1, excludes: "overclocked_cells",
-	  desc: "Above 80% of maximum heat, cells produce half their power and half their heat. Rules out Overclocked Cells." },
-	{ id: "diagonal_pulse", group: "doctrine", title: "Diagonal Pulse", cost: 5e6, levels: 1, excludes: "isolated_cores",
-	  desc: "Cells also pulse into the cells at their corners. Rules out Isolated Cores." },
-	{ id: "isolated_cores", group: "doctrine", title: "Isolated Cores", cost: 5e6, levels: 1, excludes: "diagonal_pulse",
-	  desc: "A cell with no other cell beside it produces three times the power. Rules out Diagonal Pulse." },
+// Doctrines: a set opens every five goals, each a choice between two ways to run
+// a reactor. Buying a set opens it; which side is in force can be switched at
+// any time, for nothing. Each set costs ten times the last. A reboot clears
+// what was bought, like any cash upgrade, but remembers the sides.
+export const DOCTRINE_SETS = [
+	{ title: "Vents or markets",
+	  left: { key: "openVents", title: "Open Vents", desc: "Vents shed half again as much heat each tick, but hold a quarter less before they fail." },
+	  right: { key: "sellBonus", title: "Power Brokers", desc: "Every sale pays a quarter more, by hand or down the power lines." } },
+	{ title: "When a part fails",
+	  left: { key: "cascadeVents", title: "Cascade Vents", desc: "A vent about to fail passes its excess to a neighbouring vent with room instead." },
+	  right: { key: "salvage", title: "Salvage Crews", desc: "A part that explodes refunds half its price." } },
+	{ title: "How hard the cells run",
+	  left: { key: "overclock", title: "Overclocked Cells", desc: "Cells make half again the power and twice the heat." },
+	  right: { key: "throttle", title: "Throttled Cells", desc: "Above 80% of maximum heat, cells make half their power and half their heat." } },
+	{ title: "The shape of a core",
+	  left: { key: "diagonalPulse", title: "Diagonal Pulse", desc: "Cells also pulse into the cells at their corners." },
+	  right: { key: "isolatedCores", title: "Isolated Cores", desc: "A cell with no other cell beside it makes three times the power." } },
+	{ title: "Where heat is kept",
+	  left: { key: "pressurised", title: "Pressurised Core", desc: "The reactor holds twice the heat before it shakes, but outlets move a quarter less." },
+	  right: { key: "fastExchange", title: "Fast Exchange", desc: "Exchangers, inlets and outlets move half again as much heat, but the reactor holds a quarter less." } },
+	{ title: "What parts last",
+	  left: { key: "reflectorLattice", title: "Reflector Lattice", desc: "Reflectors never wear out, but give half the boost." },
+	  right: { key: "deepCapacitors", title: "Deep Capacitors", desc: "Capacitors raise maximum power three times as much." } },
 ];
+
+const NUMERALS = ["I", "II", "III", "IV", "V", "VI"];
+const DOCTRINES = DOCTRINE_SETS.map((d, i) => ({
+	id: `doctrine${i + 1}`,
+	group: "doctrine",
+	title: `${NUMERALS[i]} \u00B7 ${d.title}`,
+	cost: 1000 * 10 ** i,
+	levels: 1,
+	after: (i + 1) * 5,
+	set: d,
+	desc: `${d.left.title} or ${d.right.title}. Pick a side; switch whenever you like.`,
+}));
 
 // Exotic-particle upgrades. `laboratory` gates the rest.
 const EXOTIC = [
@@ -163,7 +182,7 @@ export const SECTIONS = [
 	["casings", "Modules"],
 	["accelerators", "Particle accelerators"],
 	["parts", "Experimental parts"],
-	["doctrine", "Doctrines - one of each pair per run"],
+	["doctrine", "Doctrines - pick a side, switch any time"],
 ];
 
 const SECTION_BY_ID = {
@@ -204,7 +223,7 @@ export function costOf(s, u) {
 
 export const isUnlocked = (s, u) =>
 	(!u.requires || s.levels[u.requires] > 0)
-	&& (!u.excludes || !(s.levels[u.excludes] > 0))
+	&& (!u.after || s.objective >= u.after)
 	&& (!u.ecost || u.id === "laboratory" || s.levels.laboratory > 0);
 
 /** Buy one level. Returns true if it happened. */
@@ -247,14 +266,17 @@ export function applyUpgrades(s) {
 	s.ventPlatingMul = L("improved_heatsinks");
 	s.ventCapacitorMul = L("active_venting");
 	s.perpetualCapacitors = L("perpetual_capacitors") > 0;
-	s.cascadeVents = L("cascade_vents") > 0;
-	s.salvage = L("salvage_crews") > 0;
-	s.overclock = L("overclocked_cells") > 0;
-	s.throttle = L("throttled_cells") > 0;
-	s.diagonalPulse = L("diagonal_pulse") > 0;
-	s.isolatedCores = L("isolated_cores") > 0;
+	// Whichever side of each bought doctrine set is in force.
+	for (const [i, d] of DOCTRINE_SETS.entries()) {
+		const side = L(`doctrine${i + 1}`) > 0 ? (s.doctrines?.[`doctrine${i + 1}`] ?? "left") : null;
+		s[d.left.key] = side === "left";
+		s[d.right.key] = side === "right";
+	}
+	s.sellMul = s.sellBonus ? 1.25 : 1;
 	s.baseMaxPower = BASE_MAX_POWER * 4 ** L("phlembotinum_core");
 	s.baseMaxHeat = BASE_MAX_HEAT * 4 ** L("phlembotinum_core");
+	if (s.pressurised) s.baseMaxHeat *= 2;
+	if (s.fastExchange) s.baseMaxHeat *= 0.75;
 	s.casingEff = 0.25 + 0.05 * L("casing_tolerances");
 	s.maxNest = 1 + L("nested_casings");
 
@@ -292,6 +314,16 @@ export function applyUpgrades(s) {
 				p.ticks = base.ticks * 2 ** L(`cell_tick_${p.type}`);
 			}
 		}
+
+		// Doctrines, after the upgrades have scaled the part.
+		if (s.openVents && p.category === "vent") {
+			p.vent *= 1.5;
+			p.containment *= 0.75;
+		}
+		if (s.fastExchange && p.transfer && p.category.startsWith("heat_")) p.transfer *= 1.5;
+		if (s.pressurised && p.category === "heat_outlet") p.transfer *= 0.75;
+		if (s.reflectorLattice && p.category === "reflector") p.powerIncrease *= 0.5;
+		if (s.deepCapacitors && p.category === "capacitor") p.reactorPower *= 3;
 
 		s.stats.set(p.id, p);
 	}
@@ -343,7 +375,8 @@ const PERCENT = new Set(["autoSellMul", "transferPlatingMul", "transferCapacitor
 
 /** The one-off switches, which have no number to show - only a state. */
 const SWITCHES = ["heatControlOperator", "heatOutletControlled", "perpetualCapacitors",
-	"cascadeVents", "salvage", "overclock", "throttle", "diagonalPulse", "isolatedCores"];
+	"cascadeVents", "salvage", "overclock", "throttle", "diagonalPulse", "isolatedCores",
+	"openVents", "sellBonus", "pressurised", "fastExchange", "reflectorLattice", "deepCapacitors"];
 
 // fmt() drops the decimals below 1000, which is right for money and wrong for
 // a vent going 4 -> 4.5, so small numbers are written out instead.

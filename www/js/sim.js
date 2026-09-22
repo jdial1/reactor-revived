@@ -379,6 +379,7 @@ export function tick(s) {
 
 /** A reflector loses a pulse each time an adjacent cell fires, then dies. */
 function wear(s, t) {
+	if (s.reflectorLattice) return;
 	t.ticks--;
 	if (t.ticks === 0) expire(s, t, partOf(s, t));
 }
@@ -555,7 +556,7 @@ function sell(s, extremeCapacitors) {
 	const pct = amount > s.power ? s.power / amount : 1;
 	if (amount > s.power) amount = s.power;
 	s.power -= amount;
-	s.money += amount;
+	s.money += amount * s.sellMul;
 	s.soldPower = true;
 
 	// Extreme capacitors heat themselves by half of what they sold.
