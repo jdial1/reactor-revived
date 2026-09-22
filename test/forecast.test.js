@@ -68,3 +68,12 @@ test("a swap is forecast on a copy, and replace-all is priced and paid all at on
 	assert.equal(replaceAll(poor, "vent1", "vent5"), false);
 	assert.equal(tileAt(poor, 0, 0).id, "vent1");
 });
+
+test("a failure further off than a hundred thousand ticks counts as holding", () => {
+	// One quad cell and nothing to cool it: the reactor warms, but its own
+	// passive cooling keeps it from ever getting anywhere near a meltdown.
+	const s = board([[9, 1, "uranium3"]]);
+	const f = forecast(s);
+	assert.equal(f.failTick, 0);
+	assert.ok(f.heat > 0, "it is warming");
+});

@@ -5,6 +5,8 @@ import { compile, tick, rebuyPrice } from "./sim.js";
 import { innerSave } from "./module.js";
 
 const HORIZON = 600;
+/** A failure further off than this is a board that holds, warming slowly. */
+const FAR = 100000;
 
 function seeded(seed = 7) {
 	return () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
@@ -119,6 +121,11 @@ export function forecast(s, swap) {
 			}
 		});
 		estimated = Boolean(failTick);
+		if (failTick > FAR) {
+			failTick = 0;
+			failed = null;
+			estimated = false;
+		}
 	}
 	const perTick = power / ran;
 	const upkeep = upkeepOf(s, f);
