@@ -186,7 +186,13 @@ export function buildUI(game) {
 	dom.objective.setAttribute("aria-haspopup", "dialog");
 	dom.objective.setAttribute("aria-expanded", "false");
 	dom.objective.append(dom.goalText, dom.goalBar);
-	root.append(h("header", { id: "goal" }, dom.objective, dom.pause));
+	// The planner: a free copy of the board to try things on, as the IC2
+	// planners let you. Build puts it onto the real board; Discard forgets it.
+	dom.plan = h("button", { className: "pause", title: "Try a layout for free", onclick: game.startPlanner },
+		icon("options"), h("span", { textContent: "Plan" }));
+	dom.planBuild = h("button", { className: "pause", onclick: game.buildPlan }, h("span", { textContent: "Build" }));
+	dom.planDiscard = h("button", { className: "pause", onclick: game.discardPlan }, h("span", { textContent: "Discard" }));
+	root.append(h("header", { id: "goal" }, dom.objective, dom.plan, dom.planBuild, dom.planDiscard, dom.pause));
 	// One polite live region for the whole game: goals met, meltdowns, unlocks.
 	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
 
@@ -647,7 +653,7 @@ export function render(dom, s, game) {
 	dom.shownMoney = gap < 0 || gap < Math.max(1, s.money * 0.01)
 		? s.money
 		: dom.shownMoney + gap * 0.55;
-	dom.money.set(`$${fmt(dom.shownMoney)}`);
+	dom.money.set(s.planner ? "PLAN" : `$${fmt(dom.shownMoney)}`);
 	// Pending particles are only worth anything once a reboot banks them.
 	dom.ep.set(s.exoticParticles
 		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
@@ -682,9 +688,16 @@ export function render(dom, s, game) {
 	const goal = OBJECTIVES[s.objective];
 	const step = goal?.progress?.(s);
 	const prize = goal && (goal.reward ? `  $${fmt(goal.reward)}` : goal.epReward ? `  ${fmt(goal.epReward)} EP` : "");
-	dom.goalText.textContent = goal
-		? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
-		: "Every goal met.";
+	dom.goalText.textContent = s.planner
+		? "Planner: free, not real"
+		: goal
+			? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
+			: "Every goal met.";
+	document.body.classList.toggle("planning", Boolean(s.planner));
+	dom.plan.hidden = Boolean(s.planner);
+	dom.planBuild.hidden = !s.planner;
+	dom.planDiscard.hidden = !s.planner;
+	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);
 	dom.goalBar.style.setProperty("--p", step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
@@ -824,7 +837,7 @@ function affordable(s, experiments) {
 function renderPips(dom, s) {
 	for (const [id, pip] of Object.entries(dom.pips)) {
 		const n = affordable(s, id === "experiments");
-		pip.hidden = !n;
+		pip.hidden = !n || Boolean(s.planner);
 		pip.textContent = n > 1 ? n : "";
 		pip.classList.toggle("many", n > 1);
 		pip.setAttribute("aria-label", n === 1 ? "1 affordable" : `${n} affordable`);

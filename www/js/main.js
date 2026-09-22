@@ -1,5 +1,5 @@
 // Wiring: the loops, and the actions the UI can trigger.
-import { load, save, newState, place, exportSave as saveText, deserialize, isSave } from "./state.js";
+import { load, save, newState, place, exportSave as saveText, deserialize, serialize, isSave } from "./state.js";
 import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState } from "./upgrades.js";
@@ -8,7 +8,7 @@ import { buildUI, render, ask, inspect, flash, toast, goalMet } from "./ui.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId } from "./module.js";
-import { layoutCode, readLayout, applyLayout, describe } from "./layout.js";
+import { layoutCode, readLayout, applyLayout, describe, layoutOf } from "./layout.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
@@ -21,6 +21,9 @@ const OBJECTIVE_MS = 2000;
 
 let s = load();
 let dom;
+// While planning, `s` is a free copy of the board and this is the real game.
+let real = null;
+const theGame = () => real ?? s;
 
 /** Put the selected part on one tile, buying or queueing it. */
 function placeAt(r, c) {
@@ -174,6 +177,38 @@ const game = {
 
 	layoutCode: () => layoutCode(s),
 
+	// A copy of the board where everything is free and nothing is kept. Money
+	// is infinite, goals do not count, and saves keep writing the real game.
+	startPlanner() {
+		if (real) return;
+		real = s;
+		s = deserialize(serialize(real));
+		s.planner = true;
+		s.money = Infinity;
+		// Spent parts rebuy themselves, so a plan keeps its shape while it runs.
+		s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
+		s.paused = false;
+		boot();
+	},
+
+	buildPlan() {
+		if (!real) return;
+		const plan = layoutOf(s);
+		s = real;
+		real = null;
+		const said = describe(applyLayout(s, plan));
+		boot();
+		play("place");
+		toast(said, "reactor");
+	},
+
+	discardPlan() {
+		if (!real) return;
+		s = real;
+		real = null;
+		boot();
+	},
+
 	/** Build a pasted code onto the board; null when it is not a code. */
 	buildLayout(code) {
 		const layout = readLayout(code);
@@ -228,9 +263,9 @@ setInterval(() => {
 setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
 	const done = OBJECTIVES[s.objective];
-	if (checkObjectives(s)) goalMet(dom, done.title);
+	if (!s.planner && checkObjectives(s)) goalMet(dom, done.title);
 }, OBJECTIVE_MS);
-setInterval(() => save(s), SAVE_MS);
+setInterval(() => save(theGame()), SAVE_MS);
 
 // Android calls these back when the picker has actually done something, so the
 // confirmation is the file existing rather than the button being pressed.
@@ -260,5 +295,5 @@ window.importSave = (json) => {
 
 // Android can kill the process without warning once backgrounded.
 addEventListener("visibilitychange", () => {
-	if (document.visibilityState === "hidden") save(s);
+	if (document.visibilityState === "hidden") save(theGame());
 });

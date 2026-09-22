@@ -1023,3 +1023,8 @@ textarea.code {
 }
 dialog .note { margin: 0 0 8px; color: #d87a7a; }
 dialog .note:empty { display: none; }
+
+/* Planning: the board wears a blueprint edge so it never passes for the real one. */
+body.planning #board { box-shadow: inset 0 0 0 2px #4aa8d8; background: #0a1a26; }
+body.planning #goal { background: #0e2233; }
+#tabs button:disabled { opacity: 0.35; }
