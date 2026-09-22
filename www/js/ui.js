@@ -9,6 +9,7 @@ import { icon } from "./icons.js";
 import { play, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
+import { span } from "./flux.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -174,7 +175,7 @@ export function buildUI(game) {
 
 	dom.pauseLabel = h("span", {});
 	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
-	dom.pause = h("button", { className: "pause", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
+	dom.pause = h("button", { className: "pause squeeze", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 
 	dom.goalText = h("span", {});
 	dom.goalBar = h("i", { className: "goal-bar" });
@@ -188,11 +189,15 @@ export function buildUI(game) {
 	dom.objective.append(dom.goalText, dom.goalBar);
 	// The planner: a free copy of the board to try things on, as the IC2
 	// planners let you. Build puts it onto the real board; Discard forgets it.
-	dom.plan = h("button", { className: "pause", title: "Try a layout for free", onclick: game.startPlanner },
-		icon("options"), h("span", { textContent: "Plan" }));
+	dom.plan = h("button", { className: "pause squeeze", title: "Try a layout for free", ariaLabel: "Plan", onclick: game.startPlanner },
+		icon("plan"), h("span", { textContent: "Plan" }));
 	dom.planBuild = h("button", { className: "pause", onclick: game.buildPlan }, h("span", { textContent: "Build" }));
 	dom.planDiscard = h("button", { className: "pause", onclick: game.discardPlan }, h("span", { textContent: "Discard" }));
-	root.append(h("header", { id: "goal" }, dom.objective, dom.plan, dom.planBuild, dom.planDiscard, dom.pause));
+	// Banked time, counting down while it is spent; the same tap stops it.
+	dom.fluxText = h("span", {});
+	dom.flux = h("button", { className: "pause flux", title: "Time Flux: run banked time at ten times speed", onclick: game.toggleFlux },
+		icon("flux"), dom.fluxText);
+	root.append(h("header", { id: "goal" }, dom.objective, dom.flux, dom.plan, dom.planBuild, dom.planDiscard, dom.pause));
 	// One polite live region for the whole game: goals met, meltdowns, unlocks.
 	root.append(h("p", { id: "say", className: "sr-only" , role: "status" }));
 
@@ -670,6 +675,7 @@ export function render(dom, s, game) {
 	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
 	if (dom.pauseLabel.textContent !== (s.paused ? "Resume" : "Pause")) {
 		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
+		dom.pause.setAttribute("aria-label", dom.pauseLabel.textContent);
 		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
 	}
 	if (s.hasMeltedDown && !dom.meltdownShown) {
@@ -695,6 +701,10 @@ export function render(dom, s, game) {
 			: "Every goal met.";
 	document.body.classList.toggle("planning", Boolean(s.planner));
 	dom.plan.hidden = Boolean(s.planner);
+	dom.flux.hidden = !s.fluxOn && s.flux < s.loopWait;
+	dom.fluxText.textContent = span(s.flux);
+	dom.flux.classList.toggle("on", Boolean(s.fluxOn));
+	dom.flux.setAttribute("aria-pressed", String(Boolean(s.fluxOn)));
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
 	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);

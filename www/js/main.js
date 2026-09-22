@@ -9,6 +9,7 @@ import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId } from "./module.js";
 import { layoutCode, readLayout, applyLayout, describe, layoutOf } from "./layout.js";
+import { bankTime, spendFlux, span } from "./flux.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
@@ -124,6 +125,10 @@ const game = {
 		s.hasMeltedDown = false;
 		s.heat = 0;
 		compile(s);
+	},
+
+	toggleFlux() {
+		s.fluxOn = !s.fluxOn && s.flux >= s.loopWait;
 	},
 
 	togglePause() {
@@ -249,12 +254,27 @@ function boot() {
 
 // The reactor's own beat. Reschedules itself because Improved Chronometers
 // changes the interval.
+// Nothing runs while the game is out of sight: that time is banked as Time Flux
+// instead, and spent at ten times speed when the player turns it on.
 function gameLoop() {
-	if (!s.paused) tick(s);
+	if (!document.hidden) {
+		if (!s.paused) {
+			tick(s);
+			for (let n = spendFlux(s); n > 0; n--) tick(s);
+		}
+		theGame().lastSeen = Date.now();
+	}
 	setTimeout(gameLoop, s.loopWait);
 }
 
+/** Bank the time away, and say so if there was any. */
+function welcomeBack() {
+	const banked = bankTime(theGame(), Date.now());
+	if (banked) toast(`Away ${span(banked)} - banked as Time Flux`, "flux");
+}
+
 boot();
+welcomeBack();
 gameLoop();
 setInterval(() => {
 	render(dom, s, game);
@@ -295,5 +315,8 @@ window.importSave = (json) => {
 
 // Android can kill the process without warning once backgrounded.
 addEventListener("visibilitychange", () => {
-	if (document.visibilityState === "hidden") save(theGame());
+	if (document.visibilityState === "hidden") {
+		theGame().lastSeen = Date.now();
+		save(theGame());
+	} else welcomeBack();
 });

@@ -21,6 +21,11 @@ const BASE = {
 	paused: false,
 	muted: false,
 	tutorialDone: false,
+	// Time Flux: ms banked while away, whether it is being spent, and when the
+	// game last ran.
+	flux: 0,
+	fluxOn: false,
+	lastSeen: 0,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -75,6 +80,7 @@ export function serialize(s) {
 		paused: s.paused,
 		muted: s.muted,
 		tutorialDone: s.tutorialDone,
+		flux: s.flux, fluxOn: s.fluxOn, lastSeen: s.lastSeen,
 		levels: s.levels,
 		placed: s.placed,
 		modules: s.modules,
