@@ -260,10 +260,24 @@ of this line loved, what broke, and what they asked for. What came of it:
 - **A save state for every goal finished.** The game as it stood, with its
   verdict, filed in the log under the job. From there: rebuild that board onto
   today's, or roll the whole game back to that moment.
-- **Example layouts** as the goals reach them - direct cooling, indirect
-  cooling through outlets, and exchangers spreading a hot block across many
-  first-tier vents - each shown once, kept on its job in the log, and one tap
-  from the planner. A test holds every one to holding and paying.
+- **Example layouts** as the goals reach them, each shown once, kept on its job
+  in the log, and one tap from the planner: direct cooling (goal 6), indirect
+  cooling through outlets (10), exchangers spreading a hot block across many
+  first-tier vents (14), an exchanger chain carrying heat away to a vent field
+  (16), a heat pipe of coolant, inlets and outlets (18), and feeding a particle
+  accelerator - warm, never full - for Exotic Particles (22). A test holds every
+  one to holding, paying, and venting exactly what its cells make.
+- **Heat is conserved.** A cell's heat is split exactly between the parts
+  around it. Knockoff rounded each share up, so 4 heat over 3 vents put 6 into
+  them and sent -2 to the reactor: heat from nothing, which Flow made visible.
+- **Payback**, on the verdict line, in replace-all and on every save state: what
+  the board cost to build, over its profit per tick - how many ticks it takes to
+  earn itself back. It is the efficiency figure IC2 players ranked designs by.
+- **The balance is pinned.** A test holds each example's power, cost and payback
+  to its current value, so a change that moves the balance fails a test rather
+  than slipping through. Today direct cooling pays back in 160 ticks and
+  indirect in 370 - the gap Reactor Incremental players complained about, left
+  as it is until it is tuned on purpose.
 - **Import asks first** and refuses a file it cannot read (Knockoff #36 - and
   here an unknown version used to load as a brand-new game).
 - **Exchangers share evenly** (Knockoff #4). Every share is worked out before any

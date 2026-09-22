@@ -8,10 +8,16 @@ const V = "vent1";
 const U = "uranium1";
 const X = "heat_exchanger1";
 const O = "heat_outlet1";
+const I = "heat_inlet1";
+const C = "coolant_cell1";
+const A = "particle_accelerator1";
 
-/** Draw a layout from rows of letters: U cell, V vent, X exchanger, O outlet. */
+/**
+ * Draw a layout from rows of letters: U cell, V vent, X exchanger, O outlet,
+ * I inlet, C coolant cell, A particle accelerator.
+ */
 function draw(rows) {
-	const key = { U, V, X, O };
+	const key = { U, V, X, O, I, C, A };
 	const tiles = [];
 	rows.forEach((line, r) => [...line].forEach((ch, c) => {
 		if (key[ch]) tiles.push([r, c, key[ch]]);
@@ -60,7 +66,52 @@ export const LESSONS = {
 			"...VV...",
 		]),
 	},
+	chain: {
+		title: "Carrying heat away",
+		text: "Exchangers pass heat along a line, each one evening itself out with the next, so cells can sit well away from where their heat is shed. This pair feeds a column that carries the heat down to a field of vents, leaving the space around the cells free for more cells.",
+		tiles: draw([
+			"",
+			".UU.....",
+			".XX.....",
+			"..X.....",
+			"..X.....",
+			"..X.....",
+			".VXV....",
+			"VVXVV...",
+			".VXV....",
+			"..V.....",
+		]),
+	},
+	heatpipe: {
+		title: "A heat pipe",
+		text: "Coolant cells soak up the core's heat. Inlets beside the coolant pull it out into the reactor, and outlets far away push it into vents. The core can be as dense as you like; what decides how much it can run is how much the pipe can carry.",
+		tiles: draw([
+			".ICCI...",
+			".CUUC...",
+			".CUUC...",
+			".ICCI...",
+			"",
+			"",
+			".V...V..",
+			"VOV.VOV.",
+			".V...V..",
+			"...V....",
+			"..VOV...",
+			"...V....",
+		]),
+	},
+	epfarm: {
+		title: "Feeding an accelerator",
+		text: "An accelerator turns the heat it holds into Exotic Particles - the fuller it runs, the more it makes. One that overflows melts the whole reactor down, so it is never cooled directly: exchangers feed it from the cells and share its heat with the vents, keeping it warm and never full. The first accelerator holds only 100 heat and earns slowly; as bigger ones unlock, swap them in with Replace or upgrade all.",
+		tiles: draw([
+			"",
+			"...UU...",
+			"...XX...",
+			"...AXV..",
+			"....V...",
+		]),
+	},
 };
 
 /** The lesson each goal opens, by goal index: shown once, when it becomes the next job. */
-export const LESSON_AT = { 6: "direct", 10: "indirect", 14: "exchangers" };
+export const LESSON_AT = { 6: "direct", 10: "indirect", 14: "exchangers", 16: "chain", 18: "heatpipe", 22: "epfarm" };

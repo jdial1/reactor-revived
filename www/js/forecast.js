@@ -71,6 +71,7 @@ export function forecast(s, swap) {
 	if (!parts) return { parts: 0 };
 
 	const start = f.heat;
+	const ep = f.exoticParticles;
 	let power = 0;
 	let vented = 0;
 	let failTick = 0;
@@ -129,12 +130,19 @@ export function forecast(s, swap) {
 	}
 	const perTick = power / ran;
 	const upkeep = upkeepOf(s, f);
+	// What the board cost to build, and how long its profit takes to pay that
+	// back - the efficiency players ranked designs by, in ticks.
+	const cost = s.tiles.reduce((a, t) => a + (t.activated && t.id ? s.stats.get(t.id).cost : 0), 0);
+	const profit = perTick * (s.sellMul ?? 1) - upkeep;
 	return {
 		parts,
 		power: perTick,
 		heat: (f.heat - start) / ran,
 		vented: vented / ran,
-		profit: perTick * (s.sellMul ?? 1) - upkeep,
+		ep: (f.exoticParticles - ep) / ran,
+		profit,
+		cost,
+		payback: profit > 0 ? cost / profit : Infinity,
 		upkeep,
 		failTick,
 		failed,

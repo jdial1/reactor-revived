@@ -25,6 +25,9 @@ export function miniBoard(s, tiles) {
 	return h("div", { className: "mini-board", style: `--cols:${COLS}` }, ...cells);
 }
 
+/** How long a board takes to earn back what it cost. */
+const payback = (f) => (!f.parts ? null : Number.isFinite(f.payback) ? `pays back in ${fmt(Math.ceil(f.payback))} ticks` : "never pays back");
+
 /** "Holds" or "Fails at tick 41 - Heat Vent", the heart of every verdict. */
 const holds = (f) => (!f.failTick ? "Holds"
 	: `Fails at tick ${f.estimated ? "~" : ""}${fmt(f.failTick)}${f.failed === "meltdown" ? " - meltdown" : f.failed ? ` - ${f.failed}` : ""}`);
@@ -63,6 +66,7 @@ export function renderVerdict(dom, s) {
 				`${num(f.power)} power`,
 				Math.abs(f.heat) >= 0.05 ? `reactor ${signed(f.heat)} heat` : null,
 				`${money(f.profit)}/tick after fuel`,
+				payback(f),
 			].filter(Boolean).join("  ·  ");
 	}, 350);
 }
@@ -144,6 +148,8 @@ export function replaceDialog(s, from, game) {
 			["Power /tick", num(before.power ?? 0), num(after.power ?? 0), (after.power ?? 0) >= (before.power ?? 0)],
 			["Reactor heat /tick", signed(before.heat ?? 0), signed(after.heat ?? 0), (after.heat ?? 0) <= (before.heat ?? 0)],
 			["Profit /tick", money(before.profit ?? 0), money(after.profit ?? 0), (after.profit ?? 0) >= (before.profit ?? 0)],
+			["Pays back in", Number.isFinite(before.payback) ? `${fmt(Math.ceil(before.payback))} ticks` : "never",
+				Number.isFinite(after.payback) ? `${fmt(Math.ceil(after.payback))} ticks` : "never", (after.payback ?? Infinity) <= (before.payback ?? Infinity)],
 			["Holds", holds(before), holds(after), !after.failTick || (before.failTick && after.failTick > before.failTick)],
 		];
 		const table = (title, list) => h("div", { className: "change" },
@@ -179,6 +185,7 @@ export function snapshotDialog(s, snap, game) {
 			["Parts", String(st.parts)],
 			["Power", `${num(st.power)} /tick`],
 			["Profit", `${money(st.profit)} /tick after fuel`],
+			["Pays back", st.payback ? `in ${fmt(Math.ceil(st.payback))} ticks` : "never"],
 			["Holds", holds(st)],
 		].flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "sheet-actions" },

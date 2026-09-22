@@ -1159,3 +1159,17 @@ test("the new doctrines each do what they say", () => {
 	const deep = set("doctrine6", "right");
 	assert.equal(deep.stats.get("capacitor1").reactorPower, base.stats.get("capacitor1").reactorPower * 3);
 });
+
+test("a cell's heat is shared exactly: none made, none lost", () => {
+	const s = rich();
+	put(s, 5, 3, "uranium1");
+	put(s, 5, 4, "uranium1");
+	const vents = [[4, 3], [6, 3], [5, 2]].map(([r, c]) => put(s, r, c, "vent1"));
+	compile(s);
+	s.heat = 0;
+	tick(s);
+	// The left cell makes 4 and has three vents: 4/3 each, not 2 each.
+	for (const v of vents) assert.ok(Math.abs(v.heatIn - 4 / 3) < 1e-9, v.heatIn);
+	// The right cell has no vents, so all of its 4 reaches the reactor.
+	assert.ok(Math.abs(s.heat - (4 - s.maxHeat / 10000)) < 1e-9, s.heat);
+});

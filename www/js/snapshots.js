@@ -19,6 +19,8 @@ export function takeSnapshot(s, objective, now = Date.now()) {
 			power: f.power ?? 0,
 			heat: f.heat ?? 0,
 			profit: f.profit ?? 0,
+			// Infinity does not survive JSON; 0 reads as "never".
+			payback: Number.isFinite(f.payback) ? f.payback : 0,
 			failTick: f.failTick ?? 0,
 			failed: f.failed ?? null,
 		},

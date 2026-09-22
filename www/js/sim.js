@@ -144,9 +144,11 @@ export function compile(s) {
 		t.heatMade = t.heat;
 
 		// A cell pre-distributes its heat into the containment parts around it;
-		// whatever is left over goes to the reactor.
+		// whatever is left over goes to the reactor. Split exactly: Knockoff
+		// rounded each share up, so 4 heat over 3 vents put 6 into them and
+		// sent -2 to the reactor - heat from nothing, which Flow made visible.
 		if (t.containments.length) {
-			const share = Math.ceil(t.heat / t.containments.length);
+			const share = t.heat / t.containments.length;
 			for (const n of t.containments) {
 				t.heat -= share;
 				n.heat += share;
