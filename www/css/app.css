@@ -857,9 +857,12 @@ body.melting { animation: melting 500ms ease-out; }
 	color: var(--cash);
 	/* One width for $0 and $999.999Qa alike - ten characters and their gaps -
 	   so the gauges beside it never shift as the money grows. */
-	min-width: calc(10ch + 19px);
+	min-width: calc(10ch + 39px);
 	justify-content: center;
 }
+/* Each drum its own face, so the 1px gaps between them read as the dark
+   partitions of a counter's slot. */
+.roll.cash .wheel { padding: 0 1px; background: #19212c; }
 
 /* Tutorial. The overlay takes no taps - the game underneath has to stay playable
    for the steps that wait on it - except on the card itself. */
