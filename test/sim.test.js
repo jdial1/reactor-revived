@@ -1036,3 +1036,30 @@ test("only a readable save counts as one", async () => {
 	assert.equal(isSave({ ...serialize(fresh()), v: 99 }), false);
 	assert.equal(isSave({ ...serialize(fresh()), v: 2 }), true);
 });
+
+test("a worn-out reflector leaves the board and stops boosting (Knockoff #32)", () => {
+	const s = rich();
+	put(s, 0, 0, "uranium1");
+	const r = put(s, 0, 1, "reflector1");
+	compile(s);
+	const boosted = tileAt(s, 0, 0).power;
+	assert.ok(boosted > s.stats.get("uranium1").basePower);
+	r.ticks = 1;
+	tick(s);
+	assert.equal(tileAt(s, 0, 1).id, null);
+	assert.equal(tileAt(s, 0, 0).power, s.stats.get("uranium1").basePower);
+});
+
+test("an exchanger feeds the vents around it evenly, whatever side they are on (Knockoff #4)", () => {
+	const s = rich();
+	const x = put(s, 5, 5, "heat_exchanger1");
+	for (const [r, c] of [[4, 5], [5, 4], [5, 6], [6, 5]]) put(s, r, c, "vent1");
+	compile(s);
+	// Less heat than the four vents could take between them.
+	x.heatContained = 8;
+	s.heat = 0;
+	const before = [[4, 5], [5, 4], [5, 6], [6, 5]].map(([r, c]) => tileAt(s, r, c).heatContained);
+	tick(s);
+	const given = [[4, 5], [5, 4], [5, 6], [6, 5]].map(([r, c], i) => tileAt(s, r, c).heatContained + tileAt(s, r, c).vented - before[i]);
+	for (const g of given) assert.ok(Math.abs(g - given[0]) < 1e-9, `uneven: ${given}`);
+});

@@ -443,7 +443,10 @@ function balance(s, t) {
 		}
 	}
 
-	for (const n of t.containments) {
+	// Every share is worked out before any is paid: handed out in turn, the
+	// neighbours first in scan order (up, left) took it all and the rest got
+	// nothing - Knockoff's exchangers blew their far side first (issue #4).
+	const wants = t.containments.map((n) => {
 		const np = s.stats.get(n.id);
 		const cap = effectiveContainment(np);
 		const pct = n.heatContained / cap;
@@ -453,12 +456,17 @@ function balance(s, t) {
 		if (np.category === "vent" && moved < ventOf(s, np) - n.heatContained) {
 			moved = ventOf(s, np) - n.heatContained;
 		}
-		moved = Math.min(moved, rate, t.heatContained);
-		if (moved < 1) continue;
+		return Math.min(moved, rate);
+	});
+	const asked = wants.reduce((a, b) => a + b, 0);
+	const scale = asked > t.heatContained ? t.heatContained / asked : 1;
 
-		powerMade += absorb(n, np, moved);
-		t.heatContained -= moved;
-	}
+	t.containments.forEach((n, i) => {
+		const moved = wants[i] * scale;
+		if (moved < 1) return;
+		powerMade += absorb(n, s.stats.get(n.id), moved);
+		t.heatContained = Math.max(0, t.heatContained - moved);
+	});
 	return powerMade;
 }
 

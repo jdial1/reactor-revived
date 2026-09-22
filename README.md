@@ -225,6 +225,37 @@ A design never changes once saved. "Edit as copy" opens a copy, so a module on
 the board is always the one that was placed. A design can be deleted only when
 nothing uses it - not the board, and not another design.
 
+## From the players
+
+Before adding anything else, the Kongregate comments on Reactor Incremental,
+Knockoff's GitHub issues and the IC2 planner threads were read for what players
+of this line loved, what broke, and what they asked for. What came of it:
+
+- **Layout codes** (Options). The whole board as a line of text - `RR1.` and
+  base64 JSON - carrying every module design on it, nested ones included. IC2
+  players passed planner links around and kept a ranked list of the best;
+  Incremental players asked for saved layouts. Building a code fills empty tiles
+  only: parts you cannot afford queue, locked ones are left out, and an identical
+  design already saved is reused rather than duplicated.
+- **The planner** (Plan, in the header). A free copy of the board: money is
+  infinite, spent parts rebuy themselves, goals do not count, and the real game
+  waits and keeps being saved. Build puts the plan onto the real board by the
+  same path as a code; Discard forgets it. The IC2 planners were this, and
+  Incremental players asked for a way to test without losing income.
+- **Time Flux.** Knockoff's, with its issue #23 answered. Nothing ticks while the
+  game is out of sight; the time is banked, up to eight hours, and coming back
+  says how long you were gone. The bank sits in the header and, when tapped,
+  runs at ten times speed, counting down, until it is empty or tapped again.
+- **Import asks first** and refuses a file it cannot read (Knockoff #36 - and
+  here an unknown version used to load as a brand-new game).
+- **Exchangers share evenly** (Knockoff #4). Every share is worked out before any
+  is paid, and scaled down together when there is not enough to go round; handed
+  out in turn, the up and left neighbours took it all and the far side blew.
+- Already answered here: selling on a touch screen (#38) is a long press,
+  replacing a part never loses money (#18), locked parts cannot be placed
+  (#15), Heat Control Operator works (#6, #8), and a spent reflector leaves the
+  board and stops boosting (#32) - which now has a test.
+
 ## Heat you can see
 
 Heat is shown on the board as well as in the bar:
