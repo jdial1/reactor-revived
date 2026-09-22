@@ -38,25 +38,56 @@ const DIGITS = [...Array(20).keys()].map((i) => i % 10).join(String.fromCharCode
 function roller(className) {
 	const el = h("span", { className: `roll ${className}` });
 	const wheels = [];
+	let busy = false;
+	let waiting = null;
 
-	return {
+	const api = {
 		el,
-		/** Every digit once all the way round, landing where it started. */
-		spin() {
-			for (const w of wheels) {
-				if (!w.cell.classList.contains("digit")) continue;
+		/**
+		 * Wind every drum back down to zero, the far end first, then flip them
+		 * up to the real figure - an odometer being reset and caught out.
+		 * Readings that arrive meanwhile wait until it is done.
+		 */
+		rewind(done) {
+			if (busy) return;
+			const drums = wheels.filter((w) => w.cell.classList.contains("digit"));
+			if (!drums.length) return;
+			busy = true;
+			const down = 900;
+			const stagger = 70;
+			drums.forEach((w, i) => {
 				if (w.pos >= 10) {
 					w.face.style.transition = "none";
 					w.pos -= 10;
 					w.face.style.transform = `translateY(${-w.pos}em)`;
 					void w.face.offsetHeight;
-					w.face.style.transition = "";
 				}
-				w.pos += 10;
-				w.face.style.transform = `translateY(${-w.pos}em)`;
-			}
+				// From the last digit back, so it reads as a counter running down.
+				w.face.style.transition = `transform ${down}ms cubic-bezier(0.4, 0, 0.2, 1) ${(drums.length - 1 - i) * stagger}ms`;
+				w.pos = 0;
+				w.face.style.transform = "translateY(0)";
+			});
+			const flipAt = down + drums.length * stagger + 250;
+			setTimeout(() => {
+				drums.forEach((w, i) => {
+					w.face.style.transition = `transform 160ms steps(3) ${i * 45}ms`;
+					w.pos = Number(w.digit);
+					w.face.style.transform = `translateY(${-w.pos}em)`;
+				});
+				setTimeout(() => {
+					for (const w of drums) w.face.style.transition = "";
+					busy = false;
+					if (waiting !== null) api.set(waiting);
+					waiting = null;
+					done?.();
+				}, 160 + drums.length * 45 + 60);
+			}, flipAt);
 		},
 		set(text) {
+			if (busy) {
+				waiting = text;
+				return;
+			}
 			if (wheels.length !== text.length) {
 				el.replaceChildren();
 				wheels.length = 0;
@@ -100,6 +131,7 @@ function roller(className) {
 			});
 		},
 	};
+	return api;
 }
 
 /** A row of buttons where exactly one is lit: the page tabs and the dock's. */
@@ -191,16 +223,16 @@ export function buildUI(game) {
 	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
 	// Money on top, particles under: on one line they read as one long number.
 	dom.purse = h("div", { className: "purse" }, dom.money.el, dom.epBox);
-	// Five quick taps on the money and the drums go round, the way a counter
-	// does when someone leans on it.
+	// Ten quick taps on the money and the drums wind back to zero, then flip up
+	// to the real figure, like an odometer someone tried to wind back.
 	let taps = [];
 	dom.money.el.addEventListener("click", () => {
 		const now = Date.now();
-		taps = [...taps.filter((t) => now - t < 1500), now];
-		if (taps.length < 5) return;
+		taps = [...taps.filter((t) => now - t < 3000), now];
+		if (taps.length < 10) return;
 		taps = [];
-		dom.money.spin();
-		play("coin");
+		play("sell");
+		dom.money.rewind(() => play("coin"));
 	});
 
 	dom.pauseLabel = h("span", {});
