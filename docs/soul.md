@@ -148,6 +148,10 @@ listed.
 | The Red Signal | Every confirmation was red, including "OK" and "Skip"; selling a part was styled as danger | Fixed: red only for a lost save, run or design |
 | Refactoring cost (workbench rule) | A hot part refunded less, on top of leaving its heat behind | Fixed: refund is the price less fuel used |
 | The Wordy Tutorial | Seventeen cards | Fixed: seven cards, five that wait for an action |
+| The Law Is Theirs to Find (listing) | The Play short description states the square law | Open: P0 in [mvp-1.0.md](mvp-1.0.md) |
+| Hidden Math (part sheet) | A boosted vent's sheet shows its base rate since bonuses went local | Open: P0 |
+| The Backdoor Rewind (cloud) | `allowBackup` lets a reinstall restore past a meltdown | Open: P0 decision |
+| The Voice Must Not Lie (store) | The listing and screenshots describe an older game | Open: P0 |
 | Chores Forever / The Babysat Machine | Manual selling and venting early | Watched: perpetual rebuys arrive at goal 8, and the manual tax is lineage |
 
 ## Litmus
