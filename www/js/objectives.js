@@ -61,7 +61,7 @@ export const OBJECTIVES = [
 	{ title: "Vent by hand: tap the heat bar down to 0",
 	  note: "The old heat gauge sticks. Bring it down yourself and watch it move.", reward: 10,
 	  check: (s) => s.soldHeat },
-	{ title: "Put a Heat Vent next to a cell",
+	{ title: "Cool a cell with a Heat Vent",
 	  note: "Nobody can stand at the valve all night. Put a vent on it.", reward: 50,
 	  check: (s) => adjacentToCell(s, (p) => p.category === "vent") },
 	{ title: "Buy an upgrade",

@@ -54,7 +54,6 @@ function casing(s, tiles, random) {
 		heat: 0,
 		power: 0,
 		exoticParticles: 0,
-		heatAddNextTick: 0,
 		queue: [],
 		exploded: [],
 		// Nothing inside a casing rebuys itself: the module is the unit that does.

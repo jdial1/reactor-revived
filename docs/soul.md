@@ -58,9 +58,9 @@ That is the manual tax, which the first upgrades retire.
 design did not cause. The game's only roll is the fractional Exotic Particle
 count, which is a reward, never a failure. Keep it that way.
 
-**Aesthetic targets (MDA):** Challenge, Expression, Submission. Automation and
-Time Flux serve Submission (a game to glance at and return to). The
-page-switch pause bends it (see Open bends).
+**Aesthetic targets (MDA):** Challenge, Expression, Submission. Automation,
+Time Flux and a reactor that keeps running on every page serve Submission (a
+game to glance at and return to).
 
 ## Psychological target
 
@@ -88,7 +88,7 @@ the soul.
 | scarcity_economy | Supporting | Tiles are the bottleneck; money inflates away | Pass |
 | synergy_engines | Supporting | The square law, reflectors, compounding upgrades | Pass |
 | difficulty_ladder | Supporting | Reboot, five restriction runs, time-to-output rungs | Pass |
-| trusting_the_player | Supporting | Numbers without advice; field notes record observations; the square law is never stated | Partial: the tutorial and example notes still advise |
+| trusting_the_player | Supporting | Numbers without advice; field notes record observations; the square law and where a vent goes are never stated | Pass |
 | shared_discovery | Supporting | Layout codes; "Mark I" builds the classic checkerboard | Pass |
 | workbench | Supporting | Planner, a forecast of the failure tick, codes with context, free teardown, no rewind | Pass |
 | automation | Supporting | Perpetual rebuys and auto-sell are bought early; there is no layout optimiser | Pass |
@@ -109,7 +109,8 @@ the soul.
 - *audio_information* conflicts with Total-information UIs and needs a visual
   twin. Here the hum's trend has one on screen: the held column and Mark II.
 - *trusting_the_player* conflicts with text-box tutorials. Here the tutorial is
-  seven cards, five of which wait for the player to act. It is still a bend.
+  seven cards, five of which wait for the player to act, and none says where a
+  part goes.
 
 ## The pillars, in this game
 
@@ -119,12 +120,12 @@ the soul.
 | | The line is the truth | Made, vented, moved, held: made = vented + converted + held, tested every tick |
 | | Storage buys time, not safety | A board leaning on coolant earns Mark II, not Mark I |
 | Geometry Is the Build | A small, fixed board | 12 x 8; modules pack a 3 x 3 into one tile at a casing cost |
-| | Neighbours are the rules | Heat moves to touching parts and through the pool. Bent: one exchanger reaches its whole row, and capacitors and plating act board-wide |
+| | Neighbours are the rules | Heat moves to touching parts and through the pool; capacitors and plating speed only what they touch. One named exception: the top exchanger reaches its whole row |
 | | Every upgrade moves the optimum | Doctrines change ratios; an upgrade restarts the board's mark |
 | | The same parts, a different machine | Move is free and keeps a part's heat and life |
 | Proof by Running | The clock is the judge | Parts fail on schedule; randomness only in rewards |
 | | Rate the machine by its stamina | Marks I-III earned on the floor; Records lead with Mark I power and efficiency; particles count as far as heat is shed |
-| | Absence is play | Time Flux banks absence; nothing punishes leaving |
+| | Absence is play | The reactor runs on every page; Time Flux banks the time the app is closed; nothing punishes leaving |
 | | The hum of a held machine | Steady when held, beating while heat climbs |
 | | A meltdown is a receipt, not a scar | A clean wipe and a written receipt of the fall |
 | The Workbench | Forecast the failure tick | The planner names the tick and the part, or says "Would earn Mark I" |
@@ -153,7 +154,7 @@ listed.
 
 | Check | Question | Answer | Today |
 |---|---|---|---|
-| The Ledger | Can the player account for every point of heat the board made this tick? | Yes | Pass (one-tick dip when a capacitor buys itself out) |
+| The Ledger | Can the player account for every point of heat the board made this tick? | Yes | Pass |
 | The Neighbour | Would the same parts in a different arrangement make a different machine? | Yes | Pass |
 | The Clock | Is a design judged by how long it holds? | Yes | Pass |
 | The Workbench | If players would need an outside tool to design well, does the game ship it? | Yes | Pass |
@@ -175,26 +176,24 @@ Each row reads Mechanic → Dynamic → Tone. Built, in this order:
 | 5 | Full refunds less fuel; Move is free | Players tear down and rebuild without flinching | Expression |
 | 6 | Red only for real loss; no deny sound; no redundant toasts | Players read red as danger and keep the sound on | Say it once |
 
-Open, not built:
+Then, closing the last open items:
 
-| Mechanic | Dynamic | Tone |
-|---|---|---|
-| Keep the reactor running on the Upgrades and Options pages | Players shop while the board proves itself | Submission: glance and return |
-| Make capacitor and plating bonuses reach only their neighbours, with the row exchanger a named exception | Where a capacitor sits becomes a choice | Geometry is the build |
-| Replace the tutorial's and examples' layout advice with observations | Players find the first vent placement themselves | The square law stays their discovery |
-| Deliver a capacitor's buyout heat in the same tick | The held column never dips | A ledger that always balances |
+| # | Mechanic | Dynamic | Tone |
+|---|---|---|---|
+| 7 | The reactor keeps running on the Upgrades and Options pages | Players shop while the board proves itself | Submission: glance and return |
+| 8 | Capacitor and plating bonuses reach only their neighbours, with the row exchanger a named exception | Where a capacitor sits becomes a choice | Geometry is the build |
+| 9 | The tutorial and the examples observe rather than advise; the vent step waits for any vent | Players find the first vent placement themselves | The square law stays their discovery |
+| 10 | A capacitor's buyout heat reaches the reactor in the same tick | The held column never dips | A ledger that always balances |
 
 ## Open bends
 
-- Absence is banked as Time Flux rather than run live, and leaving the Reactor
-  page pauses it. This is kept by choice, and it bends Submission.
-- Early goals are manual (sell and vent by hand). This is kept as lineage.
+- Time away from the app is banked as Time Flux rather than run live. Kept by
+  choice: nothing runs on a timer that punishes being away.
+- Early goals are manual (sell and vent by hand). Kept as lineage.
 - The module designer measures its casing cold and hot. That is the design's
   datasheet, like a cell's listed heat, not a forecast of the board.
-- One exchanger reaches its whole row; capacitors and plating raise rates
-  board-wide.
-- The tutorial and the example notes still give layout advice.
-- A capacitor that buys itself out carries its heat into the next tick.
+- The top exchanger reaches its whole row: the one named exception to
+  neighbours-only.
 
 ## Cost warning
 

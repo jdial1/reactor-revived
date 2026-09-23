@@ -30,9 +30,9 @@ export const STEPS = [
 	  doing: "Tap the heat bar until it reads 0.",
 	  waitFor: (s) => s.soldHeat },
 	{ target: "#dock-tabs", title: "A vent",
-	  text: "Hands do not scale. A Vent, under Cooling, takes heat from the parts it touches and sheds some every second - and explodes if it fills. If you cannot afford it yet, place it anyway: it waits, dashed, and buys itself.",
-	  doing: "Put a Vent next to a cell.",
-	  waitFor: (s) => adjacentToCell(s, (p) => p.category === "vent") },
+	  text: "Hands do not scale. A Vent, under Cooling, takes heat from the parts it touches and sheds some every second - and explodes if it fills. Where it goes is up to you; the line will say whether it is working. If you cannot afford it yet, place it anyway: it waits, dashed, and buys itself.",
+	  doing: "Place a Vent.",
+	  waitFor: (s) => some(s, (p) => p.category === "vent") },
 	{ target: "#goal .objective", title: "The log",
 	  text: "The rest is on the operator's log, one job at a time, and it opens each tab when it gets there. Tap any placed part to see exactly what it is doing. Good luck - and watch the heat bar." },
 ];

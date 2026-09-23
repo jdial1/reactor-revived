@@ -16,8 +16,6 @@ import { replaceAll } from "./layout.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
-// Set when a page change paused the game, so returning can undo exactly that.
-let autoPaused = false;
 
 const UI_MS = 100;
 const SAVE_MS = 60000;
@@ -187,23 +185,8 @@ const game = {
 
 	togglePause() {
 		s.paused = !s.paused;
-		autoPaused = false; // an explicit choice outranks the automatic one
 	},
 
-	// Leaving the reactor pauses it, coming back resumes - but only if leaving is
-	// what paused it, so a deliberate pause survives a trip to another tab.
-	viewing(page) {
-		if (page === "reactor") {
-			if (!autoPaused) return;
-			s.paused = false;
-			autoPaused = false;
-		} else if (!s.paused) {
-			// Latch only on the way out of a running game, or the second hop reads
-			// its own pause as deliberate and the reactor never restarts.
-			s.paused = true;
-			autoPaused = true;
-		}
-	},
 
 	// Android owns the file picker; the game only hands over or receives text.
 	get canTransfer() {

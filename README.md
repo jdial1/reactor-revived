@@ -159,7 +159,7 @@ the pack system.
 `www/js/tutorial.js` is seven steps of data: a selector to spotlight, a title,
 the text, and for five of them a `waitFor` predicate on game state - place a
 cell, put a second cell touching it, sell power, vent the heat to zero, put a
-vent beside the cell. Those steps will not advance until the player has really
+vent anywhere - where it goes is the player's to work out. Those steps will not advance until the player has really
 done it, and they reuse the same board checks the goals do rather than
 restating them. It used to be seventeen cards; the rest is left to the
 operator's log, which opens each tab when it gets there, and to the parts, which
@@ -437,6 +437,11 @@ the one rule dropped on purpose: it deleted heat.
 
 ## Differences from the original
 
+- Capacitors and plating speed only the vents and transfer parts they touch.
+  Knockoff applied their bonus board-wide; here where a capacitor sits is a
+  choice, as every other part's is.
+- The reactor keeps running on the Upgrades, Experiments, Modules and Options
+  pages. Only Pause, or leaving the app (which banks Time Flux), stops it.
 - Portrait, and 12x8 rather than 11x14. Fewer tiles, but the whole reactor is
   visible at once with tiles big enough to hit on a phone, which matters more
   than matching a tile count. The expansion upgrades still grow it to 32x28.

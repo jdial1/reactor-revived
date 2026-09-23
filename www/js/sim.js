@@ -58,14 +58,13 @@ function absorb(t, p, heat) {
 	return heat / 2;
 }
 
-// Live vent/transfer rates, scaled by capacitors and plating on the board.
-const ventOf = (s, p) => p.vent * (1 + s.ventMul / 100);
-const transferOf = (s, p) => p.transfer * (1 + s.transferMul / 100);
+// Live vent/transfer rates, scaled by the capacitors and plating touching the
+// tile. Knockoff applied them board-wide; here, where a capacitor sits matters.
+const ventOf = (s, p, t) => p.vent * (1 + (t?.ventMul ?? 0) / 100);
+const transferOf = (s, p, t) => p.transfer * (1 + (t?.transferMul ?? 0) / 100);
 
 /** Rebuild adjacency and per-cell output. Only when the layout changes. */
 export function compile(s) {
-	s.transferMul = 0;
-	s.ventMul = 0;
 	s.maxPower = s.baseMaxPower;
 	s.maxHeat = s.baseMaxHeat;
 	s.statOutlet = 0;
@@ -77,7 +76,10 @@ export function compile(s) {
 		t.containments = [];
 		t.neighbourCells = [];
 		t.reflectors = [];
-
+		t.ventMul = 0;
+		t.transferMul = 0;
+	}
+	for (const t of activeTiles(s)) {
 		const p = partOf(s, t);
 		if (!p) continue;
 
@@ -104,15 +106,16 @@ export function compile(s) {
 			}
 		}
 
-		if (p.category === "capacitor") {
-			s.transferMul += p.level * s.transferCapacitorMul;
-			s.ventMul += p.level * s.ventCapacitorMul;
-		} else if (p.category === "reactor_plating") {
-			s.transferMul += p.level * s.transferPlatingMul;
-			s.ventMul += p.level * s.ventPlatingMul;
+		// A capacitor or plating speeds the vents and transfer parts it touches.
+		const boost = p.category === "capacitor" ? [s.ventCapacitorMul, s.transferCapacitorMul]
+			: p.category === "reactor_plating" ? [s.ventPlatingMul, s.transferPlatingMul] : null;
+		if (boost) {
+			for (const n of neighbours(s, t, 1)) {
+				n.ventMul += p.level * boost[0];
+				n.transferMul += p.level * boost[1];
+			}
 		}
 
-		if (p.category === "heat_outlet") s.statOutlet += p.transfer * t.containments.length;
 		if (p.category === "cell") s.cells.push(t);
 		if (p.reactorPower) s.maxPower += p.reactorPower;
 		if (p.reactorHeat) s.maxHeat += p.reactorHeat;
@@ -158,7 +161,11 @@ export function compile(s) {
 		}
 	}
 
-	s.statOutlet *= 1 + s.transferMul / 100;
+	// Outlets share the pool by what they can push, each at its own local rate.
+	for (const t of activeTiles(s)) {
+		const p = partOf(s, t);
+		if (p?.category === "heat_outlet") s.statOutlet += transferOf(s, p, t) * t.containments.length;
+	}
 	return s;
 }
 
@@ -176,10 +183,8 @@ export function tick(s) {
 	// Exotic Particles the accelerators made this tick, before the board's
 	// handling of its heat decides how many of them count.
 	let epMade = 0;
-	// A perpetual capacitor that saved itself last tick dumps its heat now.
-	let heatAdd = s.heatAddNextTick;
+	let heatAdd = 0;
 	let heatRemove = 0;
-	s.heatAddNextTick = 0;
 	s.dirty = false;
 	s.meltdown = false;
 	// Tiles that blew up this tick, for the UI to animate. The renderer empties
@@ -268,7 +273,7 @@ export function tick(s) {
 	}
 
 	for (const t of inlets) {
-		const pull = transferOf(s, partOf(s, t));
+		const pull = transferOf(s, partOf(s, t), t);
 		for (const n of t.containments) {
 			const moved = Math.min(pull, n.heatContained);
 			n.heatContained -= moved;
@@ -290,12 +295,12 @@ export function tick(s) {
 	for (const t of exchangers) powerAdd += balance(s, t);
 
 	for (const t of outlets) {
-		const push = transferOf(s, partOf(s, t));
+		const push = transferOf(s, partOf(s, t), t);
 		for (const n of t.containments) {
 			let share = Math.min(push, (s.heat / s.statOutlet) * push, maxShared * push);
 			const np = s.stats.get(n.id);
 			if (s.heatOutletControlled && np.vent) {
-				share = Math.min(share, ventOf(s, np) - n.heatContained);
+				share = Math.min(share, ventOf(s, np, n) - n.heatContained);
 			}
 			const took = absorb(n, np, share);
 			powerAdd += took;
@@ -344,8 +349,8 @@ export function tick(s) {
 
 		if (p.vent) {
 			const shed = p.id === "vent6"
-				? Math.min(ventOf(s, p), t.heatContained, s.power)
-				: Math.min(ventOf(s, p), t.heatContained);
+				? Math.min(ventOf(s, p, t), t.heatContained, s.power)
+				: Math.min(ventOf(s, p, t), t.heatContained);
 			if (p.id === "vent6") {
 				s.power -= shed;
 				if (shed > 0) observe(s, "burn");
@@ -360,7 +365,7 @@ export function tick(s) {
 		// A black hole accelerator actively drags heat out of the reactor,
 		// paying one power per heat.
 		if (p.id === "particle_accelerator6") {
-			const moved = Math.min(transferOf(s, p), s.power, s.heat);
+			const moved = Math.min(transferOf(s, p, t), s.power, s.heat);
 			if (moved > 0) {
 				s.power -= moved;
 				s.heat -= moved;
@@ -496,7 +501,7 @@ function rollExoticParticles(s, t, p) {
 function balance(s, t) {
 	let powerMade = 0;
 	const p = partOf(s, t);
-	const rate = transferOf(s, p);
+	const rate = transferOf(s, p, t);
 
 	let capacity = p.containment;
 	let contained = t.heatContained;
@@ -529,8 +534,8 @@ function balance(s, t) {
 		let moved = pct < target ? (target - pct) * cap : 0;
 		// A vent that can bleed off more than it is being offered should take
 		// everything it can handle.
-		if (np.category === "vent" && moved < ventOf(s, np) - n.heatContained) {
-			moved = ventOf(s, np) - n.heatContained;
+		if (np.category === "vent" && moved < ventOf(s, np, n) - n.heatContained) {
+			moved = ventOf(s, np, n) - n.heatContained;
 		}
 		return Math.min(moved, rate);
 	});
@@ -567,11 +572,11 @@ function buyQueued(s) {
 
 function explode(s, t, p) {
 	// A perpetual capacitor buys itself out of trouble, dumping its heat into
-	// the reactor on the next tick instead of blowing up.
+	// the reactor instead of blowing up - this tick, so the ledger never dips.
 	if (t.heat <= 0 && p.category === "capacitor"
 		&& s.perpetualCapacitors && s.money >= p.cost * 10) {
 		s.money -= p.cost * 10;
-		s.heatAddNextTick += t.heatContained;
+		s.heat += t.heatContained;
 		t.heatContained = 0;
 		observe(s, "buyout");
 		return;

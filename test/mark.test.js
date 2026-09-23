@@ -182,3 +182,19 @@ test("a part that blows or is sold leaves its heat in the reactor", () => {
 	assert.equal(s.incidents.length, 1, "the vent blew");
 	assert.ok(s.heat >= s.incidents[0].held, "its heat is in the pool");
 });
+
+test("a capacitor speeds only the vents it touches", async () => {
+	const { applyUpgrades } = await import("../www/js/upgrades.js");
+	const s = game();
+	s.levels.active_venting = 10;
+	applyUpgrades(s);
+	const near = put(s, 5, 5, "vent1");
+	const far = put(s, 0, 0, "vent1");
+	put(s, 5, 6, "capacitor1");
+	compile(s);
+	assert.ok(near.ventMul > 0, "the vent beside the capacitor is faster");
+	assert.equal(far.ventMul, 0, "one across the board is not");
+	near.heatContained = far.heatContained = 50;
+	tick(s);
+	assert.ok(near.vented > far.vented);
+});

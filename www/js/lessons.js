@@ -102,7 +102,7 @@ export const LESSONS = {
 	},
 	epfarm: {
 		title: "Feeding an accelerator",
-		text: "An accelerator turns the heat it holds into Exotic Particles - the fuller it runs, the more it makes. One that overflows melts the whole reactor down, so it is never cooled directly: exchangers feed it from the cells and share its heat with the vents, keeping it warm and never full. The first accelerator holds only 100 heat and earns slowly; as bigger ones unlock, swap them in with Replace or upgrade all.",
+		text: "An accelerator turns the heat it holds into Exotic Particles - the fuller it runs, the more it makes - and one that overflows melts the whole reactor down. Here it touches no vent: exchangers feed it from the cells and pass its heat on to the vents, so it runs warm and never full. The first accelerator holds only 100 heat and earns slowly; the ones that unlock later hold more.",
 		tiles: draw([
 			"",
 			"...UU...",

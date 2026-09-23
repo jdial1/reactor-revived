@@ -42,15 +42,15 @@ const CASH = [
 	{ id: "improved_heat_exchangers", group: "exchangers", title: "Improved Heat Exchangers", cost: 600, mul: 100,
 	  desc: "Exchangers, inlets and outlets hold and move 100% more heat per level." },
 	{ id: "reinforced_heat_exchangers", group: "exchangers", title: "Reinforced Heat Exchangers", cost: 1000, mul: 100,
-	  desc: "Each plating adds 1% exchanger throughput per level." },
+	  desc: "Each plating adds 1% per level to the throughput of the transfer parts it touches." },
 	{ id: "active_exchangers", group: "exchangers", title: "Active Exchangers", cost: 1000, mul: 100,
-	  desc: "Each capacitor adds 1% exchanger throughput per level." },
+	  desc: "Each capacitor adds 1% per level to the throughput of the transfer parts it touches." },
 	{ id: "improved_heat_vents", group: "vents", title: "Improved Heat Vents", cost: 250, mul: 100,
 	  desc: "Vents hold and vent 100% more heat per level." },
 	{ id: "improved_heatsinks", group: "vents", title: "Improved Heatsinks", cost: 1000, mul: 100,
-	  desc: "Each plating adds 1% vent throughput per level." },
+	  desc: "Each plating adds 1% per level to the vents it touches." },
 	{ id: "active_venting", group: "vents", title: "Active Venting", cost: 1000, mul: 100,
-	  desc: "Each capacitor adds 1% vent throughput per level." },
+	  desc: "Each capacitor adds 1% per level to the vents it touches." },
 ];
 
 // Doctrines: a set opens every five goals, each a choice between two ways to run

@@ -58,7 +58,6 @@ export function newState(random = Math.random) {
 		// Lifetime count of each part ever bought, which drives what the dock
 		// offers next.
 		placed: {},
-		heatAddNextTick: 0,
 		statsDirty: false,
 		exploded: [],
 		// Saved designs, oldest first. A design only ever holds older ones.

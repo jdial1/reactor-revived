@@ -331,7 +331,6 @@ export function buildUI(game) {
 			}),
 			h("button", { className: "wide", textContent: "How to play", onclick: () => {
 				showPage(dom, "reactor");
-				game.viewing("reactor");
 				game.startTutorial();
 			} }),
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
@@ -386,7 +385,7 @@ export function buildUI(game) {
 		dom.purse,
 		gauge("heat", "Heat", game.ventHeat, "Vent heat"));
 	dom.dock = h("div", { id: "dock", tabIndex: -1 });
-	dom.tabs = tabStrip("tabs", PAGES, (id) => { showPage(dom, id); game.viewing(id); });
+	dom.tabs = tabStrip("tabs", PAGES, (id) => showPage(dom, id));
 	dom.pips = {};
 	for (const id of ["upgrades", "experiments"]) {
 		const button = [...dom.tabs.children].find((b) => b.dataset.value === id);
@@ -1140,7 +1139,6 @@ function renderLocks(dom, s) {
 	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
 	if (!open && dom.page === "modules") {
 		showPage(dom, "reactor");
-		dom.game.viewing("reactor");
 	}
 	if (!open && dom.dockTab === "Modules") showDock(dom, DOCK_TABS[0][0]);
 }
