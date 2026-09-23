@@ -107,6 +107,8 @@ const ICONS = {
 	vent: [[grid(FAN, "#"), OUTLINE], [grid(FAN, "A"), "#c0c0c0"], [grid(FAN, "B"), "#808080"]],
 	inlet: [[grid(INLET, "#"), OUTLINE], [grid(INLET, "A"), "#ff8a00"], [grid(INLET, "B"), "#ff4e00"]],
 	outlet: [[grid(OUTLET, "#"), OUTLINE], [grid(OUTLET, "A"), "#ff8a00"], [grid(OUTLET, "B"), "#ff4e00"]],
+	// Held: a tank, part full - heat the board kept this tick rather than shed.
+	held: [["M3 1 h10 v2 h-10 z M3 13 h10 v2 h-10 z M3 1 h2 v14 h-2 z M11 1 h2 v14 h-2 z", "#c0c0c0"], ["M5 8 h6 v5 h-6 z", "#ff8a00"]],
 
 	play: [["M3 1 L14 8 L3 15 Z", null]],
 	pause: [["M3 1 h4 v14 h-4 z M9 1 h4 v14 h-4 z", null]],

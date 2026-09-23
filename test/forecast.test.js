@@ -8,6 +8,8 @@ import { replaceQuote, replaceAll } from "../www/js/layout.js";
 function board(parts, money = 1e9) {
 	const s = newState(() => 1);
 	s.money = money;
+	// The lab runs the floor's rules, so a fixture says what it owns: every rebuy.
+	s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
 	for (const [r, c, id] of parts) {
 		const t = tileAt(s, r, c);
 		Object.assign(t, { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
@@ -70,10 +72,11 @@ test("a swap is forecast on a copy, and replace-all is priced and paid all at on
 });
 
 test("a failure further off than a hundred thousand ticks counts as holding", () => {
-	// One quad cell and nothing to cool it: the reactor warms, but its own
-	// passive cooling keeps it from ever getting anywhere near a meltdown.
-	const s = board([[9, 1, "uranium3"]]);
+	// One cell into a tank that would take tens of millions of ticks to fill:
+	// it will fail one day, but so far off that it reads as holding - a Mark II,
+	// still building.
+	const s = board([[9, 1, "uranium1"], [9, 2, "coolant_cell3"]]);
 	const f = forecast(s);
 	assert.equal(f.failTick, 0);
-	assert.ok(f.heat > 0, "it is warming");
+	assert.equal(f.mark, 2, "it is still warming");
 });

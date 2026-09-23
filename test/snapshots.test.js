@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize, place } from "../www/js/state.js";
-import { tileAt, compile } from "../www/js/sim.js";
+import { tileAt, compile, tick } from "../www/js/sim.js";
 import { forecast } from "../www/js/forecast.js";
 import * as snapshots from "../www/js/snapshots.js";
 const { takeSnapshot, snapshotFor, layoutOfSnapshot } = snapshots;
@@ -48,6 +48,8 @@ test("save states ride in the save, and a snapshot's board can be rebuilt", () =
 test("every example layout holds, makes power, and opens at a real goal", () => {
 	for (const [name, lesson] of Object.entries(LESSONS)) {
 		const s = newState(() => 1);
+		// The lab runs the floor's rules, so a fixture says what it owns: every rebuy.
+		s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
 		for (const [r, c, id] of lesson.tiles) Object.assign(tileAt(s, r, c), { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
 		compile(s);
 		const f = forecast(s);
@@ -78,6 +80,8 @@ const BALANCE = {
 test("the example builds' balance is pinned, and each conserves its heat", () => {
 	for (const [name, lesson] of Object.entries(LESSONS)) {
 		const s = newState(() => 1);
+		// The lab runs the floor's rules, so a fixture says what it owns: every rebuy.
+		s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
 		for (const [r, c, id] of lesson.tiles) Object.assign(tileAt(s, r, c), { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
 		compile(s);
 		const f = forecast(s);
@@ -89,5 +93,27 @@ test("the example builds' balance is pinned, and each conserves its heat", () =>
 		assert.equal(f.power, want.power, `${name} power`);
 		assert.equal(f.cost, want.cost, `${name} cost`);
 		assert.ok(Math.abs(f.payback - want.payback) < 1, `${name} payback ${f.payback}`);
+	}
+});
+
+test("the lab runs the floor's rules: every example forecasts as it runs", () => {
+	for (const [name, lesson] of Object.entries(LESSONS)) {
+		const s = newState(() => 1);
+		s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
+		s.money = 1e30;
+		for (const [r, c, id] of lesson.tiles) Object.assign(tileAt(s, r, c), { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
+		compile(s);
+		const f = forecast(s);
+		// The floor: the same board, run for real for the forecast's horizon.
+		let power = 0;
+		let lost = 0;
+		for (let i = 0; i < 600; i++) {
+			tick(s);
+			power += s.rate.power;
+			lost += s.exploded.length;
+			s.exploded.length = 0;
+		}
+		assert.equal(lost, 0, `${name} was forecast to hold and lost parts`);
+		assert.ok(Math.abs(power / 600 - f.power) < 1e-9, `${name}: forecast ${f.power}, ran ${power / 600}`);
 	}
 });

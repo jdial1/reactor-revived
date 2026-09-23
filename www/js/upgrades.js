@@ -343,7 +343,8 @@ export function reboot(s, refund = false, restriction = null) {
 	s.restriction = restriction;
 	s.runTicks = 0;
 	s.runHit = [];
-	// A new run starts with a new board: no mark, no incidents.
+	// A new run starts with a new board: no mark, no incidents, nothing restored.
+	s.restored = false;
 	s.mark = null;
 	s.incidents = [];
 	for (const t of s.tiles) {

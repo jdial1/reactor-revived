@@ -164,7 +164,10 @@ export function replaceDialog(s, from, game) {
 		return;
 	}
 	let to = options.find((p) => p.level === from.level + 1 && (from.category !== "cell" || p.type === from.type)) ?? options[0];
-	const before = forecast(s);
+	// What the whole reactor would do is a forecast, and forecasts belong to the
+	// lab: on the real board this is a price and the parts' own numbers.
+	const lab = Boolean(s.planner);
+	const before = lab ? forecast(s) : null;
 
 	const picker = h("div", { className: "mod-strip" });
 	const body = h("div", {});
@@ -183,36 +186,35 @@ export function replaceDialog(s, from, game) {
 		}, h("i", { style: `background-image:url(${p.art ?? artFor(p)})` }), h("em", { textContent: p.short }), h("u", { textContent: fmt(p.cost) }))));
 
 		const q = replaceQuote(s, from.id, to.id);
-		const after = forecast(s, [from.id, to.id]);
 		const rows = [];
 		for (const [field, label] of PART_FIELDS) {
 			const a = from[field];
 			const b = to[field];
 			if ((a ?? 0) === (b ?? 0) || (a === undefined && b === undefined)) continue;
-			rows.push([label, num(a ?? 0), num(b ?? 0), (b ?? 0) > (a ?? 0)]);
+			rows.push([label, num(a ?? 0), num(b ?? 0)]);
 		}
-		const board = [
-			["Power /tick", num(before.power ?? 0), num(after.power ?? 0), (after.power ?? 0) >= (before.power ?? 0)],
-			["Reactor heat /tick", signed(before.heat ?? 0), signed(after.heat ?? 0), (after.heat ?? 0) <= (before.heat ?? 0)],
-			["Profit /tick", money(before.profit ?? 0), money(after.profit ?? 0), (after.profit ?? 0) >= (before.profit ?? 0)],
+		const after = lab ? forecast(s, [from.id, to.id]) : null;
+		const board = lab ? [
+			["Power /tick", num(before.power ?? 0), num(after.power ?? 0)],
+			["Reactor heat /tick", signed(before.heat ?? 0), signed(after.heat ?? 0)],
+			["Profit /tick", money(before.profit ?? 0), money(after.profit ?? 0)],
 			["Pays back in", Number.isFinite(before.payback) ? `${fmt(Math.ceil(before.payback))} ticks` : "never",
-				Number.isFinite(after.payback) ? `${fmt(Math.ceil(after.payback))} ticks` : "never", (after.payback ?? Infinity) <= (before.payback ?? Infinity)],
-			["Holds", holds(before), holds(after), after.failTick
-				? Boolean(before.failTick && after.failTick > before.failTick)
-				: Boolean(before.failTick) || (after.mark ?? 1) <= (before.mark ?? 1)],
-		];
+				Number.isFinite(after.payback) ? `${fmt(Math.ceil(after.payback))} ticks` : "never"],
+			["Holds", holds(before), holds(after)],
+		] : null;
+		// Before and after, and no colour saying which is better: measure, don't grade.
 		const table = (title, list) => h("div", { className: "change" },
 			h("small", { className: "tool-label", textContent: title }),
-			h("dl", {}, ...list.flatMap(([k, a, b, better]) => [
+			h("dl", {}, ...list.flatMap(([k, a, b]) => [
 				h("dt", { textContent: k }),
-				h("dd", {}, h("s", { textContent: a }), " → ", h("b", { className: a === b ? "same" : better ? "better" : "worse", textContent: b })),
+				h("dd", {}, h("s", { textContent: a }), " → ", h("b", { className: a === b ? "same" : "", textContent: b })),
 			])));
 		body.replaceChildren(
 			h("p", { className: "cost" },
 				`${q.count} × ${from.title}: new parts $${fmt(q.cost)}, refund $${fmt(q.refund)}. `,
 				h("b", { textContent: q.net >= 0 ? `You pay $${fmt(q.net)}.` : `You get back $${fmt(-q.net)}.` })),
 			rows.length ? table("Each part", rows) : "",
-			table("The whole reactor", board));
+			board ? table("The whole reactor, forecast", board) : "");
 		const short = s.money < q.net;
 		go.disabled = short;
 		go.textContent = short ? `Short by $${fmt(q.net - s.money)}` : q.net >= 0 ? `Replace all for $${fmt(q.net)}` : "Replace all";
@@ -230,13 +232,11 @@ export function snapshotDialog(s, snap, game) {
 		h("i", { textContent: `Saved when this job was done, ${new Date(snap.at).toLocaleString()}.` }),
 		miniBoard(s, snap.save.tiles.map((t) => [t.i, t.id])),
 		h("dl", {}, ...[
+			// What the board was, as it stood: no forecast of what it would have done.
 			["Money", `$${fmt(st.money)}`],
 			["Parts", String(st.parts)],
 			["Power", `${num(st.power)} /tick`],
-			["Profit", `${money(st.profit)} /tick after fuel`],
-			["Pays back", st.payback ? `in ${fmt(Math.ceil(st.payback))} ticks` : "never"],
-			["Holds", holds(st)],
-			...(st.earned ? [["Earned", st.earned]] : []),
+			["Earned", st.earned ?? "no mark yet"],
 		].flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "sheet-actions" },
 			h("button", { textContent: "Rebuild this layout on today's board", onclick: () => { dialog.close(); game.rebuildSnapshot(snap); } }),

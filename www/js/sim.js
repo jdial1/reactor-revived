@@ -166,8 +166,16 @@ export function compile(s) {
 export function tick(s) {
 	// What this tick moved, for the readout. Totals say where the reactor is;
 	// these say what it is doing.
-	const rate = { power: 0, heat: 0, vent: 0, inlet: 0, outlet: 0 };
+	const rate = { power: 0, heat: 0, vent: 0, inlet: 0, outlet: 0, held: 0 };
 	let powerAdd = 0;
+	// The ledger: what is stored now, so the tick can say how much more it holds.
+	const storedBefore = stored(s);
+	// Throttling halves a cell's output everywhere its heat goes - into the parts
+	// beside it as well as the reactor - or the line and the board disagree.
+	const throttled = s.throttle && s.heat > s.maxHeat * 0.8 ? 0.5 : 1;
+	// Exotic Particles the accelerators made this tick, before the board's
+	// handling of its heat decides how many of them count.
+	let epMade = 0;
 	// A perpetual capacitor that saved itself last tick dumps its heat now.
 	let heatAdd = s.heatAddNextTick;
 	let heatRemove = 0;
@@ -231,7 +239,6 @@ export function tick(s) {
 		}
 
 		if (p.category === "cell") {
-			const throttled = s.throttle && s.heat > s.maxHeat * 0.8 ? 0.5 : 1;
 			powerAdd += t.power * throttled;
 			heatAdd += t.heat * throttled;
 			// Made, not what is left after the vents beside it took their share -
@@ -244,11 +251,13 @@ export function tick(s) {
 		}
 
 		if (p.containment) {
-			t.heatIn += t.heat;
-			powerAdd += absorb(t, p, t.heat);
+			t.heatIn += t.heat * throttled;
+			const took = absorb(t, p, t.heat * throttled);
+			powerAdd += took;
+			rate.converted = (rate.converted ?? 0) + took;
 		}
 
-		if (p.category === "particle_accelerator" && t.heatContained) rollExoticParticles(s, t, p);
+		if (p.category === "particle_accelerator" && t.heatContained) epMade += rollExoticParticles(s, t, p);
 
 		if (p.transfer && t.containments.length) {
 			if (p.category === "heat_inlet") inlets.push(t);
@@ -288,7 +297,9 @@ export function tick(s) {
 			if (s.heatOutletControlled && np.vent) {
 				share = Math.min(share, ventOf(s, np) - n.heatContained);
 			}
-			powerAdd += absorb(n, np, share);
+			const took = absorb(n, np, share);
+			powerAdd += took;
+			rate.converted = (rate.converted ?? 0) + took;
 			t.heatIn += share;
 			t.heatOut += share;
 			n.heatIn += share;
@@ -298,23 +309,23 @@ export function tick(s) {
 	}
 	s.heat -= heatRemove;
 
-	// Passive cooling. Under the limit it is a trickle; over it, the reactor
-	// dumps the excess into every containment part it has. A casing has no
-	// reactor around it: its pool is what leaks out.
-	if (s.heat > 0 && !s.sealed) {
-		const trickle = s.maxHeat / 10000;
-		let reduce = trickle;
-		if (s.heat > s.maxHeat) {
-			reduce = Math.max((s.heat - s.maxHeat) / 20, trickle);
-			const per = reduce / (s.rows * s.cols);
-			for (const t of activeTiles(s)) {
-				const p = partOf(s, t);
-				if (!p?.containment) continue;
+	// Over its limit the reactor dumps a twentieth of the excess into every part
+	// that can hold heat, in full: none of it vanishes. Under the limit it sheds
+	// nothing by itself - Knockoff's free trickle was a leak in the ledger, and
+	// every sink is a part the player places. A casing has no reactor around it.
+	if (s.heat > s.maxHeat && !s.sealed) {
+		const holders = [...activeTiles(s)].filter((t) => partOf(s, t)?.containment);
+		if (holders.length) {
+			const reduce = (s.heat - s.maxHeat) / 20;
+			const per = reduce / holders.length;
+			for (const t of holders) {
 				t.heatIn += per;
-				powerAdd += absorb(t, p, per);
+				const took = absorb(t, partOf(s, t), per);
+				powerAdd += took;
+				rate.converted = (rate.converted ?? 0) + took;
 			}
+			s.heat -= reduce;
 		}
-		s.heat -= reduce;
 	}
 
 	// Forceful Fusion: a hot reactor generates more power.
@@ -363,7 +374,22 @@ export function tick(s) {
 		if (t.heatContained > p.containment) explode(s, t, p);
 	}
 
+	// Particles count as far as the board handled the heat it made this tick:
+	// shed by vents or turned into power, not stored up toward a failure. A
+	// board that holds keeps them all. (Reactor Incremental paid its particles
+	// on heat removed.)
+	if (epMade) {
+		const made = rate.heat;
+		const handled = made > 0 ? Math.min(1, (rate.vent + (rate.converted ?? 0)) / made) : 1;
+		s.epCarry = (s.epCarry ?? 0) + epMade * handled;
+		const whole = Math.floor(s.epCarry + 1e-9);
+		s.exoticParticles += whole;
+		s.epCarry -= whole;
+		if (whole) observe(s, "particles");
+	}
+
 	if (s.sealed) {
+		rate.held = stored(s) - storedBefore;
 		if (s.dirty) compile(s);
 		return s;
 	}
@@ -373,6 +399,8 @@ export function tick(s) {
 	s.heat = Math.max(s.heat, 0);
 	if (s.meltdown) s.heat = s.maxHeat * 2 + 1;
 
+	// Made = vented + converted + held: the line balances, to rounding.
+	rate.held = stored(s) - storedBefore;
 	if (s.meltdown || s.heat > s.maxHeat * 2) meltdown(s);
 
 	// Spending protium permanently strengthens every protium cell, so the
@@ -396,7 +424,7 @@ function wear(s, t) {
 }
 
 /** Whether auto-buy owns this part and will replace it when it runs out. */
-const replaces = (s, p) => autoFeed(s) && (p.category === "module"
+export const replaces = (s, p) => autoFeed(s) && (p.category === "module"
 	? p.consumables.length > 0 && p.consumables.every((k) => s.perpetual.has(k))
 	: s.perpetual.has(p.category === "cell" ? p.type : p.category));
 
@@ -455,8 +483,7 @@ function rollExoticParticles(s, t, p) {
 		chance -= gained;
 	}
 	if (chance > s.random()) gained++;
-	s.exoticParticles += gained;
-	if (gained) observe(s, "particles");
+	return gained;
 }
 
 /**
@@ -560,6 +587,9 @@ function explode(s, t, p) {
 	}
 	if (p.category === "particle_accelerator") s.meltdown = true;
 	recordIncident(s, t, p);
+	// What it held goes back into the reactor, as IC2's coolant did: a part
+	// that fails does not take its heat with it.
+	spill(s, t);
 	if (s.salvage) s.money += p.cost * 0.5;
 	s.exploded.push(t.r * s.cols + t.c);
 	remove(s, t);
@@ -577,7 +607,11 @@ function sell(s, extremeCapacitors) {
 
 	// Extreme capacitors heat themselves by half of what they sold.
 	for (const t of extremeCapacitors) {
-		t.heatContained += amount * s.autoSellMul * pct * 0.5;
+		const self = amount * s.autoSellMul * pct * 0.5;
+		t.heatContained += self;
+		// Heat made by a part is heat made: it goes on the line with the cells'.
+		t.made = (t.made ?? 0) + self;
+		if (s.rate) s.rate.heat += self;
 		observe(s, "selfheat");
 	}
 }
@@ -609,6 +643,34 @@ export function movePart(s, from, to) {
 	remove(s, from);
 	compile(s);
 	return true;
+}
+
+/** Everything a tile holds, a casing's insides and nested casings included. */
+export function heldBy(s, t) {
+	let held = t.heatContained ?? 0;
+	const inner = t.inner?.tiles;
+	if (inner) {
+		for (const x of inner) held += x.id ? heldBy(t.inner, x) : 0;
+	} else if (t.saved) {
+		for (const [, h] of t.saved) held += h ?? 0;
+	}
+	return held;
+}
+
+/** Heat in the pool and in every part on the board: what the reactor stores. */
+export function stored(s) {
+	let n = s.heat;
+	for (const t of activeTiles(s)) if (t.id) n += heldBy(s, t);
+	return n;
+}
+
+/**
+ * A part leaves the board - sold or blown - and the heat it held goes into the
+ * reactor's pool. Nothing that leaves takes heat with it.
+ */
+export function spill(s, t) {
+	if (!t.id) return;
+	s.heat += heldBy(s, t);
 }
 
 export function remove(s, t) {

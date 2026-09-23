@@ -375,7 +375,9 @@ export function buildUI(game) {
 		rateCell("heat", "heat", "Heat generated per tick"),
 		rateCell("vent", "vent", "Heat vented per tick"),
 		rateCell("inlet", "inlet", "Heat drawn in per tick"),
-		rateCell("outlet", "outlet", "Heat pushed out per tick"));
+		rateCell("outlet", "outlet", "Heat pushed out per tick"),
+		// The ledger's last column: made = vented (and turned to power) + held.
+		rateCell("held", "held", "Heat the board held this tick: made, less vented and turned to power"));
 
 	// dock and tabs
 	// Money between the bar that makes it and the bar that threatens it.
@@ -804,7 +806,10 @@ export function render(dom, s, game) {
 	}
 
 	const rate = s.rate ?? {};
-	for (const [id, el] of Object.entries(dom.rates)) el.textContent = fmt(rate[id] ?? 0);
+	for (const [id, el] of Object.entries(dom.rates)) {
+		const v = rate[id] ?? 0;
+		el.textContent = id === "held" && Math.abs(v) >= 0.5 ? `${v > 0 ? "+" : ""}${fmt(v)}` : fmt(id === "held" ? 0 : v);
+	}
 
 	const goal = OBJECTIVES[s.objective];
 	const step = goal?.progress?.(s);
@@ -816,8 +821,8 @@ export function render(dom, s, game) {
 			: "Every goal met.";
 	document.body.classList.toggle("planning", Boolean(s.planner));
 	dom.plan.hidden = Boolean(s.planner) || !toolsAllowed(s);
-	dom.runTag.hidden = !s.restriction || Boolean(s.planner);
-	dom.runTag.textContent = restrictionLabel(s.restriction);
+	dom.runTag.hidden = !(s.restriction || s.restored) || Boolean(s.planner);
+	dom.runTag.textContent = [s.restriction && restrictionLabel(s.restriction), s.restored && "Restored"].filter(Boolean).join(" · ");
 	dom.layoutTools.hidden = !toolsAllowed(s);
 	renderNotes(dom, s);
 	dom.flux.hidden = !s.fluxOn && s.flux < s.loopWait;
@@ -1220,15 +1225,17 @@ function renderRecords(dom, s) {
 	const r = s.records;
 	const placed = Object.values(s.placed).reduce((a, n) => a + n, 0);
 	const rows = [
-		["Most power per tick", fmt(r.maxPower)],
+		// Stamina first: output from a board that holds is the prestige number.
 		["Most power from a Mark I board", r.markOne ? fmt(r.markOne) : "none yet"],
 		["Best Mark I efficiency", r.efficiency ? `${perCell(r.efficiency)} power per cell` : "none yet"],
+		["Peak power, any board", fmt(r.maxPower)],
 		["Longest run without a failure", ticks(r.longest)],
 		["Hottest held", `${Math.round(r.hottest * 100)}% of the limit`],
 		["Meltdowns", String(r.meltdowns)],
 		["Parts placed", fmt(placed)],
 		["Exotic Particles ever", fmt(s.totalExoticParticles + s.exoticParticles)],
 		["Field notes", `${s.notes.length} of ${Object.keys(NOTES).length}`],
+		...(s.restored ? [["This run", "Restored from a save"]] : []),
 	];
 	// Fastest to each rung of power per tick, per kind of run, counted from its reboot.
 	for (const [run, times] of Object.entries(r.speed)) {

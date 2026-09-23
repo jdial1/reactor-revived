@@ -223,9 +223,11 @@ test("an exploding particle accelerator melts the reactor down", () => {
 test("heat over twice the maximum melts the reactor down", () => {
 	const s = fresh();
 	put(s, 5, 5, "uranium3");
+	put(s, 0, 0, "vent1");
 	compile(s);
-	// Passive cooling runs before the meltdown check, as in the original, so a
-	// reactor sitting a hair over 2x max cools back under the line instead.
+	// The over-limit dump runs before the meltdown check, as in the original, so
+	// a reactor a hair over 2x max with somewhere to put the heat gets back
+	// under the line.
 	s.heat = s.maxHeat * 2 + 1;
 	tick(s);
 	assert.equal(s.hasMeltedDown, false, "shed the excess in time");
@@ -1173,5 +1175,6 @@ test("a cell's heat is shared exactly: none made, none lost", () => {
 	// The left cell makes 4 and has three vents: 4/3 each, not 2 each.
 	for (const v of vents) assert.ok(Math.abs(v.heatIn - 4 / 3) < 1e-9, v.heatIn);
 	// The right cell has no vents, so all of its 4 reaches the reactor.
-	assert.ok(Math.abs(s.heat - (4 - s.maxHeat / 10000)) < 1e-9, s.heat);
+	// No free trickle: the reactor holds every point it was given.
+	assert.ok(Math.abs(s.heat - 4) < 1e-9, s.heat);
 });

@@ -1103,8 +1103,6 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .sheet.tool .cost { margin: 8px 0; }
 .sheet.tool .change dl { margin: 2px 0 6px; }
 .sheet.tool dd s { color: var(--dim); text-decoration: none; }
-.sheet.tool dd .better { color: var(--power); font-weight: normal; }
-.sheet.tool dd .worse { color: #d87a7a; font-weight: normal; }
 .mini-board {
 	display: grid;
 	grid-template-columns: repeat(var(--cols), 14px);

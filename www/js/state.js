@@ -27,6 +27,11 @@ const BASE = {
 	flux: 0,
 	fluxOn: false,
 	lastSeen: 0,
+	// This run was brought back from an exported save. Said on the goal line and
+	// in the records, never hidden: a restore can undo a meltdown.
+	restored: false,
+	// Particles made but not yet whole, after the board's handling of heat.
+	epCarry: 0,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -92,6 +97,8 @@ export function serialize(s) {
 		totalExoticParticles: s.totalExoticParticles,
 		protiumParticles: s.protiumParticles,
 		objective: s.objective,
+		restored: s.restored || undefined,
+		epCarry: s.epCarry || undefined,
 		hasMeltedDown: s.hasMeltedDown,
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
 		paused: s.paused,

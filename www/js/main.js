@@ -1,6 +1,6 @@
 // Wiring: the loops, and the actions the UI can trigger.
 import { load, save, newState, place, exportSave as saveText, deserialize, serialize, isSave } from "./state.js";
-import { compile, tick, tileAt, remove, activeTiles, sellValue, movePart } from "./sim.js";
+import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
@@ -9,7 +9,7 @@ import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell } fr
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
-import { layoutCode, readLayout, applyLayout, describe, layoutOf } from "./layout.js";
+import { layoutCode, readLayout, applyLayout, describe, layoutOf, contextNote } from "./layout.js";
 import { bankTime, spendFlux, span } from "./flux.js";
 import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
 import { replaceAll } from "./layout.js";
@@ -39,10 +39,14 @@ function placeAt(r, c) {
 	play("place");
 }
 
-/** Take a part off a tile, refunding whatever life is left in it. */
+/**
+ * Take a part off a tile, refunding whatever life is left in it. The heat it
+ * held stays behind in the reactor: selling a full vent does not cool anything.
+ */
 function sellTile(t) {
 	if (!t.id) return;
 	s.money += sellValue(s, t);
+	spill(s, t);
 	remove(s, t);
 	play("sell");
 }
@@ -239,9 +243,10 @@ const game = {
 		const r = s.records;
 		const lines = [
 			"Reactor Revived - records",
-			`Most power per tick: ${fmt(r.maxPower)}`,
 			`Most power from a Mark I board: ${r.markOne ? fmt(r.markOne) : "none yet"}`,
 			`Best Mark I efficiency: ${r.efficiency ? `${perCell(r.efficiency)} power per cell` : "none yet"}`,
+			`Peak power, any board: ${fmt(r.maxPower)}`,
+			...(s.restored ? ["This run was restored from a save."] : []),
 			`Longest run without a failure: ${fmt(r.longest)} ticks`,
 			`Hottest held: ${Math.round(r.hottest * 100)}% of the limit`,
 			`Meltdowns: ${r.meltdowns}`,
@@ -280,9 +285,9 @@ const game = {
 		s = deserialize(serialize(real));
 		if (plan) for (const t of s.tiles) if (t.id) remove(s, t);
 		s.planner = true;
+		// The only thing the lab changes: money. Everything else runs as the floor
+		// does, so what holds here holds there.
 		s.money = Infinity;
-		// Spent parts rebuy themselves, so a plan keeps its shape while it runs.
-		s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
 		s.paused = false;
 		if (plan) applyLayout(s, plan);
 		boot();
@@ -314,7 +319,9 @@ const game = {
 		if (/^(mark[\s-]?i|mark[\s-]?1|ic2)$/i.test(String(code).trim())) award(s, "mark");
 		const said = describe(applyLayout(s, layout));
 		play("place");
-		return said;
+		// The claim the code came with, and whether it was made under this game's
+		// upgrades; the board earns its own mark by running either way.
+		return [said, layout.claim && `It claims: ${layout.claim}.`, contextNote(s, layout)].filter(Boolean).join(" ");
 	},
 
 	saveModule(design) {
@@ -409,8 +416,16 @@ window.importSave = (json) => {
 		toast("That file is not a Reactor Revived save this version can read", "options");
 		return;
 	}
+	// A save is a way back past a meltdown. Hardcore has no way back.
+	if (theGame().restriction === "hardcore" || saved.restriction === "hardcore") {
+		toast("A Hardcore run cannot be restored from a save", "options");
+		return;
+	}
 	ask(`Replace your current game with this save ($${fmt(saved.money ?? 0)})?`, () => {
 		s = deserialize(saved);
+		// Marked for the rest of the run: the next reboot starts a clean one.
+		s.restored = true;
+		real = null;
 		save(s);
 		boot();
 		toast("Save imported", "options");

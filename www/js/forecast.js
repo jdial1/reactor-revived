@@ -1,7 +1,7 @@
 // What a layout will do, measured rather than guessed - the question the IC2
 // planners answered: what does it make, does it hold, and when does it fail.
 // The board is copied and run forward; the real one is never touched.
-import { compile, tick, rebuyPrice } from "./sim.js";
+import { compile, tick, rebuyPrice, replaces } from "./sim.js";
 import { innerSave } from "./module.js";
 
 const HORIZON = 600;
@@ -13,10 +13,12 @@ function seeded(seed = 7) {
 }
 
 /**
- * A copy of the board that can be run without consequence. Fuel is assumed
- * kept up - everything rebuys itself - and power is never capped or sold, so
- * what it makes is what is counted. `swap` = [from, to] replaces one part with
- * another first, for asking what a change would do.
+ * A copy of the board that can be run without consequence. It runs the floor's
+ * rules exactly - the power cap, auto-sell, and only the rebuys the player has
+ * bought - and changes one thing: money is endless, so nothing waits to be
+ * afforded. A lab that changed more would forecast one board and run another.
+ * `swap` = [from, to] replaces one part with another first, for asking what a
+ * change would do.
  */
 function copyOf(s, swap) {
 	const tiles = s.tiles.map((t) => {
@@ -34,9 +36,11 @@ function copyOf(s, swap) {
 		exploded: [],
 		random: seeded(),
 		money: Infinity,
-		autoSellMul: 0,
-		baseMaxPower: Infinity,
-		perpetual: new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category))),
+		// Its own copies of what the tick changes, so the real game is untouched.
+		levels: { ...s.levels },
+		records: undefined,
+		incidents: undefined,
+		mark: undefined,
 		hasMeltedDown: false,
 		planner: true,
 	};
@@ -44,12 +48,12 @@ function copyOf(s, swap) {
 	return f;
 }
 
-/** Fuel spent per tick, keeping every consumable on the board topped up. */
+/** Fuel spent per tick on the rebuys the player owns: what auto-buy will pay. */
 function upkeepOf(s, f) {
 	let upkeep = 0;
 	for (const t of f.tiles) {
 		const p = t.activated && t.id && s.stats.get(t.id);
-		if (!p?.ticks) continue;
+		if (!p?.ticks || !replaces(s, p)) continue;
 		// A reflector wears once per cell beside it per tick.
 		const wear = p.category === "reflector"
 			? f.tiles.filter((c) => c.reflectors?.includes(t)).length

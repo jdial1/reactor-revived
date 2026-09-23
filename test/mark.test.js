@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize } from "../www/js/state.js";
-import { compile, tick, tileAt, movePart } from "../www/js/sim.js";
+import { compile, tick, tileAt, movePart, stored } from "../www/js/sim.js";
 import { reboot } from "../www/js/upgrades.js";
-import { readLayout, applyLayout, layoutCode } from "../www/js/layout.js";
+import { readLayout, applyLayout, layoutCode, contextNote } from "../www/js/layout.js";
 import { MARK_WINDOW, markOf, markLine, lastIncident } from "../www/js/records.js";
 import { forecast } from "../www/js/forecast.js";
 
@@ -95,7 +95,7 @@ test("a shared code can carry its header line, and old codes still build", () =>
 	const s = game();
 	applyLayout(s, readLayout("mark i"));
 	const code = layoutCode(s);
-	assert.deepEqual(readLayout(`Mark I · 48 power/tick\n${code}`), readLayout(code));
+	assert.deepEqual(readLayout(`Mark I · 48 power/tick\n${code}`), { ...readLayout(code), claim: "Mark I · 48 power/tick" });
 	assert.equal(readLayout("Mark I · 48 power/tick"), null);
 	assert.ok(readLayout(code).tiles.length === 96);
 });
@@ -139,4 +139,46 @@ test("a part moves with everything it holds, and the move is a redesign", () => 
 	assert.equal(movePart(s, to, tileAt(s, 0, 0)), false, "only onto an empty tile");
 	tick(s);
 	assert.equal(markOf(s), null, "a moved part is a new machine");
+});
+
+test("a code carries the upgrades and doctrines it was copied under", () => {
+	const s = game();
+	s.levels.chronometer = 2;
+	s.doctrines.doctrine1 = "left";
+	applyLayout(s, readLayout("mark i"));
+	const layout = readLayout(layoutCode(s));
+	assert.equal(layout.ctx.levels.chronometer, 2);
+	assert.equal(contextNote(s, layout), null, "same game, nothing to say");
+	const other = game();
+	assert.match(contextNote(other, layout), /differs by 1 upgrade and 1 doctrine/);
+	assert.equal(contextNote(other, readLayout("mark i")), null, "a name carries no context");
+});
+
+test("the ledger balances: every point of heat made is vented, converted or held", () => {
+	const boards = [
+		() => { const s = game(); applyLayout(s, readLayout("mark i")); return s; },
+		() => { const s = game(); put(s, 5, 5, "uranium1"); put(s, 5, 6, "coolant_cell1"); return s; },
+		() => { const s = game(); put(s, 5, 5, "uranium3"); put(s, 5, 6, "vent1"); put(s, 0, 0, "vent2"); return s; },
+	];
+	for (const make of boards) {
+		const s = make();
+		compile(s);
+		for (let i = 0; i < 400; i++) {
+			tick(s);
+			if (s.hasMeltedDown) break;
+			const r = s.rate;
+			const out = r.vent + (r.converted ?? 0) + r.held;
+			assert.ok(Math.abs(r.heat - out) < 1e-6 * Math.max(1, r.heat), `tick ${i}: made ${r.heat}, out ${out}`);
+		}
+	}
+});
+
+test("a part that blows or is sold leaves its heat in the reactor", () => {
+	const s = game();
+	put(s, 5, 5, "uranium3");
+	put(s, 5, 6, "vent1");
+	compile(s);
+	for (let i = 0; i < 10 && s.incidents.length === 0; i++) tick(s);
+	assert.equal(s.incidents.length, 1, "the vent blew");
+	assert.ok(s.heat >= s.incidents[0].held, "its heat is in the pool");
 });

@@ -246,23 +246,27 @@ of this line loved, what broke, and what they asked for. What came of it:
   runs at ten times speed, counting down, until it is empty or tapped again.
 - **The verdict line**, in the planner: what the board makes, whether it
   holds - or the tick it fails and what goes first - and profit after fuel.
-  `www/js/forecast.js` copies the board, keeps its fuel topped up, and runs it
-  600 ticks, then follows any heat still climbing (the reactor's, or any part's)
-  on to where it gives out. It is what the IC2 planners told you, and it runs
-  in the planner too.
+  `www/js/forecast.js` copies the board and runs it 600 ticks under the floor's
+  own rules - the power cap, auto-sell, and only the rebuys you have bought -
+  changing nothing but money, then follows any heat still climbing (the
+  reactor's, or any part's) on to where it gives out. A lab that changed more
+  would forecast one board and run another; a test runs every example both
+  ways and requires them to agree. Forecasts live only in the planner.
 - **Flow**, beside the verdict: an overlay of what each tile did with heat this
   tick - made (+), taken in (▼), passed on (▲), vented (≈). Players
   of this line kept calculators for exchangers and outlets; this is that, live.
 - **Heat made** on the rate line is what the cells make. It used to be what was
   left after the vents beside them took their share, which rounds below zero -
-  the line the tutorial points at said two uranium cells made -2 heat.
+  the line the tutorial points at said two uranium cells made -2 heat. The line
+  ends in **held**: made = vented (and turned to power) + held, every tick.
 - **Replace or upgrade all**, from any part's sheet: pick what to replace it
-  with, and see the new parts' cost, the refund, what you pay, each part's stats
-  before and after, and the whole reactor's verdict before and after - measured,
-  not guessed - before anything is bought. All or nothing.
-- **A saved layout for every goal finished.** The board as it stood, with its
-  verdict, filed in the log under the job, to rebuild onto today's board. The
-  game itself is never rolled back - a meltdown is final.
+  with, and see the new parts' cost, the refund, what you pay and each part's
+  stats before and after, with no colour saying which is better. In the
+  planner it also forecasts the whole reactor before and after. All or nothing.
+- **A saved layout for every goal finished.** The board as it stood - parts,
+  power and the mark it had earned - filed in the log under the job, to
+  rebuild onto today's board. The game itself is never rolled back - a
+  meltdown is final.
 - **Example layouts** as the goals reach them, waiting on their job in the log
   behind a dot on the goal line, and one tap from the planner: direct cooling (goal 6), indirect
   cooling through outlets (10), exchangers spreading a hot block across many
@@ -273,7 +277,13 @@ of this line loved, what broke, and what they asked for. What came of it:
 - **Heat is conserved.** A cell's heat is split exactly between the parts
   around it. Knockoff rounded each share up, so 4 heat over 3 vents put 6 into
   them and sent -2 to the reactor: heat from nothing, which Flow made visible.
-- **Payback**, on the verdict line, in replace-all and on every save state: what
+  Knockoff's other leaks are closed too. The reactor no longer sheds a free
+  trickle of heat under its limit - every sink is a part you place - and over
+  its limit it dumps the excess into its parts in full. A part that blows, is
+  sold or is replaced leaves its heat in the reactor, as IC2's coolant did, and
+  throttling halves what a cell's neighbours take as well as what it sends on.
+  A test checks the ledger balances every tick.
+- **Payback**, on the planner's verdict line and in its replace-all: what
   the board cost to build, over its profit per tick - how many ticks it takes to
   earn itself back. It is the efficiency figure IC2 players ranked designs by.
 - **The balance is pinned.** A test holds each example's power, cost and payback
@@ -282,7 +292,9 @@ of this line loved, what broke, and what they asked for. What came of it:
   indirect in 370 - the gap Reactor Incremental players complained about, left
   as it is until it is tuned on purpose.
 - **Import asks first** and refuses a file it cannot read (Knockoff #36 - and
-  here an unknown version used to load as a brand-new game).
+  here an unknown version used to load as a brand-new game). A save is a way
+  back past a meltdown, so a Hardcore run cannot be restored from one, and any
+  other restored run says *Restored* on the goal line and in its records.
 - **Exchangers share evenly** (Knockoff #4). Every share is worked out before any
   is paid, and scaled down together when there is not enough to go round; handed
   out in turn, the up and left neighbours took it all and the far side blew.
@@ -413,7 +425,8 @@ quietly drift.
 Where the original's code and its own text disagree, the code wins: Perpetual
 Reflectors promises a 1.5x replacement cost but charges list price, and a
 reactor sitting just over twice its heat ceiling does *not* melt down, because
-passive cooling runs first.
+the over-limit dump runs first. Knockoff's free trickle under the limit is
+the one rule dropped on purpose: it deleted heat.
 
 ## Differences from the original
 
@@ -492,17 +505,27 @@ lost since the last change. A lost part is an incident, not a redesign; placing,
 selling, building, upgrading or switching a doctrine starts the mark again. The
 line under the grid reads like the sign at a plant gate - *Mark I · 4,210 ticks
 without incident* - and tapping it gives the legend and the last incident.
-Records keeps the **most power from a Mark I board**, output that holds, next to
-the most power from any board, and the **best Mark I efficiency** - power per
+Records leads with the **most power from a Mark I board**, output that holds,
+with peak power from any board below it, and the **best Mark I efficiency** - power per
 fuel cell, a quad counting four, IC2's other measure of a design. The planner's
 verdict speaks the same language as a forecast: *Would earn Mark I*, *Would
 earn Mark II*, or the tick it fails. Every example layout would earn Mark I.
 
 Tapping a part offers **Move**: the next tap on an empty tile carries it there
 with its heat, its life and a casing's insides, free, as parts moved in an IC2
-reactor's inventory. A move is a new machine, so the board's mark starts again. A copied layout code carries its mark and power
-on a line above it, and a pasted one can keep that line. Save states remember
-the mark the board had when the job was done.
+reactor's inventory. A move is a new machine, so the board's mark starts again.
+
+A copied layout code carries its mark, power and efficiency on a line above
+it, and inside it the upgrades and doctrine sides it was copied under. Pasting
+one keeps the header as the claim it makes, and says when your game differs,
+so "Mark I" means the same in both. Save states remember the mark the board
+had when the job was done.
+
+**Exotic Particles count as far as the board handles its heat**, as Reactor
+Incremental paid them on heat removed: each tick, an accelerator's particles
+are scaled by how much of the heat made that tick was vented or turned to
+power. A board that holds keeps them all; one storing heat toward a failure
+earns little.
 
 A meltdown still wipes the board clean, and now leaves a **receipt**: how long
 the board ran since it last changed, the first part it lost and what that part

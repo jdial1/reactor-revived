@@ -81,6 +81,7 @@ test("an old reactor's name, where a code goes, builds its checkerboard", async 
 	for (const name of ["MARK I", "mark-1", "IC2"]) assert.ok(readLayout(name), name);
 	const s = game(1e9);
 	s.objective = 5;
+	s.perpetual.add("uranium"); // the lab runs the floor's rules: this game rebuys uranium
 	const r = applyLayout(s, readLayout("Mark I"));
 	assert.equal(r.placed, 96);
 	const f = forecast(s);

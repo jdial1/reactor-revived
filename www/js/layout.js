@@ -1,7 +1,7 @@
 // Layout codes: a whole board as a line of text, the way IC2 planner links let
 // players pass designs around. A code carries every module design its board
 // uses, so it builds the same reactor in anyone's game.
-import { tileAt, sellValue, remove, countPlaced, compile } from "./sim.js";
+import { tileAt, sellValue, remove, spill, countPlaced, compile } from "./sim.js";
 import { place } from "./state.js";
 import { isPartVisible } from "./parts.js";
 import { modId, moduleOf, saveModule } from "./module.js";
@@ -31,7 +31,36 @@ export function layoutOf(s) {
 	return { tiles, modules };
 }
 
-export const layoutCode = (s) => PREFIX + pack(JSON.stringify(layoutOf(s)));
+/**
+ * The code for a board. It carries the context the board ran under - every
+ * upgrade bought and every doctrine side - so a reader can tell whether "Mark
+ * I" means the same thing in their game as in the writer's.
+ */
+export const layoutCode = (s) => PREFIX + pack(JSON.stringify({ ...layoutOf(s), ctx: contextOf(s) }));
+
+/** Upgrades bought (by level) and doctrine sides: what a design depends on. */
+export function contextOf(s) {
+	const levels = Object.fromEntries(Object.entries(s.levels).filter(([, lv]) => lv > 0));
+	return { levels, doctrines: { ...s.doctrines } };
+}
+
+/**
+ * How a code's context differs from this game's, in words; null when it was
+ * copied under the same upgrades and doctrines, or carries no context at all.
+ */
+export function contextNote(s, layout) {
+	const ctx = layout?.ctx;
+	if (!ctx) return null;
+	const mine = contextOf(s);
+	const ids = new Set([...Object.keys(ctx.levels ?? {}), ...Object.keys(mine.levels)]);
+	const upgrades = [...ids].filter((id) => (ctx.levels?.[id] ?? 0) !== (mine.levels[id] ?? 0)).length;
+	const sides = new Set([...Object.keys(ctx.doctrines ?? {}), ...Object.keys(mine.doctrines)]);
+	const doctrines = [...sides].filter((id) => (ctx.doctrines?.[id] ?? null) !== (mine.doctrines[id] ?? null)).length;
+	if (!upgrades && !doctrines) return null;
+	const what = [upgrades && `${upgrades} upgrade${upgrades === 1 ? "" : "s"}`, doctrines && `${doctrines} doctrine${doctrines === 1 ? "" : "s"}`]
+		.filter(Boolean).join(" and ");
+	return `Copied in a game that differs by ${what}; it may not run the same here.`;
+}
 
 // IC2's Mark I: cells and vents in a checkerboard, every cell with four vents
 // and every vent with four cells. Not a code anyone is given - a name someone
@@ -45,12 +74,15 @@ const MARK_I = {
 export function readLayout(code) {
 	const text = String(code ?? "").trim();
 	if (/^(mark[\s-]?i|mark[\s-]?1|ic2)$/i.test(text)) return MARK_I;
-	// A shared code may arrive under its header line ("Mark I · 1.2K power/tick").
+	// A shared code may arrive under its header line ("Mark I · 1.2K power/tick"),
+	// which is kept as the claim the code makes.
 	const at = text.indexOf(PREFIX);
 	if (at < 0) return null;
 	try {
 		const layout = JSON.parse(unpack(text.slice(at + PREFIX.length).split(/\s/)[0]));
-		return Array.isArray(layout?.tiles) && Array.isArray(layout?.modules) ? layout : null;
+		if (!Array.isArray(layout?.tiles) || !Array.isArray(layout?.modules)) return null;
+		const claim = text.slice(0, at).trim();
+		return claim ? { ...layout, claim } : layout;
 	} catch {
 		return null;
 	}
@@ -122,6 +154,8 @@ export function replaceAll(s, from, to) {
 	for (const t of s.tiles) {
 		if (t.id !== from) continue;
 		s.queue = s.queue.filter((x) => x !== t);
+		// The old part's heat stays in the reactor; the new one arrives cold.
+		spill(s, t);
 		remove(s, t);
 		Object.assign(t, { id: to, activated: true, ticks: p.ticks ?? 0, heatContained: 0 });
 		countPlaced(s, to);

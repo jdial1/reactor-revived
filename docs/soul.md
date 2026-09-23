@@ -35,21 +35,23 @@ roll, which is output, never failure. Keep it that way.
 
 | Pillar | Rule | Where it lives |
 |---|---|---|
-| The Ledger | One conserved quantity; no leaks in the math | Heat split exactly (no rounding up); exploded parts return their heat; Flow shows each tile's in, out and vented |
-| | The line is the truth | The rates line: power, heat made, vented, moved |
+| The Ledger | One conserved quantity; no leaks in the math | Heat split exactly; no free trickle; the over-limit dump pays in full; parts that blow, are sold or replaced leave their heat in the reactor; throttling applies everywhere a cell's heat goes |
+| | The line is the truth | The rates line: made, vented, moved, held - made = vented + converted + held, checked by a test every tick |
 | | Storage buys time, not safety | Coolant cells and plating: a board leaning on them earns Mark II, not Mark I |
 | Geometry Is the Build | A small, fixed board | 12 x 8 tiles; modules pack a 3 x 3 into one at a casing cost |
 | | Neighbours are the rules | Heat moves only to touching parts, and through the reactor pool |
 | | Every upgrade moves the optimum | An upgrade restarts the board's mark; a Mark I can become a Mark II |
 | | The same parts, a different machine | Move a part from its sheet: free, keeps its heat and life, restarts the mark |
 | Proof by Running | The clock is the judge | Parts fail on schedule; the forecast lives only in the planner |
-| | Rate the machine by its stamina | Marks I-III earned on the floor; "Most power from a Mark I board" and "Best Mark I efficiency" (power per fuel cell) in Records |
+| | Rate the machine by its stamina | Marks I-III earned on the floor; Records lead with power and efficiency from a Mark I board; particles count as far as the board sheds its heat |
 | | Absence is play | Time Flux banks time away; nothing punishes leaving |
 | | The hum of a held machine | The hum beats while heat is climbing and holds steady when the board is in balance |
-| The Workbench | A lab beside the floor | The planner forecasts ("Would earn Mark I"); the real board's line reports only what happened |
+| The Workbench | A lab beside the floor | The planner forecasts ("Would earn Mark I"); the floor, replace-all and save states report only what is and was |
+| | The lab runs the floor's rules | Forecasts change money only; a test runs every example on lab and floor and requires them to agree |
 | | Designs travel as text | Layout codes, carrying their mark, power and efficiency on a header line |
-| | Measure, don't grade | Forecast numbers, payback, marks - no stars, no advice |
-| | Rebuild, never rewind | Save states rebuild onto today's board; nothing rolls back |
+| | A code carries its context | Codes carry upgrades and doctrine sides; pasting says when the reader's game differs |
+| | Measure, don't grade | Numbers before and after, no better/worse colouring, no stars, no advice |
+| | Rebuild, never rewind | Save states rebuild onto today's board; import is refused in Hardcore and marks any other run Restored |
 
 ## Litmus
 
@@ -67,6 +69,16 @@ The standing project rules sit on top of the soul: stay inside the lineage;
 meltdown is an absolute clean wipe (a receipt is words, not wreckage); no story
 beats; no roguelite generations, board variants or scars; no network or
 monetisation; comedy is deadpan only.
+
+## Still bent, on purpose or for later
+
+- Absence is banked as Time Flux rather than run live, and leaving the Reactor
+  page pauses it (kept by choice).
+- Early goals are manual (sell and vent by hand) before automation (lineage).
+- The module designer forecasts its casing: a second lab.
+- Some parts reach past their neighbours (one exchanger's whole row), and
+  capacitors and plating raise rates board-wide.
+- The tutorial and example notes still give layout advice.
 
 ## Trust in the opening
 
