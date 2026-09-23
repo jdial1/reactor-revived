@@ -13,7 +13,7 @@ import { span } from "./flux.js";
 import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog } from "./tools-ui.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
-import { RUNGS, RESTRICTIONS, restrictionLabel, toolsAllowed } from "./records.js";
+import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award } from "./records.js";
 import { NOTES, notesFor } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
@@ -337,6 +337,9 @@ export function buildUI(game) {
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
 			h("h3", { className: "credit-head", textContent: "Records" }),
 			dom.records = h("dl", { className: "records" }),
+			h("h3", { className: "credit-head", textContent: "Trophies" }),
+			dom.trophyCase = h("ul", { className: "trophies" }),
+			h("button", { className: "wide", textContent: "Copy records as text", onclick: () => showCode(game.summary(), "Records") }),
 			h("h3", { className: "credit-head", textContent: "Where this came from" }),
 			h("ol", { className: "lineage" }, LINEAGE.map(([name, url, what], i) =>
 				h("li", { className: i === LINEAGE.length - 1 ? "here" : "" },
@@ -521,8 +524,8 @@ function meltdownNotice(onAcknowledge) {
 }
 
 /** A modal question. Replaces confirm(), which Android renders as a system dialog. */
-/** The board as a code, selected and ready to copy. */
-function showCode(code) {
+/** Text selected and ready to copy: a layout code, or the records. */
+function showCode(code, title = "Layout code") {
 	const box = h("textarea", { className: "code", readOnly: true, value: code, rows: 5 });
 	const copy = h("button", { textContent: "Copy", onclick: async () => {
 		box.select();
@@ -534,9 +537,11 @@ function showCode(code) {
 			copy.textContent = "Selected - copy it";
 		}
 	} });
-	const dialog = h("dialog", { className: "sheet", ariaLabel: "Layout code" },
-		h("h2", { textContent: "Layout code" }),
-		h("i", { textContent: "The whole board, and any module designs on it. Paste it into Build from a layout code - here or in anyone's game." }),
+	const dialog = h("dialog", { className: "sheet", ariaLabel: title },
+		h("h2", { textContent: title }),
+		h("i", { textContent: title === "Layout code"
+			? "The whole board, and any module designs on it. Paste it into Build from a layout code - here or in anyone's game."
+			: "Everything this reactor has done, as text to keep or share." }),
 		box,
 		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() }), copy));
 	dialog.addEventListener("close", () => dialog.remove());
@@ -854,6 +859,7 @@ export function render(dom, s, game) {
 		dom.lastBlast = s.runTicks;
 		// One blast is a loss; a run of them on consecutive ticks is a show.
 		if (dom.chain > 1) play("boom", Math.min(2, 0.9 + 0.12 * dom.chain));
+		if (dom.chain >= 5) award(s, "chain");
 	}
 	for (const i of s.exploded.splice(0)) {
 		const cell = dom.tiles[i]?.cell;
@@ -990,7 +996,10 @@ function renderPage(dom, s) {
 	renderObjectives(dom, s);
 	if (dom.page === "modules") renderModules(dom, s, dom.game);
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
-	if (dom.page === "options") renderRecords(dom, s);
+	if (dom.page === "options") {
+		renderRecords(dom, s);
+		renderTrophies(dom, s);
+	}
 	if (dom.page === "experiments") {
 		dom.epStatus.textContent = s.exoticParticles
 			? `${fmt(s.currentExoticParticles)} EP to spend, ${fmt(s.exoticParticles)} pending - reboot to bank them.`
@@ -1129,10 +1138,10 @@ function renderLocks(dom, s) {
 /** The dock's Modules tab: one button per saved design, newest first. */
 function renderDockModules(dom, s, game) {
 	const page = dom.dockPages.Modules;
-	const sig = s.modules.map((m) => m.id).join();
+	const sig = s.modules.map((m) => m.id).join() + s.restriction;
 	if (sig !== dom.dockModSig) {
 		dom.dockModSig = sig;
-		dom.moduleButtons = [...s.modules].reverse().map((m) => {
+		dom.moduleButtons = [...s.modules].reverse().filter((m) => isPartVisible(s, s.stats.get(modId(m)))).map((m) => {
 			const p = s.stats.get(modId(m));
 			const button = h("button", { className: "part", title: p.title, onclick: () => {
 				game.select(p.id);
@@ -1228,8 +1237,16 @@ function renderRecords(dom, s) {
 	dom.records.replaceChildren(...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })]));
 }
 
-/** A field note earned: said quietly, once. */
+/** A field note or a trophy earned: said quietly, once. */
 function renderNotes(dom, s) {
+	if (dom.trophiesSeen === undefined) dom.trophiesSeen = s.trophies.length;
+	if (s.trophies.length > dom.trophiesSeen) {
+		dom.trophiesSeen = s.trophies.length;
+		const id = s.trophies[s.trophies.length - 1];
+		play("goal");
+		toast(`Trophy: ${TROPHIES.find(([t]) => t === id)[1]}`, "goals");
+	}
+	if (s.notes.length === Object.keys(NOTES).length) award(s, "notes");
 	if (dom.notesSeen === undefined) dom.notesSeen = s.notes.length;
 	if (s.notes.length <= dom.notesSeen) return;
 	const id = s.notes[s.notes.length - 1];
@@ -1275,6 +1292,7 @@ function renderSecrets(dom, s) {
 		dom.coldFor = cold ? (dom.coldFor ?? 0) + 1 : 0;
 	}
 	const fusion = dom.coldFor >= 60;
+	if (fusion) award(s, "cold");
 	if (fusion !== dom.fusion) {
 		dom.fusion = fusion;
 		document.body.classList.toggle("cold-fusion", fusion);
@@ -1298,4 +1316,18 @@ function renderSecrets(dom, s) {
 		}
 	}
 	dom.tiles.forEach((row, i) => row.cell.classList.toggle("critical-mass", massed.has(i)));
+	if (massed.size) award(s, "mass");
+}
+
+/** The trophy case: earned ones say how; the rest are ??? until they are. */
+function renderTrophies(dom, s) {
+	const sig = s.trophies.join();
+	if (sig === dom.trophySig) return;
+	dom.trophySig = sig;
+	dom.trophyCase.replaceChildren(...TROPHIES.map(([id, name, how]) => {
+		const won = s.trophies.includes(id);
+		return h("li", { className: won ? "won" : "" },
+			h("b", { textContent: won ? name : "???" }),
+			won ? h("small", { textContent: how }) : "");
+	}));
 }

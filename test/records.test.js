@@ -101,3 +101,44 @@ test("a field note is earned by seeing the quirk, once, and only on the real boa
 	assert.equal(notesFor(s, s.stats.get("reflector2")).length, 1);
 	assert.equal(notesFor(s, s.stats.get("vent1")).length, 0);
 });
+
+test("manual feed switches off every rebuy; casingless keeps modules off the board", async () => {
+	const { isPartVisible: visible } = await import("../www/js/parts.js");
+	const s = game();
+	s.levels.cell_perpetual_uranium = 1;
+	const { applyUpgrades } = await import("../www/js/upgrades.js");
+	applyUpgrades(s);
+	reboot(s, false, "manual");
+	s.money = 1e9;
+	const t = put(s, 5, 5, "uranium1");
+	compile(s);
+	t.ticks = 1;
+	tick(s);
+	tick(s);
+	assert.equal(tileAt(s, 5, 5).ticks, 0, "a spent cell stays spent");
+	const m = saveModule(s, { name: "Box", icon: "uranium1", tint: "uranium", layout: [null, null, null, null, "uranium1", null, null, null, null] });
+	reboot(s, false, "casingless");
+	s.objective = 30;
+	assert.equal(visible(s, s.stats.get(modId(m))), false);
+});
+
+test("trophies are won on the real board, once, and a meltdown right after a reboot is one", async () => {
+	const { award, TROPHIES } = await import("../www/js/records.js");
+	const s = game();
+	assert.equal(TROPHIES.length, 12);
+	assert.equal(award(s, "mark"), true);
+	assert.equal(award(s, "mark"), false, "once");
+	reboot(s, false, null);
+	s.heat = s.maxHeat * 3;
+	tick(s);
+	assert.ok(s.trophies.includes("fuse"));
+	const f = game();
+	for (let c = 0; c < 8; c++) put(f, 0, c, "vent1");
+	for (let c = 0; c < 4; c++) put(f, 1, c, "vent1");
+	compile(f);
+	for (let i = 0; i < 60; i++) tick(f);
+	assert.ok(f.trophies.includes("fan"));
+	forecast(f);
+	const back = deserialize(JSON.parse(JSON.stringify(serialize(f))), () => 1);
+	assert.deepEqual(back.trophies, f.trophies);
+});

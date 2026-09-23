@@ -71,6 +71,7 @@ export function newState(random = Math.random) {
 		restriction: null,
 		runTicks: 0,
 		runHit: [],
+		trophies: [],
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -106,6 +107,7 @@ export function serialize(s) {
 		restriction: s.restriction,
 		runTicks: s.runTicks,
 		runHit: s.runHit,
+		trophies: s.trophies,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -139,6 +141,7 @@ export function deserialize(saved, random = Math.random) {
 	s.restriction = saved.restriction ?? null;
 	s.runTicks = saved.runTicks ?? 0;
 	s.runHit = saved.runHit ?? [];
+	s.trophies = saved.trophies ?? [];
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

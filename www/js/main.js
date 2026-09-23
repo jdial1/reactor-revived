@@ -5,10 +5,10 @@ import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog } from "./ui.js";
-import { toolsAllowed } from "./records.js";
+import { toolsAllowed, award, TROPHIES, restrictionLabel } from "./records.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
-import { saveModule, deleteModule, modId } from "./module.js";
+import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
 import { layoutCode, readLayout, applyLayout, describe, layoutOf } from "./layout.js";
 import { bankTime, spendFlux, span } from "./flux.js";
 import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
@@ -204,6 +204,26 @@ const game = {
 
 	layoutCode: () => layoutCode(s),
 
+	/** The records, trophies and board as plain text, to keep or share. */
+	summary() {
+		const r = s.records;
+		const lines = [
+			"Reactor Revived - records",
+			`Most power per tick: ${fmt(r.maxPower)}`,
+			`Longest run without a failure: ${fmt(r.longest)} ticks`,
+			`Hottest held: ${Math.round(r.hottest * 100)}% of the limit`,
+			`Meltdowns: ${r.meltdowns}`,
+			`Exotic Particles ever: ${fmt(s.totalExoticParticles + s.exoticParticles)}`,
+			...Object.entries(r.speed).flatMap(([run, times]) =>
+				Object.entries(times).map(([rung, t]) => `${restrictionLabel(run === "open" ? null : run)} run to ${fmt(Number(rung))} power: ${fmt(t)} ticks`)),
+			`Trophies: ${s.trophies.length} of ${TROPHIES.length}`,
+			...TROPHIES.filter(([id]) => s.trophies.includes(id)).map(([, name]) => `  ${name}`),
+			"Board:",
+			layoutCode(s),
+		];
+		return lines.join("\n");
+	},
+
 	replaceAll(from, to) {
 		if (!replaceAll(s, from, to)) return;
 		play("buy");
@@ -259,6 +279,7 @@ const game = {
 		if (!toolsAllowed(s)) return "Not in a hardcore run - the real board is the only board";
 		const layout = readLayout(code);
 		if (!layout) return null;
+		if (/^(mark[\s-]?i|mark[\s-]?1|ic2)$/i.test(String(code).trim())) award(s, "mark");
 		const said = describe(applyLayout(s, layout));
 		play("place");
 		return said;
@@ -266,6 +287,7 @@ const game = {
 
 	saveModule(design) {
 		const m = saveModule(s, design);
+		if (isAncestor(m.name)) award(s, "ancestor");
 		game.selected = modId(m);
 		play("buy");
 	},
@@ -328,6 +350,10 @@ setInterval(() => {
 		goalMet(dom, done.title);
 		// A save state for the job just done, to come back to from the log.
 		takeSnapshot(s, s.objective - 1);
+		// The last job done: the log is finished, and the next run is offered.
+		if (s.objective === OBJECTIVES.length - 1 && award(s, "done")) {
+			ask("The log is finished. Reboot, and pick a rule for the next run?", () => game.reboot(false), "Reboot");
+		}
 	}
 }, OBJECTIVE_MS);
 setInterval(() => save(theGame()), SAVE_MS);

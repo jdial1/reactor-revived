@@ -1253,3 +1253,11 @@ details.module-row .row { margin-top: 8px; }
 .tile.critical-mass .glow:is(.bar1, .bar2, .bar4) { animation: breathe 0.6s ease-in-out infinite alternate; animation-delay: 0s; }
 /* Cold fusion: the heat gauge knows. */
 body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
+
+/* The trophy case. */
+.trophies { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: 11px; }
+.trophies li { padding: 4px 6px; color: var(--dim); background: var(--panel); border-left: 2px solid var(--edge); }
+.trophies li.won { color: var(--ink); border-left-color: var(--cash); }
+.trophies li b { font-weight: normal; }
+.trophies li.won b { color: var(--cash); }
+.trophies li small { display: block; color: var(--dim); }

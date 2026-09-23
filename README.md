@@ -461,12 +461,20 @@ the most power a reactor has made in a tick, the longest it has run without a
 part failing, the hottest it has been held, meltdowns, parts placed, Exotic
 Particles ever made, and how many field notes have been earned.
 
-A **reboot can take a rule** for the run it starts: *Direct only* (no
-exchangers, inlets or outlets, and no module that holds one), *Uranium only*,
-or *Hardcore* (no planner, no layout codes, no rebuilding saved layouts). The
+A **reboot can take a rule** for the run it starts, the way Kingdom of
+Loathing's ascensions take a path: *Direct only* (no exchangers, inlets or
+outlets, and no module that holds one), *Uranium only*, *Hardcore* (no planner,
+no layout codes, no rebuilding saved layouts), *Manual feed* (nothing rebuys
+itself) or *Casingless* (no modules). The
 rule shows on the goal line. Each run is timed to each rung of power per tick -
 1K, 1M, 1B, 1T - from its reboot, and Records keeps the fastest per kind of
 run. Nothing carries over from a rule but the time.
+
+A **trophy case** sits under Records, after Kingdom of Loathing's: a dozen odd
+feats, named flatly, shown as ??? until they are earned. None of them changes a
+number in the game. **Copy records as text** puts the records, the trophies and
+the current board's layout code on the clipboard, to keep or to share. Finishing
+the operator's log offers a reboot and a rule for the next run.
 
 **Field notes** fill a part's sheet the first time its quirk is seen on the real
 board: a reflector wearing out, a thermionic cell turning heat into power, an

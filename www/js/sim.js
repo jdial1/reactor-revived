@@ -2,7 +2,7 @@
 // arrives in `s` and everything it changes lives in `s`.
 import { applyUpgrades } from "./upgrades.js";
 import { stepModule } from "./module.js";
-import { recordTick, recordMeltdown } from "./records.js";
+import { recordTick, recordMeltdown, autoFeed } from "./records.js";
 import { observe } from "./notes.js";
 // Fixed 12x8: the whole board has to be visible at once on a phone, so the
 // original's two expansion upgrades have nothing to expand into.
@@ -396,9 +396,9 @@ function wear(s, t) {
 }
 
 /** Whether auto-buy owns this part and will replace it when it runs out. */
-const replaces = (s, p) => p.category === "module"
+const replaces = (s, p) => autoFeed(s) && (p.category === "module"
 	? p.consumables.length > 0 && p.consumables.every((k) => s.perpetual.has(k))
-	: s.perpetual.has(p.category === "cell" ? p.type : p.category);
+	: s.perpetual.has(p.category === "cell" ? p.type : p.category));
 
 /** What auto-buy pays to replace a spent part. */
 export const rebuyPrice = (p) =>
