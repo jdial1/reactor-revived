@@ -141,7 +141,7 @@ test("a cell auto-buy owns stays put and is bought again", () => {
 	assert.equal(s.money, 0);
 });
 
-test("a part refunds what is left in it, not what it cost", () => {
+test("a part refunds its price less the fuel it has used, never its heat", () => {
 	const s = fresh();
 	const cell = put(s, 5, 5, "uranium1");
 	compile(s);
@@ -151,15 +151,15 @@ test("a part refunds what is left in it, not what it cost", () => {
 	assert.equal(cell.ticks, 3);
 	assert.equal(sellValue(s, cell), 2, "3 of 15 ticks left of $10");
 
-	// A vent is worth less the more heat it is holding.
+	// Refactoring is free: a hot vent refunds its whole price. Knockoff docked it
+	// for the heat, because that heat vanished; here it stays in the reactor,
+	// which is the real cost of pulling it out.
 	const vent = put(s, 8, 8, "vent1");
 	compile(s);
 	const p = s.stats.get("vent1");
 	assert.equal(sellValue(s, vent), p.cost);
 	vent.heatContained = p.containment * 0.99;
-	assert.equal(sellValue(s, vent), Math.floor(p.cost * 0.01), "99% full is nearly worthless");
-	vent.heatContained = p.containment;
-	assert.equal(sellValue(s, vent), 0);
+	assert.equal(sellValue(s, vent), p.cost, "full price, however hot");
 });
 
 test("a perpetual cell buys its own replacement at 1.5x", () => {

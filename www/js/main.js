@@ -127,7 +127,6 @@ const game = {
 		if (!buyUpgrade(s, id)) {
 			// It used to say nothing at all, which reads as a tap that missed.
 			flash(row?.button, "denied");
-			play("deny");
 			return;
 		}
 		compile(s);
@@ -263,8 +262,8 @@ const game = {
 
 	replaceAll(from, to) {
 		if (!replaceAll(s, from, to)) return;
+		// The board shows the new parts; it does not need saying twice.
 		play("buy");
-		toast(`Replaced with ${s.stats.get(to).title}`, "reactor");
 	},
 
 	rebuildSnapshot(snap) {
@@ -341,7 +340,7 @@ const game = {
 			s = newState();
 			save(s);
 			boot();
-		});
+		}, "Delete", true);
 	},
 };
 
@@ -392,7 +391,7 @@ setInterval(() => {
 		takeSnapshot(s, s.objective - 1);
 		// The last job done: the log is finished, and the next run is offered.
 		if (s.objective === OBJECTIVES.length - 1 && award(s, "done")) {
-			ask("The log is finished. Reboot, and pick a rule for the next run?", () => game.reboot(false), "Reboot");
+			ask("The log is finished. Reboot, and pick a rule for the next run?", () => game.reboot(false), "Reboot", true);
 		}
 	}
 }, OBJECTIVE_MS);
@@ -429,7 +428,7 @@ window.importSave = (json) => {
 		save(s);
 		boot();
 		toast("Save imported", "options");
-	}, "Replace");
+	}, "Replace", true);
 };
 
 // Android can kill the process without warning once backgrounded.

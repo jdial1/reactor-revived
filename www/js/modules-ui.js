@@ -83,7 +83,7 @@ export function renderModules(dom, s, game) {
 				h("button", {
 					className: "danger", textContent: "Delete", disabled: used,
 					title: used ? "On the board or inside another design" : "",
-					onclick: () => ask(`Delete ${m.name}?`, () => { game.deleteModule(m); dom.modSig = ""; }, "Delete"),
+					onclick: () => ask(`Delete ${m.name}?`, () => { game.deleteModule(m); dom.modSig = ""; }, "Delete", true),
 				})));
 	}));
 }

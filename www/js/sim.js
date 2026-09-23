@@ -464,14 +464,17 @@ function expire(s, t, p) {
 	remove(s, t);
 }
 
-/** What a part refunds: a fraction of list price, by how worn it is. */
+/**
+ * What a part refunds. Tearing a design down is free: a part gives back its
+ * whole price, less only the fuel or wear it has used up, which is spent, not
+ * a penalty. The heat it holds is not charged here - it stays behind in the
+ * reactor, which is cost enough.
+ */
 export function sellValue(s, t) {
 	if (!t.activated) return 0; // queued, never paid for
 	const p = s.stats.get(t.id);
-	let left = 1;
-	if (p.ticks) left = Math.min(left, t.ticks / p.ticks);
-	if (p.containment) left = Math.min(left, 1 - t.heatContained / p.containment);
-	return Math.floor(p.cost * Math.max(0, left));
+	const left = p.ticks ? t.ticks / p.ticks : 1;
+	return Math.floor(p.cost * Math.max(0, Math.min(1, left)));
 }
 
 function rollExoticParticles(s, t, p) {

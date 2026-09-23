@@ -441,10 +441,8 @@ function buildDock(dom, game) {
 				onclick: () => {
 					game.select(part.id);
 					// Say so, rather than letting the tap look ignored.
-					if (button.classList.contains("poor")) {
-						flash(button, "denied");
-						play("deny");
-					}
+					// A flash, and no sound: a mistake takes nothing away from the hum.
+					if (button.classList.contains("poor")) flash(button, "denied");
 				},
 			}, h("i", { style: `background-image:url(${artFor(part)})` }),
 				label, info,
@@ -521,7 +519,7 @@ function meltdownNotice(lines, onAcknowledge) {
 		// The receipt: read off the ledger as the reactor fell. Words, not wreckage.
 		lines?.length ? h("ul", { className: "receipt" }, ...lines.map((l) => h("li", { textContent: l }))) : "",
 		h("div", { className: "row" },
-			h("button", { className: "wide danger", textContent: "Restart the reactor", onclick: () => dialog.close() })));
+			h("button", { className: "wide", textContent: "Restart the reactor", onclick: () => dialog.close() })));
 	dialog.addEventListener("close", () => { dialog.remove(); onAcknowledge(); });
 	document.body.append(dialog);
 	dialog.showModal();
@@ -579,12 +577,16 @@ function askCode(build) {
 	box.focus();
 }
 
-export function ask(question, onYes, yes = "Do it") {
+/**
+ * A yes-or-cancel question. Red only when yes loses something for good (a save,
+ * a run, a design): warning colours are kept for real danger.
+ */
+export function ask(question, onYes, yes = "Do it", danger = false) {
 	const dialog = h("dialog", { className: "ask", ariaLabel: question },
 		h("p", { textContent: question }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Cancel", onclick: () => dialog.close() }),
-			h("button", { className: "danger", textContent: yes, onclick: () => { dialog.close(); onYes(); } })));
+			h("button", { className: danger ? "danger" : "", textContent: yes, onclick: () => { dialog.close(); onYes(); } })));
 	dialog.addEventListener("close", () => dialog.remove());
 	document.body.append(dialog);
 	dialog.showModal();
@@ -628,10 +630,10 @@ export function inspect(s, t, sell) {
 			h("button", { textContent: sameKind > 1 ? `Replace or upgrade all ${sameKind}` : "Replace or upgrade",
 				onclick: () => { dialog.close(); replaceDialog(s, p, sell.game); } }),
 			h("button", { textContent: "Move", onclick: () => { dialog.close(); sell.move(); } }),
-			h("button", { className: "danger", textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
-			sameKind > 1 && h("button", { className: "danger", textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
+			h("button", { textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
+			sameKind > 1 && h("button", { textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
 			// One tap that empties the board deserves a second one.
-			placed.length > sameKind && h("button", { className: "danger", textContent: `Sell everything (${placed.length} parts)`,
+			placed.length > sameKind && h("button", { textContent: `Sell everything (${placed.length} parts)`,
 				onclick: () => { dialog.close(); ask(`Sell all ${placed.length} parts?`, sell.sellAll); } }),
 		].filter(Boolean)),
 		h("div", { className: "row" },
@@ -1153,10 +1155,7 @@ function renderDockModules(dom, s, game) {
 			const p = s.stats.get(modId(m));
 			const button = h("button", { className: "part", title: p.title, onclick: () => {
 				game.select(p.id);
-				if (button.classList.contains("poor")) {
-					flash(button, "denied");
-					play("deny");
-				}
+				if (button.classList.contains("poor")) flash(button, "denied");
 			} }, face(p, "mod-face"), h("em", { textContent: p.short }), h("u", { textContent: fmt(p.cost) }));
 			return { button, p };
 		});

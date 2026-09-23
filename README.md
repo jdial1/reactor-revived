@@ -291,6 +291,13 @@ of this line loved, what broke, and what they asked for. What came of it:
   than slipping through. Today direct cooling pays back in 160 ticks and
   indirect in 370 - the gap Reactor Incremental players complained about, left
   as it is until it is tuned on purpose.
+- **Refactoring is free.** A sold part refunds its price less only the fuel or
+  wear it has used. Knockoff docked a hot part for its heat, because that heat
+  vanished; here the heat stays in the reactor, which is the real cost of
+  pulling it out, so tearing a design down to improve it costs nothing else.
+- **Say it once.** The board, the bars and the hum carry the information, so
+  nothing repeats them: a tap you cannot afford flashes without a sound, and
+  red is kept for losing a save, a run or a design.
 - **Import asks first** and refuses a file it cannot read (Knockoff #36 - and
   here an unknown version used to load as a brand-new game). A save is a way
   back past a meltdown, so a Hardcore run cannot be restored from one, and any
@@ -541,11 +548,15 @@ layouts can be rebuilt; the game itself cannot be rolled back.
 
 ## Soul
 
-The design is held to a soul written for this lineage, **Containment** - *"A
-good design is one you can stop watching"* - with four pillars: the Ledger
+This game is the source of **Containment**, a soul in the Game Souls library:
+*"A good design is one you can stop watching."* Its pillars are the Ledger
 (heat is conserved), Geometry Is the Build, Proof by Running, and the Workbench
-Ships with the Game. [docs/soul.md](docs/soul.md) has the profile, what each
-pillar is in this game, and the litmus test new features are checked against.
+Ships with the Game, and it draws on eleven of the library's components,
+including interface voice, audio as information, automation and the
+workbench. [docs/soul.md](docs/soul.md) is the soul as it applies here, in the
+library's instillation-report shape: the verbs, the economy's shape, the ideal
+player, each component and its conflicts, the pitfalls scanned, the litmus
+test, and every change traced from mechanic to feeling.
 
 ## Credits
 

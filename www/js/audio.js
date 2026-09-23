@@ -14,7 +14,6 @@ const CUES = {
 	place: ["place", 1, 0.55],
 	unlock: ["place", 0.78, 0.7],
 	sell: ["sell", 1, 0.5],
-	deny: ["sell", 0.72, 0.35],
 	coin: ["coin", 1, 0.5],
 	vent: ["vent", 0.92, 0.5],
 	buy: ["buy", 1, 0.55],
