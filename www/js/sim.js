@@ -2,6 +2,8 @@
 // arrives in `s` and everything it changes lives in `s`.
 import { applyUpgrades } from "./upgrades.js";
 import { stepModule } from "./module.js";
+import { recordTick, recordMeltdown } from "./records.js";
+import { observe } from "./notes.js";
 // Fixed 12x8: the whole board has to be visible at once on a phone, so the
 // original's two expansion upgrades have nothing to expand into.
 export const ROWS = 12;
@@ -333,7 +335,10 @@ export function tick(s) {
 			const shed = p.id === "vent6"
 				? Math.min(ventOf(s, p), t.heatContained, s.power)
 				: Math.min(ventOf(s, p), t.heatContained);
-			if (p.id === "vent6") s.power -= shed;
+			if (p.id === "vent6") {
+				s.power -= shed;
+				if (shed > 0) observe(s, "burn");
+			}
 			t.heatContained -= shed;
 			// Recorded per tile as well as in total: a vent that moved heat this
 			// tick is one the board should show turning.
@@ -350,8 +355,10 @@ export function tick(s) {
 				s.heat -= moved;
 				t.heatContained += moved;
 				t.heatIn += moved;
+				observe(s, "singularity");
 			}
 		}
+		if (p.id === "coolant_cell6" && t.heatIn > 0) observe(s, "thermionic");
 
 		if (t.heatContained > p.containment) explode(s, t, p);
 	}
@@ -370,6 +377,8 @@ export function tick(s) {
 
 	// Spending protium permanently strengthens every protium cell, so the
 	// derived part stats have to be rebuilt before the layout is recompiled.
+	recordTick(s);
+
 	if (s.statsDirty) {
 		applyUpgrades(s);
 		s.statsDirty = false;
@@ -415,7 +424,9 @@ function expire(s, t, p) {
 	if (p.type === "protium") {
 		s.protiumParticles += p.cellCount;
 		s.statsDirty = true;
+		observe(s, "protium");
 	}
+	if (p.category === "reflector") observe(s, "reflector");
 
 	if (refill(s, t, p)) return;
 	if (isCell && replaces(s, p)) {
@@ -445,6 +456,7 @@ function rollExoticParticles(s, t, p) {
 	}
 	if (chance > s.random()) gained++;
 	s.exoticParticles += gained;
+	if (gained) observe(s, "particles");
 }
 
 /**
@@ -531,6 +543,7 @@ function explode(s, t, p) {
 		s.money -= p.cost * 10;
 		s.heatAddNextTick += t.heatContained;
 		t.heatContained = 0;
+		observe(s, "buyout");
 		return;
 	}
 	if (s.cascadeVents && p.category === "vent") {
@@ -564,11 +577,13 @@ function sell(s, extremeCapacitors) {
 	// Extreme capacitors heat themselves by half of what they sold.
 	for (const t of extremeCapacitors) {
 		t.heatContained += amount * s.autoSellMul * pct * 0.5;
+		observe(s, "selfheat");
 	}
 }
 
 function meltdown(s) {
 	s.hasMeltedDown = true;
+	recordMeltdown(s);
 	for (const t of activeTiles(s)) {
 		if (!t.id) continue;
 		s.exploded.push(t.r * s.cols + t.c);

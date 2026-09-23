@@ -13,7 +13,8 @@ import { span } from "./flux.js";
 import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog } from "./tools-ui.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
-import { tutorialActive } from "./tutorial.js";
+import { RUNGS, RESTRICTIONS, restrictionLabel, toolsAllowed } from "./records.js";
+import { NOTES, notesFor } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -211,11 +212,12 @@ export function buildUI(game) {
 	const gauge = (id, label, onclick, title) => {
 		const fill = h("i", {});
 		const text = h("b", {});
+		const name = h("small", { textContent: label });
 		const el = h("button", { className: `gauge ${id}`, onclick, title },
-			h("span", {}, h("small", { textContent: label }), text),
+			h("span", {}, name, text),
 			h("span", { className: "track" }, fill));
 		el.setAttribute("aria-label", title);
-		dom[id] = { el, fill, text };
+		dom[id] = { el, fill, text, name };
 		return el;
 	};
 
@@ -241,6 +243,7 @@ export function buildUI(game) {
 	dom.pause = h("button", { className: "pause squeeze", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
 
 	dom.goalText = h("span", {});
+	dom.runTag = h("b", { className: "run-tag", hidden: true });
 	dom.goalBar = h("i", { className: "goal-bar" });
 	dom.objective = h("button", {
 		className: "objective",
@@ -249,7 +252,7 @@ export function buildUI(game) {
 	});
 	dom.objective.setAttribute("aria-haspopup", "dialog");
 	dom.objective.setAttribute("aria-expanded", "false");
-	dom.objective.append(dom.goalText, dom.goalBar);
+	dom.objective.append(dom.runTag, dom.goalText, dom.goalBar);
 	// The planner: a free copy of the board to try things on, as the IC2
 	// planners let you. Build puts it onto the real board; Discard forgets it.
 	dom.plan = h("button", { className: "tool", title: "Try a layout for free", onclick: game.startPlanner }, icon("plan"), "Plan");
@@ -315,8 +318,9 @@ export function buildUI(game) {
 				h("button", { className: "wide", textContent: "Export save to a file", onclick: game.exportSave }),
 				h("button", { className: "wide", textContent: "Import save from a file", onclick: game.importSave }),
 			] : []),
-			h("button", { className: "wide", textContent: "Copy layout code", onclick: () => showCode(game.layoutCode()) }),
-			h("button", { className: "wide", textContent: "Build from a layout code", onclick: () => askCode(game.buildLayout) }),
+			dom.layoutTools = h("div", { className: "options" },
+				h("button", { className: "wide", textContent: "Copy layout code", onclick: () => showCode(game.layoutCode()) }),
+				h("button", { className: "wide", textContent: "Build from a layout code", onclick: () => askCode(game.buildLayout) })),
 			h("button", {
 				className: "wide",
 				textContent: game.muted ? "Sound: off" : "Sound: on",
@@ -331,6 +335,8 @@ export function buildUI(game) {
 				game.startTutorial();
 			} }),
 			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
+			h("h3", { className: "credit-head", textContent: "Records" }),
+			dom.records = h("dl", { className: "records" }),
 			h("h3", { className: "credit-head", textContent: "Where this came from" }),
 			h("ol", { className: "lineage" }, LINEAGE.map(([name, url, what], i) =>
 				h("li", { className: i === LINEAGE.length - 1 ? "here" : "" },
@@ -603,6 +609,7 @@ export function inspect(s, t, sell) {
 	const dialog = h("dialog", { className: "sheet", ariaLabel: p.title },
 		h("h2", { textContent: p.title }),
 		h("i", { textContent: p.desc ?? "" }),
+		...notesFor(s, p).map((text) => h("p", { className: "field-note", textContent: text })),
 		p.category === "module" ? h("div", { className: "mod-grid mini" }, ...p.module.layout.map((id) => {
 			const q = id && s.stats.get(id);
 			return h("i", { className: "slot", style: q ? `background-image:url(${q.art ?? artFor(q)})` : "" });
@@ -692,7 +699,11 @@ function buildObjectiveList(dom) {
 	dom.objectiveRows = OBJECTIVES.map((o, i) => {
 		const load = h("button", { className: "snap", textContent: "Saved - load", hidden: true });
 		const lesson = LESSON_AT[i] && h("button", { className: "snap", textContent: "See an example layout",
-			onclick: () => lessonDialog(dom.game.state, LESSON_AT[i], dom.game) });
+			onclick: () => {
+				const s = dom.game.state;
+				if (!s.lessonsSeen.includes(LESSON_AT[i])) s.lessonsSeen.push(LESSON_AT[i]);
+				lessonDialog(s, LESSON_AT[i], dom.game);
+			} });
 		const row = h("li", {}, h("b", { textContent: o.title }),
 			h("i", { textContent: o.reward ? `$${fmt(o.reward)}` : o.epReward ? `${fmt(o.epReward)} EP` : "" }),
 			h("small", { textContent: o.note }), lesson || "", load);
@@ -796,7 +807,11 @@ export function render(dom, s, game) {
 			? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
 			: "Every goal met.";
 	document.body.classList.toggle("planning", Boolean(s.planner));
-	dom.plan.hidden = Boolean(s.planner);
+	dom.plan.hidden = Boolean(s.planner) || !toolsAllowed(s);
+	dom.runTag.hidden = !s.restriction || Boolean(s.planner);
+	dom.runTag.textContent = restrictionLabel(s.restriction);
+	dom.layoutTools.hidden = !toolsAllowed(s);
+	renderNotes(dom, s);
 	dom.flux.hidden = !s.fluxOn && s.flux < s.loopWait;
 	dom.fluxText.textContent = span(s.flux);
 	dom.flux.classList.toggle("on", Boolean(s.fluxOn));
@@ -823,8 +838,9 @@ export function render(dom, s, game) {
 	if (!dom.tiles) buildGrid(dom, s);
 	renderLocks(dom, s);
 	renderVerdict(dom, s);
+	renderSecrets(dom, s);
 	dom.flowOn = document.body.classList.contains("flow");
-	renderLesson(dom, s, game);
+	renderLesson(dom, s);
 
 	if (dom.page !== "reactor") {
 		renderPage(dom, s);
@@ -832,6 +848,13 @@ export function render(dom, s, game) {
 	}
 
 	// Drained, so each explosion animates once however often this runs.
+	const blew = s.exploded.length > 0 && !s.hasMeltedDown;
+	if (blew) {
+		dom.chain = dom.lastBlast === s.runTicks - 1 ? (dom.chain ?? 1) + 1 : 1;
+		dom.lastBlast = s.runTicks;
+		// One blast is a loss; a run of them on consecutive ticks is a show.
+		if (dom.chain > 1) play("boom", Math.min(2, 0.9 + 0.12 * dom.chain));
+	}
 	for (const i of s.exploded.splice(0)) {
 		const cell = dom.tiles[i]?.cell;
 		if (!cell) continue;
@@ -967,6 +990,7 @@ function renderPage(dom, s) {
 	renderObjectives(dom, s);
 	if (dom.page === "modules") renderModules(dom, s, dom.game);
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
+	if (dom.page === "options") renderRecords(dom, s);
 	if (dom.page === "experiments") {
 		dom.epStatus.textContent = s.exoticParticles
 			? `${fmt(s.currentExoticParticles)} EP to spend, ${fmt(s.exoticParticles)} pending - reboot to bank them.`
@@ -1049,7 +1073,7 @@ function renderObjectives(dom, s) {
 	dom.objectiveRows.forEach((row, i) => {
 		row.classList.toggle("done", i < s.objective);
 		const snap = i < s.objective && snapshotFor(s, i);
-		row.load.hidden = !snap;
+		row.load.hidden = !snap || !toolsAllowed(s);
 		if (snap) row.load.onclick = () => snapshotDialog(s, snap, dom.game);
 	});
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
@@ -1071,7 +1095,9 @@ const TAB_CATEGORIES = Object.fromEntries(DOCK_TABS);
  * on one cell and one tab; each is announced when it arrives.
  */
 function renderLocks(dom, s) {
-	const tabs = DOCK_TABS.map(([label]) => label).filter((label) => TAB_CATEGORIES[label].some((c) => categoryOpen(s, c)));
+	const tabs = DOCK_TABS.map(([label]) => label).filter((label) => TAB_CATEGORIES[label].some((c) => categoryOpen(s, c))
+		// A Direct-only run has nothing to put in Transfer.
+		&& !(label === "Transfer" && s.restriction === "direct"));
 	const sig = tabs.join();
 	if (sig !== dom.tabsOpen) {
 		const fresh = dom.tabsOpen !== undefined
@@ -1128,13 +1154,14 @@ function renderDockModules(dom, s, game) {
 	}
 }
 
-/** An example layout, shown once, when the goal it belongs to becomes the next job. */
-function renderLesson(dom, s, game) {
+/**
+ * An example layout waits on its job in the log, marked with a dot on the goal
+ * line until it has been opened. It never opens itself: the player is trusted
+ * to look when they want to.
+ */
+function renderLesson(dom, s) {
 	const name = LESSON_AT[s.objective];
-	if (!name || s.planner || s.lessonsSeen.includes(name) || tutorialActive()) return;
-	if (document.querySelector("dialog[open]")) return;
-	s.lessonsSeen.push(name);
-	lessonDialog(s, name, game);
+	dom.objective.classList.toggle("has-example", Boolean(name) && !s.planner && !s.lessonsSeen.includes(name));
 }
 
 // Small numbers keep their decimals: a vent at 4.5, a reflector at 5%.
@@ -1172,4 +1199,103 @@ function partInfo(p) {
 	c.push(["br", "cash", fmt(p.cost), "money"]);
 	return c.map(([corner, glyph, text, kind]) =>
 		h("span", { className: `${corner} ${kind}` }, glyph ? icon(glyph, "icon") : "", text));
+}
+
+const ticks = (n) => `${fmt(n)} ticks`;
+
+/** The statistics page Reactor Incremental had: what this player has done. */
+function renderRecords(dom, s) {
+	const r = s.records;
+	const placed = Object.values(s.placed).reduce((a, n) => a + n, 0);
+	const rows = [
+		["Most power per tick", fmt(r.maxPower)],
+		["Longest run without a failure", ticks(r.longest)],
+		["Hottest held", `${Math.round(r.hottest * 100)}% of the limit`],
+		["Meltdowns", String(r.meltdowns)],
+		["Parts placed", fmt(placed)],
+		["Exotic Particles ever", fmt(s.totalExoticParticles + s.exoticParticles)],
+		["Field notes", `${s.notes.length} of ${Object.keys(NOTES).length}`],
+	];
+	// Fastest to each rung of power per tick, per kind of run, counted from its reboot.
+	for (const [run, times] of Object.entries(r.speed)) {
+		for (const rung of RUNGS) {
+			if (times[rung]) rows.push([`${restrictionLabel(run === "open" ? null : run)} run to ${fmt(rung)} power`, ticks(times[rung])]);
+		}
+	}
+	const sig = JSON.stringify(rows);
+	if (sig === dom.recordsSig) return;
+	dom.recordsSig = sig;
+	dom.records.replaceChildren(...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })]));
+}
+
+/** A field note earned: said quietly, once. */
+function renderNotes(dom, s) {
+	if (dom.notesSeen === undefined) dom.notesSeen = s.notes.length;
+	if (s.notes.length <= dom.notesSeen) return;
+	const id = s.notes[s.notes.length - 1];
+	dom.notesSeen = s.notes.length;
+	toast(`Field note: ${NOTES[id][0]}`, "options");
+}
+
+/** Reboot, with the choice of a rule for the run it starts. */
+export function rebootDialog(refund, onGo) {
+	let chosen = null;
+	const options = [[null, "Open", "No rule. Build however you like."], ...RESTRICTIONS].map(([id, label, what]) => {
+		const b = h("button", { className: "side", onclick: () => {
+			chosen = id;
+			for (const o of options) o.classList.toggle("on", o === b);
+		} }, h("b", { textContent: label }), h("i", { textContent: what }));
+		if (id === null) b.classList.add("on");
+		return b;
+	});
+	const dialog = h("dialog", { className: "sheet", ariaLabel: "Reboot" },
+		h("h2", { textContent: refund ? "Reboot and refund every Exotic Particle?" : "Reboot the reactor?" }),
+		h("i", { textContent: "The next run can take a rule. Its fastest times are kept apart in Records." }),
+		h("div", { className: "reboot-rules" }, ...options),
+		h("div", { className: "row" },
+			h("button", { textContent: "Cancel", onclick: () => dialog.close() }),
+			h("button", { className: "danger", textContent: "Reboot", onclick: () => { dialog.close(); onGo(chosen); } })));
+	dialog.addEventListener("close", () => dialog.remove());
+	document.body.append(dialog);
+	dialog.showModal();
+}
+
+/**
+ * Things the board does for a player who builds well, never announced.
+ * Cold fusion: power made while the reactor and every part sit at no heat at
+ * all, for a full minute. Critical mass: a cell with live cells on all eight
+ * sides - the block pulses as one while it lasts.
+ */
+function renderSecrets(dom, s) {
+	if (s.planner) return;
+	if (dom.secretTick !== s.runTicks) {
+		dom.secretTick = s.runTicks;
+		const cold = (s.rate?.power ?? 0) > 0 && s.heat === 0
+			&& s.tiles.every((t) => !t.id || !t.heatContained);
+		dom.coldFor = cold ? (dom.coldFor ?? 0) + 1 : 0;
+	}
+	const fusion = dom.coldFor >= 60;
+	if (fusion !== dom.fusion) {
+		dom.fusion = fusion;
+		document.body.classList.toggle("cold-fusion", fusion);
+		dom.heat.name.textContent = fusion ? "Cold fusion" : "Heat";
+	}
+
+	const sig = s.tiles.map((t) => (t.id && t.ticks ? t.id : "")).join();
+	if (sig === dom.massSig) return;
+	dom.massSig = sig;
+	const live = (r, c) => {
+		const t = s.tiles[r * COLS + c];
+		return r >= 0 && c >= 0 && r < ROWS && c < COLS && t.activated && t.ticks > 0 && s.stats.get(t.id)?.category === "cell";
+	};
+	const massed = new Set();
+	for (let r = 1; r < ROWS - 1; r++) {
+		for (let c = 1; c < COLS - 1; c++) {
+			let full = true;
+			for (let dr = -1; dr <= 1 && full; dr++) for (let dc = -1; dc <= 1 && full; dc++) full = live(r + dr, c + dc);
+			if (!full) continue;
+			for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) massed.add((r + dr) * COLS + c + dc);
+		}
+	}
+	dom.tiles.forEach((row, i) => row.cell.classList.toggle("critical-mass", massed.has(i)));
 }

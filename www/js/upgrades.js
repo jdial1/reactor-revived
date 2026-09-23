@@ -337,8 +337,12 @@ export function applyUpgrades(s) {
  * Prestige: bank this run's particles, wipe the board, zero the money upgrades.
  * A refund also clears the exotic ones and returns every particle ever earned.
  */
-export function reboot(s, refund = false) {
+export function reboot(s, refund = false, restriction = null) {
 	s.totalExoticParticles += s.exoticParticles;
+	// A new run: its own rule, its own clock.
+	s.restriction = restriction;
+	s.runTicks = 0;
+	s.runHit = [];
 	for (const t of s.tiles) {
 		t.id = null;
 		t.activated = false;

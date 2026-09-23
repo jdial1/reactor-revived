@@ -241,7 +241,7 @@ of this line loved, what broke, and what they asked for. What came of it:
   game is out of sight; the time is banked, up to eight hours, and coming back
   says how long you were gone. The bank sits in the header and, when tapped,
   runs at ten times speed, counting down, until it is empty or tapped again.
-- **The verdict line**, above the rates: what the board makes, whether it
+- **The verdict line**, in the planner: what the board makes, whether it
   holds - or the tick it fails and what goes first - and profit after fuel.
   `www/js/forecast.js` copies the board, keeps its fuel topped up, and runs it
   600 ticks, then follows any heat still climbing (the reactor's, or any part's)
@@ -257,11 +257,11 @@ of this line loved, what broke, and what they asked for. What came of it:
   with, and see the new parts' cost, the refund, what you pay, each part's stats
   before and after, and the whole reactor's verdict before and after - measured,
   not guessed - before anything is bought. All or nothing.
-- **A save state for every goal finished.** The game as it stood, with its
-  verdict, filed in the log under the job. From there: rebuild that board onto
-  today's, or roll the whole game back to that moment.
-- **Example layouts** as the goals reach them, each shown once, kept on its job
-  in the log, and one tap from the planner: direct cooling (goal 6), indirect
+- **A saved layout for every goal finished.** The board as it stood, with its
+  verdict, filed in the log under the job, to rebuild onto today's board. The
+  game itself is never rolled back - a meltdown is final.
+- **Example layouts** as the goals reach them, waiting on their job in the log
+  behind a dot on the goal line, and one tap from the planner: direct cooling (goal 6), indirect
   cooling through outlets (10), exchangers spreading a hot block across many
   first-tier vents (14), an exchanger chain carrying heat away to a vent field
   (16), a heat pipe of coolant, inlets and outlets (18), and feeding a particle
@@ -445,6 +445,38 @@ became here.
 The short version: IC&sup2;'s fuel rods make `5 x n` power and `2n(n+1)` heat,
 where `n` counts the rod and its neighbours. Power linear, heat quadratic. Every
 generation since has kept that asymmetry, including this one.
+
+## Fair play
+
+This game keeps the contract the Loathing games are loved for, and the one its
+own lineage kept by never asking for anything: no ads, no purchases, no
+accounts, no network. Nothing is sold, nothing can be skipped for money, and
+nothing runs on a timer that punishes being away - Time Flux banks the time
+instead. It stays that way.
+
+## Records and runs
+
+Options keeps a **Records** page, the statistics page Reactor Incremental had:
+the most power a reactor has made in a tick, the longest it has run without a
+part failing, the hottest it has been held, meltdowns, parts placed, Exotic
+Particles ever made, and how many field notes have been earned.
+
+A **reboot can take a rule** for the run it starts: *Direct only* (no
+exchangers, inlets or outlets, and no module that holds one), *Uranium only*,
+or *Hardcore* (no planner, no layout codes, no rebuilding saved layouts). The
+rule shows on the goal line. Each run is timed to each rung of power per tick -
+1K, 1M, 1B, 1T - from its reboot, and Records keeps the fastest per kind of
+run. Nothing carries over from a rule but the time.
+
+**Field notes** fill a part's sheet the first time its quirk is seen on the real
+board: a reflector wearing out, a thermionic cell turning heat into power, an
+extreme capacitor heating itself, an accelerator making particles. The planner,
+forecasts and module casings never count.
+
+The verdict belongs to the planner, as the forecast belonged to the IC2
+planners: on the real board you watch, and find out. Example layouts wait on
+their job in the log, marked with a dot, and open only when asked. Saved
+layouts can be rebuilt; the game itself cannot be rolled back.
 
 ## Credits
 

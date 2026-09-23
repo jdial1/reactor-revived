@@ -2,6 +2,7 @@
 import { ROWS, COLS, compile, tileAt, countPlaced } from "./sim.js";
 import { UPGRADES, applyUpgrades } from "./upgrades.js";
 import { innerSave } from "./module.js";
+import { freshRecords } from "./records.js";
 
 const SAVE_KEY = "reactor-revived";
 const SAVE_VERSION = 3; // 1 indexed tiles against a grid that could grow; 2 had no modules
@@ -63,6 +64,13 @@ export function newState(random = Math.random) {
 		lessonsSeen: [],
 		// Which side of each doctrine set: { doctrine1: "left" }.
 		doctrines: {},
+		// What the player has done and seen: records, field notes, and this
+		// run's rule, age and the power rungs it has reached.
+		records: freshRecords(),
+		notes: [],
+		restriction: null,
+		runTicks: 0,
+		runHit: [],
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -93,6 +101,11 @@ export function serialize(s) {
 		snapshots: s.snapshots,
 		lessonsSeen: s.lessonsSeen,
 		doctrines: s.doctrines,
+		records: s.records,
+		notes: s.notes,
+		restriction: s.restriction,
+		runTicks: s.runTicks,
+		runHit: s.runHit,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -120,6 +133,12 @@ export function deserialize(saved, random = Math.random) {
 	s.snapshots = saved.snapshots ?? [];
 	s.lessonsSeen = saved.lessonsSeen ?? [];
 	s.doctrines = saved.doctrines ?? {};
+	// JSON writes Infinity as null; a record that never happened reads as absent.
+	s.records = { ...freshRecords(), ...saved.records };
+	s.notes = saved.notes ?? [];
+	s.restriction = saved.restriction ?? null;
+	s.runTicks = saved.runTicks ?? 0;
+	s.runHit = saved.runHit ?? [];
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

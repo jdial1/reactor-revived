@@ -1,7 +1,8 @@
-// A save state for every goal finished: the whole game as it stood the moment
-// the job was done, with what its reactor was doing. From the log, a player can
-// rebuild that board onto today's, or roll the whole game back to that point.
-import { serialize, deserialize } from "./state.js";
+// A save state for every goal finished: the board as it stood the moment the
+// job was done, with what its reactor was doing. From the log, a player can
+// rebuild that board onto today's. There is no rolling the game back to it: a
+// meltdown is final, and so is everything else.
+import { serialize } from "./state.js";
 import { forecast } from "./forecast.js";
 import { OBJECTIVES } from "./objectives.js";
 
@@ -33,16 +34,6 @@ export function takeSnapshot(s, objective, now = Date.now()) {
 }
 
 export const snapshotFor = (s, objective) => s.snapshots.find((x) => x.objective === objective);
-
-/**
- * The game as it was at a snapshot. The history before it comes along; the
- * history after it is gone, because it has not happened yet.
- */
-export function rollBack(s, snap) {
-	const back = deserialize(snap.save);
-	back.snapshots = s.snapshots.filter((x) => x.objective <= snap.objective);
-	return back;
-}
 
 /** A snapshot's board as a layout, for rebuilding onto the current game. */
 export const layoutOfSnapshot = (snap) => ({

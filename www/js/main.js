@@ -4,13 +4,14 @@ import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js"
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
-import { buildUI, render, ask, inspect, flash, toast, goalMet } from "./ui.js";
+import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog } from "./ui.js";
+import { toolsAllowed } from "./records.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId } from "./module.js";
 import { layoutCode, readLayout, applyLayout, describe, layoutOf } from "./layout.js";
 import { bankTime, spendFlux, span } from "./flux.js";
-import { takeSnapshot, rollBack, layoutOfSnapshot } from "./snapshots.js";
+import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
 import { replaceAll } from "./layout.js";
 import { play, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
@@ -101,9 +102,11 @@ const game = {
 		play("buy");
 	},
 
+	// A reboot can take a rule for the run it starts: nothing carries over but
+	// the rule's name on the goal line and a record if the run is fast.
 	reboot(refund) {
-		ask(refund ? "Reboot and refund every Exotic Particle ever earned?" : "Reboot the reactor?", () => {
-			rebootState(s, refund);
+		rebootDialog(refund, (restriction) => {
+			rebootState(s, refund, restriction);
 			compile(s);
 		});
 	},
@@ -208,23 +211,18 @@ const game = {
 	},
 
 	rebuildSnapshot(snap) {
+		if (!toolsAllowed(s)) return;
 		toast(describe(applyLayout(s, layoutOfSnapshot(snap))), "reactor");
 		play("place");
 	},
 
-	rollBack(snap) {
-		s = rollBack(s, snap);
-		save(s);
-		boot();
-		toast(`Rolled back to: ${snap.title}`, "goals");
-	},
 
 	// A copy of the board where everything is free and nothing is kept. Money
 	// is infinite, goals do not count, and saves keep writing the real game.
 	// With a layout (an example, say) the copy starts from that instead of the
 	// board. As a click handler it gets an event, which is not a layout.
 	startPlanner(layout) {
-		if (real) return;
+		if (real || !toolsAllowed(s)) return;
 		const plan = layout?.tiles ? layout : null;
 		real = s;
 		s = deserialize(serialize(real));
@@ -258,6 +256,7 @@ const game = {
 
 	/** Build a pasted code onto the board; null when it is not a code. */
 	buildLayout(code) {
+		if (!toolsAllowed(s)) return "Not in a hardcore run - the real board is the only board";
 		const layout = readLayout(code);
 		if (!layout) return null;
 		const said = describe(applyLayout(s, layout));

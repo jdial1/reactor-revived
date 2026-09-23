@@ -1,5 +1,6 @@
 // The part catalog, as data. Every field is flat or scales by mul^(level-1),
 // and derive() below is the only place that expansion happens.
+import { allowedBy } from "./records.js";
 
 // Cells come in single/dual/quad packs. Index by level-1.
 const CELL_POWER = [1, 4, 12];
@@ -179,6 +180,7 @@ export const unlockProgress = (s, p) =>
 
 export const isPartVisible = (s, p) =>
 	categoryOpen(s, p.category)
+	&& allowedBy(s, p)
 	&& (!p.requires || s.levels[p.requires] > 0)
 	&& (!p.after || (s.placed[p.after] ?? 0) >= UNLOCK_AFTER);
 

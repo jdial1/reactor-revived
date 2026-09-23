@@ -39,7 +39,7 @@ const voiceFor = (file) => (voices[file] ??= {
 /** Called by the renderer; the sim never knows about any of this. */
 export const setMuted = (muted) => { on = !muted; };
 
-export function play(cue) {
+export function play(cue, pitch = 1) {
 	const found = CUES[cue];
 	// A backgrounded tab should be silent even before Android pauses it.
 	if (!on || !found || typeof Audio === "undefined" || document.hidden) return;
@@ -48,7 +48,7 @@ export function play(cue) {
 	const el = voice.els[voice.turn];
 	voice.turn ^= 1;
 	el.currentTime = 0;
-	el.playbackRate = rate;
+	el.playbackRate = rate * pitch;
 	// Heat takes the room: the hotter the reactor, the less the rest is heard.
 	el.volume = gain * (1 - 0.6 * hot);
 	// Before the first tap a browser refuses to play at all; there is nothing

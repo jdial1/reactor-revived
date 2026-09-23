@@ -50,6 +50,17 @@ export function buildVerdict(dom, game) {
  * after they stop changing, so painting a row of parts runs it once.
  */
 export function renderVerdict(dom, s) {
+	// The forecast is the planner's, as it was in IC2: the real reactor is
+	// where you find out. Flow and the tool buttons stay on both.
+	if (!s.planner) {
+		if (dom.verdictSig !== "real") {
+			dom.verdictSig = "real";
+			clearTimeout(dom.verdictTimer);
+			dom.verdictBar.classList.remove("holds", "fails");
+			dom.verdictText.textContent = "";
+		}
+		return;
+	}
 	const sig = `${s.stats.size}|${JSON.stringify(s.levels).length}|${s.tiles.map((t) => (t.id ? `${t.id}${t.activated ? "" : "?"}` : "")).join()}`;
 	if (sig === dom.verdictSig) return;
 	dom.verdictSig = sig;
@@ -192,10 +203,7 @@ export function snapshotDialog(s, snap, game) {
 		].flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "sheet-actions" },
 			h("button", { textContent: "Rebuild this layout on today's board", onclick: () => { dialog.close(); game.rebuildSnapshot(snap); } }),
-			h("button", { className: "danger", textContent: "Roll the game back to here", onclick: () => {
-				dialog.close();
-				ask("Roll back to this point? Money, upgrades, research and every job since are lost.", () => game.rollBack(snap), "Roll back");
-			} })),
+			),
 		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
 	return dialog;
 }

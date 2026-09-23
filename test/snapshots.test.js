@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { newState, serialize, deserialize, place } from "../www/js/state.js";
 import { tileAt, compile } from "../www/js/sim.js";
 import { forecast } from "../www/js/forecast.js";
-import { takeSnapshot, snapshotFor, rollBack, layoutOfSnapshot } from "../www/js/snapshots.js";
+import * as snapshots from "../www/js/snapshots.js";
+const { takeSnapshot, snapshotFor, layoutOfSnapshot } = snapshots;
 import { applyLayout } from "../www/js/layout.js";
 import { LESSONS, LESSON_AT } from "../www/js/lessons.js";
 import { OBJECTIVES } from "../www/js/objectives.js";
@@ -25,22 +26,8 @@ test("finishing a goal files a save state with what the reactor was doing", () =
 	assert.equal(s.snapshots.length, 1);
 });
 
-test("rolling back restores that moment and forgets what came after", () => {
-	const s = newState(() => 1);
-	s.money = 500;
-	place(s, 0, 0, "uranium1");
-	s.objective = 3;
-	takeSnapshot(s, 2);
-	s.money = 99999;
-	place(s, 0, 1, "vent1");
-	s.objective = 6;
-	takeSnapshot(s, 5);
-
-	const back = rollBack(s, snapshotFor(s, 2));
-	assert.equal(back.objective, 3);
-	assert.equal(tileAt(back, 0, 0).id, "uranium1");
-	assert.equal(tileAt(back, 0, 1).id, null);
-	assert.deepEqual(back.snapshots.map((x) => x.objective), [2]);
+test("there is no rolling the game back: a meltdown is final", () => {
+	assert.equal(snapshots.rollBack, undefined);
 });
 
 test("save states ride in the save, and a snapshot's board can be rebuilt", () => {

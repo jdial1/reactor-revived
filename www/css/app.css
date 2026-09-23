@@ -1214,3 +1214,42 @@ details.module-row .row { margin-top: 8px; }
 .sides .side .nums .money { color: #58c470; }
 .sides .side .nums .ticks { color: #b77be8; }
 .sides .side .nums .down { opacity: 0.7; border-style: dashed; }
+
+/* An example layout is waiting in the log for this job. */
+#goal .objective.has-example::after {
+	content: "";
+	position: absolute;
+	top: 6px;
+	right: 4px;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #4aa8d8;
+}
+
+/* This run's rule, on the goal line. */
+#goal .run-tag {
+	margin-right: 6px;
+	padding: 0 4px;
+	font-size: 10px;
+	font-weight: normal;
+	color: var(--ep);
+	border: 1px solid currentColor;
+	border-radius: 2px;
+}
+/* Records: the statistics page. */
+.records { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; margin: 6px 0 12px; font-size: 11px; }
+.records dt { color: var(--dim); }
+.records dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+/* A field note, earned by seeing it happen. */
+.field-note { margin: 6px 0 0; padding: 4px 6px; font-size: 11px; color: var(--ink); border-left: 2px solid #4aa8d8; background: #0a1a26; }
+.reboot-rules { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 8px 0; }
+.reboot-rules .side { display: grid; gap: 3px; padding: 6px; text-align: left; font: inherit; color: var(--dim); background: var(--panel); border: 1px solid var(--edge); border-radius: 2px; }
+.reboot-rules .side b { color: var(--ink); font-weight: normal; }
+.reboot-rules .side i { font-size: 10px; font-style: normal; }
+.reboot-rules .side.on { border-color: var(--ep); box-shadow: inset 0 0 0 1px var(--ep); }
+
+/* Critical mass: the block breathes as one, quicker than a lone cell. */
+.tile.critical-mass .glow:is(.bar1, .bar2, .bar4) { animation: breathe 0.6s ease-in-out infinite alternate; animation-delay: 0s; }
+/* Cold fusion: the heat gauge knows. */
+body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
