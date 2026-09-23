@@ -512,10 +512,12 @@ export const flash = (el, cls) => {
 	setTimeout(done, 1200);           // animationend never fires on a hidden tab
 };
 
-function meltdownNotice(onAcknowledge) {
+function meltdownNotice(lines, onAcknowledge) {
 	const dialog = h("dialog", { className: "sheet meltdown" },
 		h("h2", { textContent: "Meltdown" }),
 		h("i", { textContent: "Heat passed twice what the reactor could hold. Every part in it was destroyed." }),
+		// The receipt: read off the ledger as the reactor fell. Words, not wreckage.
+		lines?.length ? h("ul", { className: "receipt" }, ...lines.map((l) => h("li", { textContent: l }))) : "",
 		h("div", { className: "row" },
 			h("button", { className: "wide danger", textContent: "Restart the reactor", onclick: () => dialog.close() })));
 	dialog.addEventListener("close", () => { dialog.remove(); onAcknowledge(); });
@@ -794,7 +796,7 @@ export function render(dom, s, game) {
 		dom.meltdownShown = true;
 		play("boom");
 		flash(document.body, "melting");
-		meltdownNotice(() => {
+		meltdownNotice(s.receipt, () => {
 			dom.meltdownShown = false;
 			game.clearMeltdown();
 		});
@@ -836,7 +838,7 @@ export function render(dom, s, game) {
 		document.body.style.setProperty("--quiet", 1 - 0.6 * warm);
 	}
 	document.body.classList.toggle("near", f > 0.8);
-	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0);
+	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0, s.planner ? 0 : s.mark?.trend ?? 0);
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
@@ -1218,6 +1220,7 @@ function renderRecords(dom, s) {
 	const placed = Object.values(s.placed).reduce((a, n) => a + n, 0);
 	const rows = [
 		["Most power per tick", fmt(r.maxPower)],
+		["Most power from a Mark I board", r.markOne ? fmt(r.markOne) : "none yet"],
 		["Longest run without a failure", ticks(r.longest)],
 		["Hottest held", `${Math.round(r.hottest * 100)}% of the limit`],
 		["Meltdowns", String(r.meltdowns)],

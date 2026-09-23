@@ -5,6 +5,7 @@
 import { serialize } from "./state.js";
 import { forecast } from "./forecast.js";
 import { OBJECTIVES } from "./objectives.js";
+import { markOf } from "./records.js";
 
 /** Record the game as it stands, filed under the goal just finished. */
 export function takeSnapshot(s, objective, now = Date.now()) {
@@ -24,6 +25,8 @@ export function takeSnapshot(s, objective, now = Date.now()) {
 			payback: Number.isFinite(f.payback) ? f.payback : 0,
 			failTick: f.failTick ?? 0,
 			failed: f.failed ?? null,
+			// The mark the real board had earned when the job was done.
+			mark: markOf(s),
 		},
 		save,
 	};

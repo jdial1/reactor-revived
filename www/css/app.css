@@ -1261,3 +1261,12 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .trophies li b { font-weight: normal; }
 .trophies li.won b { color: var(--cash); }
 .trophies li small { display: block; color: var(--dim); }
+
+/* On the real board the verdict line is the board's record; it opens the mark. */
+#verdict > span[role="button"] { cursor: pointer; }
+/* The meltdown receipt: plain lines off the ledger. */
+.meltdown .receipt { margin: 8px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.45; color: var(--dim); }
+.meltdown .receipt li + li { margin-top: 3px; }
+.mark-legend { grid-template-columns: auto 1fr; }
+.mark-legend dd { text-align: left; }
+.sheet .incident { font-size: 12px; color: var(--dim); }

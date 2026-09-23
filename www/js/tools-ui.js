@@ -9,6 +9,7 @@ import { forecast } from "./forecast.js";
 import { replaceQuote } from "./layout.js";
 import { LESSONS } from "./lessons.js";
 import { modId } from "./module.js";
+import { markOf, MARK_MEANS, MARK_WINDOW, lastIncident, ticks } from "./records.js";
 
 /** fmt() drops decimals; a vent at 4.5 or a module at 0.25 needs them. */
 const num = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 10) / 10) : fmt(v));
@@ -35,7 +36,8 @@ const holds = (f) => (!f.failTick ? "Holds"
 // ---- the verdict line -----------------------------------------------------
 
 export function buildVerdict(dom, game) {
-	dom.verdictText = h("span", {});
+	// On the real board the line is a record, and tapping it explains the mark.
+	dom.verdictText = h("span", { onclick: () => { if (!game.state.planner) markSheet(game.state); } });
 	dom.flowToggle = h("button", { className: "tool flow-toggle", ariaPressed: "false", title: "Show each part's heat in, out and vented", onclick: () => {
 		const on = document.body.classList.toggle("flow");
 		dom.flowToggle.setAttribute("aria-pressed", String(on));
@@ -53,14 +55,20 @@ export function renderVerdict(dom, s) {
 	// The forecast is the planner's, as it was in IC2: the real reactor is
 	// where you find out. Flow and the tool buttons stay on both.
 	if (!s.planner) {
-		if (dom.verdictSig !== "real") {
-			dom.verdictSig = "real";
+		const line = floorLine(s);
+		if (dom.verdictSig !== `real:${line}`) {
+			dom.verdictSig = `real:${line}`;
 			clearTimeout(dom.verdictTimer);
-			dom.verdictBar.classList.remove("holds", "fails");
-			dom.verdictText.textContent = "";
+			dom.verdictBar.classList.toggle("holds", s.mark?.grade === 1);
+			dom.verdictBar.classList.toggle("fails", s.mark?.grade === 3);
+			dom.verdictText.textContent = line;
+			dom.verdictText.role = line ? "button" : null;
+			dom.verdictText.tabIndex = line ? 0 : -1;
 		}
 		return;
 	}
+	dom.verdictText.role = null;
+	dom.verdictText.tabIndex = -1;
 	const sig = `${s.stats.size}|${JSON.stringify(s.levels).length}|${s.tiles.map((t) => (t.id ? `${t.id}${t.activated ? "" : "?"}` : "")).join()}`;
 	if (sig === dom.verdictSig) return;
 	dom.verdictSig = sig;
@@ -82,6 +90,27 @@ export function renderVerdict(dom, s) {
 				payback(f),
 			].filter(Boolean).join("  ·  ");
 	}, 350);
+}
+
+// ---- the floor's own line: what the board has done -------------------------
+
+/** "Mark I · 4,210 ticks without incident", like the sign by a plant gate. */
+function floorLine(s) {
+	if (!s.tiles.some((t) => t.id)) return "";
+	const mark = markOf(s);
+	return `${mark ? `${mark} · ` : ""}${ticks(s.records?.streak ?? 0)} without incident`;
+}
+
+/** What the marks mean, and the last part the board lost. */
+function markSheet(s) {
+	const last = lastIncident(s);
+	const dialog = modal("The board's mark",
+		h("h2", { textContent: markOf(s) ?? "No mark yet" }),
+		h("i", { textContent: `Earned on this board by running it: ${fmt(MARK_WINDOW)} ticks making power since it last changed, measured, not forecast. The ratings are the ones IC2's players gave their designs.` }),
+		h("dl", { className: "mark-legend" }, ...MARK_MEANS.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
+		h("p", { className: "incident", textContent: last ? `Last incident: ${last}` : "No incidents on record." }),
+		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
+	return dialog;
 }
 
 // ---- the heat-flow overlay ------------------------------------------------
@@ -200,6 +229,7 @@ export function snapshotDialog(s, snap, game) {
 			["Profit", `${money(st.profit)} /tick after fuel`],
 			["Pays back", st.payback ? `in ${fmt(Math.ceil(st.payback))} ticks` : "never"],
 			["Holds", holds(st)],
+			...(st.mark ? [["Mark", st.mark]] : []),
 		].flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "sheet-actions" },
 			h("button", { textContent: "Rebuild this layout on today's board", onclick: () => { dialog.close(); game.rebuildSnapshot(snap); } }),

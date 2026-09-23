@@ -3,6 +3,8 @@
 // fast each run reached each rung of power. Only the real reactor counts - the
 // planner, forecasts and module casings never touch these.
 
+import { fmt } from "./fmt.js";
+
 /** The power-per-tick rungs a run is timed to. */
 export const RUNGS = [1e3, 1e6, 1e9, 1e12];
 
@@ -18,6 +20,8 @@ export const restrictionLabel = (id) => RESTRICTIONS.find(([r]) => r === id)?.[1
 
 export const freshRecords = () => ({
 	maxPower: 0,
+	// The most power from a board that had earned Mark I: output that holds.
+	markOne: 0,
 	streak: 0,
 	longest: 0,
 	hottest: 0,
@@ -64,6 +68,8 @@ export function recordTick(s) {
 	r.redFor = s.maxHeat > 0 && s.heat >= s.maxHeat * 0.99 && !s.hasMeltedDown ? (r.redFor ?? 0) + 1 : 0;
 	if (r.redFor >= 60) award(s, "redline");
 	if (r.longest >= 10000) award(s, "clean");
+	const grade = markTick(s, parts.length > 0, power);
+	if (grade === 1) r.markOne = Math.max(r.markOne, power);
 	// Nothing on the board but vents, a dozen or more, for a minute.
 	const fan = parts.length >= 12 && parts.every((t) => s.stats.get(t.id)?.category === "vent");
 	r.fanFor = fan ? (r.fanFor ?? 0) + 1 : 0;
@@ -78,9 +84,140 @@ export function recordTick(s) {
 	if (["open", ...RESTRICTIONS.map(([id]) => id)].every((run) => r.speed[run]?.[1e3])) award(s, "rules");
 }
 
+// ---- the board's mark --------------------------------------------------------
+//
+// IC2's players rated a design by how long it held: Mark I for one that never
+// builds heat, higher marks for ones that need tending. The rating here is
+// earned on the real board and never forecast - the planner predicts, the floor
+// only reports. It is measured over a window since the player last changed the
+// board, and a board that makes no power is not holding anything.
+
+/** Ticks of steady running a mark is judged over. */
+export const MARK_WINDOW = 300;
+export const MARKS = [null, "Mark I", "Mark II", "Mark III"];
+export const MARK_MEANS = [
+	["Mark I", "Heat has stopped rising anywhere on the board. It can run as long as it has fuel."],
+	["Mark II", "Nothing has failed yet, but heat is still building somewhere. Something will give."],
+	["Mark III", "Parts have been lost since the board last changed."],
+];
+
+/** Parts, upgrades and doctrines: what makes this machine this machine. */
+function boardSig(s) {
+	let sig = "";
+	for (const t of s.tiles) sig += `${t.activated && t.id ? t.id : ""},`;
+	return sig + JSON.stringify(s.levels) + JSON.stringify(s.doctrines);
+}
+
+const heatOf = (s) => s.tiles.map((t) => (t.id ? t.heatContained : 0));
+
+function openWindow(s, m) {
+	m.from = s.runTicks;
+	m.heat = s.heat;
+	m.parts = heatOf(s);
+}
+
+/**
+ * One tick of the mark. A change the player made starts it again; a part lost
+ * to heat is not a redesign, it is Mark III until the player changes the board.
+ * Returns the grade when a window closes.
+ */
+function markTick(s, hasParts, power) {
+	const m = (s.mark ??= { sig: "", since: 0, grade: 0, lost: false, trend: 0, total: 0 });
+	const sig = boardSig(s);
+	const total = s.heat + s.tiles.reduce((n, t) => n + (t.id ? t.heatContained : 0), 0);
+	// How much of the recent past the heat has been climbing, for the hum.
+	m.trend = m.trend * 0.9 + (total > m.total + 1e-9 ? 0.1 : 0);
+	m.total = total;
+	if (!hasParts) {
+		Object.assign(m, { sig, since: s.runTicks, grade: 0, lost: false });
+		openWindow(s, m);
+		return 0;
+	}
+	// Seen at the end of the first tick the new board ran, so it began one back.
+	if (sig !== m.sig) {
+		// Lost to heat this tick (the counter has already moved on) is an incident.
+		const blew = s.incidents?.at(-1)?.tick === s.runTicks - 1;
+		if (blew && m.sig) Object.assign(m, { sig, lost: true, grade: 3 });
+		else Object.assign(m, { sig, since: s.runTicks - 1, grade: 0, lost: false });
+		openWindow(s, m);
+		return 0;
+	}
+	if (power <= 0) {
+		openWindow(s, m);
+		return 0;
+	}
+	if (s.runTicks - m.from < MARK_WINDOW) return 0;
+	if (!m.lost) {
+		const rose = (then, now, cap) => now > then + Math.max(cap, 1) * 1e-3;
+		const building = rose(m.heat, s.heat, s.maxHeat)
+			|| s.tiles.some((t, i) => t.id && rose(m.parts[i] ?? 0, t.heatContained, s.stats.get(t.id)?.containment ?? 0));
+		m.grade = building ? 2 : 1;
+	}
+	openWindow(s, m);
+	return m.grade;
+}
+
+/** "Mark I", or null while the board has not earned one. */
+export const markOf = (s) => (s.planner ? null : MARKS[s.mark?.grade ?? 0]);
+
+/** The line a shared code carries: what the board had done when it was copied. */
+export function markLine(s) {
+	const mark = markOf(s);
+	// What the layout makes, compiled - a paused game has no last tick to read.
+	const power = (s.cells ?? []).reduce((n, t) => n + t.power, 0);
+	return [mark, power > 0 ? `${fmt(power)} power/tick` : null].filter(Boolean).join(" · ");
+}
+
+// ---- incidents and the receipt ----------------------------------------------
+
+/** A part lost to heat on the real board: kept, the last few, as a receipt. */
+export function recordIncident(s, t, p) {
+	if (!s.incidents || s.planner || s.sealed) return;
+	s.incidents.push({ tick: s.runTicks, id: p.id, r: t.r, c: t.c, held: t.heatContained, cap: p.containment });
+	if (s.incidents.length > 5) s.incidents.shift();
+}
+
+/** Where on the board, as a player counts it. */
+export const ticks = (n) => `${fmt(n)} tick${n === 1 ? "" : "s"}`;
+
+export const where = (i) => `row ${i.r + 1}, column ${i.c + 1}`;
+
+/** The last part lost to heat, in a line; null when nothing has been. */
+export function lastIncident(s) {
+	const i = s.incidents?.at(-1);
+	if (!i) return null;
+	const title = s.stats.get(i.id)?.title ?? i.id;
+	return `${title} at ${where(i)}, ${ticks(s.runTicks - i.tick)} ago, holding ${fmt(i.held)} of ${fmt(i.cap)} heat.`;
+}
+
+/** Why the reactor melted, in plain lines, read off the ledger as it fell. */
+export function receipt(s) {
+	const lines = [];
+	const since = s.mark?.since ?? 0;
+	// Read mid-tick, before the counter moves: the tick that melted it counts.
+	lines.push(`Ran ${ticks(s.runTicks + 1 - since)} since the board last changed.`);
+	const first = s.incidents?.find((i) => i.tick >= since);
+	const title = (i) => s.stats.get(i.id)?.title ?? i.id;
+	if (first) {
+		lines.push(`First part lost: ${title(first)} at ${where(first)}, ${ticks(s.runTicks - first.tick)} before the end, holding ${fmt(first.held)} of ${fmt(first.cap)} heat.`);
+		const lost = s.incidents.filter((i) => i.tick >= since).length;
+		if (lost > 1) lines.push(`${lost} parts lost in all${lost === 5 ? " (at least)" : ""}.`);
+	}
+	const last = s.incidents?.at(-1);
+	if (s.meltdown && last && s.stats.get(last.id)?.category === "particle_accelerator") {
+		lines.push(`${title(last)} overflowed. An accelerator that overflows takes the reactor with it.`);
+	} else {
+		const rate = s.rate ?? {};
+		lines.push(`Last tick: cells made ${fmt(rate.heat ?? 0)} heat; vents shed ${fmt(rate.vent ?? 0)}.`);
+		lines.push(`Reactor heat passed ${fmt(s.maxHeat * 2)}, twice what it can hold.`);
+	}
+	return lines;
+}
+
 /** A meltdown is counted once, where it happens. */
 export function recordMeltdown(s) {
 	if (!s.records || s.planner || s.sealed) return;
+	s.receipt = receipt(s);
 	s.records.meltdowns++;
 	if (s.runTicks <= 30) award(s, "fuse");
 }

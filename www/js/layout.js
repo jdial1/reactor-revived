@@ -45,9 +45,11 @@ const MARK_I = {
 export function readLayout(code) {
 	const text = String(code ?? "").trim();
 	if (/^(mark[\s-]?i|mark[\s-]?1|ic2)$/i.test(text)) return MARK_I;
-	if (!text.startsWith(PREFIX)) return null;
+	// A shared code may arrive under its header line ("Mark I · 1.2K power/tick").
+	const at = text.indexOf(PREFIX);
+	if (at < 0) return null;
 	try {
-		const layout = JSON.parse(unpack(text.slice(PREFIX.length)));
+		const layout = JSON.parse(unpack(text.slice(at + PREFIX.length).split(/\s/)[0]));
 		return Array.isArray(layout?.tiles) && Array.isArray(layout?.modules) ? layout : null;
 	} catch {
 		return null;

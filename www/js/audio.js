@@ -67,7 +67,15 @@ async function wake() {
 	const gain = ctx.createGain();
 	gain.gain.value = 0;
 	gain.connect(ctx.destination);
-	hum = { gain, src: null };
+	// A slow tremor on the hum, as deep as the heat is climbing: a board in
+	// balance hums steady, one building toward failure beats.
+	const lfo = ctx.createOscillator();
+	const depth = ctx.createGain();
+	lfo.frequency.value = 2.5;
+	depth.gain.value = 0;
+	lfo.connect(depth).connect(gain.gain);
+	lfo.start();
+	hum = { gain, depth, src: null };
 	try {
 		const buf = await ctx.decodeAudioData(await (await fetch("audio/hum.webm")).arrayBuffer());
 		const src = ctx.createBufferSource();
@@ -80,13 +88,18 @@ async function wake() {
 }
 if (typeof addEventListener === "function") addEventListener("pointerdown", wake, { once: true });
 
-/** Heat as a fraction of maximum, and whether the reactor is running at all. */
-export function setHeat(f, running) {
+/**
+ * Heat as a fraction of maximum, whether the reactor is running at all, and how
+ * much of late the heat has been climbing (0 to 1).
+ */
+export function setHeat(f, running, rising = 0) {
 	hot = Math.min(1, Math.max(0, f));
 	if (!hum?.src) return;
 	if (ctx.state === "suspended") ctx.resume().catch(() => {});
 	const live = on && running && !document.hidden;
 	const t = ctx.currentTime;
-	hum.gain.gain.setTargetAtTime(live ? 0.12 + 0.3 * hot : 0, t, 0.4);
+	const level = live ? 0.12 + 0.3 * hot : 0;
+	hum.gain.gain.setTargetAtTime(level, t, 0.4);
+	hum.depth.gain.setTargetAtTime(level * 0.6 * Math.min(1, Math.max(0, rising)), t, 0.8);
 	hum.src.playbackRate.setTargetAtTime(0.75 + 0.55 * hot + 0.2 * Math.max(0, Math.min(f, 2) - 1), t, 0.6);
 }

@@ -5,7 +5,7 @@ import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog } from "./ui.js";
-import { toolsAllowed, award, TROPHIES, restrictionLabel } from "./records.js";
+import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine } from "./records.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
@@ -136,6 +136,7 @@ const game = {
 	// The board is empty, so there is nothing left making heat to watch cool.
 	clearMeltdown() {
 		s.hasMeltedDown = false;
+		s.receipt = null;
 		s.heat = 0;
 		compile(s);
 	},
@@ -202,7 +203,8 @@ const game = {
 		return s;
 	},
 
-	layoutCode: () => layoutCode(s),
+	// A design travels with its claim: the mark and power it had when copied.
+	layoutCode: () => [markLine(s), layoutCode(s)].filter(Boolean).join("\n"),
 
 	/** The records, trophies and board as plain text, to keep or share. */
 	summary() {
@@ -210,6 +212,7 @@ const game = {
 		const lines = [
 			"Reactor Revived - records",
 			`Most power per tick: ${fmt(r.maxPower)}`,
+			`Most power from a Mark I board: ${r.markOne ? fmt(r.markOne) : "none yet"}`,
 			`Longest run without a failure: ${fmt(r.longest)} ticks`,
 			`Hottest held: ${Math.round(r.hottest * 100)}% of the limit`,
 			`Meltdowns: ${r.meltdowns}`,
@@ -219,7 +222,7 @@ const game = {
 			`Trophies: ${s.trophies.length} of ${TROPHIES.length}`,
 			...TROPHIES.filter(([id]) => s.trophies.includes(id)).map(([, name]) => `  ${name}`),
 			"Board:",
-			layoutCode(s),
+			game.layoutCode(),
 		];
 		return lines.join("\n");
 	},

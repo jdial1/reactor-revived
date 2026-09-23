@@ -2,7 +2,7 @@
 // arrives in `s` and everything it changes lives in `s`.
 import { applyUpgrades } from "./upgrades.js";
 import { stepModule } from "./module.js";
-import { recordTick, recordMeltdown, autoFeed } from "./records.js";
+import { recordTick, recordMeltdown, recordIncident, autoFeed } from "./records.js";
 import { observe } from "./notes.js";
 // Fixed 12x8: the whole board has to be visible at once on a phone, so the
 // original's two expansion upgrades have nothing to expand into.
@@ -559,6 +559,7 @@ function explode(s, t, p) {
 		}
 	}
 	if (p.category === "particle_accelerator") s.meltdown = true;
+	recordIncident(s, t, p);
 	if (s.salvage) s.money += p.cost * 0.5;
 	s.exploded.push(t.r * s.cols + t.c);
 	remove(s, t);

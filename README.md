@@ -481,10 +481,38 @@ board: a reflector wearing out, a thermionic cell turning heat into power, an
 extreme capacitor heating itself, an accelerator making particles. The planner,
 forecasts and module casings never count.
 
+**Marks**, after the ratings IC2's players gave their designs. The real board
+earns one by running: 300 ticks making power since the player last changed it.
+*Mark I* - heat has stopped rising anywhere on the board. *Mark II* - nothing
+has failed, but heat is still building somewhere. *Mark III* - parts have been
+lost since the last change. A lost part is an incident, not a redesign; placing,
+selling, building, upgrading or switching a doctrine starts the mark again. The
+line under the grid reads like the sign at a plant gate - *Mark I · 4,210 ticks
+without incident* - and tapping it gives the legend and the last incident.
+Records keeps the **most power from a Mark I board**, output that holds, next to
+the most power from any board. A copied layout code carries its mark and power
+on a line above it, and a pasted one can keep that line. Save states remember
+the mark the board had when the job was done.
+
+A meltdown still wipes the board clean, and now leaves a **receipt**: how long
+the board ran since it last changed, the first part it lost and what that part
+held, and what the last tick made against what the vents shed.
+
+The hum keeps time with the heat: a board in balance hums steady, and one that
+is building toward failure beats.
+
 The verdict belongs to the planner, as the forecast belonged to the IC2
 planners: on the real board you watch, and find out. Example layouts wait on
 their job in the log, marked with a dot, and open only when asked. Saved
 layouts can be rebuilt; the game itself cannot be rolled back.
+
+## Soul
+
+The design is held to a soul written for this lineage, **Containment** - *"A
+good design is one you can stop watching"* - with four pillars: the Ledger
+(heat is conserved), Geometry Is the Build, Proof by Running, and the Workbench
+Ships with the Game. [docs/soul.md](docs/soul.md) has the profile, what each
+pillar is in this game, and the litmus test new features are checked against.
 
 ## Credits
 
