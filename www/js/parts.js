@@ -19,6 +19,9 @@ const SHORT = {
 	coolant_cell: "Coolant",
 	reactor_plating: "Plating",
 	particle_accelerator: "Accel",
+	component_vent: "C.Vent",
+	hull_vent: "H.Vent",
+	condensator: "Cond",
 };
 const PACK_SUFFIX = ["", "×2", "×4"];
 const capitalise = (w) => w[0].toUpperCase() + w.slice(1);
@@ -89,6 +92,20 @@ const COMPONENTS = [
 	{ category: "reactor_plating", title: "Charged Reactor Plating", level: 6, cost: 100e12,
 	  experimental: true, requires: "micro_capacitance", reactorHeat: 8e12 },
 
+	// After IC2's component heat vent, reactor heat vent and condensators. A
+	// component vent holds nothing: it bleeds the parts it touches. A hull vent
+	// draws from the reactor's pool, so it can sit anywhere. A condensator holds
+	// heat and never sheds it; emptying it costs its price again.
+	{ category: "component_vent", title: "Component Vent", levels: 5, cost: 250, costMul: 250,
+	  vent: 4, ventMul: 75,
+	  desc: "Holds no heat itself. Every tick it takes heat out of each part it touches, up to its rate from each." },
+	{ category: "hull_vent", title: "Hull Vent", levels: 5, cost: 300, costMul: 250,
+	  containment: 80, containmentMul: 75, vent: 4, ventMul: 75, transfer: 4, transferMul: 75,
+	  desc: "Draws heat from the reactor's pool into itself, and vents it. It does not care what it touches." },
+	{ category: "condensator", title: "Condensator", levels: 5, cost: 1500, costMul: 200,
+	  containment: 20000, containmentMul: 180,
+	  desc: "Holds a great deal of heat and never sheds any. Refilling it empties it, for up to its price; full and not refilled, it fails." },
+
 	{ category: "particle_accelerator", title: "Particle Accelerator", levels: 5, cost: 1e12, costMul: 10000,
 	  containment: 100, containmentMul: 1e6, epHeat: 5e8, epHeatMul: 20000 },
 	{ category: "particle_accelerator", title: "Black Hole Particle Accelerator", level: 6, cost: 100e12,
@@ -149,6 +166,7 @@ export const CATEGORY_AFTER = {
 	reflector: 8, capacitor: 8,
 	heat_exchanger: 10, heat_inlet: 10, heat_outlet: 10,
 	particle_accelerator: 22,
+	component_vent: 10, hull_vent: 10, condensator: 14,
 	module: MODULES_AFTER,
 };
 export const categoryOpen = (s, category) => s.objective >= (CATEGORY_AFTER[category] ?? 0);

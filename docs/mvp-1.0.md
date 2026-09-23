@@ -13,7 +13,7 @@ commit `a971d5d`.
 | Commits | 122 |
 | Tests | 145, all passing (`node --test`) |
 | Build | Signed AAB, 224 KB; `versionCode 3`, `versionName "1.2"` |
-| Content | 75 parts in 10 kinds, 7 fuels, 71 upgrades (6 doctrine sets among them), 30 log jobs, 6 example layouts, 12 trophies, 5 restriction runs |
+| Content | 90 parts in 13 kinds, 7 fuels, 72 upgrades (6 doctrine sets among them), 30 log jobs, 6 example layouts, 12 trophies, 5 restriction runs |
 | Tools | Planner and forecast, layout codes with context, save states, replace-all, Move, Time Flux, modules |
 | Soul | All eight litmus checks pass on the design; every open recommendation from the last review is built |
 
@@ -41,8 +41,10 @@ red means loss; mistakes are silent; the reactor runs on every page.
 
 ## Scope of 1.0
 
-**In:** everything on the board today. The soul is fully instilled, and 1.0
-adds no new systems.
+**In:** everything on the board today, including the IC2 families brought in
+after this plan was written (condensators, component vents, hull vents), the
+ledger sheet, the away receipt and the quieter hum. The listing (item 2) and the
+screenshots (item 3) must show them. Nothing further is added before 1.0.
 
 **Out, until after 1.0:**
 - New parts, fuels, goals or doctrines.
@@ -56,7 +58,7 @@ adds no new systems.
 
 | # | Item | Mechanic → Dynamic → Tone | Done when |
 |---|---|---|---|
-| 1 | Part sheet shows the live vent and transfer rate, with the capacitor or plating bonus it gets from its neighbours | The sheet says what the part really does → players place capacitors deliberately → Geometry is the build | A test checks a boosted vent's sheet value |
+| 1 | **Done.** Part sheet shows the live vent and transfer rate, with the capacitor or plating bonus it gets from its neighbours | The sheet says what the part really does → players place capacitors deliberately → Geometry is the build | A test checks a boosted vent's sheet value |
 | 2 | Rewrite the listing without stating the square law; update counts, size and the "pauses" line; add marks, planner, codes and modules; write 1.0 release notes | The first discovery happens in the game, not the store → The law is theirs to find | `listing.md` passes the litmus: no rule the game should teach is stated |
 | 3 | Recapture the five screenshots, plus one showing a Mark I board and one showing the planner | The store shows the game that ships → The voice must not lie | `capture_shots.py` rerun; graphics dated after this plan |
 | 4 | Decide `allowBackup`. Recommended: set it to `false` and point to Export save for moving phones | A restore can no longer rewind a meltdown → the receipt matters | The manifest and `checklist.md` agree, and the reason is written down |

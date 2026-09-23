@@ -91,14 +91,15 @@ if (typeof addEventListener === "function") addEventListener("pointerdown", wake
  * Heat as a fraction of maximum, whether the reactor is running at all, and how
  * much of late the heat has been climbing (0 to 1).
  */
-export function setHeat(f, running, rising = 0) {
+export function setHeat(f, running, rising = 0, held = false) {
 	hot = Math.min(1, Math.max(0, f));
 	if (!hum?.src) return;
 	if (ctx.state === "suspended") ctx.resume().catch(() => {});
 	const live = on && running && !document.hidden;
 	const t = ctx.currentTime;
-	const level = live ? 0.12 + 0.3 * hot : 0;
+	// A board that has earned Mark I settles to a lower, quieter drone.
+	const level = live ? (0.12 + 0.3 * hot) * (held ? 0.7 : 1) : 0;
 	hum.gain.gain.setTargetAtTime(level, t, 0.4);
 	hum.depth.gain.setTargetAtTime(level * 0.6 * Math.min(1, Math.max(0, rising)), t, 0.8);
-	hum.src.playbackRate.setTargetAtTime(0.75 + 0.55 * hot + 0.2 * Math.max(0, Math.min(f, 2) - 1), t, 0.6);
+	hum.src.playbackRate.setTargetAtTime((0.75 + 0.55 * hot + 0.2 * Math.max(0, Math.min(f, 2) - 1)) * (held ? 0.94 : 1), t, 0.6);
 }

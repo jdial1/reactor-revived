@@ -33,7 +33,8 @@ export const freshRecords = () => ({
 });
 
 // Parts a restriction takes off the dock.
-const TRANSFER = new Set(["heat_exchanger", "heat_inlet", "heat_outlet"]);
+// A hull vent draws from the pool, so it is indirect cooling too.
+const TRANSFER = new Set(["heat_exchanger", "heat_inlet", "heat_outlet", "hull_vent"]);
 
 /** Does this run's restriction allow the part? A module is judged by what it holds. */
 export function allowedBy(s, p, seen = 0) {
@@ -103,7 +104,7 @@ export const MARK_WINDOW = 300;
 export const MARKS = [null, "Mark I", "Mark II", "Mark III"];
 export const MARK_MEANS = [
 	["Mark I", "Heat has stopped rising anywhere on the board. It can run as long as it has fuel."],
-	["Mark II", "Nothing has failed yet, but heat is still building somewhere. Something will give."],
+	["Mark II", "Nothing has failed yet, but heat is still building somewhere, or a condensator had to be paid to empty. Something will give, or keeps costing."],
 	["Mark III", "Parts have been lost since the board last changed."],
 ];
 
@@ -118,6 +119,7 @@ const heatOf = (s) => s.tiles.map((t) => (t.id ? t.heatContained : 0));
 
 function openWindow(s, m) {
 	m.from = s.runTicks;
+	m.paid = false;
 	m.heat = s.heat;
 	m.parts = heatOf(s);
 }
@@ -152,13 +154,15 @@ function markTick(s, hasParts, power) {
 		openWindow(s, m);
 		return 0;
 	}
+	// Storage that had to be paid to empty is storage, not a held machine.
+	if (s.rate?.paid) m.paid = true;
 	if (s.runTicks - m.from < MARK_WINDOW) return 0;
 	if (!m.lost) {
 		// Any real climb, however slow: a huge tank filling a point a tick is building.
 		const rose = (then, now, cap) => now > then + Math.max(cap, 1) * 1e-9 + 1e-6;
 		const building = rose(m.heat, s.heat, s.maxHeat)
 			|| s.tiles.some((t, i) => t.id && rose(m.parts[i] ?? 0, t.heatContained, s.stats.get(t.id)?.containment ?? 0));
-		m.grade = building ? 2 : 1;
+		m.grade = building || m.paid ? 2 : 1;
 	}
 	openWindow(s, m);
 	return m.grade;
@@ -195,6 +199,7 @@ export function markLine(s) {
 export function recordIncident(s, t, p) {
 	if (!s.incidents || s.planner || s.sealed) return;
 	s.incidents.push({ tick: s.runTicks, id: p.id, r: t.r, c: t.c, held: t.heatContained, cap: p.containment });
+	s.incidentCount = (s.incidentCount ?? 0) + 1;
 	if (s.incidents.length > 5) s.incidents.shift();
 }
 

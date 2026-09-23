@@ -3,7 +3,7 @@
 import { h, ask } from "./ui.js";
 import { fmt } from "./fmt.js";
 import { artFor } from "./art.js";
-import { COLS } from "./sim.js";
+import { COLS, stored } from "./sim.js";
 import { PARTS, isPartVisible } from "./parts.js";
 import { forecast } from "./forecast.js";
 import { replaceQuote } from "./layout.js";
@@ -114,6 +114,39 @@ function markSheet(s) {
 		h("i", { textContent: `Earned on this board by running it: ${fmt(MARK_WINDOW)} ticks making power since it last changed, measured, not forecast. The ratings are the ones IC2's players gave their designs.` }),
 		h("dl", { className: "mark-legend" }, ...MARK_MEANS.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("p", { className: "incident", textContent: last ? `Last incident: ${last}` : "No incidents on record." }),
+		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
+	return dialog;
+}
+
+// ---- the ledger ---------------------------------------------------------------
+
+/**
+ * The rate line, split by kind, for the tick just run: where the heat came
+ * from and where it went. Made = shed + turned to power + held, and it says so.
+ * Opened only when asked for - the line itself already carries the totals.
+ */
+export function ledgerSheet(s) {
+	const r = s.rate ?? {};
+	const self = r.self ?? 0;
+	const paid = r.paid ?? 0;
+	const converted = r.converted ?? 0;
+	const total = stored(s);
+	const rows = [
+		["Made by cells and casings", num(r.heat - self || 0)],
+		["Made by capacitors, selling", self ? num(self) : null],
+		["Shed by vents", num((r.vent ?? 0) - paid)],
+		["Shed by refilling condensators", paid ? num(paid) : null],
+		["Turned into power", converted ? num(converted) : null],
+		["Held this tick", signed(r.held ?? 0)],
+		["Drawn into the reactor", r.inlet ? num(r.inlet) : null],
+		["Drawn out of the reactor", r.outlet ? num(r.outlet) : null],
+		["In the reactor now", num(s.heat)],
+		["In the parts now", num(Math.max(0, total - s.heat))],
+	].filter(([, v]) => v !== null);
+	const dialog = modal("The ledger",
+		h("h2", { textContent: "The ledger" }),
+		h("i", { textContent: "This tick, by kind. Heat made is heat shed, turned to power, or held; heat drawn in and out of the reactor only moves." }),
+		h("dl", {}, ...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
 	return dialog;
 }

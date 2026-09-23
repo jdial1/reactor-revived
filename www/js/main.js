@@ -4,7 +4,7 @@ import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart 
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
-import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog } from "./ui.js";
+import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog, refillCost } from "./ui.js";
 import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell } from "./records.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
@@ -71,6 +71,21 @@ function endMove() {
 const game = {
 	selected: "uranium1",
 
+	/**
+	 * Empty a condensator by hand: pay for what it holds, and that heat is gone.
+	 * A sink the player chose, like venting by hand.
+	 */
+	refill(r, c) {
+		const t = tileAt(s, r, c);
+		const p = s.stats.get(t.id);
+		if (p?.category !== "condensator") return;
+		const price = refillCost(p, t);
+		if (s.money < price) return;
+		s.money -= price;
+		t.heatContained = 0;
+		play("vent");
+	},
+
 	/** Pick a part up; the next tap on an empty tile puts it down there. */
 	startMove(r, c) {
 		endMove();
@@ -102,6 +117,7 @@ const game = {
 			game,
 			sell: () => sellAt(r, c),
 			move: () => game.startMove(r, c),
+			refill: () => game.refill(r, c),
 			sellKind: () => sellEvery((x) => x.id === kind),
 			sellAll: () => sellEvery(() => true),
 		});
@@ -341,11 +357,26 @@ function boot() {
 // changes the interval.
 // Nothing runs while the game is out of sight: that time is banked as Time Flux
 // instead, and spent at ten times speed when the player turns it on.
+// A Time Flux run, measured from its first beat to its last, for one line at
+// the end: what the board did while it was fast-forwarded.
+let fluxRun = null;
+
 function gameLoop() {
 	if (!document.hidden) {
 		if (!s.paused) {
+			if (s.fluxOn && !fluxRun && !s.planner) fluxRun = { ticks: 0, money: s.money, lost: s.incidentCount ?? 0 };
 			tick(s);
-			for (let n = spendFlux(s); n > 0; n--) tick(s);
+			const extra = spendFlux(s);
+			for (let n = extra; n > 0; n--) tick(s);
+			if (fluxRun) {
+				fluxRun.ticks += 1 + extra;
+				if (!s.fluxOn) {
+					const lost = (s.incidentCount ?? 0) - fluxRun.lost;
+					const made = s.money - fluxRun.money;
+					toast(`Time Flux ran ${fmt(fluxRun.ticks)} ticks: ${lost ? `${lost} part${lost === 1 ? "" : "s"} lost` : "no incidents"}, ${made < 0 ? "-" : "+"}$${fmt(Math.abs(made))}.`, "flux");
+					fluxRun = null;
+				}
+			}
 		}
 		theGame().lastSeen = Date.now();
 	}

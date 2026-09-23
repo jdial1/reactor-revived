@@ -82,9 +82,13 @@ export function forecast(s, swap) {
 	let failed = null;
 	let midway = f.heat;
 	let held = null;
+	let refills = 0;
+	let paid = false;
 	for (let n = 1; n <= HORIZON; n++) {
 		tick(f);
 		power += f.rate.power;
+		refills += f.rate.paidCost ?? 0;
+		if (n > HORIZON / 2 && f.rate.paid) paid = true;
 		vented += f.rate.vent;
 		if (f.hasMeltedDown) {
 			failTick = n;
@@ -113,6 +117,8 @@ export function forecast(s, swap) {
 	// its maximum, where it melts, and each part's to its own limit - and the
 	// first to get there is the failure.
 	let estimated = false;
+	// What refilling condensators will cost per tick, from how fast they fill.
+	let refillRate = 0;
 	if (!failTick) {
 		const half = HORIZON / 2;
 		const slope = (f.heat - midway) / half;
@@ -124,6 +130,11 @@ export function forecast(s, swap) {
 			const p = t.id && s.stats.get(t.id);
 			const rise = (t.heatContained - held[i]) / half;
 			if (!p?.containment || rise <= 1e-9) return;
+			// A condensator the player pays to refill empties instead of failing.
+			if (p.category === "condensator" && replaces(s, p)) {
+				refillRate += (p.cost * rise) / p.containment;
+				return;
+			}
 			const at = HORIZON + Math.ceil((p.containment - t.heatContained) / rise);
 			if (!failTick || at < failTick) {
 				failTick = at;
@@ -138,7 +149,8 @@ export function forecast(s, swap) {
 		}
 	}
 	const perTick = power / ran;
-	const upkeep = upkeepOf(s, f);
+	// Condensator refills are upkeep too: money spent to keep the board running.
+	const upkeep = upkeepOf(s, f) + refills / ran + refillRate;
 	// What the board cost to build, and how long its profit takes to pay that
 	// back - the efficiency players ranked designs by, in ticks.
 	const cost = s.tiles.reduce((a, t) => a + (t.activated && t.id ? s.stats.get(t.id).cost : 0), 0);
@@ -157,7 +169,7 @@ export function forecast(s, swap) {
 		failed,
 		estimated,
 		// The mark it would earn on the real board: 1 or 2, or 0 if it fails.
-		mark: failTick ? 0 : rising ? 2 : 1,
+		mark: failTick ? 0 : rising || paid ? 2 : 1,
 	};
 }
 

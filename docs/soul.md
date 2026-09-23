@@ -118,15 +118,16 @@ the soul.
 |---|---|---|
 | The Ledger | One conserved quantity; no leaks | Heat is split exactly; no free trickle; the over-limit dump pays in full; parts that blow, are sold or are replaced leave their heat in the reactor; throttling applies everywhere |
 | | The line is the truth | Made, vented, moved, held: made = vented + converted + held, tested every tick |
-| | Storage buys time, not safety | A board leaning on coolant earns Mark II, not Mark I |
+| | Storage buys time, not safety | A board leaning on coolant earns Mark II, not Mark I; a condensator buys time at a price, and a board that needed a refill earns Mark II |
+| | The ledger, on request | Tapping the rate line splits the tick by kind: made, shed, turned to power, held, moved |
 | Geometry Is the Build | A small, fixed board | 12 x 8; modules pack a 3 x 3 into one tile at a casing cost |
-| | Neighbours are the rules | Heat moves to touching parts and through the pool; capacitors and plating speed only what they touch. One named exception: the top exchanger reaches its whole row |
+| | Neighbours are the rules | Heat moves to touching parts and through the pool; capacitors and plating speed only what they touch. Each IC2 family has its own rule: a component vent bleeds what it touches, a hull vent draws from the pool. One named exception: the top exchanger reaches its whole row |
 | | Every upgrade moves the optimum | Doctrines change ratios; an upgrade restarts the board's mark |
 | | The same parts, a different machine | Move is free and keeps a part's heat and life |
 | Proof by Running | The clock is the judge | Parts fail on schedule; randomness only in rewards |
 | | Rate the machine by its stamina | Marks I-III earned on the floor; Records lead with Mark I power and efficiency; particles count as far as heat is shed |
-| | Absence is play | The reactor runs on every page; Time Flux banks the time the app is closed; nothing punishes leaving |
-| | The hum of a held machine | Steady when held, beating while heat climbs |
+| | Absence is play | The reactor runs on every page; Time Flux banks the time the app is closed and ends with a one-line receipt; nothing punishes leaving |
+| | The hum of a held machine | Steady when held, beating while heat climbs, lower and quieter once Mark I is earned |
 | | A meltdown is a receipt, not a scar | A clean wipe and a written receipt of the fall |
 | The Workbench | Forecast the failure tick | The planner names the tick and the part, or says "Would earn Mark I" |
 | | Stamina travels with the design | Codes carry mark, power, efficiency, upgrades and doctrines |
@@ -149,7 +150,7 @@ listed.
 | Refactoring cost (workbench rule) | A hot part refunded less, on top of leaving its heat behind | Fixed: refund is the price less fuel used |
 | The Wordy Tutorial | Seventeen cards | Fixed: seven cards, five that wait for an action |
 | The Law Is Theirs to Find (listing) | The Play short description states the square law | Open: P0 in [mvp-1.0.md](mvp-1.0.md) |
-| Hidden Math (part sheet) | A boosted vent's sheet shows its base rate since bonuses went local | Open: P0 |
+| Hidden Math (part sheet) | A boosted vent's sheet showed its base rate once bonuses went local | Fixed: the sheet shows the rate where it sits |
 | The Backdoor Rewind (cloud) | `allowBackup` lets a reinstall restore past a meltdown | Open: P0 decision |
 | The Voice Must Not Lie (store) | The listing and screenshots describe an older game | Open: P0 |
 | Chores Forever / The Babysat Machine | Manual selling and venting early | Watched: perpetual rebuys arrive at goal 8, and the manual tax is lineage |

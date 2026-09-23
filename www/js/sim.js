@@ -343,9 +343,34 @@ export function tick(s) {
 
 	if (!s.sealed) buyQueued(s);
 
+	// Component vents hold nothing: each bleeds the parts it touches, up to its
+	// rate from each, and that heat is shed.
+	for (const t of activeTiles(s)) {
+		const p = partOf(s, t);
+		if (p?.category !== "component_vent") continue;
+		const each = ventOf(s, p, t);
+		for (const n of t.containments) {
+			const shed = Math.min(each, n.heatContained);
+			if (shed <= 0) continue;
+			n.heatContained -= shed;
+			n.heatOut += shed;
+			t.vented += shed;
+			rate.vent += shed;
+		}
+	}
+
 	for (const t of activeTiles(s)) {
 		const p = partOf(s, t);
 		if (!p?.containment) continue;
+
+		// A hull vent draws from the reactor's pool into itself, then vents.
+		if (p.category === "hull_vent" && s.heat > 0) {
+			const drawn = Math.min(transferOf(s, p, t), s.heat);
+			s.heat -= drawn;
+			t.heatContained += drawn;
+			t.heatIn += drawn;
+			rate.outlet += drawn;
+		}
 
 		if (p.vent) {
 			const shed = p.id === "vent6"
@@ -375,6 +400,19 @@ export function tick(s) {
 			}
 		}
 		if (p.id === "coolant_cell6" && t.heatIn > 0) observe(s, "thermionic");
+
+		// A full condensator is refilled if Condensator Refills is bought and the
+		// money is there: its price again, and everything it held is gone. That
+		// heat is shed by a sink the player paid for, and the line says so.
+		if (p.category === "condensator" && t.heatContained >= p.containment
+			&& replaces(s, p) && s.money >= p.cost) {
+			s.money -= p.cost;
+			rate.vent += t.heatContained;
+			rate.paid = (rate.paid ?? 0) + t.heatContained;
+			rate.paidCost = (rate.paidCost ?? 0) + p.cost;
+			t.vented += t.heatContained;
+			t.heatContained = 0;
+		}
 
 		if (t.heatContained > p.containment) explode(s, t, p);
 	}
@@ -619,7 +657,10 @@ function sell(s, extremeCapacitors) {
 		t.heatContained += self;
 		// Heat made by a part is heat made: it goes on the line with the cells'.
 		t.made = (t.made ?? 0) + self;
-		if (s.rate) s.rate.heat += self;
+		if (s.rate) {
+			s.rate.heat += self;
+			s.rate.self = (s.rate.self ?? 0) + self;
+		}
 		observe(s, "selfheat");
 	}
 }

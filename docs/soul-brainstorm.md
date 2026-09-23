@@ -1,7 +1,8 @@
 # What the soul suggests: a brainstorm
 
 Features Containment points toward, traced so each can be judged. **None of
-these is a recommendation yet.** Each row reads Mechanic → Dynamic → Tone,
+these is a recommendation yet**, except the five marked *(built)*: L1, L3, G1
+(as component and hull vents), P4 and P5. Each row reads Mechanic → Dynamic → Tone,
 names where the idea comes from, gives a rough cost (S, M or L), and says
 what to watch: the pitfall, standing rule or component conflict it could run
 into. They all sit after the 1.0 checkpoint ([mvp-1.0.md](mvp-1.0.md)).
@@ -14,16 +15,16 @@ IndustrialCraft 2 or its community rather than from this repo.
 
 | # | Idea | Mechanic → Dynamic → Tone | Source | Cost | Watch |
 |---|---|---|---|---|---|
-| L1 | **Ledger sheet** | Tapping the rate line opens the tick split by kind: heat made by cells and by capacitors, shed by vents, turned to power, held by coolant, held by the pool → players find which kind is running the deficit → the player as accountant | The Line Is the Truth | S | Say it once: the sheet exists only when asked for |
+| L1 | **Ledger sheet (built)** | Tapping the rate line opens the tick split by kind: heat made by cells and by capacitors, shed by vents, turned to power, held by coolant, held by the pool → players find which kind is running the deficit → the player as accountant | The Line Is the Truth | S | Say it once: the sheet exists only when asked for |
 | L2 | **Held trace** | A thin 60-tick trace of the held column under the rate line → players see a board settle or drift without doing sums → watchful calm, and a visual twin for the hum | The Hum of a Held Machine; audio_information needs a visual twin | S | Clutter on the reactor page; the gauges were decluttered on purpose |
-| L3 | **Condensators** | A part that soaks heat until full and is then refilled for money per point → storage becomes a paid valve, trading money for time → storage buys time, and here the time has a price | IC2's condensators, refilled with redstone or lapis **(verify)** | M | A new part is a post-1.0 content change; it must be a named sink, never a leak |
+| L3 | **Condensators (built)** | A part that soaks heat until full and is then refilled for money per point → storage becomes a paid valve, trading money for time → storage buys time, and here the time has a price | IC2's condensators, refilled with redstone or lapis **(verify)** | M | A new part is a post-1.0 content change; it must be a named sink, never a leak |
 | L4 | **Incident ledger on the receipt** | The meltdown receipt adds a small board drawing with the first lost part outlined → players see where the chain started → a legible fall | legible_failure: itemize the causes | S | Must stay a receipt, not a scar: it is drawn on the sheet, never on the board |
 
 ## Geometry Is the Build
 
 | # | Idea | Mechanic → Dynamic → Tone | Source | Cost | Watch |
 |---|---|---|---|---|---|
-| G1 | **Vents with neighbour rules** | A component vent that cools the parts around it but not itself, and a hull vent that draws only from the pool → the same tile budget solves differently depending on what touches what → neighbours are the rules | IC2's component and reactor heat vents **(verify)**; NuclearCraft's cooler rules | M | Additive blandness if they are just stronger vents; each must change where it wants to sit |
+| G1 | **Vents with neighbour rules (built)** | A component vent that cools the parts around it but not itself, and a hull vent that draws only from the pool → the same tile budget solves differently depending on what touches what → neighbours are the rules | IC2's component and reactor heat vents **(verify)**; NuclearCraft's cooler rules | M | Additive blandness if they are just stronger vents; each must change where it wants to sit |
 | G2 | **Mirror, rotate and stamp in the planner** | Mirror or rotate the board, and repeat a selected block across it → players iterate on symmetric designs quickly → expression | workbench: tools the community would build | S | Game plays itself, if it drifts toward auto-layout; it must only copy what the player drew |
 | G3 | **Pulse pips in Flow** | Flow shows each cell's neighbour count as small pips → players connect "four neighbours" with "a lot of heat" on their own → the square law found, not told | Total information (state) | S | The law is theirs to find: it shows the count, never the formula. Borderline, so judge it carefully |
 | G4 | **Ratio-shaping doctrines** | A seventh doctrine set whose two sides change the shape of heat (heat to diagonals, or heat only into vents) → the best layout of the last run stops being best → every upgrade moves the optimum | The Checkerboard Forever fix | M | Balance debt; the pinned examples must still hold |
@@ -35,8 +36,8 @@ IndustrialCraft 2 or its community rather than from this repo.
 | P1 | **Design book** | Earning a mark files the board, with its numbers, in a book that can be rebuilt from → players collect proven designs as a portfolio → players remember designs, and keep them | Rate the Machine by Its Stamina; save states | S | History nobody reads: the book has to be where codes are copied from |
 | P2 | **Stamina rungs** | Records time each run to its first Mark I board at 1K, 1M, 1B and 1T → speed and stamina have to be solved together → stamina is the prestige | difficulty_ladder: efficiency is prestige | S | The Empty Top is already answered; this deepens it without adding a rung type players ignore |
 | P3 | **The fuller Mark scale** | Mark II carries how many cycles it holds before it must cool; a marker for designs that lean on coolant that is spent → finer claims in shared codes → measured, not boasted | IC2's community Mark scale and single-use-coolant suffix **(verify)** | M | Detail nobody feels, unless codes and records use it |
-| P4 | **Away receipt** | When Time Flux finishes, one line: ticks run, incidents, money made → players trust leaving the board alone → permission to look away | Absence Is Play | S | The cheerful toast; it must be a plain line, shown once |
-| P5 | **Quiet after Mark I** | Once a board earns Mark I, the hum settles to a lower, steadier drone → a held machine sounds held → calm is the reward | The Hum of a Held Machine | S | Hearing required; Mark I on the floor line is its visual twin |
+| P4 | **Away receipt (built)** | When Time Flux finishes, one line: ticks run, incidents, money made → players trust leaving the board alone → permission to look away | Absence Is Play | S | The cheerful toast; it must be a plain line, shown once |
+| P5 | **Quiet after Mark I (built)** | Once a board earns Mark I, the hum settles to a lower, steadier drone → a held machine sounds held → calm is the reward | The Hum of a Held Machine | S | Hearing required; Mark I on the floor line is its visual twin |
 | P6 | **Creak near the limit** | A part past nine-tenths full gives a low creak, pitched by tier → players hear which part is next before they find it → the reactor is the loudest thing near the limit | audio_information: sound before sight | S | The buzzer: it must be dull and rare, and every creak already has a full heat bar as its twin |
 
 ## The Workbench

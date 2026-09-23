@@ -16,6 +16,10 @@ const CATEGORY = {
 	capacitor: "capacitor",
 	reactor_plating: "plating",
 	particle_accelerator: "accelerator",
+	// Derived from the Revival sprites by docs/derive_art.py.
+	component_vent: "component_vent",
+	hull_vent: "hull_vent",
+	condensator: "condensator",
 };
 
 /** The file a part's art lives in, without the extension. */

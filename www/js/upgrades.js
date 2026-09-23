@@ -35,6 +35,10 @@ const CASH = [
 	  desc: "Reflectors last 100% longer per level." },
 	{ id: "improved_neutron_reflection", group: "other", title: "Improved Neutron Reflection", cost: 5000, mul: 100,
 	  desc: "Reflectors give an additional 1% power per level." },
+	// IC2's condensators were refilled by hand with redstone or lapis; this is
+	// the machine that does it, at the part's own price each time.
+	{ id: "perpetual_condensators", group: "other", title: "Condensator Refills", cost: 1e5, levels: 1, after: 14,
+	  desc: "A full condensator is refilled automatically, at its list price, whenever the money is there." },
 	{ id: "perpetual_reflectors", group: "other", title: "Perpetual Reflectors", cost: 1e9, levels: 1,
 	  // The original's text promises 1.5x here, but its code charges list price;
 	  // only cells pay the 1.5x markup. Behaviour wins.
@@ -196,6 +200,7 @@ const SECTION_BY_ID = {
 	perpetual_reflectors: "power", full_spectrum_reflectors: "power",
 	improved_heat_vents: "cooling", improved_heatsinks: "cooling", active_venting: "cooling",
 	improved_coolant_cells: "cooling", improved_alloys: "cooling", ultracryonics: "cooling",
+	perpetual_condensators: "cooling",
 	fractal_piping: "cooling",
 	improved_heat_exchangers: "transfer", reinforced_heat_exchangers: "transfer",
 	active_exchangers: "transfer", fluid_hyperdynamics: "transfer",
@@ -249,6 +254,13 @@ const SCALE_BY_CATEGORY = {
 	heat_inlet: { transfer: ["improved_heat_exchangers", "fluid_hyperdynamics"] },
 	heat_outlet: { transfer: ["improved_heat_exchangers", "fluid_hyperdynamics"] },
 	coolant_cell: { containment: ["improved_coolant_cells", "ultracryonics"] },
+	// The vent family shares the vent upgrades; condensators share coolant's.
+	component_vent: { vent: ["improved_heat_vents", "fluid_hyperdynamics"] },
+	hull_vent: {
+		vent: ["improved_heat_vents", "fluid_hyperdynamics"], containment: ["improved_heat_vents", "fractal_piping"],
+		transfer: ["improved_heat_exchangers", "fluid_hyperdynamics"],
+	},
+	condensator: { containment: ["improved_coolant_cells", "ultracryonics"] },
 	capacitor: { reactorPower: ["improved_wiring", "quantum_buffering"], containment: ["improved_wiring", "quantum_buffering"] },
 	reactor_plating: { reactorHeat: ["improved_alloys", "quantum_buffering"] },
 };
@@ -285,6 +297,7 @@ export function applyUpgrades(s) {
 	// Which parts replace themselves when they run out, keyed by category for
 	// components and by cell type for cells.
 	s.perpetual = new Set(L("perpetual_reflectors") ? ["reflector"] : []);
+	if (L("perpetual_condensators")) s.perpetual.add("condensator");
 	for (const c of CELLS_WITH_UPGRADES) if (L(`cell_perpetual_${c.type}`)) s.perpetual.add(c.type);
 
 	const unleashed = 2 ** L("unleashed_cells");
@@ -461,6 +474,7 @@ const KIND_BY_FIELD = {
 const KIND_BY_CATEGORY = {
 	vent: "heat", heat_exchanger: "heat", heat_inlet: "heat", heat_outlet: "heat",
 	coolant_cell: "heat", reactor_plating: "heat",
+	component_vent: "heat", hull_vent: "heat", condensator: "heat",
 	capacitor: "power", reflector: "power", cell: "power",
 	particle_accelerator: "utility",
 };

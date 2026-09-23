@@ -10,7 +10,7 @@ import { play, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
 import { span } from "./flux.js";
-import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog } from "./tools-ui.js";
+import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
 import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell } from "./records.js";
@@ -171,8 +171,8 @@ const PAGES = [
 const DOCK_TABS = [
 	["Cells", ["cell"]],
 	["Power", ["reflector", "capacitor"]],
-	["Cooling", ["vent", "coolant_cell", "reactor_plating"]],
-	["Transfer", ["heat_exchanger", "heat_inlet", "heat_outlet"]],
+	["Cooling", ["vent", "component_vent", "coolant_cell", "condensator", "reactor_plating"]],
+	["Transfer", ["heat_exchanger", "heat_inlet", "heat_outlet", "hull_vent"]],
 	["Exotic", ["particle_accelerator"]],
 	// Filled from the saved designs, not the catalog.
 	["Modules", ["module"]],
@@ -369,7 +369,8 @@ export function buildUI(game) {
 		cell.setAttribute("aria-label", title);
 		return cell;
 	};
-	dom.rateBar = h("div", { id: "rates" },
+	// Tapping the line opens its ledger: the same tick, split by kind.
+	dom.rateBar = h("div", { id: "rates", role: "button", tabIndex: 0, title: "The ledger for this tick", onclick: () => ledgerSheet(game.state) },
 		rateCell("power", "power", "Power generated per tick"),
 		rateCell("heat", "heat", "Heat generated per tick"),
 		rateCell("vent", "vent", "Heat vented per tick"),
@@ -596,6 +597,9 @@ export function ask(question, onYes, yes = "Do it", danger = false) {
 // fmt() drops decimals, and a module at 25% makes fractions.
 const exact = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 100) / 100) : fmt(v));
 
+/** Emptying a condensator by hand costs its price, in proportion to what it holds. */
+export const refillCost = (p, t) => Math.ceil(p.cost * Math.min(1, t.heatContained / p.containment));
+
 export function inspect(s, t, sell) {
 	const p = s.stats.get(t.id);
 	const placed = [...activeTiles(s)].filter((x) => x.id);
@@ -607,8 +611,13 @@ export function inspect(s, t, sell) {
 		["Life", p.ticks ? `${fmt(t.ticks)} / ${fmt(p.ticks)}` : null],
 		["Heat held", p.containment ? `${fmt(t.heatContained)} / ${fmt(p.containment)}` : null],
 		["Parts full", p.category === "module" ? `${Math.round(heatFill(s, t) * 100)}% on average` : null],
-		["Vents", p.vent ? `${fmt(p.vent)}/tick` : null],
-		["Transfers", p.transfer ? `${fmt(p.transfer)}/tick` : null],
+		// What this part does where it sits: the capacitors and plating it touches
+		// are counted in, so the sheet agrees with the board.
+		["Vents", p.vent ? `${exact(p.vent * (1 + (t.ventMul ?? 0) / 100))}/tick${p.category === "component_vent" ? " from each part it touches" : ""}` : null],
+		[p.category === "hull_vent" ? "Draws from the reactor" : "Transfers",
+			p.transfer ? `${exact(p.transfer * (1 + (t.transferMul ?? 0) / 100))}/tick` : null],
+		["Boosted by neighbours", (t.ventMul || t.transferMul) ? `+${fmt(Math.max(t.ventMul ?? 0, t.transferMul ?? 0))}%` : null],
+		["Refill costs", p.category === "condensator" ? `$${fmt(refillCost(p, t))}` : null],
 		["Max power", p.reactorPower ? `+${fmt(p.reactorPower)}` : null],
 		["Max heat", p.reactorHeat ? `+${fmt(p.reactorHeat)}` : null],
 		["Power", p.category === "module" ? `+${exact(p.modPower * s.casingEff)}/tick` : null],
@@ -629,6 +638,11 @@ export function inspect(s, t, sell) {
 			h("button", { textContent: sameKind > 1 ? `Replace or upgrade all ${sameKind}` : "Replace or upgrade",
 				onclick: () => { dialog.close(); replaceDialog(s, p, sell.game); } }),
 			h("button", { textContent: "Move", onclick: () => { dialog.close(); sell.move(); } }),
+			p.category === "condensator" && t.heatContained > 0 && h("button", {
+				textContent: `Refill for $${fmt(refillCost(p, t))}`,
+				disabled: s.money < refillCost(p, t),
+				onclick: () => { dialog.close(); sell.refill(); },
+			}),
 			h("button", { textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
 			sameKind > 1 && h("button", { textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
 			// One tap that empties the board deserves a second one.
@@ -845,7 +859,7 @@ export function render(dom, s, game) {
 		document.body.style.setProperty("--quiet", 1 - 0.6 * warm);
 	}
 	document.body.classList.toggle("near", f > 0.8);
-	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0, s.planner ? 0 : s.mark?.trend ?? 0);
+	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0, s.planner ? 0 : s.mark?.trend ?? 0, !s.planner && s.mark?.grade === 1);
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
@@ -1204,6 +1218,9 @@ function partInfo(p) {
 		case "heat_inlet": heat("tl", "inlet", p.transfer); break;
 		case "heat_outlet": heat("tl", "outlet", p.transfer); break;
 		case "coolant_cell": heat("tr", "heat", p.containment); break;
+		case "component_vent": heat("tl", "vent", p.vent); break;
+		case "hull_vent": heat("tl", "vent", p.vent); heat("tr", "heat", p.containment); heat("bl", "outlet", p.transfer); break;
+		case "condensator": heat("tr", "heat", p.containment); break;
 		case "reactor_plating": heat("tl", "heat", p.reactorHeat); break;
 		case "capacitor": power("tl", p.reactorPower); heat("tr", "heat", p.containment); break;
 		case "reflector": power("tl", p.powerIncrease, "%"); life(p.ticks); break;

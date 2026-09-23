@@ -23,8 +23,10 @@ function put(s, r, c, id) {
 }
 
 test("catalog covers every part at every tier", () => {
-	assert.equal(PART_BY_ID.size, 75);
-	// 7 fuel types x 3 pack sizes, 9 component families x tiers 1-5 plus a tier 6.
+	assert.equal(PART_BY_ID.size, 90);
+	// 7 fuel types x 3 pack sizes, 9 component families x tiers 1-5 plus a tier 6,
+	// and IC2's three later families (component vent, hull vent, condensator)
+	// at tiers 1-5 with no experimental tier.
 	assert.equal([...PART_BY_ID.values()].filter((p) => p.category === "cell").length, 21);
 	assert.equal([...PART_BY_ID.values()].filter((p) => p.level === 6).length, 9);
 });
@@ -527,7 +529,7 @@ test("a new game opens on one cell; the families arrive with the log", () => {
 	assert.equal(isPartVisible(s, PART_BY_ID.get("capacitor1")), false);
 	s.objective = 30;
 	const visible = PARTS.filter((p) => isPartVisible(s, p));
-	assert.equal(visible.length, 10, "one fuel plus nine component families");
+	assert.equal(visible.length, 13, "one fuel plus twelve component families");
 	assert.ok(visible.every((p) => !p.after && !p.requires));
 });
 

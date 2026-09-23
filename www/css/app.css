@@ -1271,3 +1271,4 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 
 /* A part picked up to move: its tile waits, outlined, for where it goes. */
 .tile.moving-from { outline: 2px dashed var(--power); outline-offset: -2px; }
+#rates { cursor: pointer; }

@@ -31,7 +31,7 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
 - **No Gradle dependencies.** The `app` module has no `dependencies` block at
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **No image files but the art itself.** Every interface icon is inline SVG;
-  the only bitmaps in the APK are the 75 part sprites and four UI frames,
+  the only bitmaps in the APK are the 90 part sprites and four UI frames,
   37 KB together, and the only sounds are six impacts.
 - **No network access.** Nothing is fetched, ever.
 
@@ -51,7 +51,7 @@ www/            the game - open index.html in any browser
   js/upgrades.js  upgrades as data; one function derives every stat from levels
   js/ui.js      build the DOM once, then patch what changed
   js/input.js   touch gestures
-  parts/revival/  the 75 part sprites
+  parts/revival/  the 90 part sprites
   ui/           three frames the interface is skinned from
 test/           node --test, no test framework
 tools/serve.js  a 12-line dev server
@@ -124,7 +124,11 @@ picker for save export and import.
 ## Part artwork
 
 The parts are drawn with **Reactor Revival's** art, in `www/parts/revival/` —
-75 PNGs, one per part, 36 KB, committed and shipped. They arrived at 128x128
+90 PNGs, one per part, committed and shipped. Fifteen of them - condensators,
+component vents and hull vents, three families Revival never drew - are made
+from its coolant and vent sprites by `docs/derive_art.py` (a red core, four
+outward chevrons, an amber hull frame), so they share its palette and tier
+marks. They arrived at 128x128
 with up to 168 colours; nothing draws them that big, so `docs/resize_art.py`
 stores them at 64px and 32 colours - measured against the originals at every
 size the game draws, where the difference does not show.
@@ -184,6 +188,41 @@ university that sends an accelerator and stops saying what the particles are
 for. The checks are unchanged; only the reason for them is new. IC2 players ran
 their reactors inside a base they had built, so the reactor had somewhere to
 be. This gives it one.
+
+## From IC2: condensators, component vents, hull vents
+
+Three part families from IndustrialCraft 2's reactor, each with its own
+neighbour rule, so each wants a different spot on the board:
+
+- **Component Vent** (Cooling, from goal 10) holds no heat. Every tick it takes
+  heat out of each part it touches, up to its rate from each. Cells cannot
+  dump into it; it wants to sit among coolant and exchangers, not cells.
+- **Hull Vent** (Transfer, from goal 10) draws heat from the reactor's pool
+  into itself and vents it, wherever it sits. It is indirect cooling, so a
+  Direct-only run leaves it out.
+- **Condensator** (Cooling, from goal 14) holds far more than a coolant cell
+  and never sheds any. Full and left alone, it fails like any part. Refilled -
+  by hand from its sheet, for its price in proportion to what it holds, or
+  automatically once **Condensator Refills** is bought, at its full price -
+  it empties, and that heat is shed by a sink the player paid for. Storage
+  that has to be paid to empty is not a held machine: a board that needed a
+  refill earns Mark II, not Mark I, and the planner counts refills as upkeep.
+
+The vent upgrades apply to both new vents, and the coolant upgrades to
+condensators. A casing cannot pay for refills, so a condensator inside a module
+simply fills.
+
+Three smaller things came with them:
+
+- **The ledger.** Tapping the rate line opens the tick split by kind: heat
+  made by cells and by capacitors, shed by vents and by refills, turned to
+  power, held, and moved in and out of the reactor.
+- **The away receipt.** When a Time Flux run ends, one line says what the board
+  did: ticks run, parts lost, money made.
+- **A quieter hum** once the board has earned Mark I.
+
+Part sheets now show each vent's and transfer part's rate as it runs where it
+sits, capacitor and plating bonuses included.
 
 ## Modules
 
