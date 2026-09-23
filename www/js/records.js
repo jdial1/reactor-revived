@@ -22,6 +22,8 @@ export const freshRecords = () => ({
 	maxPower: 0,
 	// The most power from a board that had earned Mark I: output that holds.
 	markOne: 0,
+	// And the most of it per fuel cell: IC2's other measure of a design.
+	efficiency: 0,
 	streak: 0,
 	longest: 0,
 	hottest: 0,
@@ -69,7 +71,11 @@ export function recordTick(s) {
 	if (r.redFor >= 60) award(s, "redline");
 	if (r.longest >= 10000) award(s, "clean");
 	const grade = markTick(s, parts.length > 0, power);
-	if (grade === 1) r.markOne = Math.max(r.markOne, power);
+	if (grade === 1) {
+		r.markOne = Math.max(r.markOne, power);
+		const fuel = fuelOf(s);
+		if (fuel) r.efficiency = Math.max(r.efficiency ?? 0, power / fuel);
+	}
 	// Nothing on the board but vents, a dozen or more, for a minute.
 	const fan = parts.length >= 12 && parts.every((t) => s.stats.get(t.id)?.category === "vent");
 	r.fanFor = fan ? (r.fanFor ?? 0) + 1 : 0;
@@ -148,7 +154,8 @@ function markTick(s, hasParts, power) {
 	}
 	if (s.runTicks - m.from < MARK_WINDOW) return 0;
 	if (!m.lost) {
-		const rose = (then, now, cap) => now > then + Math.max(cap, 1) * 1e-3;
+		// Any real climb, however slow: a huge tank filling a point a tick is building.
+		const rose = (then, now, cap) => now > then + Math.max(cap, 1) * 1e-9 + 1e-6;
 		const building = rose(m.heat, s.heat, s.maxHeat)
 			|| s.tiles.some((t, i) => t.id && rose(m.parts[i] ?? 0, t.heatContained, s.stats.get(t.id)?.containment ?? 0));
 		m.grade = building ? 2 : 1;
@@ -156,6 +163,18 @@ function markTick(s, hasParts, power) {
 	openWindow(s, m);
 	return m.grade;
 }
+
+/** Fuel cells burning on the board, a quad counting four; casings count what they hold. */
+export function fuelOf(s) {
+	const cells = (p, seen = 0) => (!p || seen > 8 ? 0
+		: p.category === "cell" ? p.cellCount ?? 1
+		: p.category === "module" ? p.module.layout.reduce((n, id) => n + (id ? cells(s.stats.get(id), seen + 1) : 0), 0)
+		: 0);
+	return s.tiles.reduce((n, t) => n + (t.activated && t.id && t.ticks ? cells(s.stats.get(t.id)) : 0), 0);
+}
+
+/** Power per fuel cell, to two places. */
+export const perCell = (n) => (n >= 1000 ? fmt(n) : String(Math.round(n * 100) / 100));
 
 /** "Mark I", or null while the board has not earned one. */
 export const markOf = (s) => (s.planner ? null : MARKS[s.mark?.grade ?? 0]);
@@ -165,7 +184,9 @@ export function markLine(s) {
 	const mark = markOf(s);
 	// What the layout makes, compiled - a paused game has no last tick to read.
 	const power = (s.cells ?? []).reduce((n, t) => n + t.power, 0);
-	return [mark, power > 0 ? `${fmt(power)} power/tick` : null].filter(Boolean).join(" · ");
+	const fuel = fuelOf(s);
+	return [mark, power > 0 ? `${fmt(power)} power/tick` : null, power > 0 && fuel ? `${perCell(power / fuel)} per cell` : null]
+		.filter(Boolean).join(" · ");
 }
 
 // ---- incidents and the receipt ----------------------------------------------

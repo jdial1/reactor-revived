@@ -1270,3 +1270,6 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .mark-legend { grid-template-columns: auto 1fr; }
 .mark-legend dd { text-align: left; }
 .sheet .incident { font-size: 12px; color: var(--dim); }
+
+/* A part picked up to move: its tile waits, outlined, for where it goes. */
+.tile.moving-from { outline: 2px dashed var(--power); outline-offset: -2px; }

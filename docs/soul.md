@@ -41,12 +41,13 @@ roll, which is output, never failure. Keep it that way.
 | Geometry Is the Build | A small, fixed board | 12 x 8 tiles; modules pack a 3 x 3 into one at a casing cost |
 | | Neighbours are the rules | Heat moves only to touching parts, and through the reactor pool |
 | | Every upgrade moves the optimum | An upgrade restarts the board's mark; a Mark I can become a Mark II |
+| | The same parts, a different machine | Move a part from its sheet: free, keeps its heat and life, restarts the mark |
 | Proof by Running | The clock is the judge | Parts fail on schedule; the forecast lives only in the planner |
-| | Rate the machine by its stamina | Marks I-III earned on the floor; "Most power from a Mark I board" in Records |
+| | Rate the machine by its stamina | Marks I-III earned on the floor; "Most power from a Mark I board" and "Best Mark I efficiency" (power per fuel cell) in Records |
 | | Absence is play | Time Flux banks time away; nothing punishes leaving |
 | | The hum of a held machine | The hum beats while heat is climbing and holds steady when the board is in balance |
-| The Workbench | A lab beside the floor | The planner forecasts; the real board's line reports only what happened |
-| | Designs travel as text | Layout codes, carrying their mark and power on a header line |
+| The Workbench | A lab beside the floor | The planner forecasts ("Would earn Mark I"); the real board's line reports only what happened |
+| | Designs travel as text | Layout codes, carrying their mark, power and efficiency on a header line |
 | | Measure, don't grade | Forecast numbers, payback, marks - no stars, no advice |
 | | Rebuild, never rewind | Save states rebuild onto today's board; nothing rolls back |
 
@@ -67,14 +68,8 @@ meltdown is an absolute clean wipe (a receipt is words, not wreckage); no story
 beats; no roguelite generations, board variants or scars; no network or
 monetisation; comedy is deadpan only.
 
-## Not yet done
+## Trust in the opening
 
-- **The Wordy Tutorial.** The opening tutorial is seventeen text cards. The soul
-  (and trusting the player) would teach more through the first few goals and
-  less through cards.
-- **Move a part.** Rearranging is the design verb; on the real board it is sell
-  and rebuy. The planner covers it for now.
-- **The planner speaking marks.** Its verdict says "Holds"; it could say which
-  mark a board would earn, as a forecast.
-- **An efficiency record.** IC2's players also rated designs by output per fuel
-  cell.
+The tutorial is seven cards, five of which wait for the player to do the thing
+they describe. Everything else is taught by the operator's log and by tapping
+parts - the soul's workbench, not a lecture.

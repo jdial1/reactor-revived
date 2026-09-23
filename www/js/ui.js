@@ -13,7 +13,7 @@ import { span } from "./flux.js";
 import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog } from "./tools-ui.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
-import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award } from "./records.js";
+import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell } from "./records.js";
 import { NOTES, notesFor } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
@@ -625,6 +625,7 @@ export function inspect(s, t, sell) {
 		h("div", { className: "sheet-actions" }, [
 			h("button", { textContent: sameKind > 1 ? `Replace or upgrade all ${sameKind}` : "Replace or upgrade",
 				onclick: () => { dialog.close(); replaceDialog(s, p, sell.game); } }),
+			h("button", { textContent: "Move", onclick: () => { dialog.close(); sell.move(); } }),
 			h("button", { className: "danger", textContent: "Sell this one", onclick: () => { dialog.close(); sell.sell(); } }),
 			sameKind > 1 && h("button", { className: "danger", textContent: `Sell all ${sameKind} ${p.title}s`, onclick: () => { dialog.close(); sell.sellKind(); } }),
 			// One tap that empties the board deserves a second one.
@@ -1221,6 +1222,7 @@ function renderRecords(dom, s) {
 	const rows = [
 		["Most power per tick", fmt(r.maxPower)],
 		["Most power from a Mark I board", r.markOne ? fmt(r.markOne) : "none yet"],
+		["Best Mark I efficiency", r.efficiency ? `${perCell(r.efficiency)} power per cell` : "none yet"],
 		["Longest run without a failure", ticks(r.longest)],
 		["Hottest held", `${Math.round(r.hottest * 100)}% of the limit`],
 		["Meltdowns", String(r.meltdowns)],

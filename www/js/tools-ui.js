@@ -9,7 +9,7 @@ import { forecast } from "./forecast.js";
 import { replaceQuote } from "./layout.js";
 import { LESSONS } from "./lessons.js";
 import { modId } from "./module.js";
-import { markOf, MARK_MEANS, MARK_WINDOW, lastIncident, ticks } from "./records.js";
+import { markOf, MARKS, MARK_MEANS, MARK_WINDOW, lastIncident, ticks } from "./records.js";
 
 /** fmt() drops decimals; a vent at 4.5 or a module at 0.25 needs them. */
 const num = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 10) / 10) : fmt(v));
@@ -29,8 +29,12 @@ export function miniBoard(s, tiles) {
 /** How long a board takes to earn back what it cost. */
 const payback = (f) => (!f.parts ? null : Number.isFinite(f.payback) ? `pays back in ${fmt(Math.ceil(f.payback))} ticks` : "never pays back");
 
-/** "Holds" or "Fails at tick 41 - Heat Vent", the heart of every verdict. */
-const holds = (f) => (!f.failTick ? "Holds"
+/**
+ * "Mark I", "Mark II" or "Fails at tick 41 - Heat Vent", the heart of every
+ * verdict: the mark the board would earn if it were built. Forecasts saved
+ * before marks existed just hold.
+ */
+const holds = (f) => (!f.failTick ? MARKS[f.mark] ?? "Holds"
 	: `Fails at tick ${f.estimated ? "~" : ""}${fmt(f.failTick)}${f.failed === "meltdown" ? " - meltdown" : f.failed ? ` - ${f.failed}` : ""}`);
 
 // ---- the verdict line -----------------------------------------------------
@@ -83,7 +87,8 @@ export function renderVerdict(dom, s) {
 		dom.verdictText.textContent = !f.parts ? "Place parts to see what this layout does"
 			: fan ? "A very expensive fan"
 			: [
-				holds(f),
+				// The lab can only say what a board would earn; the floor earns it.
+				f.failTick ? holds(f) : `Would earn ${holds(f)}`,
 				`${num(f.power)} power`,
 				Math.abs(f.heat) >= 0.05 ? `reactor ${signed(f.heat)} heat` : null,
 				`${money(f.profit)}/tick after fuel`,
@@ -192,7 +197,9 @@ export function replaceDialog(s, from, game) {
 			["Profit /tick", money(before.profit ?? 0), money(after.profit ?? 0), (after.profit ?? 0) >= (before.profit ?? 0)],
 			["Pays back in", Number.isFinite(before.payback) ? `${fmt(Math.ceil(before.payback))} ticks` : "never",
 				Number.isFinite(after.payback) ? `${fmt(Math.ceil(after.payback))} ticks` : "never", (after.payback ?? Infinity) <= (before.payback ?? Infinity)],
-			["Holds", holds(before), holds(after), !after.failTick || (before.failTick && after.failTick > before.failTick)],
+			["Holds", holds(before), holds(after), after.failTick
+				? Boolean(before.failTick && after.failTick > before.failTick)
+				: Boolean(before.failTick) || (after.mark ?? 1) <= (before.mark ?? 1)],
 		];
 		const table = (title, list) => h("div", { className: "change" },
 			h("small", { className: "tool-label", textContent: title }),
@@ -229,7 +236,7 @@ export function snapshotDialog(s, snap, game) {
 			["Profit", `${money(st.profit)} /tick after fuel`],
 			["Pays back", st.payback ? `in ${fmt(Math.ceil(st.payback))} ticks` : "never"],
 			["Holds", holds(st)],
-			...(st.mark ? [["Mark", st.mark]] : []),
+			...(st.earned ? [["Earned", st.earned]] : []),
 		].flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "sheet-actions" },
 			h("button", { textContent: "Rebuild this layout on today's board", onclick: () => { dialog.close(); game.rebuildSnapshot(snap); } }),

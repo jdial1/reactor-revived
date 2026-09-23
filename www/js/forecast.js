@@ -99,6 +99,11 @@ export function forecast(s, swap) {
 		}
 	}
 	const ran = failTick || HORIZON;
+	// Heat still climbing anywhere over the second half, judged the way the real
+	// board's mark is: any real climb, past rounding noise.
+	const rose = (then, now, cap) => now > then + Math.max(cap, 1) * 1e-9 + 1e-6;
+	const rising = !failTick && (rose(midway, f.heat, f.maxHeat)
+		|| f.tiles.some((t, i) => t.id && rose(held[i] ?? 0, t.heatContained, s.stats.get(t.id)?.containment ?? 0)));
 
 	// Still rising when the run ends: draw each line on - the reactor's to twice
 	// its maximum, where it melts, and each part's to its own limit - and the
@@ -147,6 +152,8 @@ export function forecast(s, swap) {
 		failTick,
 		failed,
 		estimated,
+		// The mark it would earn on the real board: 1 or 2, or 0 if it fails.
+		mark: failTick ? 0 : rising ? 2 : 1,
 	};
 }
 

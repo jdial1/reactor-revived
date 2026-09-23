@@ -52,6 +52,7 @@ test("every example layout holds, makes power, and opens at a real goal", () => 
 		compile(s);
 		const f = forecast(s);
 		assert.equal(f.failTick, 0, `${name} fails at ${f.failTick}: ${f.failed}`);
+		assert.equal(f.mark, 1, `${name} should be a Mark I: an example never teaches a board that is still heating`);
 		assert.ok(f.power > 0, name);
 		assert.ok(f.profit > 0, name);
 	}

@@ -156,11 +156,14 @@ the pack system.
 
 ## Tutorial
 
-`www/js/tutorial.js` is seventeen steps of data: a selector to spotlight, a
-title, the text, and for five of them a `waitFor` predicate on game state - place
-a cell, put a second cell touching it, sell power, vent the heat to zero, put a vent beside the cell. Those
-steps will not advance until the player has really done it, and they reuse the
-same board checks the goals do rather than restating them.
+`www/js/tutorial.js` is seven steps of data: a selector to spotlight, a title,
+the text, and for five of them a `waitFor` predicate on game state - place a
+cell, put a second cell touching it, sell power, vent the heat to zero, put a
+vent beside the cell. Those steps will not advance until the player has really
+done it, and they reuse the same board checks the goals do rather than
+restating them. It used to be seventeen cards; the rest is left to the
+operator's log, which opens each tab when it gets there, and to the parts, which
+say what they do when tapped.
 
 It starts on a new game, ends for good once finished or skipped, and replays from
 Options. A save from before the tutorial existed loads with `tutorialDone` set,
@@ -490,7 +493,14 @@ selling, building, upgrading or switching a doctrine starts the mark again. The
 line under the grid reads like the sign at a plant gate - *Mark I · 4,210 ticks
 without incident* - and tapping it gives the legend and the last incident.
 Records keeps the **most power from a Mark I board**, output that holds, next to
-the most power from any board. A copied layout code carries its mark and power
+the most power from any board, and the **best Mark I efficiency** - power per
+fuel cell, a quad counting four, IC2's other measure of a design. The planner's
+verdict speaks the same language as a forecast: *Would earn Mark I*, *Would
+earn Mark II*, or the tick it fails. Every example layout would earn Mark I.
+
+Tapping a part offers **Move**: the next tap on an empty tile carries it there
+with its heat, its life and a casing's insides, free, as parts moved in an IC2
+reactor's inventory. A move is a new machine, so the board's mark starts again. A copied layout code carries its mark and power
 on a line above it, and a pasted one can keep that line. Save states remember
 the mark the board had when the job was done.
 

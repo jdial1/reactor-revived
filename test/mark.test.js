@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize } from "../www/js/state.js";
-import { compile, tick, tileAt } from "../www/js/sim.js";
+import { compile, tick, tileAt, movePart } from "../www/js/sim.js";
 import { reboot } from "../www/js/upgrades.js";
 import { readLayout, applyLayout, layoutCode } from "../www/js/layout.js";
 import { MARK_WINDOW, markOf, markLine, lastIncident } from "../www/js/records.js";
@@ -27,7 +27,8 @@ test("the old checkerboard earns Mark I by running, and its power is the record"
 	assert.equal(markOf(s), "Mark I");
 	assert.equal(s.records.markOne, s.rate.power);
 	assert.ok(s.mark.trend < 0.01, "a held board is not climbing");
-	assert.match(markLine(s), /^Mark I · \d+ power\/tick$/);
+	assert.match(markLine(s), /^Mark I · 48 power\/tick · 1 per cell$/);
+	assert.equal(s.records.efficiency, 1, "IC2's other measure: power per fuel cell");
 });
 
 test("a board still filling a tank is Mark II, and its heat is climbing", () => {
@@ -97,4 +98,45 @@ test("a shared code can carry its header line, and old codes still build", () =>
 	assert.deepEqual(readLayout(`Mark I · 48 power/tick\n${code}`), readLayout(code));
 	assert.equal(readLayout("Mark I · 48 power/tick"), null);
 	assert.ok(readLayout(code).tiles.length === 96);
+});
+
+test("the planner names the mark a board would earn", () => {
+	const s = game();
+	applyLayout(s, readLayout("mark i"));
+	compile(s);
+	assert.equal(forecast(s).mark, 1);
+	const t = game();
+	put(t, 5, 5, "uranium1");
+	put(t, 5, 6, "coolant_cell2");
+	compile(t);
+	const f = forecast(t);
+	assert.equal(f.failTick, 0, "it holds for now");
+	assert.equal(f.mark, 2, "but it is still filling a tank");
+	const u = game();
+	put(u, 5, 5, "uranium3");
+	put(u, 5, 6, "vent1");
+	compile(u);
+	assert.equal(forecast(u).mark, 0, "a board that fails earns nothing");
+});
+
+test("a part moves with everything it holds, and the move is a redesign", () => {
+	const s = game();
+	applyLayout(s, readLayout("mark i"));
+	compile(s);
+	run(s, MARK_WINDOW + 1);
+	assert.equal(markOf(s), "Mark I");
+	const from = tileAt(s, 0, 1);
+	from.heatContained = 3;
+	const ticks = from.ticks;
+	tileAt(s, 11, 7).id = null;
+	compile(s);
+	assert.equal(movePart(s, from, tileAt(s, 11, 7)), true);
+	const to = tileAt(s, 11, 7);
+	assert.equal(to.id, "vent1");
+	assert.equal(to.heatContained, 3);
+	assert.equal(to.ticks, ticks);
+	assert.equal(from.id, null);
+	assert.equal(movePart(s, to, tileAt(s, 0, 0)), false, "only onto an empty tile");
+	tick(s);
+	assert.equal(markOf(s), null, "a moved part is a new machine");
 });

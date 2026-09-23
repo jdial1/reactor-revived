@@ -1,11 +1,11 @@
 // Wiring: the loops, and the actions the UI can trigger.
 import { load, save, newState, place, exportSave as saveText, deserialize, serialize, isSave } from "./state.js";
-import { compile, tick, tileAt, remove, activeTiles, sellValue } from "./sim.js";
+import { compile, tick, tileAt, remove, activeTiles, sellValue, movePart } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog } from "./ui.js";
-import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine } from "./records.js";
+import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell } from "./records.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
@@ -58,8 +58,26 @@ function sellEvery(match) {
 	compile(s);
 }
 
+/** The tile a part is being carried from, lit until it lands or is dropped. */
+let moving = null;
+
+function endMove() {
+	if (moving) dom.tiles[moving.r * s.cols + moving.c]?.cell.classList.remove("moving-from");
+	moving = null;
+}
+
 const game = {
 	selected: "uranium1",
+
+	/** Pick a part up; the next tap on an empty tile puts it down there. */
+	startMove(r, c) {
+		endMove();
+		const t = tileAt(s, r, c);
+		if (!t.id) return;
+		moving = { r, c };
+		dom.tiles[r * s.cols + c]?.cell.classList.add("moving-from");
+		toast(`Tap an empty tile to move the ${s.stats.get(t.id).title} there`, "reactor");
+	},
 
 	select(id) {
 		game.selected = id;
@@ -68,12 +86,20 @@ const game = {
 	// A tap places on empty ground and inspects what is already there.
 	onTap(r, c) {
 		const t = tileAt(s, r, c);
+		// Carrying a part: an empty tile takes it, anything else puts it back.
+		if (moving) {
+			const from = tileAt(s, moving.r, moving.c);
+			endMove();
+			if (!t.id && movePart(s, from, t)) play("place");
+			return;
+		}
 		if (!t.id) return placeAt(r, c);
 		// Hold the id, not the tile: selling clears t.id mid-scan.
 		const kind = t.id;
 		inspect(s, t, {
 			game,
 			sell: () => sellAt(r, c),
+			move: () => game.startMove(r, c),
 			sellKind: () => sellEvery((x) => x.id === kind),
 			sellAll: () => sellEvery(() => true),
 		});
@@ -81,11 +107,13 @@ const game = {
 
 	// A long press sells, the touch equivalent of the original's right-click.
 	onHold(r, c) {
+		endMove();
 		sellAt(r, c);
 	},
 
 	// Dragging paints or clears along the stroke.
 	onPaint(r, c) {
+		endMove();
 		if (tileAt(s, r, c).id) sellAt(r, c);
 		else placeAt(r, c);
 	},
@@ -213,6 +241,7 @@ const game = {
 			"Reactor Revived - records",
 			`Most power per tick: ${fmt(r.maxPower)}`,
 			`Most power from a Mark I board: ${r.markOne ? fmt(r.markOne) : "none yet"}`,
+			`Best Mark I efficiency: ${r.efficiency ? `${perCell(r.efficiency)} power per cell` : "none yet"}`,
 			`Longest run without a failure: ${fmt(r.longest)} ticks`,
 			`Hottest held: ${Math.round(r.hottest * 100)}% of the limit`,
 			`Meltdowns: ${r.meltdowns}`,
@@ -310,6 +339,7 @@ const game = {
 };
 
 function boot() {
+	moving = null;
 	setMuted(s.muted);
 	dom = buildUI(game);
 	// render() builds the grid itself the first time it sees a size mismatch.

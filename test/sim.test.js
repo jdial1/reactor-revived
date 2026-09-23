@@ -912,7 +912,9 @@ test("every sound a cue names is on disk", async () => {
 
 test("the tutorial is complete data", async () => {
 	const { STEPS } = await import("../www/js/tutorial.js");
-	assert.ok(STEPS.length >= 10, "it is detailed");
+	// Short, and taught by doing: most cards wait for the player to act.
+	assert.ok(STEPS.length <= 8, "it is short");
+	assert.ok(STEPS.filter((x) => x.waitFor).length >= 5, "it teaches by doing");
 	for (const step of STEPS) {
 		assert.ok(step.title && step.text, `a step needs words: ${JSON.stringify(step.title)}`);
 		if (step.waitFor) {

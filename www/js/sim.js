@@ -596,6 +596,21 @@ export function countPlaced(s, id) {
 	s.placed[id] = (s.placed[id] ?? 0) + 1;
 }
 
+/**
+ * Carry a part to an empty tile with everything it holds - its heat, its life,
+ * a casing's insides. Moving a part is free, as it was in an IC2 reactor's
+ * inventory; it is still a new machine, so the board's mark starts again.
+ */
+export function movePart(s, from, to) {
+	if (!from.id || to.id || from === to) return false;
+	for (const k of ["id", "activated", "ticks", "heatContained", "heat", "power", "age", "ep", "inner", "saved"]) to[k] = from[k];
+	const q = s.queue.indexOf(from);
+	if (q >= 0) s.queue[q] = to;
+	remove(s, from);
+	compile(s);
+	return true;
+}
+
 export function remove(s, t) {
 	t.id = null;
 	t.activated = false;

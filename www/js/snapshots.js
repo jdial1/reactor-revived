@@ -25,8 +25,9 @@ export function takeSnapshot(s, objective, now = Date.now()) {
 			payback: Number.isFinite(f.payback) ? f.payback : 0,
 			failTick: f.failTick ?? 0,
 			failed: f.failed ?? null,
+			mark: f.mark,
 			// The mark the real board had earned when the job was done.
-			mark: markOf(s),
+			earned: markOf(s),
 		},
 		save,
 	};
