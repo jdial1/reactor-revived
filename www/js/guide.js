@@ -2,7 +2,7 @@
 // they stand in this game - upgrades included. It states the rules and never
 // the answers: the square law is for the player to find, the experimental
 // quirks are for field notes, and nothing here says where a part should go.
-import { h } from "./ui.js";
+import { h, showCode } from "./ui.js";
 import { fmt } from "./fmt.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
@@ -175,6 +175,26 @@ function family(s, [key, name, art, lines, upgrades], focus) {
 	return el;
 }
 
+/**
+ * The guide as plain text, for a spreadsheet or a forum: every family the log
+ * has reached, its rules, and each placeable tier's numbers as they stand.
+ */
+export function datasheet(s) {
+	const out = ["Reactor Revived - parts datasheet"];
+	for (const [key, name, , lines] of FAMILIES) {
+		if (!opened(s, key)) continue;
+		out.push("", name.toUpperCase(), ...lines);
+		const parts = PARTS.filter((p) => p.category === key).map((p) => s.stats.get(p.id)).filter((p) => isPartVisible(s, p));
+		for (const p of parts) {
+			const stats = key === "cell"
+				? [["power", alone(p).power], ["heat", alone(p).heat], ["life", p.ticks]]
+				: FIELDS.filter(([f]) => p[f]).map(([f, l]) => [l.toLowerCase(), p[f]]);
+			out.push(`  ${p.title}: ${stats.map(([k, v]) => `${k} ${exact(v)}`).join(", ")}, price $${fmt(p.cost)}`);
+		}
+	}
+	return out.join("\n");
+}
+
 /** The whole guide as a sheet, optionally opened at one family. */
 export function guideDialog(s, focus = null) {
 	const list = FAMILIES.map((f) => family(s, f, focus));
@@ -182,7 +202,9 @@ export function guideDialog(s, focus = null) {
 		h("h2", { textContent: "Parts guide" }),
 		h("i", { textContent: "What each part does, with its numbers as they stand in this game. On the dock, a part's corners give the same numbers: what it makes or moves at the top left, the heat it makes or holds at the top right, its life at the bottom left, its price at the bottom right." }),
 		...list,
-		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
+		h("div", { className: "row" },
+			h("button", { textContent: "Close", onclick: () => dialog.close() }),
+			h("button", { textContent: "Copy as text", onclick: () => showCode(datasheet(s), "Parts datasheet") })));
 	dialog.addEventListener("close", () => dialog.remove());
 	document.body.append(dialog);
 	dialog.showModal();

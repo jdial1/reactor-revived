@@ -27,3 +27,14 @@ test("the guide states rules, never the answers", () => {
 	// Rules, not layout advice.
 	for (const advice of ["you should", "put a", "place a", "best"]) assert.ok(!text.includes(advice), advice);
 });
+
+test("the parts datasheet copies every open family with its numbers", async () => {
+	const { newState } = await import("../www/js/state.js");
+	const { datasheet } = await import("../www/js/guide.js");
+	const s = newState(() => 1);
+	const text = datasheet(s);
+	assert.match(text, /^Reactor Revived - parts datasheet/);
+	assert.match(text, /FUEL CELLS/);
+	assert.match(text, /Uranium Cell: power 1, heat 1, life 15, price \$10/);
+	assert.ok(!text.includes("HEAT VENTS"), "a family the log has not reached stays out");
+});

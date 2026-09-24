@@ -254,6 +254,7 @@ const game = {
 			`Best Mark I efficiency: ${r.efficiency ? `${perCell(r.efficiency)} power per cell` : "none yet"}`,
 			`Peak power, any board: ${fmt(r.maxPower)}`,
 			...(s.restored ? ["This run was restored from a save."] : []),
+			...Object.entries(r.markRun ?? {}).map(([run, t]) => `${restrictionLabel(run === "open" ? null : run)} run to Mark I: ${fmt(t)} ticks`),
 			`Longest run without a failure: ${fmt(r.longest)} ticks`,
 			`Hottest held: ${Math.round(r.hottest * 100)}% of the limit`,
 			`Meltdowns: ${r.meltdowns}`,

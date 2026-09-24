@@ -114,6 +114,11 @@ function markSheet(s) {
 		h("i", { textContent: `Earned on this board by running it: ${fmt(MARK_WINDOW)} ticks making power since it last changed, measured, not forecast. The ratings are the ones IC2's players gave their designs.` }),
 		h("dl", { className: "mark-legend" }, ...MARK_MEANS.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("p", { className: "incident", textContent: last ? `Last incident: ${last}` : "No incidents on record." }),
+		// The shift log: what the board did while nobody was looking.
+		s.log?.length ? h("div", {},
+			h("small", { className: "tool-label", textContent: "Shift log" }),
+			h("ul", { className: "shift-log" }, ...[...s.log].reverse().map((e) =>
+				h("li", {}, h("span", { textContent: e.text }), h("em", { textContent: e.tick <= s.runTicks ? `${ticks(s.runTicks - e.tick)} ago` : "" }))))) : "",
 		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
 	return dialog;
 }
@@ -142,6 +147,7 @@ export function ledgerSheet(s) {
 		["Drawn out of the reactor", r.outlet ? num(r.outlet) : null],
 		["In the reactor now", num(s.heat)],
 		["In the parts now", num(Math.max(0, total - s.heat))],
+		...capacity(s, total),
 	].filter(([, v]) => v !== null);
 	const dialog = modal("The ledger",
 		h("h2", { textContent: "The ledger" }),
@@ -149,6 +155,29 @@ export function ledgerSheet(s) {
 		h("dl", {}, ...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
 	return dialog;
+}
+
+/**
+ * The board's budget as it stands: what its vents can shed and its parts can
+ * hold. Facts on the floor; how long until full is a projection, so the lab
+ * alone gives it.
+ */
+function capacity(s, total) {
+	let shed = 0;
+	let room = s.maxHeat * 2;
+	for (const t of s.tiles) {
+		const p = t.id && t.activated && s.stats.get(t.id);
+		if (!p) continue;
+		const rate = p.vent ? p.vent * (1 + (t.ventMul ?? 0) / 100) : 0;
+		shed += p.category === "component_vent" ? rate * (t.containments?.length ?? 0) : rate;
+		if (p.containment) room += p.containment;
+	}
+	const held = s.rate?.held ?? 0;
+	return [
+		["Vents can shed", `${num(shed)} /tick`],
+		["Board can hold", `${num(room)} (reactor to meltdown, parts to failure)`],
+		["Full in", s.planner && held > 0 ? `~${fmt(Math.ceil(Math.max(0, room - total) / held))} ticks at this rate` : null],
+	];
 }
 
 // ---- the heat-flow overlay ------------------------------------------------

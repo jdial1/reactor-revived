@@ -529,7 +529,7 @@ function meltdownNotice(lines, onAcknowledge) {
 
 /** A modal question. Replaces confirm(), which Android renders as a system dialog. */
 /** Text selected and ready to copy: a layout code, or the records. */
-function showCode(code, title = "Layout code") {
+export function showCode(code, title = "Layout code") {
 	const box = h("textarea", { className: "code", readOnly: true, value: code, rows: 5 });
 	const copy = h("button", { textContent: "Copy", onclick: async () => {
 		box.select();
@@ -937,6 +937,10 @@ export function render(dom, s, game) {
 			: `row ${t.r + 1} column ${t.c + 1}, empty`);
 
 		const art = p ? `url(${artFor(p)})` : "";
+		// A part arriving settles into its tile, once; the first render only draws.
+		if (row.lastId !== undefined && t.id && t.activated && (row.lastId !== t.id || !row.wasActive)) flash(row.cell, "settle");
+		row.lastId = t.id ?? null;
+		row.wasActive = t.activated;
 		row.cell.style.backgroundImage = art;
 		row.fan.style.backgroundImage = p?.vent ? art : "";
 		const queued = Boolean(t.id) && !t.activated;
@@ -1263,6 +1267,8 @@ function renderRecords(dom, s) {
 		// Stamina first: output from a board that holds is the prestige number.
 		["Most power from a Mark I board", r.markOne ? fmt(r.markOne) : "none yet"],
 		["Best Mark I efficiency", r.efficiency ? `${perCell(r.efficiency)} power per cell` : "none yet"],
+		// Fastest from a reboot to a held board, per kind of run.
+		...Object.entries(r.markRun ?? {}).map(([run, t]) => [`${restrictionLabel(run === "open" ? null : run)} run to Mark I`, ticks(t)]),
 		["Peak power, any board", fmt(r.maxPower)],
 		["Longest run without a failure", ticks(r.longest)],
 		["Hottest held", `${Math.round(r.hottest * 100)}% of the limit`],

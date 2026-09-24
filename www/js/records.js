@@ -30,6 +30,8 @@ export const freshRecords = () => ({
 	meltdowns: 0,
 	// { open: { 1000: ticks, ... }, direct: { ... } }
 	speed: {},
+	// Ticks from a reboot to the run's first Mark I board, per kind of run.
+	markRun: {},
 });
 
 // Parts a restriction takes off the dock.
@@ -71,7 +73,18 @@ export function recordTick(s) {
 	r.redFor = s.maxHeat > 0 && s.heat >= s.maxHeat * 0.99 && !s.hasMeltedDown ? (r.redFor ?? 0) + 1 : 0;
 	if (r.redFor >= 60) award(s, "redline");
 	if (r.longest >= 10000) award(s, "clean");
+	const was = s.mark?.grade ?? 0;
 	const grade = markTick(s, parts.length > 0, power);
+	if (s.mark.grade && s.mark.grade !== was) {
+		logEvent(s, s.mark.grade === 3 ? "Down to Mark III." : `Earned ${MARKS[s.mark.grade]}.`);
+	}
+	if (grade === 1 && !s.runMarked) {
+		// The run's first held board, timed like the power rungs.
+		s.runMarked = true;
+		const kind = s.restriction ?? "open";
+		r.markRun ??= {};
+		r.markRun[kind] = Math.min(r.markRun[kind] ?? Infinity, s.runTicks);
+	}
 	if (grade === 1) {
 		r.markOne = Math.max(r.markOne, power);
 		const fuel = fuelOf(s);
@@ -193,12 +206,27 @@ export function markLine(s) {
 		.filter(Boolean).join(" · ");
 }
 
+// ---- the shift log -------------------------------------------------------------
+
+/**
+ * The board's last few events, newest last, in plain words: marks earned,
+ * parts lost, meltdowns, reboots. Read back from the mark sheet - what happened
+ * while nobody was looking. The real board only.
+ */
+export function logEvent(s, text) {
+	if (s.planner || s.sealed) return;
+	s.log ??= [];
+	s.log.push({ tick: s.runTicks, text });
+	if (s.log.length > 12) s.log.shift();
+}
+
 // ---- incidents and the receipt ----------------------------------------------
 
 /** A part lost to heat on the real board: kept, the last few, as a receipt. */
 export function recordIncident(s, t, p) {
 	if (!s.incidents || s.planner || s.sealed) return;
 	s.incidents.push({ tick: s.runTicks, id: p.id, r: t.r, c: t.c, held: t.heatContained, cap: p.containment });
+	logEvent(s, `Lost a ${s.stats.get(p.id)?.title ?? p.id} at ${where(t)}.`);
 	s.incidentCount = (s.incidentCount ?? 0) + 1;
 	if (s.incidents.length > 5) s.incidents.shift();
 }
@@ -244,6 +272,7 @@ export function receipt(s) {
 export function recordMeltdown(s) {
 	if (!s.records || s.planner || s.sealed) return;
 	s.receipt = receipt(s);
+	logEvent(s, "Melted down.");
 	s.records.meltdowns++;
 	if (s.runTicks <= 30) award(s, "fuse");
 }

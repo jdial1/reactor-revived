@@ -198,3 +198,25 @@ test("a capacitor speeds only the vents it touches", async () => {
 	tick(s);
 	assert.ok(near.vented > far.vented);
 });
+
+test("the shift log keeps the board's events, and a run is timed to its first Mark I", () => {
+	const s = game();
+	reboot(s, false, "uranium");
+	s.objective = 30;
+	s.perpetual.add("uranium");
+	s.money = 1e30;
+	assert.match(s.log[0].text, /^Rebooted into a Uranium only run\.$/);
+	applyLayout(s, readLayout("mark i"));
+	compile(s);
+	run(s, MARK_WINDOW + 1);
+	assert.ok(s.log.some((e) => e.text === "Earned Mark I."));
+	assert.equal(s.records.markRun.uranium, s.mark.from);
+	// A lost part is logged in words.
+	const t = game();
+	put(t, 5, 5, "uranium3");
+	put(t, 5, 6, "vent1");
+	compile(t);
+	run(t, 10);
+	assert.ok(t.log.some((e) => /^Lost a Basic Heat Vent at row 6, column 7\.$/.test(e.text)));
+	assert.ok(t.log.some((e) => e.text === "Down to Mark III."));
+});

@@ -242,6 +242,15 @@ Three smaller things came with them:
 Part sheets now show each vent's and transfer part's rate as it runs where it
 sits, capacitor and plating bonuses included.
 
+A few lighter touches followed. The mark sheet keeps a **shift log**: the
+board's last dozen events (marks earned, parts lost, meltdowns, reboots) with
+how long ago each was. Records time each kind of run to its **first Mark I
+board**. The ledger adds the board's **capacity**: what its vents can shed and
+what it can hold before something fails; the planner alone adds how long until
+full, since that is a projection. The parts guide can be **copied as a plain
+datasheet**. A part placed on the board **settles** into its tile with a small,
+heavy drop (none with reduced motion on).
+
 ## Modules
 
 Once the fifth goal on the log is done - the first upgrade bought - a Modules

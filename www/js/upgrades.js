@@ -2,6 +2,7 @@
 // applyUpgrades() recomputes the rest, so load, reboot and refund fall out.
 import { PARTS, CELLS_WITH_UPGRADES } from "./parts.js";
 import { fmt } from "./fmt.js";
+import { restrictionLabel } from "./records.js";
 import { refreshModules } from "./module.js";
 
 const BASE_MAX_POWER = 100;
@@ -363,6 +364,8 @@ export function reboot(s, refund = false, restriction = null) {
 	s.restored = false;
 	s.mark = null;
 	s.incidents = [];
+	s.runMarked = false;
+	s.log = [{ tick: 0, text: `Rebooted into ${restrictionLabel(restriction) === "Open" ? "an open run" : `a ${restrictionLabel(restriction)} run`}.` }];
 	for (const t of s.tiles) {
 		t.id = null;
 		t.activated = false;

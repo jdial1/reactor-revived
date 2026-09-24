@@ -73,7 +73,7 @@ Listed so they are not suggested again:
 
 # Round two: from outside the lineage
 
-The first round drew mostly on the soul and the IC2 line. This round draws on
+The first round drew mostly on the soul and the IC2 line. Five of this round are built, marked *(built)*: P8, E3, W8 (capacity rows in the ledger, with time to full in the planner only), W9 and F4. This round draws on
 other games, real reactor engineering, and information and interface design,
 so the soul keeps borrowing from outside itself. The format is the same:
 Mechanic → Dynamic → Tone, where each idea comes from, a rough cost, and what
@@ -101,7 +101,7 @@ memory rather than a checked source.
 | # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
 |---|---|---|---|---|---|
 | P7 | **Scram interlock** | A placeable thermal monitor: when the pool passes the player's set point, the cells stop until it falls back → a design can carry its own safety, and a board held by its interlock earns Mark II, not Mark I → the machine that holds, honestly | IC2 reactors ran only on a redstone signal, and its Nuclear Control add-on had thermal monitors **(verify)**; the real SCRAM | M | The game plays itself: the player sets the point, the part only obeys it |
-| P8 | **Shift log** | A plain list of the board's last events (mark earned, incident, refill, meltdown receipt, reboot), newest first → players can read back what happened while they looked away → absence is play, with a receipt | Dwarf Fortress's legends and combat logs; Factorio's alerts list **(verify)** | S | History nobody reads: it opens from the floor line, where the eye already is |
+| P8 | **Shift log (built)** | A plain list of the board's last events (mark earned, incident, refill, meltdown receipt, reboot), newest first → players can read back what happened while they looked away → absence is play, with a receipt | Dwarf Fortress's legends and combat logs; Factorio's alerts list **(verify)** | S | History nobody reads: it opens from the floor line, where the eye already is |
 | P9 | **Personal histograms** | Records draw each power tier's Mark I boards as a small histogram of efficiency: where this board sits among your own → players chase their own best, not a stranger's → measure, don't grade | Opus Magnum's cost/cycles/area histograms, shown offline against your own history only | M | The scoreboard: it compares you only with you; nothing online |
 
 ## The Workbench
@@ -110,8 +110,8 @@ memory rather than a checked source.
 |---|---|---|---|---|---|
 | W6 | **Planner undo and draft slots** | In the planner only: undo, and three named drafts to switch between → trying a change stops costing the last idea → expression, with the floor still unrewindable | Zachtronics' solution slots; Into the Breach's turn reset; Baba Is You's undo **(verify)** | S | Rebuild, never rewind: undo lives in the lab and never touches the real board |
 | W7 | **Board card** | Share a picture of the board with its numbers and code printed under it, through the phone's own share sheet → designs travel as pictures on forums as well as text → players remember designs, and post them | Opus Magnum's solution GIFs; Factorio's blueprint previews **(verify)** | M | No network in the app: it hands a file to Android's share sheet and nothing else |
-| W8 | **Capacity sheet (lab)** | The planner lists the board's totals: heat made, vent capacity, transfer capacity, storage, and time to full → players check a design's budget before running it → the workbench the community would build | Factorio's rate calculators; KSP's delta-v readout **(verify)** | S | Must report, not advise: totals, never "add two vents" |
-| W9 | **Datasheet export** | The parts guide can be copied as plain text, every family and every tier's numbers → spreadsheeters start from the game's own figures → the outside tool, shipped | Shenzhen I/O and TIS-100's printable manuals | S | Written to last: a stable, plain format |
+| W8 | **Capacity sheet (lab) (built)** | The planner lists the board's totals: heat made, vent capacity, transfer capacity, storage, and time to full → players check a design's budget before running it → the workbench the community would build | Factorio's rate calculators; KSP's delta-v readout **(verify)** | S | Must report, not advise: totals, never "add two vents" |
+| W9 | **Datasheet export (built)** | The parts guide can be copied as plain text, every family and every tier's numbers → spreadsheeters start from the game's own figures → the outside tool, shipped | Shenzhen I/O and TIS-100's printable manuals | S | Written to last: a stable, plain format |
 
 ## Feel, sound and access
 
@@ -120,7 +120,7 @@ memory rather than a checked source.
 | F1 | **The machine's own music** | Each kind of working part adds a quiet voice to the hum (vents a soft pulse, cells a low tone), and it thins as parts fail → a board sounds as full as it is → the hum of a held machine, composed by the board | Mini Metro's procedural sound, where the network plays itself **(verify)** | M | The decorative mix: every voice must track a real state |
 | F2 | **Haptic incidents** | A short, dull vibration when a part fails, a longer one for a meltdown → the phone's third channel carries danger when the sound is off → every threat has a cue | Android haptics guidance; console rumble used as information | S | Needs Android's vibrate permission (no network); it must be rare, and can be turned off in Options |
 | F3 | **Colour-blind heat** | A setting that swaps red and orange heat for a palette and pattern that read without hue → the heat bars stay legible to everyone → legible failure for every player | The Game Accessibility Guidelines; Xbox's accessibility guidance | S | The red signal: the new palette still keeps its warning colour for danger alone |
-| F4 | **Settling motion** | A placed part settles into its tile with a small, heavy motion, and a failing part flickers once before it goes → the board feels machined, not drawn → calm, with weight | Steve Swink's *Game Feel* | S | Juice must stay heavy and dull, like the sounds; never bouncy |
+| F4 | **Settling motion (built)** | A placed part settles into its tile with a small, heavy motion, and a failing part flickers once before it goes → the board feels machined, not drawn → calm, with weight | Steve Swink's *Game Feel* | S | Juice must stay heavy and dull, like the sounds; never bouncy |
 
 ## Economy and rebirth
 
@@ -128,7 +128,7 @@ memory rather than a checked source.
 |---|---|---|---|---|---|
 | E1 | **A fuel market** | Buying many cells of one fuel quickly raises its price, and the price eases back as ticks pass → spreading fuels and buying steadily beats one huge splurge → scarcity that asks for a decision, not a wait | Power Grid's resource market, where prices climb as stock is bought **(verify)** | M | No FOMO: prices ease by ticks run, never by the clock outside the game |
 | E2 | **Permed research** | At each reboot the player keeps one doctrine side unlocked for free in every future run → rebirths add breadth, not height → the ladder grows sideways | Kingdom of Loathing's permed skills; Hades' mirror, where the choice matters more than the power | M | Grind disguised as progress: it must widen options, never raise numbers |
-| E3 | **Challenge rules with a mark** | Restriction runs gain a Mark I rung: the fastest time to a Mark I board under each rule → the hardest runs demand stamina, not a sprint → stamina is the prestige, even on the ladder | Antimatter Dimensions' challenges with their own records **(verify)** | S | The Empty Top is already answered; this has to stay one record per rule |
+| E3 | **Challenge rules with a mark (built)** | Restriction runs gain a Mark I rung: the fastest time to a Mark I board under each rule → the hardest runs demand stamina, not a sprint → stamina is the prestige, even on the ladder | Antimatter Dimensions' challenges with their own records **(verify)** | S | The Empty Top is already answered; this has to stay one record per rule |
 
 ## Round two, ruled out by the standing rules
 

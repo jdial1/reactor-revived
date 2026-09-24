@@ -81,6 +81,9 @@ export function newState(random = Math.random) {
 		// The board's mark and the last parts it lost to heat (records.js).
 		mark: null,
 		incidents: [],
+		// The shift log (records.js), and whether this run has earned Mark I yet.
+		log: [],
+		runMarked: false,
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -122,6 +125,8 @@ export function serialize(s) {
 		trophies: s.trophies,
 		mark: s.mark,
 		incidents: s.incidents,
+		log: s.log,
+		runMarked: s.runMarked || undefined,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -158,6 +163,8 @@ export function deserialize(saved, random = Math.random) {
 	s.trophies = saved.trophies ?? [];
 	s.mark = saved.mark ?? null;
 	s.incidents = saved.incidents ?? [];
+	s.log = saved.log ?? [];
+	s.runMarked = Boolean(saved.runMarked);
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {
