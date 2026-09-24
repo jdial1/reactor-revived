@@ -137,3 +137,69 @@ memory rather than a checked source.
 - **Push notifications while away** (most idle games): the nagging feed; nothing punishes absence.
 - **Advisors who suggest builds** (SimCity's advisors): measure, don't grade, and never advise.
 - **Online histograms against everyone** (Opus Magnum's global ones): no network, so only your own history.
+
+---
+
+# Round three: further afield
+
+Every reference here is new to this document: industrial control-room
+standards, spacecraft thermal design, electricity markets, puzzle and
+bridge-building games, and accessibility practice. The format is unchanged,
+and **(verify)** marks facts recalled rather than checked.
+
+## The Ledger
+
+| # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
+|---|---|---|---|---|---|
+| L8 | **Thermocouple** | A part that sits between two neighbours and makes power from the heat it passes from the fuller to the emptier, as much as the gap between them → players build deliberate hot and cold sides and put the thermocouple on the seam → every tile is a trade, and heat is worth something on its way out | The Seebeck effect; the thermoelectric generators (RTGs) that power the Voyager probes; Stirling engines | M | The ledger must count it as heat turned to power, like thermionic coolant, never as heat made from nothing |
+| L9 | **Ledger over time** | The ledger sheet switches between this tick, the last minute and the last hour, totals for each line → players judge a board by its average, not its noisiest tick → the line is the truth, over time | Dyson Sphere Program's statistics windows; Factorio's production graph ranges **(verify)** | S | Must stay inside the sheet; the reactor page gains nothing |
+| L10 | **First-out, and one line per cascade** | When several parts fail in one burst, the shift log and any toast say it once: "5 parts lost; first, a Basic Heat Vent at row 6, column 7" → players read the cause, not the noise → say it once | Nuclear control rooms' first-out annunciators; EEMUA 191's guidance on alarm floods | S | The cheerful toast in reverse: fewer messages, never more |
+
+## Geometry Is the Build
+
+| # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
+|---|---|---|---|---|---|
+| G8 | **Edge radiators** | A vent that sheds more for each side of it that faces the edge of the board → the rim of the board becomes valuable ground, and cores are drawn toward it → neighbours are the rules, with the edge as a neighbour | Spacecraft radiators, which must face open space (the ISS's radiator wings); Oxygen Not Included's space radiators **(verify)** | M | It must not make one pattern best everywhere: the Checkerboard Forever |
+| G9 | **Directional outlets** | An outlet that pushes to one side only, turned by a tap on its sheet → heat can be steered along a line instead of spread → geometry gains a direction | Factorio's inserters; shapez's rotated buildings | M | Rotation on a touch screen must be one tap and always visible on the tile |
+
+## Proof by Running
+
+| # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
+|---|---|---|---|---|---|
+| P10 | **Marks on the heat gauge** | Thin ticks on the heat gauge at the throttle point, the limit, and twice the limit where it melts → players read how close the board is at a glance → the reactor's danger drawn plainly | BattleTech's heat scale; a tachometer's red line; ISA-101 high-performance gauge design | S | Clutter: three hairlines, no labels |
+| P11 | **The fall, replayed** | The meltdown receipt plays the last thirty ticks as a small board, each tile filling, the first loss outlined → players watch the cascade they missed → a legible fall | Poly Bridge's replays of a collapse; Trackmania's ghosts **(verify)** | M | A receipt, not a scar: it lives in the sheet and is gone when the sheet closes |
+| P12 | **Stretch targets on log jobs** | Each job keeps an optional stricter record, such as the fewest tiles used when it was done, shown in the log beside the job → players come back to old jobs with better designs → stamina and economy as quiet prestige | Human Resource Machine and SpaceChem's size and speed challenges | S | Never Congratulate a Number: the record is shown, never celebrated |
+
+## The Workbench
+
+| # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
+|---|---|---|---|---|---|
+| W10 | **Repair puzzles** | Each example layout has a broken twin, one or two tiles wrong, that opens in the planner to be fixed until it would earn Mark I → players learn a design by mending it → teaching by doing, never by telling | Chess problems ("mate in two"); the fixed puzzles in Into the Breach's advanced edition **(verify)** | S | The Law Is Theirs to Find: the puzzle poses the problem and never names the fix |
+| W11 | **Board as text art** | The copied code gains a small monospace grid, one letter per part, readable without the game → a posted design can be read, and argued over, in the post itself → designs travel as text | Wordle's shared grid, drawn in letters rather than emoji; roguelike ASCII maps | S | Written to last: no emoji, a fixed legend under the grid |
+| W12 | **Scrub the forecast** | In the planner, a slider runs through the forecast's 600 ticks and shows the board as it would stand at that tick → players find the moment a design starts to slip → forecast the failure tick, and see it | Video-editing timelines | M | A forecast belongs in the lab; the floor never scrubs |
+
+## Feel, voice and access
+
+| # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
+|---|---|---|---|---|---|
+| F5 | **Grey until abnormal** | A part's heat bar stays grey until it is past four-fifths full, and only then takes colour → colour on the board means something is wrong → warning colours mean danger | ISA-101 high-performance HMI: grey screens, with colour kept for abnormal states | S | Legibility: the grey bars must still read against the tile |
+| F6 | **A readable board** | With a screen reader on, the board can be read row by row ("row 3: vent, uranium cell, empty…"), and each incident is spoken once → the game opens to blind players → legible failure for every player | WCAG; Android TalkBack; blind modes in online chess (Lichess) **(verify)** | M | The game already speaks some lines; this must not double them |
+| F7 | **Assist speed** | An option to run the reactor at half speed, with records from assisted runs marked as assisted → slower players can keep up without the game changing its rules → trust, without softening the soul | Celeste's Assist Mode | S | Proof nobody sees in reverse: records must say they were assisted |
+| F8 | **Dock on either hand** | An option that mirrors the dock and tabs for left-handed play → the thumb reaches the parts it uses most → the verb stays comfortable | One-handed phone design; Apple's Reachability | S | Only mirrors the layout, never the board |
+
+## Economy and rebirth
+
+| # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
+|---|---|---|---|---|---|
+| E4 | **Time-of-use prices** | Power sells for more during a visible peak in a fixed daily cycle of ticks and less off-peak, and auto-sell follows the price → capacitors earn their place by holding power for the peak → every tile is a trade, even for storage | Real time-of-use electricity tariffs; grid storage used for peak shaving | M | No FOMO: the cycle runs on ticks, never on the clock outside; auto-sell handles it, so it never becomes a chore |
+| E5 | **Stacked rules** | A reboot can take several rules at once, with records kept for each combination → the top of the ladder keeps finding new shapes → the ladder grows sideways | Slay the Spire's Ascension levels; Hades' Pact of Punishment | S | Unfair Rungs: rules that only add numbers are not worth stacking |
+| E6 | **A second log** | Finishing the operator's log opens a second one, dry job lines at later tiers (hold a Mark I at 1B; run two fuels at once) → players who finished the first have another list → the Empty Top, answered with work | New Game+ in Chrono Trigger; Kingdom of Loathing's repeated ascensions | L | The content treadmill; one line per job, no story |
+
+## Round three, ruled out by the soul or the standing rules
+
+- **Area buffs that reach across the board** (Mindustry's overdrive projectors): Neighbours Are the Rules.
+- **Meltdown insurance** (tycoon games): it softens a Costly failure and makes the receipt matter less.
+- **Streaks and daily log-ins** (Duolingo): Never Congratulate a Number, and nothing runs on the clock outside.
+- **A hex board** (Red Blob Games' hex grids): board variants are out.
+- **Random disasters** (SimCity's disasters, RimWorld's raids): the tone killer, a failure the design did not cause.
+- **An emoji share grid** (Wordle): no emoji; W11's letter grid instead.
