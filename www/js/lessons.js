@@ -114,4 +114,20 @@ export const LESSONS = {
 };
 
 /** The lesson each goal opens, by goal index: shown once, when it becomes the next job. */
+// Each example's broken twin: the tiles taken out of it. Opened in the planner,
+// the copy does not hold, and mending it is the lesson. Pinned by a test that
+// the original earns Mark I and the copy does not.
+export const BROKEN = {
+	direct: [[1, 1], [2, 0], [3, 1]],
+	indirect: [[6, 1], [6, 5]],
+	exchangers: [[0, 3], [0, 4], [1, 2], [1, 5], [2, 1], [2, 6]],
+	chain: [[4, 2]],
+	heatpipe: [[0, 1], [0, 4], [3, 1], [3, 4]],
+	epfarm: [[3, 5]],
+};
+
+/** An example with its broken tiles taken out. */
+export const brokenTiles = (name) => LESSONS[name].tiles
+	.filter(([r, c]) => !BROKEN[name]?.some(([br, bc]) => br === r && bc === c));
+
 export const LESSON_AT = { 6: "direct", 10: "indirect", 14: "exchangers", 16: "chain", 18: "heatpipe", 22: "epfarm" };

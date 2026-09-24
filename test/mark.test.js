@@ -220,3 +220,29 @@ test("the shift log keeps the board's events, and a run is timed to its first Ma
 	assert.ok(t.log.some((e) => /^Lost a Basic Heat Vent at row 6, column 7\.$/.test(e.text)));
 	assert.ok(t.log.some((e) => e.text === "Down to Mark III."));
 });
+
+test("a cascade is one line in the shift log, first-out", () => {
+	const s = game();
+	s.log = [];
+	const vents = [[5, 4], [5, 6], [4, 5], [6, 5]].map(([r, c]) => put(s, r, c, "vent1"));
+	put(s, 5, 5, "uranium3");
+	compile(s);
+	for (const v of vents) v.heatContained = 79.9; // all four go on the same tick
+	tick(s);
+	const lost = s.log.filter((e) => e.lost);
+	assert.equal(lost.length, 1, JSON.stringify(s.log));
+	assert.match(lost[0].text, /^4 parts lost; first, a Basic Heat Vent at row \d, column \d\.$/);
+	assert.equal(s.ledgerHist.length, 1, "the ledger keeps its last minute");
+});
+
+test("a copied code carries a letter grid people can read, and still builds", async () => {
+	const { gridOf } = await import("../www/js/layout.js");
+	const s = game();
+	applyLayout(s, readLayout("mark i"));
+	const grid = gridOf(s);
+	assert.match(grid.split("\n")[0], /^CVCVCVCV$/);
+	const text = `Mark I · 48 power/tick\n${grid}\n${layoutCode(s)}`;
+	const layout = readLayout(text);
+	assert.equal(layout.claim, "Mark I · 48 power/tick", "the claim is the first line only");
+	assert.equal(layout.tiles.length, 96);
+});

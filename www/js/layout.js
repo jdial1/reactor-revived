@@ -36,6 +36,30 @@ export function layoutOf(s) {
  * upgrade bought and every doctrine side - so a reader can tell whether "Mark
  * I" means the same thing in their game as in the writer's.
  */
+// One letter per part for the text grid a code carries, and its legend.
+const LETTER = {
+	cell: "C", vent: "V", component_vent: "v", hull_vent: "H", coolant_cell: "o", condensator: "Q",
+	reactor_plating: "P", capacitor: "K", reflector: "R", heat_exchanger: "X", heat_inlet: "I",
+	heat_outlet: "O", particle_accelerator: "A", module: "M",
+};
+const LEGEND = "C cell  V vent  v component vent  H hull vent  o coolant  Q condensator  P plating  K capacitor  R reflector  X exchanger  I inlet  O outlet  A accelerator  M module";
+
+/** The board as rows of letters, readable in a post without the game. */
+export function gridOf(s) {
+	const rows = [];
+	for (let r = 0; r < s.rows; r++) {
+		let line = "";
+		for (let c = 0; c < s.cols; c++) {
+			const t = s.tiles[r * s.cols + c];
+			line += (t.id && LETTER[s.stats.get(t.id)?.category]) || ".";
+		}
+		rows.push(line);
+	}
+	// Empty rows at the bottom say nothing.
+	while (rows.length && /^\.+$/.test(rows.at(-1))) rows.pop();
+	return rows.length ? [...rows, LEGEND].join("\n") : "";
+}
+
 export const layoutCode = (s) => PREFIX + pack(JSON.stringify({ ...layoutOf(s), ctx: contextOf(s) }));
 
 /** Upgrades bought (by level) and doctrine sides: what a design depends on. */
@@ -81,7 +105,8 @@ export function readLayout(code) {
 	try {
 		const layout = JSON.parse(unpack(text.slice(at + PREFIX.length).split(/\s/)[0]));
 		if (!Array.isArray(layout?.tiles) || !Array.isArray(layout?.modules)) return null;
-		const claim = text.slice(0, at).trim();
+		// The claim is the header's first line; the letter grid below it is for people.
+		const claim = text.slice(0, at).trim().split("\n")[0].trim();
 		return claim ? { ...layout, claim } : layout;
 	} catch {
 		return null;

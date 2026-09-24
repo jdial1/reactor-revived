@@ -117,3 +117,20 @@ test("the lab runs the floor's rules: every example forecasts as it runs", () =>
 		assert.ok(Math.abs(power / 600 - f.power) < 1e-9, `${name}: forecast ${f.power}, ran ${power / 600}`);
 	}
 });
+
+test("every example's broken twin does not hold, and the example does", async () => {
+	const { BROKEN, brokenTiles } = await import("../www/js/lessons.js");
+	for (const name of Object.keys(LESSONS)) {
+		assert.ok(BROKEN[name], `${name} has a broken twin`);
+		const board = (tiles) => {
+			const s = newState(() => 1);
+			s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
+			for (const [r, c, id] of tiles) Object.assign(tileAt(s, r, c), { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
+			compile(s);
+			return forecast(s);
+		};
+		assert.equal(board(LESSONS[name].tiles).mark, 1, `${name} holds`);
+		const broken = board(brokenTiles(name));
+		assert.notEqual(broken.mark, 1, `${name}'s broken copy should not hold`);
+	}
+});

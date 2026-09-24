@@ -7,7 +7,7 @@ import { COLS, stored } from "./sim.js";
 import { PARTS, isPartVisible } from "./parts.js";
 import { forecast } from "./forecast.js";
 import { replaceQuote } from "./layout.js";
-import { LESSONS } from "./lessons.js";
+import { LESSONS, BROKEN, brokenTiles } from "./lessons.js";
 import { modId } from "./module.js";
 import { markOf, MARKS, MARK_MEANS, MARK_WINDOW, lastIncident, ticks } from "./records.js";
 
@@ -148,6 +148,7 @@ export function ledgerSheet(s) {
 		["In the reactor now", num(s.heat)],
 		["In the parts now", num(Math.max(0, total - s.heat))],
 		...capacity(s, total),
+		...lastMinute(s),
 	].filter(([, v]) => v !== null);
 	const dialog = modal("The ledger",
 		h("h2", { textContent: "The ledger" }),
@@ -155,6 +156,21 @@ export function ledgerSheet(s) {
 		h("dl", {}, ...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })])),
 		h("div", { className: "row" }, h("button", { textContent: "Close", onclick: () => dialog.close() })));
 	return dialog;
+}
+
+/** The same ledger averaged over the last minute of ticks: the board's habit, not its noisiest tick. */
+function lastMinute(s) {
+	const hist = s.ledgerHist ?? [];
+	if (hist.length < 2 || s.planner) return [];
+	const avg = (i) => hist.reduce((n, row) => n + row[i], 0) / hist.length;
+	return [
+		[`Over the last ${hist.length} ticks, per tick`, ""],
+		["  made", num(avg(0))],
+		["  shed by vents", num(avg(1))],
+		["  shed by refills", avg(2) ? num(avg(2)) : null],
+		["  turned into power", avg(3) ? num(avg(3)) : null],
+		["  held", signed(avg(4))],
+	];
 }
 
 /**
@@ -323,6 +339,11 @@ export function lessonDialog(s, name, game) {
 			h("button", { className: "wide", textContent: "Try it in the planner", onclick: () => {
 				dialog.close();
 				game.startPlanner({ tiles: lessonTiles(name), modules: [] });
-			} })));
+			} })),
+		// The broken twin: a few tiles missing, and the planner says what that does.
+		BROKEN[name] ? h("button", { className: "wide", textContent: "Mend a broken copy in the planner", onclick: () => {
+			dialog.close();
+			game.startPlanner({ tiles: brokenTiles(name).map(([r, c, id]) => [r * COLS + c, id]), modules: [] });
+		} }) : "");
 	return dialog;
 }

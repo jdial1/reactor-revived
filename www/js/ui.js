@@ -950,6 +950,8 @@ export function render(dom, s, game) {
 		row.cell.classList.toggle("module", p?.category === "module");
 		if (p?.category === "module") row.cell.style.setProperty("--mtint", `var(--${p.tint})`);
 		row.heat.style.width = `${heat}%`;
+		// Grey until abnormal: a heat bar takes colour only past four-fifths full.
+		row.cell.classList.toggle("hot", heat > 80);
 		row.cell.style.setProperty("--warm", heat / 100);
 		row.life.style.width = `${life}%`;
 		// Green while there is life in it, amber at a fifth, red at a twentieth.

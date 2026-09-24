@@ -1299,3 +1299,7 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .shift-log { margin: 4px 0 0; padding: 0; list-style: none; font-size: 12px; }
 .shift-log li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
 .shift-log em { color: var(--dim); font-style: normal; white-space: nowrap; }
+
+/* Grey until abnormal: a tile's heat bar takes colour only past four-fifths. */
+.tile .heat { background: #6f7882; }
+.tile.hot .heat { background: var(--heat); }

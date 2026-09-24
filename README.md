@@ -251,6 +251,16 @@ full, since that is a projection. The parts guide can be **copied as a plain
 datasheet**. A part placed on the board **settles** into its tile with a small,
 heavy drop (none with reduced motion on).
 
+Then five more, from further afield. A tile's heat bar stays **grey until it
+is past four-fifths full**, and only then takes colour, as control-room screens
+keep colour for abnormal states. A cascade of failures is **one line** in the
+shift log, naming how many went and which went first. The ledger adds the
+**last minute**, averaged per tick. Each example layout has a **broken copy**
+to mend in the planner: a few tiles missing, pinned by a test so the example
+holds and the copy does not. And a copied code carries the **board as a grid
+of letters** under its header, with a legend, so a posted design can be read
+without the game.
+
 ## Modules
 
 Once the fifth goal on the log is done - the first upgrade bought - a Modules

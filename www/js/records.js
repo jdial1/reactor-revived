@@ -62,6 +62,11 @@ export function recordTick(s) {
 	if (!r || s.planner || s.sealed) return;
 	const power = s.rate?.power ?? 0;
 	r.maxPower = Math.max(r.maxPower, power);
+	// The last minute of the ledger, for its sheet. Not saved: a minute rebuilds.
+	s.ledgerHist ??= [];
+	const rt = s.rate ?? {};
+	s.ledgerHist.push([rt.heat ?? 0, (rt.vent ?? 0) - (rt.paid ?? 0), rt.paid ?? 0, rt.converted ?? 0, rt.held ?? 0]);
+	if (s.ledgerHist.length > 60) s.ledgerHist.shift();
 	const parts = s.tiles.filter((t) => t.id);
 	// An empty board is not a clean run; it is an empty board.
 	r.streak = s.exploded.length ? 0 : r.streak + (parts.length ? 1 : 0);
@@ -216,8 +221,10 @@ export function markLine(s) {
 export function logEvent(s, text) {
 	if (s.planner || s.sealed) return;
 	s.log ??= [];
-	s.log.push({ tick: s.runTicks, text });
+	const e = { tick: s.runTicks, text };
+	s.log.push(e);
 	if (s.log.length > 12) s.log.shift();
+	return e;
 }
 
 // ---- incidents and the receipt ----------------------------------------------
@@ -226,8 +233,17 @@ export function logEvent(s, text) {
 export function recordIncident(s, t, p) {
 	if (!s.incidents || s.planner || s.sealed) return;
 	s.incidents.push({ tick: s.runTicks, id: p.id, r: t.r, c: t.c, held: t.heatContained, cap: p.containment });
-	logEvent(s, `Lost a ${s.stats.get(p.id)?.title ?? p.id} at ${where(t)}.`);
 	s.incidentCount = (s.incidentCount ?? 0) + 1;
+	// A cascade is one line, first-out: how many went, and which went first.
+	const first = `a ${s.stats.get(p.id)?.title ?? p.id} at ${where(t)}`;
+	const last = s.log?.at(-1);
+	if (last?.lost && last.tick === s.runTicks) {
+		last.lost++;
+		last.text = `${last.lost} parts lost; first, ${last.first}.`;
+	} else {
+		const e = logEvent(s, `Lost ${first}.`);
+		if (e) Object.assign(e, { lost: 1, first });
+	}
 	if (s.incidents.length > 5) s.incidents.shift();
 }
 

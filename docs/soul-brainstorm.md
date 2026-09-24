@@ -142,7 +142,7 @@ memory rather than a checked source.
 
 # Round three: further afield
 
-Every reference here is new to this document: industrial control-room
+Five of this round are built, marked *(built)*: L9 (as the last minute), L10, W10, W11 and F5. Every reference here is new to this document: industrial control-room
 standards, spacecraft thermal design, electricity markets, puzzle and
 bridge-building games, and accessibility practice. The format is unchanged,
 and **(verify)** marks facts recalled rather than checked.
@@ -152,8 +152,8 @@ and **(verify)** marks facts recalled rather than checked.
 | # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
 |---|---|---|---|---|---|
 | L8 | **Thermocouple** | A part that sits between two neighbours and makes power from the heat it passes from the fuller to the emptier, as much as the gap between them → players build deliberate hot and cold sides and put the thermocouple on the seam → every tile is a trade, and heat is worth something on its way out | The Seebeck effect; the thermoelectric generators (RTGs) that power the Voyager probes; Stirling engines | M | The ledger must count it as heat turned to power, like thermionic coolant, never as heat made from nothing |
-| L9 | **Ledger over time** | The ledger sheet switches between this tick, the last minute and the last hour, totals for each line → players judge a board by its average, not its noisiest tick → the line is the truth, over time | Dyson Sphere Program's statistics windows; Factorio's production graph ranges **(verify)** | S | Must stay inside the sheet; the reactor page gains nothing |
-| L10 | **First-out, and one line per cascade** | When several parts fail in one burst, the shift log and any toast say it once: "5 parts lost; first, a Basic Heat Vent at row 6, column 7" → players read the cause, not the noise → say it once | Nuclear control rooms' first-out annunciators; EEMUA 191's guidance on alarm floods | S | The cheerful toast in reverse: fewer messages, never more |
+| L9 | **Ledger over time (built)** | The ledger sheet switches between this tick, the last minute and the last hour, totals for each line → players judge a board by its average, not its noisiest tick → the line is the truth, over time | Dyson Sphere Program's statistics windows; Factorio's production graph ranges **(verify)** | S | Must stay inside the sheet; the reactor page gains nothing |
+| L10 | **First-out, and one line per cascade (built)** | When several parts fail in one burst, the shift log and any toast say it once: "5 parts lost; first, a Basic Heat Vent at row 6, column 7" → players read the cause, not the noise → say it once | Nuclear control rooms' first-out annunciators; EEMUA 191's guidance on alarm floods | S | The cheerful toast in reverse: fewer messages, never more |
 
 ## Geometry Is the Build
 
@@ -174,15 +174,15 @@ and **(verify)** marks facts recalled rather than checked.
 
 | # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
 |---|---|---|---|---|---|
-| W10 | **Repair puzzles** | Each example layout has a broken twin, one or two tiles wrong, that opens in the planner to be fixed until it would earn Mark I → players learn a design by mending it → teaching by doing, never by telling | Chess problems ("mate in two"); the fixed puzzles in Into the Breach's advanced edition **(verify)** | S | The Law Is Theirs to Find: the puzzle poses the problem and never names the fix |
-| W11 | **Board as text art** | The copied code gains a small monospace grid, one letter per part, readable without the game → a posted design can be read, and argued over, in the post itself → designs travel as text | Wordle's shared grid, drawn in letters rather than emoji; roguelike ASCII maps | S | Written to last: no emoji, a fixed legend under the grid |
+| W10 | **Repair puzzles (built)** | Each example layout has a broken twin, one or two tiles wrong, that opens in the planner to be fixed until it would earn Mark I → players learn a design by mending it → teaching by doing, never by telling | Chess problems ("mate in two"); the fixed puzzles in Into the Breach's advanced edition **(verify)** | S | The Law Is Theirs to Find: the puzzle poses the problem and never names the fix |
+| W11 | **Board as text art (built)** | The copied code gains a small monospace grid, one letter per part, readable without the game → a posted design can be read, and argued over, in the post itself → designs travel as text | Wordle's shared grid, drawn in letters rather than emoji; roguelike ASCII maps | S | Written to last: no emoji, a fixed legend under the grid |
 | W12 | **Scrub the forecast** | In the planner, a slider runs through the forecast's 600 ticks and shows the board as it would stand at that tick → players find the moment a design starts to slip → forecast the failure tick, and see it | Video-editing timelines | M | A forecast belongs in the lab; the floor never scrubs |
 
 ## Feel, voice and access
 
 | # | Idea | Mechanic → Dynamic → Tone | Reference | Cost | Watch |
 |---|---|---|---|---|---|
-| F5 | **Grey until abnormal** | A part's heat bar stays grey until it is past four-fifths full, and only then takes colour → colour on the board means something is wrong → warning colours mean danger | ISA-101 high-performance HMI: grey screens, with colour kept for abnormal states | S | Legibility: the grey bars must still read against the tile |
+| F5 | **Grey until abnormal (built)** | A part's heat bar stays grey until it is past four-fifths full, and only then takes colour → colour on the board means something is wrong → warning colours mean danger | ISA-101 high-performance HMI: grey screens, with colour kept for abnormal states | S | Legibility: the grey bars must still read against the tile |
 | F6 | **A readable board** | With a screen reader on, the board can be read row by row ("row 3: vent, uranium cell, empty…"), and each incident is spoken once → the game opens to blind players → legible failure for every player | WCAG; Android TalkBack; blind modes in online chess (Lichess) **(verify)** | M | The game already speaks some lines; this must not double them |
 | F7 | **Assist speed** | An option to run the reactor at half speed, with records from assisted runs marked as assisted → slower players can keep up without the game changing its rules → trust, without softening the soul | Celeste's Assist Mode | S | Proof nobody sees in reverse: records must say they were assisted |
 | F8 | **Dock on either hand** | An option that mirrors the dock and tabs for left-handed play → the thumb reaches the parts it uses most → the verb stays comfortable | One-handed phone design; Apple's Reachability | S | Only mirrors the layout, never the board |

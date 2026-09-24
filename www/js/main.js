@@ -9,7 +9,7 @@ import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell } fr
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
-import { layoutCode, readLayout, applyLayout, describe, layoutOf, contextNote } from "./layout.js";
+import { layoutCode, readLayout, applyLayout, describe, layoutOf, contextNote, gridOf } from "./layout.js";
 import { bankTime, spendFlux, span } from "./flux.js";
 import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
 import { replaceAll } from "./layout.js";
@@ -243,7 +243,7 @@ const game = {
 	},
 
 	// A design travels with its claim: the mark and power it had when copied.
-	layoutCode: () => [markLine(s), layoutCode(s)].filter(Boolean).join("\n"),
+	layoutCode: () => [markLine(s), gridOf(s), layoutCode(s)].filter(Boolean).join("\n"),
 
 	/** The records, trophies and board as plain text, to keep or share. */
 	summary() {
