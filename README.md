@@ -381,7 +381,7 @@ of this line loved, what broke, and what they asked for. What came of it:
 - **Exchangers share evenly** (Knockoff #4). Every share is worked out before any
   is paid, and scaled down together when there is not enough to go round; handed
   out in turn, the up and left neighbours took it all and the far side blew.
-- Already answered here: selling on a touch screen (#38) is a long press,
+- Already answered here: selling on a touch screen (#38) is on the part's sheet,
   replacing a part never loses money (#18), locked parts cannot be placed
   (#15), Heat Control Operator works (#6, #8), and a spent reflector leaves the
   board and stops boosting (#32) - which now has a test.
@@ -522,7 +522,7 @@ the one rule dropped on purpose: it deleted heat.
   visible at once with tiles big enough to hit on a phone, which matters more
   than matching a tile count. The expansion upgrades still grow it to 32x28.
 - Touch instead of a mouse. Tap to place, tap a placed part to inspect it,
-  long press to sell, drag to paint, pinch to zoom. The original's six
+  every action on a placed part in its sheet, drag to paint, pinch to zoom. The original's six
   modifier-key macros are gone; dragging covers what they were for.
 - Families arrive with the log: a new game opens on one cell and one dock tab.
   Vents, coolant and plating come with the goal that asks for a vent; capacitors

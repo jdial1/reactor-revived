@@ -18,7 +18,7 @@ remember designs, and post them.
 | Verb | What the player literally does | Kinetic profile |
 |---|---|---|
 | Place | Tap an empty tile with a part selected; drag to paint a row | Not real-time: instant, and refunded, so never committed |
-| Inspect, then sell or move | Tap a placed part for its sheet; long press to sell; Move from the sheet | Not real-time: instant; selling refunds the price less fuel used |
+| Inspect, then sell or move | Tap a placed part for its sheet, where selling, moving, replacing and refilling all live | Not real-time: instant; selling refunds the price less fuel used |
 | Buy | Buy an upgrade, a doctrine side, or research | Not real-time: a menu choice |
 
 Early on the player also taps the power bar to sell and the heat bar to vent.

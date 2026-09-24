@@ -14,7 +14,7 @@ export const STEPS = [
 	{ target: null, title: "Harrow Station",
 	  text: "The reactor has sat cold for eleven years, and the town below wants its power back. Fuel cells make power, which sells for money, which buys better parts. They also make heat, and heat is what ends reactors. Five things to do, then the log takes over. Skip any time - it lives in Options." },
 	{ target: ".part.on", title: "A fuel cell",
-	  text: "Uranium is selected in the dock. It costs $10, which is exactly what you have. Tap an empty tile to place it; drag to place a row; long press to sell.",
+	  text: "Uranium is selected in the dock. It costs $10, which is exactly what you have. Tap an empty tile to place it, or drag to place a row. Tap a placed part for everything you can do with it.",
 	  doing: "Place a cell on the grid.",
 	  waitFor: (s) => some(s, cell) },
 	{ target: "#rates", title: "The line",

@@ -770,20 +770,6 @@ dialog .row button { flex: 1; padding: 10px; }
 }
 #goal .objective { position: relative; }
 
-/* The long press has 450ms to run; show them. */
-.tile.holding::after {
-	content: "";
-	position: absolute;
-	inset: 2px;
-	border: 2px solid var(--heat);
-	border-radius: 2px;
-	clip-path: inset(0 0 0 0);
-	animation: hold 450ms linear;
-}
-@keyframes hold {
-	from { clip-path: inset(0 100% 0 0); }
-	to { clip-path: inset(0 0 0 0); }
-}
 
 /* The board just emptied itself. */
 body.melting { animation: melting 500ms ease-out; }

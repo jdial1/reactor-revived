@@ -104,6 +104,7 @@ const game = {
 	onTap(r, c) {
 		const t = tileAt(s, r, c);
 		// Carrying a part: an empty tile takes it, anything else puts it back.
+		// Every other action on a placed part is on its sheet, one tap away.
 		if (moving) {
 			const from = tileAt(s, moving.r, moving.c);
 			endMove();
@@ -123,17 +124,11 @@ const game = {
 		});
 	},
 
-	// A long press sells, the touch equivalent of the original's right-click.
-	onHold(r, c) {
-		endMove();
-		sellAt(r, c);
-	},
-
-	// Dragging paints or clears along the stroke.
+	// Dragging paints the selected part along the stroke, onto empty tiles
+	// only. It never sells: a stroke across the board must not clear it.
 	onPaint(r, c) {
 		endMove();
-		if (tileAt(s, r, c).id) sellAt(r, c);
-		else placeAt(r, c);
+		placeAt(r, c);
 	},
 
 	buy(id) {

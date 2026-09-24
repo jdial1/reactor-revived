@@ -52,7 +52,7 @@ WHAT IS IN IT
 - Meltdown, if you earn it
 
 HOW IT PLAYS
-Tap to place. Drag to paint a row. Long press to sell. Pinch to zoom, double
+Tap to place. Drag to paint a row. Tap a placed part to sell, move or replace it. Pinch to zoom, double
 tap to put it back. Tap a placed part to see exactly what it is doing right now,
 and to sell one, all of that kind, or everything.
 

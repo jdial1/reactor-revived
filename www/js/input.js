@@ -1,10 +1,13 @@
-// Touch input for the reactor grid. The original's six modifier-key macros
-// become four gestures, with no mode to pick:
+// Touch input for the reactor grid. Three gestures, and none of them can
+// destroy anything by accident:
 //
-//   tap  place or inspect   long press  sell
-//   drag  paint the path    two fingers  pinch to zoom, drag to pan
+//   tap   an empty tile places; a placed part opens its sheet, where every
+//         action on it lives (sell, move, replace, refill, about)
+//   drag  paints a row of the selected part onto empty tiles only
+//   two fingers  pinch to zoom, drag to pan
+//
+// There is no long press. It used to sell, and a slow tap sold parts.
 
-const LONG_PRESS_MS = 450;
 const DRAG_SLOP = 8;
 const ZOOM_RANGE = [0.6, 2.5];
 
@@ -13,7 +16,7 @@ const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 const clamp = (n, [lo, hi]) => Math.min(hi, Math.max(lo, n));
 
 /**
- * Wire the grid up. `handlers` gets {onTap, onPaint, onHold}, each called with
+ * Wire the grid up. `handlers` gets {onTap, onPaint}, each called with
  * (row, col); the caller decides what those mean.
  */
 export function attachInput(board, grid, handlers) {
@@ -21,31 +24,16 @@ export function attachInput(board, grid, handlers) {
 	let mode = null; // null | "paint" | "gesture"
 	let start = null;
 	let held = null;
-	let holdTimer = 0;
 	let painted = new Set();
 	let gesture = null;
 	let zoom = 1;
 
-	let holdNode = null;
 	const tileUnder = (x, y) => {
 		const node = document.elementFromPoint(x, y)?.closest(".tile");
 		return node ? [Number(node.dataset.r), Number(node.dataset.c)] : null;
 	};
-	// A gesture with a timer on it should show the timer.
-	const showHold = (node) => {
-		holdNode?.classList.remove("holding");
-		holdNode = node;
-		node?.classList.add("holding");
-	};
-
-	const cancelHold = () => {
-		clearTimeout(holdTimer);
-		holdTimer = 0;
-		showHold(null);
-	};
 
 	const reset = () => {
-		cancelHold();
 		mode = null;
 		start = null;
 		held = null;
@@ -58,7 +46,6 @@ export function attachInput(board, grid, handlers) {
 
 		if (pointers.size === 2) {
 			// A second finger turns any in-flight tap or paint into a pan/zoom.
-			cancelHold();
 			mode = "gesture";
 			painted.clear();
 			const [a, b] = [...pointers.values()];
@@ -75,14 +62,6 @@ export function attachInput(board, grid, handlers) {
 
 		start = { x: e.clientX, y: e.clientY };
 		held = tileUnder(e.clientX, e.clientY);
-		if (!held) return;
-		showHold(document.elementFromPoint(e.clientX, e.clientY)?.closest(".tile"));
-		holdTimer = setTimeout(() => {
-			holdTimer = 0;
-			mode = "hold";
-			showHold(null);
-			handlers.onHold(...held);
-		}, LONG_PRESS_MS);
 	});
 
 	// Move and release listen on the window so a finger leaving the grid still
@@ -100,14 +79,13 @@ export function attachInput(board, grid, handlers) {
 			board.scrollTop = gesture.top - (now.y - gesture.mid.y);
 			return;
 		}
-		if (mode === "hold" || !start) return;
+		if (!start || !held) return;
 
 		if (mode !== "paint" && Math.hypot(e.clientX - start.x, e.clientY - start.y) < DRAG_SLOP) return;
 
 		// Past the slop threshold this is a paint stroke, not a tap. The tile the
 		// stroke started on counts as painted too.
 		if (mode !== "paint") {
-			cancelHold();
 			mode = "paint";
 			painted.add(String(held));
 			handlers.onPaint(...held);
