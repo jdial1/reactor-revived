@@ -299,9 +299,14 @@ export function tick(s) {
 		for (const n of t.containments) {
 			let share = Math.min(push, (s.heat / s.statOutlet) * push, maxShared * push);
 			const np = s.stats.get(n.id);
+			// Better Heat Control: never push more than the vent can shed this tick.
+			// A vent already holding more than that takes nothing - it must never
+			// be read as room below zero, which pulled heat back out of hot vents
+			// and hull vents into the pool.
 			if (s.heatOutletControlled && np.vent) {
-				share = Math.min(share, ventOf(s, np, n) - n.heatContained);
+				share = Math.min(share, Math.max(0, ventOf(s, np, n) - n.heatContained));
 			}
+			if (share <= 0) continue;
 			const took = absorb(n, np, share);
 			powerAdd += took;
 			rate.converted = (rate.converted ?? 0) + took;
@@ -359,13 +364,22 @@ export function tick(s) {
 		}
 	}
 
+	// Hull vents share the pool: when it cannot fill every draw, each gets the
+	// same fraction, rather than the first in scan order taking it all.
+	let hullWant = 0;
+	for (const t of activeTiles(s)) {
+		const p = partOf(s, t);
+		if (p?.category === "hull_vent") hullWant += transferOf(s, p, t);
+	}
+	const hullScale = hullWant > 0 ? Math.min(1, Math.max(0, s.heat) / hullWant) : 0;
+
 	for (const t of activeTiles(s)) {
 		const p = partOf(s, t);
 		if (!p?.containment) continue;
 
 		// A hull vent draws from the reactor's pool into itself, then vents.
-		if (p.category === "hull_vent" && s.heat > 0) {
-			const drawn = Math.min(transferOf(s, p, t), s.heat);
+		if (p.category === "hull_vent" && hullScale > 0) {
+			const drawn = Math.min(transferOf(s, p, t) * hullScale, s.heat);
 			s.heat -= drawn;
 			t.heatContained += drawn;
 			t.heatIn += drawn;

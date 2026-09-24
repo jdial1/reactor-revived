@@ -215,7 +215,9 @@ neighbour rule, so each wants a different spot on the board:
   dump into it; it wants to sit among coolant and exchangers, not cells.
 - **Hull Vent** (Transfer, from goal 10) draws heat from the reactor's pool
   into itself and vents it, wherever it sits. It is indirect cooling, so a
-  Direct-only run leaves it out.
+  Direct-only run leaves it out. Outlets push before hull vents draw, and when
+  the pool cannot fill every hull vent, they share it evenly rather than the
+  first in scan order taking it all.
 - **Condensator** (Cooling, from goal 14) holds far more than a coolant cell
   and never sheds any. Full and left alone, it fails like any part. Refilled -
   by hand from its sheet, for its price in proportion to what it holds, or
