@@ -16,7 +16,7 @@ const CASH = [
 	{ id: "forceful_fusion", group: "other", title: "Forceful Fusion", cost: 10000, mul: 100,
 	  desc: "Cells produce more power the hotter the reactor runs." },
 	{ id: "heat_control_operator", group: "other", title: "Heat Control Operator", cost: 1e6, levels: 1,
-	  desc: "Outlets only draw heat out of the reactor above its maximum, so a hot reactor can be held for Forceful Fusion." },
+	  desc: "A switch, once bought. While it is on, outlets only draw heat out of the reactor above its maximum, so a hot reactor can be held for Forceful Fusion." },
 	{ id: "heat_outlet_control_operator", group: "other", title: "Better Heat Control Operator", cost: 1e7, levels: 1, requires: "heat_control_operator",
 	  desc: "Outlets never push more heat than the vents they feed can take." },
 	{ id: "improved_piping", group: "other", title: "Improved Piping", cost: 100, mul: 20,
@@ -271,7 +271,10 @@ export function applyUpgrades(s) {
 
 	s.loopWait = BASE_LOOP_WAIT / (L("chronometer") + 1);
 	s.heatPowerMul = L("forceful_fusion");
-	s.heatControlOperator = L("heat_control_operator");
+	// Bought once, then switched: on, it holds outlets back below the limit. It
+	// starts off, because a player who bought it for a hot reactor should not
+	// find every outlet dead the rest of the game.
+	s.heatControlOperator = L("heat_control_operator") > 0 && Boolean(s.operatorOn);
 	s.heatOutletControlled = L("heat_outlet_control_operator");
 	s.manualHeatReduce = 10 ** L("improved_piping");
 	s.autoSellMul = 0.01 * L("improved_power_lines");

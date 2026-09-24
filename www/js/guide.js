@@ -84,6 +84,7 @@ export const FAMILIES = [
 
 	["heat_outlet", "Heat outlets", "outlet_1", [
 		"An outlet pushes heat from the reactor's pool into each part it touches that can hold heat, up to its rate. Outlets share the pool between them. It holds nothing itself.",
+		"While Heat Control Operator is switched on, outlets push nothing until the reactor is over its limit.",
 	], ["improved_heat_exchangers", "fluid_hyperdynamics", "active_exchangers", "reinforced_heat_exchangers", "heat_outlet_control_operator"]],
 
 	["particle_accelerator", "Particle accelerators", "accelerator_1", [

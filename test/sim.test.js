@@ -884,9 +884,10 @@ test("art paths follow the catalog", async () => {
 test("the Heat Control Operator holds heat in until the reactor is over its limit", () => {
 	// Two cells feeding an outlet that feeds a vent. Without the upgrade the
 	// outlet pushes heat out at any temperature; with it, only above maxHeat.
-	const build = (levels) => {
+	const build = (levels, on = true) => {
 		const s = rich();
 		Object.assign(s.levels, levels);
+		s.operatorOn = on;
 		applyUpgrades(s);
 		put(s, 0, 0, "uranium1");
 		put(s, 0, 1, "uranium1");
@@ -904,6 +905,9 @@ test("the Heat Control Operator holds heat in until the reactor is over its limi
 	assert.equal(held.rate.outlet, 0,
 		"with the operator, nothing leaves the reactor while it is under its limit");
 	assert.ok(held.heat > plain.heat, "so the heat stays in the reactor instead");
+	// Bought but switched off, it holds nothing back: outlets push as usual.
+	const off = build({ heat_control_operator: 1 }, false);
+	assert.equal(off.rate.outlet, plain.rate.outlet, "switched off, the operator changes nothing");
 });
 
 test("every sound a cue names is on disk", async () => {

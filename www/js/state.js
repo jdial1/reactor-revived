@@ -32,6 +32,8 @@ const BASE = {
 	restored: false,
 	// Particles made but not yet whole, after the board's handling of heat.
 	epCarry: 0,
+	// Heat Control Operator, once bought, is a switch; it starts off.
+	operatorOn: false,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -98,6 +100,7 @@ export function serialize(s) {
 		objective: s.objective,
 		restored: s.restored || undefined,
 		epCarry: s.epCarry || undefined,
+		operatorOn: s.operatorOn || undefined,
 		hasMeltedDown: s.hasMeltedDown,
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
 		paused: s.paused,

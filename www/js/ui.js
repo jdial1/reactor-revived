@@ -618,6 +618,9 @@ export function inspect(s, t, sell) {
 		["Vents", p.vent ? `${exact(p.vent * (1 + (t.ventMul ?? 0) / 100))}/tick${p.category === "component_vent" ? " from each part it touches" : ""}` : null],
 		[p.category === "hull_vent" ? "Draws from the reactor" : "Transfers",
 			p.transfer ? `${exact(p.transfer * (1 + (t.transferMul ?? 0) / 100))}/tick` : null],
+		// An outlet the operator is holding back says so, rather than looking dead.
+		["Waiting", p.category === "heat_outlet" && s.heatControlOperator && s.heat <= s.maxHeat
+			? "Heat Control Operator is on: nothing is pushed until the reactor is over its limit" : null],
 		["Boosted by neighbours", (t.ventMul || t.transferMul) ? `+${fmt(Math.max(t.ventMul ?? 0, t.transferMul ?? 0))}%` : null],
 		["Refill costs", p.category === "condensator" ? `$${fmt(refillCost(p, t))}` : null],
 		["Max power", p.reactorPower ? `+${fmt(p.reactorPower)}` : null],
@@ -708,6 +711,11 @@ function buildUpgrades(dom, game) {
 		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
 		section.rows.push(row);
 		section.list.append(button);
+		// Heat Control Operator is bought once and then switched.
+		if (u.id === "heat_control_operator") {
+			row.toggle = h("button", { className: "side operator-toggle", hidden: true, onclick: () => game.toggleOperator() });
+			section.list.append(row.toggle);
+		}
 		// A doctrine set's two sides, beside the row that buys it: readable
 		// before buying, switchable after.
 		if (u.set) {
@@ -1062,6 +1070,15 @@ function renderUpgrades(dom, s) {
 		if (step) {
 			was.textContent = step.from;
 			now.textContent = step.to;
+		}
+
+		if (row.toggle) {
+			row.toggle.hidden = !owned;
+			const on = Boolean(s.operatorOn);
+			const text = on ? "On: outlets wait until the reactor is over its limit. Tap to switch off."
+				: "Off: outlets push as usual. Tap to switch on and hold a hot reactor.";
+			if (row.toggle.textContent !== text) row.toggle.textContent = text;
+			row.toggle.classList.toggle("on", on);
 		}
 
 		// An owned upgrade stays listed, so the price must say when the next level

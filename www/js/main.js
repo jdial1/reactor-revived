@@ -195,6 +195,15 @@ const game = {
 		play("place");
 	},
 
+	/** Heat Control Operator on or off: free, any time, once bought. */
+	toggleOperator() {
+		if (!(s.levels.heat_control_operator > 0)) return;
+		s.operatorOn = !s.operatorOn;
+		applyUpgrades(s);
+		compile(s);
+		play("place");
+	},
+
 	toggleFlux() {
 		s.fluxOn = !s.fluxOn && s.flux >= s.loopWait;
 	},
