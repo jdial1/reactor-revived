@@ -1184,3 +1184,17 @@ test("a cell's heat is shared exactly: none made, none lost", () => {
 	// No free trickle: the reactor holds every point it was given.
 	assert.ok(Math.abs(s.heat - 4) < 1e-9, s.heat);
 });
+
+test("the dock's compact numbers fit a corner and never read high", async () => {
+	const { compact } = await import("../www/js/fmt.js");
+	assert.equal(compact(29040), "29K");
+	assert.equal(compact(22748000), "22M");
+	assert.equal(compact(2748000), "2.7M");
+	assert.equal(compact(166400), "166K");
+	assert.equal(compact(960), "960");
+	assert.equal(compact(4.8), "4.8");
+	assert.equal(compact(999999), "999K", "truncated, never rounded up to 1000K");
+	for (const n of [1, 12.5, 999, 1234, 98765, 1.23e9, 4.56e14, 7.89e20]) {
+		assert.ok(compact(n).length <= 5, `${n} -> ${compact(n)}`);
+	}
+});

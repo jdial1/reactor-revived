@@ -1133,6 +1133,10 @@ body.flow .tile .flow { display: flex; background: #0009; }
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
 	text-shadow: 0 1px 1px #000;
+	/* Two corners share a row: neither may run into the other. */
+	max-width: calc(50% - 1px);
+	overflow: hidden;
+	white-space: nowrap;
 }
 .part .info .icon { width: 9px; height: 9px; }
 .part .info .tl { top: 0; left: 0; }

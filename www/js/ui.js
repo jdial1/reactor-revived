@@ -1,6 +1,6 @@
 // The DOM layer. Built once, then patched: a tile is touched only when its
 // signature changes.
-import { fmt } from "./fmt.js";
+import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
 import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
 import { OBJECTIVES } from "./objectives.js";
@@ -1220,7 +1220,8 @@ function renderLesson(dom, s) {
 }
 
 // Small numbers keep their decimals: a vent at 4.5, a reflector at 5%.
-const brief = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 10) / 10) : fmt(v));
+// The dock's corners have room for about five characters each.
+const brief = (v) => compact(v);
 
 /**
  * A part's numbers for the dock's numbers mode, one per corner, each with the
@@ -1254,7 +1255,7 @@ function partInfo(p) {
 		case "particle_accelerator": heat("tl", "heat", p.epHeat); heat("tr", "vent", p.containment); break;
 		default: break;
 	}
-	c.push(["br", "cash", fmt(p.cost), "money"]);
+	c.push(["br", "cash", compact(p.cost), "money"]);
 	return c.map(([corner, glyph, text, kind]) =>
 		h("span", { className: `${corner} ${kind}` }, glyph ? icon(glyph, "icon") : "", text));
 }
