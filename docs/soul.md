@@ -88,7 +88,7 @@ the soul.
 | scarcity_economy | Supporting | Tiles are the bottleneck; money inflates away | Pass |
 | synergy_engines | Supporting | The square law, reflectors, compounding upgrades | Pass |
 | difficulty_ladder | Supporting | Reboot, five restriction runs, time-to-output rungs | Pass |
-| trusting_the_player | Supporting | Numbers without advice; field notes record observations; the square law and where a vent goes are never stated | Pass |
+| trusting_the_player | Supporting | Numbers without advice; the parts guide states every part's rules and live numbers but never the square law, the experimental quirks or placement; field notes record observations | Pass |
 | shared_discovery | Supporting | Layout codes; "Mark I" builds the classic checkerboard | Pass |
 | workbench | Supporting | Planner, a forecast of the failure tick, codes with context, free teardown, no rewind | Pass |
 | automation | Supporting | Perpetual rebuys and auto-sell are bought early; there is no layout optimiser | Pass |

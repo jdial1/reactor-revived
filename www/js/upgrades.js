@@ -16,7 +16,7 @@ const CASH = [
 	{ id: "forceful_fusion", group: "other", title: "Forceful Fusion", cost: 10000, mul: 100,
 	  desc: "Cells produce more power the hotter the reactor runs." },
 	{ id: "heat_control_operator", group: "other", title: "Heat Control Operator", cost: 1e6, levels: 1,
-	  desc: "The reactor stops shedding heat below its maximum, making Forceful Fusion easier to hold." },
+	  desc: "Outlets only draw heat out of the reactor above its maximum, so a hot reactor can be held for Forceful Fusion." },
 	{ id: "heat_outlet_control_operator", group: "other", title: "Better Heat Control Operator", cost: 1e7, levels: 1, requires: "heat_control_operator",
 	  desc: "Outlets never push more heat than the vents they feed can take." },
 	{ id: "improved_piping", group: "other", title: "Improved Piping", cost: 100, mul: 20,
@@ -248,7 +248,7 @@ export function buy(s, id) {
 
 // Every part field that upgrades scale, as [linearUpgrade, doublingUpgrade].
 // The value becomes base * (level(linear) + 1) * 2 ** level(doubling).
-const SCALE_BY_CATEGORY = {
+export const SCALE_BY_CATEGORY = {
 	vent: { vent: ["improved_heat_vents", "fluid_hyperdynamics"], containment: ["improved_heat_vents", "fractal_piping"] },
 	heat_exchanger: { transfer: ["improved_heat_exchangers", "fluid_hyperdynamics"], containment: ["improved_heat_exchangers", "fractal_piping"] },
 	heat_inlet: { transfer: ["improved_heat_exchangers", "fluid_hyperdynamics"] },

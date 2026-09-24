@@ -1272,3 +1272,20 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 /* A part picked up to move: its tile waits, outlined, for where it goes. */
 .tile.moving-from { outline: 2px dashed var(--power); outline-offset: -2px; }
 #rates { cursor: pointer; }
+
+/* The parts guide: one fold per family, a table of the tiers you can place. */
+.sheet.guide { max-height: 88vh; overflow-y: auto; }
+.guide-family { border-top: 1px solid var(--edge); padding: 6px 0; }
+.guide-family > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; }
+.guide-family > summary::-webkit-details-marker { display: none; }
+.guide-family.locked > summary b { color: var(--dim); }
+.guide-family p { margin: 6px 0; font-size: 12px; line-height: 1.45; }
+.guide-art { display: inline-block; flex: none; width: 24px; height: 24px; background: center / contain no-repeat; image-rendering: pixelated; vertical-align: middle; }
+.guide-table-wrap { overflow-x: auto; margin: 6px 0; }
+.guide-table { border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.guide-table th, .guide-table td { padding: 2px 6px; text-align: right; }
+.guide-table th:first-child, .guide-table td:first-child { text-align: left; }
+.guide-table th { color: var(--dim); font-weight: normal; }
+.guide-table td .guide-art { width: 18px; height: 18px; margin-right: 4px; }
+.guide-more, .guide-ups { color: var(--dim); }
+.guide-art .icon { width: 100%; height: 100%; }

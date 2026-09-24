@@ -11,6 +11,7 @@ import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
 import { span } from "./flux.js";
 import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
+import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
 import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell } from "./records.js";
@@ -329,6 +330,7 @@ export function buildUI(game) {
 					e.currentTarget.textContent = game.muted ? "Sound: off" : "Sound: on";
 				},
 			}),
+			h("button", { className: "wide", textContent: "Parts guide", onclick: () => guideDialog(game.state) }),
 			h("button", { className: "wide", textContent: "How to play", onclick: () => {
 				showPage(dom, "reactor");
 				game.startTutorial();
@@ -638,6 +640,8 @@ export function inspect(s, t, sell) {
 			h("button", { textContent: sameKind > 1 ? `Replace or upgrade all ${sameKind}` : "Replace or upgrade",
 				onclick: () => { dialog.close(); replaceDialog(s, p, sell.game); } }),
 			h("button", { textContent: "Move", onclick: () => { dialog.close(); sell.move(); } }),
+			h("button", { textContent: `About ${FAMILIES.find(([k]) => k === guideFamily(p))?.[1].toLowerCase() ?? "this part"}`,
+				onclick: () => { dialog.close(); guideDialog(s, guideFamily(p)); } }),
 			p.category === "condensator" && t.heatContained > 0 && h("button", {
 				textContent: `Refill for $${fmt(refillCost(p, t))}`,
 				disabled: s.money < refillCost(p, t),

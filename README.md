@@ -189,6 +189,22 @@ for. The checks are unchanged; only the reason for them is new. IC2 players ran
 their reactors inside a base they had built, so the reactor had somewhere to
 be. This gives it one.
 
+## Parts guide
+
+Options opens a **Parts guide**, and every part's sheet has an *About* button
+that opens it at that part's family. Each family gets its rules in plain
+words, a table of the tiers you can place with their numbers as they stand in
+this game (upgrades included), the upgrades that touch it, and any field notes
+you have earned for it. Families the log has not reached yet show only when
+they arrive. Every part's sheet also carries a one-line description.
+
+The guide states rules and never answers. It says that touching cells pulse
+into each other and that a pulse raises power and heat, but not how much; the
+experimental quirks stay in field notes until they are seen; and nothing in it
+says where a part should go. A test holds all of that: every family covered,
+every part described, and no word of the square law or of layout advice in the
+guide, the descriptions or the example notes.
+
 ## From IC2: condensators, component vents, hull vents
 
 Three part families from IndustrialCraft 2's reactor, each with its own

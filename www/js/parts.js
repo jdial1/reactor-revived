@@ -112,10 +112,26 @@ const COMPONENTS = [
 	  experimental: true, requires: "singularity_harnessing", containment: 1e32, epHeat: 1.6e30, transfer: 1e30 },
 ];
 
+// One line on every part's sheet; the parts guide (guide.js) has the rest.
+const DESC = {
+	cell: "Makes power and heat every tick until its life runs out. Its heat is split evenly between the touching parts that can hold heat; the rest goes into the reactor.",
+	vent: "Holds heat up to its limit and sheds up to its rate every tick. Past its limit it fails.",
+	coolant_cell: "Holds a great deal of heat and sheds none. When it is full, it fails.",
+	reactor_plating: "Raises the reactor's heat limit. Holds no heat itself.",
+	capacitor: "Raises the reactor's power limit. Holds a little heat.",
+	reflector: "Raises the power of every cell it touches. Its life runs down as they run.",
+	heat_exchanger: "Moves heat between itself and the parts it touches until each is equally full, up to its rate.",
+	heat_inlet: "Pulls heat out of the parts it touches into the reactor, up to its rate from each.",
+	heat_outlet: "Pushes heat from the reactor into the parts it touches, up to its rate.",
+	particle_accelerator: "Turns the heat it holds into Exotic Particles. One that overflows melts the reactor down.",
+};
+
 /** Expand one definition at one tier into a concrete part. */
 function derive(def, level) {
 	const cost = Array.isArray(def.cost) ? def.cost[level - 1] : def.cost * (def.costMul ?? 1) ** (level - 1);
 	const p = { ...def, level, cost };
+	p.desc = def.desc ?? DESC[def.category];
+	if (def.experimental) p.desc += " Experimental: its quirk is written into its field notes the first time it shows.";
 
 	if (def.category === "cell") {
 		const i = level - 1;
