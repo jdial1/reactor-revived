@@ -134,5 +134,18 @@ test("every example's broken twin does not hold, and the example does", async ()
 		assert.equal(board(LESSONS[name].tiles).mark, 1, `${name} holds`);
 		const broken = board(brokenTiles(name));
 		assert.notEqual(broken.mark, 1, `${name}'s broken copy should not hold`);
+		// And on the real board, run long enough for any heat to settle: the
+		// example earns Mark I, and the broken copy never does.
+		const floor = (tiles) => {
+			const s = newState(() => 1);
+			s.money = 1e30;
+			s.perpetual = new Set([...s.stats.values()].map((p) => (p.category === "cell" ? p.type : p.category)));
+			for (const [r, c, id] of tiles) Object.assign(tileAt(s, r, c), { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
+			compile(s);
+			for (let i = 0; i < 3000 && !s.hasMeltedDown; i++) tick(s);
+			return s.hasMeltedDown ? 0 : s.mark?.grade;
+		};
+		assert.equal(floor(LESSONS[name].tiles), 1, `${name} earns Mark I on the floor`);
+		assert.notEqual(floor(brokenTiles(name)), 1, `${name}'s broken copy earns Mark I on the floor`);
 	}
 });

@@ -180,7 +180,7 @@ export function forecast(s, swap) {
 		failed,
 		estimated,
 		// The mark it would earn on the real board: 1 or 2, or 0 if it fails.
-		mark: failTick ? 0 : rising || paid ? 2 : 1,
+		mark: failTick ? 0 : rising || paid || f.heat > f.maxHeat ? 2 : 1,
 	};
 }
 

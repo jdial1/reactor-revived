@@ -594,7 +594,9 @@ forecasts and module casings never count.
 
 **Marks**, after the ratings IC2's players gave their designs. The real board
 earns one by running: 300 ticks making power since the player last changed it.
-*Mark I* - heat has stopped rising anywhere on the board. *Mark II* - nothing
+*Mark I* - heat has stopped rising anywhere on the board, and the reactor is
+within its limit (one held over its limit by the emergency dump is only running
+hot). *Mark II* - nothing
 has failed, but heat is still building somewhere. *Mark III* - parts have been
 lost since the last change. A lost part is an incident, not a redesign; placing,
 selling, building, upgrading or switching a doctrine starts the mark again. The

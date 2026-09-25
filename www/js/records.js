@@ -121,7 +121,7 @@ export function recordTick(s) {
 export const MARK_WINDOW = 300;
 export const MARKS = [null, "Mark I", "Mark II", "Mark III"];
 export const MARK_MEANS = [
-	["Mark I", "Heat has stopped rising anywhere on the board. It can run as long as it has fuel."],
+	["Mark I", "Heat has stopped rising anywhere on the board, and the reactor is within its limit. It can run as long as it has fuel."],
 	["Mark II", "Nothing has failed yet, but heat is still building somewhere, or a condensator had to be paid to empty. Something will give, or keeps costing."],
 	["Mark III", "Parts have been lost since the board last changed."],
 ];
@@ -187,7 +187,10 @@ function markTick(s, hasParts, power) {
 				const p = t.id && s.stats.get(t.id);
 				return p && !settling(p, m.parts[i] ?? 0, t.heatContained) && rose(m.parts[i] ?? 0, t.heatContained, p.containment ?? 0);
 			});
-		m.grade = building || m.paid ? 2 : 1;
+		// A reactor that has settled over its own limit, held there only by the
+		// emergency dump, is running hot, not holding.
+		const overLimit = s.heat > s.maxHeat;
+		m.grade = building || m.paid || overLimit ? 2 : 1;
 	}
 	openWindow(s, m);
 	return m.grade;
