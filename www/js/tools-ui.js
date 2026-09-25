@@ -7,7 +7,7 @@ import { COLS, stored } from "./sim.js";
 import { PARTS, isPartVisible } from "./parts.js";
 import { forecast } from "./forecast.js";
 import { replaceQuote } from "./layout.js";
-import { LESSONS, BROKEN, brokenTiles } from "./lessons.js";
+import { LESSONS, BROKEN, brokenTiles, MARKS as LESSON_MARKS } from "./lessons.js";
 import { modId } from "./module.js";
 import { markOf, MARKS, MARK_MEANS, MARK_WINDOW, lastIncident, ticks } from "./records.js";
 
@@ -16,14 +16,62 @@ const num = (v) => (Math.abs(v) < 1000 ? String(Math.round(v * 10) / 10) : fmt(v
 const signed = (v) => `${v < 0 ? "-" : "+"}${num(Math.abs(v))}`;
 const money = (v) => `${v < 0 ? "-" : ""}$${fmt(Math.abs(v))}`;
 
-/** A layout drawn small: [tile index, part id] pairs on the 12x8 board. */
-export function miniBoard(s, tiles) {
-	const cells = Array.from({ length: s.tiles.length }, () => h("i", {}));
+/**
+ * A layout drawn small: [tile index, part id] pairs on the 12x8 board. With
+ * `marks` it is drawn larger, cropped to the rows it uses, with the example's
+ * idea drawn over it in arrows and rings.
+ */
+export function miniBoard(s, tiles, marks = null) {
+	const rows = marks ? Math.min(s.rows, Math.max(...tiles.map(([i]) => Math.floor(i / COLS))) + 1) : s.rows;
+	const cells = Array.from({ length: rows * COLS }, () => h("i", {}));
 	for (const [i, id] of tiles) {
 		const p = s.stats.get(id);
 		if (p && cells[i]) cells[i].style.backgroundImage = `url(${p.art ?? artFor(p)})`;
 	}
-	return h("div", { className: "mini-board", style: `--cols:${COLS}` }, ...cells);
+	const board = h("div", { className: `mini-board${marks ? " large" : ""}`, style: `--cols:${COLS}` }, ...cells);
+	if (!marks) return board;
+	return h("div", { className: "mini-wrap" }, board, overlay(marks, rows));
+}
+
+const SVG = "http://www.w3.org/2000/svg";
+const svg = (tag, attrs) => {
+	const el = document.createElementNS(SVG, tag);
+	for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+	return el;
+};
+
+/** The arrows and rings over an example board, in tile units of 28px + 1px gap. */
+function overlay(marks, rows) {
+	const pitch = 29;
+	const mid = ([r, c]) => [c * pitch + 14, r * pitch + 14];
+	const root = svg("svg", { class: "mini-marks", viewBox: `0 0 ${COLS * pitch - 1} ${rows * pitch - 1}`, "aria-hidden": "true" });
+	const defs = svg("defs", {});
+	const head = svg("marker", { id: "mark-head", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "5", markerHeight: "5", orient: "auto-start-reverse" });
+	head.append(svg("path", { d: "M0 0 L10 5 L0 10 z", class: "mark-head" }));
+	defs.append(head);
+	root.append(defs);
+	for (const m of marks) {
+		if (m.ring) {
+			const [[r1, c1], [r2, c2]] = m.ring;
+			const [x1, y1] = mid([Math.min(r1, r2), Math.min(c1, c2)]);
+			const [x2, y2] = mid([Math.max(r1, r2), Math.max(c1, c2)]);
+			root.append(svg("ellipse", {
+				class: `mark-ring ${m.kind}`, cx: (x1 + x2) / 2, cy: (y1 + y2) / 2,
+				rx: (x2 - x1) / 2 + 19, ry: (y2 - y1) / 2 + 19,
+			}));
+		} else {
+			const [x1, y1] = mid(m.from);
+			const [x2, y2] = mid(m.to);
+			// Start and stop short of the tile centres, so the part stays visible.
+			const len = Math.hypot(x2 - x1, y2 - y1) || 1;
+			const [ux, uy] = [(x2 - x1) / len, (y2 - y1) / len];
+			root.append(svg("line", {
+				class: `mark-arrow${m.dashed ? " dashed" : ""}`, "marker-end": "url(#mark-head)",
+				x1: x1 + ux * 8, y1: y1 + uy * 8, x2: x2 - ux * 6, y2: y2 - uy * 6,
+			}));
+		}
+	}
+	return root;
 }
 
 /** How long a board takes to earn back what it cost. */
@@ -341,7 +389,8 @@ export function lessonDialog(s, name, game) {
 	const dialog = modal(l.title,
 		h("h2", { textContent: l.title }),
 		h("i", { textContent: l.text }),
-		miniBoard(s, lessonTiles(name)),
+		miniBoard(s, lessonTiles(name), LESSON_MARKS[name]),
+		h("p", { className: "mark-key", textContent: "Yellow rings: where the heat comes from. Blue: where it ends up. Solid arrows: heat moving part to part. Dashed: through the reactor's pool." }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dialog.close() }),
 			h("button", { className: "wide", textContent: "Try it in the planner", onclick: () => {

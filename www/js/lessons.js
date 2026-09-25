@@ -112,6 +112,48 @@ export const LESSONS = {
 };
 
 /** The lesson each goal opens, by goal index: shown once, when it becomes the next job. */
+// The idea of each example, drawn over it: a few marks, never every flow.
+// { from: [r, c], to: [r, c] } is heat moving from part to part; dashed is heat
+// going through the reactor's pool; { ring: [[r, c], [r, c]], kind } circles a
+// block - "source" where the heat comes from, "sink" where it ends up.
+export const MARKS = {
+	direct: [
+		{ ring: [[2, 1], [2, 2]], kind: "source" },
+		{ from: [2, 1], to: [2, 0] },
+		{ from: [2, 1], to: [1, 1] },
+		{ from: [2, 2], to: [3, 2] },
+	],
+	indirect: [
+		{ ring: [[1, 2], [1, 3]], kind: "source" },
+		{ from: [1, 2], to: [6, 1], dashed: true },
+		{ from: [1, 3], to: [6, 5], dashed: true },
+		{ ring: [[5, 0], [7, 6]], kind: "sink" },
+	],
+	exchangers: [
+		{ ring: [[2, 3], [3, 4]], kind: "source" },
+		{ from: [2, 3], to: [2, 1] },
+		{ from: [2, 4], to: [0, 4] },
+		{ from: [3, 4], to: [3, 6] },
+		{ from: [3, 3], to: [5, 3] },
+	],
+	chain: [
+		{ ring: [[1, 1], [1, 2]], kind: "source" },
+		{ from: [2, 2], to: [7, 2] },
+		{ ring: [[6, 0], [9, 4]], kind: "sink" },
+	],
+	heatpipe: [
+		{ ring: [[1, 2], [2, 3]], kind: "source" },
+		{ from: [3, 1], to: [7, 1], dashed: true },
+		{ from: [3, 4], to: [7, 5], dashed: true },
+		{ ring: [[6, 0], [11, 6]], kind: "sink" },
+	],
+	epfarm: [
+		{ ring: [[1, 3], [1, 3]], kind: "source" },
+		{ from: [1, 3], to: [1, 2] },
+		{ from: [1, 3], to: [1, 4] },
+	],
+};
+
 // Each example's broken twin: the tiles taken out of it. Opened in the planner,
 // the copy does not hold, and mending it is the lesson. Pinned by a test that
 // the original earns Mark I and the copy does not.

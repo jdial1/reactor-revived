@@ -343,7 +343,10 @@ of this line loved, what broke, and what they asked for. What came of it:
   power and the mark it had earned - filed in the log under the job, to
   rebuild onto today's board. The game itself is never rolled back - a
   meltdown is final.
-- **Example layouts** as the goals reach them, waiting on their job in the log
+- **Example layouts** as the goals reach them, each drawn larger with its idea
+  marked over it - a yellow ring where the heat comes from, a blue one where it
+  ends up, solid arrows for heat moving part to part and dashed ones for heat
+  going through the reactor's pool; a few marks, never every flow - waiting on their job in the log
   behind a dot on the goal line, and one tap from the planner: direct cooling (goal 6), indirect
   cooling through outlets (10), exchangers spreading a hot block across many
   first-tier vents (14), an exchanger chain carrying heat away to a vent field

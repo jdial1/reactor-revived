@@ -149,3 +149,17 @@ test("every example's broken twin does not hold, and the example does", async ()
 		assert.notEqual(floor(brokenTiles(name)), 1, `${name}'s broken copy earns Mark I on the floor`);
 	}
 });
+
+test("every example draws its idea: a few marks, each on the board", async () => {
+	const { MARKS } = await import("../www/js/lessons.js");
+	for (const [name, l] of Object.entries(LESSONS)) {
+		const marks = MARKS[name];
+		assert.ok(marks && marks.length >= 2 && marks.length <= 5, `${name}: the idea, not every flow`);
+		const occupied = new Set(l.tiles.map(([r, c]) => `${r},${c}`));
+		for (const m of marks) {
+			// An arrow runs from a part to a part.
+			if (m.from) for (const end of [m.from, m.to]) assert.ok(occupied.has(String(end)), `${name}: ${end} is empty`);
+			if (m.ring) assert.ok(["source", "sink"].includes(m.kind), name);
+		}
+	}
+});
