@@ -214,8 +214,9 @@ test("a part over its containment explodes off the board", () => {
 test("an exploding particle accelerator melts the reactor down", () => {
 	const s = fresh();
 	put(s, 5, 5, "uranium3");
-	const pa = put(s, 5, 6, "particle_accelerator1"); // only 100 containment
+	const pa = put(s, 5, 6, "particle_accelerator1");
 	compile(s);
+	pa.heatContained = 1.05 * s.stats.get("particle_accelerator1").containment; // over the brim
 	for (let i = 0; i < 10 && !s.hasMeltedDown; i++) tick(s);
 	assert.ok(s.hasMeltedDown, "meltdown triggered");
 	assert.equal(pa.id, null);
@@ -613,11 +614,26 @@ test("a hot particle accelerator generates exotic particles", () => {
 	assert.equal(s.currentExoticParticles, 0);
 });
 
-test("a low-tier accelerator cannot hold enough heat to matter", () => {
-	const p = PART_BY_ID.get("particle_accelerator1");
-	// Its whole containment is a rounding error against the heat it would need,
-	// so early accelerators are a heat problem long before they are an income.
-	assert.ok(p.containment < p.epHeat / 1e6);
+test("an accelerator holds twice its particle heat, and settles where feed meets spending", () => {
+	// Knockoff's first accelerator held 100 heat against 5e8 needed: it could
+	// never make a particle, and anything touching it melted the reactor.
+	for (let l = 1; l <= 5; l++) {
+		const p = PART_BY_ID.get(`particle_accelerator${l}`);
+		assert.equal(p.containment, 2 * p.epHeat, `tier ${l}`);
+	}
+	// It spends a hundredth of what it holds each tick, so a steady feed of F
+	// settles near 100F: three seaborgium cells settle a tier-1 near its sweet spot.
+	const s = rich(1e30);
+	s.random = () => 0; // every roll with any chance at all pays
+	s.perpetual = new Set(["seaborgium"]);
+	for (const [r, c] of [[4, 5], [5, 4], [5, 6]]) put(s, r, c, "seaborgium1");
+	const pa = put(s, 5, 5, "particle_accelerator1");
+	compile(s);
+	for (let i = 0; i < 2000; i++) tick(s);
+	assert.equal(s.hasMeltedDown, false);
+	const p = s.stats.get("particle_accelerator1");
+	assert.ok(pa.heatContained > 0.8 * p.epHeat && pa.heatContained < p.containment, pa.heatContained);
+	assert.ok(s.exoticParticles > 0, "and it makes particles");
 });
 
 test("a cold particle accelerator generates nothing", () => {

@@ -150,7 +150,7 @@ const PART_UNLOCKS = Object.entries(PART_UNLOCK_TITLES).map(([id, title]) => ({
 const PA_UPGRADES = [1, 2, 3, 4, 5, 6].map((i) => ({
 	id: `improved_particle_accelerators${i}`, group: "accelerators", ecost: 200 * i, mul: 2,
 	title: `Improved ${PARTS.find((p) => p.id === `particle_accelerator${i}`).title}`,
-	desc: "Doubles the heat this accelerator can turn into Exotic Particles per level.",
+	desc: i <= 5 ? "Each level adds its base particle heat, and the room to hold it." : "Each level adds its base particle heat.",
 }));
 
 // cell_power / cell_tick / cell_perpetual for every cell type that has a price.
@@ -321,7 +321,10 @@ export function applyUpgrades(s) {
 			p.powerIncrease = base.powerIncrease * (1 + L("improved_neutron_reflection") / 100)
 				+ base.powerIncrease * L("full_spectrum_reflectors");
 		} else if (p.category === "particle_accelerator") {
-			p.epHeat = base.epHeat * (L(`improved_particle_accelerators${p.level}`) + 1);
+			// More particle heat needs more room: the sweet spot stays at half full.
+			const improved = L(`improved_particle_accelerators${p.level}`) + 1;
+			p.epHeat = base.epHeat * improved;
+			if (p.level <= 5) p.containment = base.containment * improved;
 		} else if (p.category === "cell") {
 			if (p.type === "protium") {
 				p.baseHeat = base.baseHeat * protiumBoost * unleashed;

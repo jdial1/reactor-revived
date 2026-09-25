@@ -85,9 +85,11 @@ test("the example builds' balance is pinned, and each conserves its heat", () =>
 		for (const [r, c, id] of lesson.tiles) Object.assign(tileAt(s, r, c), { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
 		compile(s);
 		const f = forecast(s);
-		// Everything the cells make is vented; nothing is made from rounding.
+		// Everything the cells make is vented, or spent by an accelerator making
+		// particles; nothing is made from rounding.
 		const made = s.cells.reduce((a, t) => a + t.heatMade, 0);
-		assert.ok(Math.abs(f.vented - made) < 0.2, `${name}: vented ${f.vented}, made ${made}`);
+		const out = f.vented + (f.converted ?? 0) + (f.held ?? 0);
+		assert.ok(Math.abs(out - made) < Math.max(0.2, made * 1e-3), `${name}: out ${out}, made ${made}`);
 		const want = BALANCE[name];
 		if (!want) continue;
 		assert.equal(f.power, want.power, `${name} power`);

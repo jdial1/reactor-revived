@@ -88,9 +88,9 @@ export const FAMILIES = [
 	], ["improved_heat_exchangers", "fluid_hyperdynamics", "active_exchangers", "reinforced_heat_exchangers", "heat_outlet_control_operator"]],
 
 	["particle_accelerator", "Particle accelerators", "accelerator_1", [
-		"An accelerator holds heat and turns the heat it holds into Exotic Particles: the fuller it runs, the more it makes.",
-		"Particles count only as far as the board sheds the heat it makes, tick by tick.",
-		"One that overflows melts the whole reactor down.",
+		"An accelerator holds heat and turns the heat it holds into Exotic Particles: the fuller it runs, the more it makes, up to half full. It holds twice its particle heat.",
+		"Making them spends a hundredth of the heat it holds, every tick, so a steady feed settles it where what comes in meets what it spends.",
+		"Particles count only as far as the board handles the heat it makes, tick by tick. One that overflows melts the whole reactor down.",
 		"Each tier has its own Improved upgrade, which doubles the heat it can turn into particles.",
 	], []],
 

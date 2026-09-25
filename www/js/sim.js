@@ -262,7 +262,17 @@ export function tick(s) {
 			rate.converted = (rate.converted ?? 0) + took;
 		}
 
-		if (p.category === "particle_accelerator" && t.heatContained) epMade += rollExoticParticles(s, t, p);
+		if (p.category === "particle_accelerator" && t.heatContained) {
+			epMade += rollExoticParticles(s, t, p);
+			// Making particles spends heat: a hundredth of what it holds, every
+			// tick. A named sink, and the one that lets an accelerator settle -
+			// the fuller it runs, the more it spends - instead of only ever
+			// filling to a meltdown.
+			const spent = t.heatContained * (p.consume ?? 0);
+			t.heatContained -= spent;
+			t.vented += spent;
+			rate.converted = (rate.converted ?? 0) + spent;
+		}
 
 		if (p.transfer && t.containments.length) {
 			if (p.category === "heat_inlet") inlets.push(t);

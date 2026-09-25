@@ -1,7 +1,7 @@
 // What a layout will do, measured rather than guessed - the question the IC2
 // planners answered: what does it make, does it hold, and when does it fail.
 // The board is copied and run forward; the real one is never touched.
-import { compile, tick, rebuyPrice, replaces } from "./sim.js";
+import { compile, tick, rebuyPrice, replaces, stored } from "./sim.js";
 import { innerSave } from "./module.js";
 
 const HORIZON = 600;
@@ -75,9 +75,11 @@ export function forecast(s, swap) {
 	if (!parts) return { parts: 0 };
 
 	const start = f.heat;
+	const storedStart = stored(f);
 	const ep = f.exoticParticles;
 	let power = 0;
 	let vented = 0;
+	let converted = 0;
 	let failTick = 0;
 	let failed = null;
 	let midway = f.heat;
@@ -90,6 +92,7 @@ export function forecast(s, swap) {
 		refills += f.rate.paidCost ?? 0;
 		if (n > HORIZON / 2 && f.rate.paid) paid = true;
 		vented += f.rate.vent;
+		converted += f.rate.converted ?? 0;
 		if (f.hasMeltedDown) {
 			failTick = n;
 			failed = "meltdown";
@@ -111,7 +114,8 @@ export function forecast(s, swap) {
 	// board's mark is: any real climb, past rounding noise.
 	const rose = (then, now, cap) => now > then + Math.max(cap, 1) * 1e-9 + 1e-6;
 	const rising = !failTick && (rose(midway, f.heat, f.maxHeat)
-		|| f.tiles.some((t, i) => t.id && rose(held[i] ?? 0, t.heatContained, s.stats.get(t.id)?.containment ?? 0)));
+		|| f.tiles.some((t, i) => t.id && !settles(s.stats.get(t.id), held[i] ?? 0, t.heatContained, HORIZON / 2)
+			&& rose(held[i] ?? 0, t.heatContained, s.stats.get(t.id)?.containment ?? 0)));
 
 	// Still rising when the run ends: draw each line on - the reactor's to twice
 	// its maximum, where it melts, and each part's to its own limit - and the
@@ -135,6 +139,10 @@ export function forecast(s, swap) {
 				refillRate += (p.cost * rise) / p.containment;
 				return;
 			}
+			// An accelerator spends a share of what it holds, so it levels off
+			// rather than climbing in a line: where it settles is what it holds
+			// now plus its climb over that share. Below its limit, it holds.
+			if (p.consume && t.heatContained + rise / p.consume < p.containment) return;
 			const at = HORIZON + Math.ceil((p.containment - t.heatContained) / rise);
 			if (!failTick || at < failTick) {
 				failTick = at;
@@ -160,6 +168,9 @@ export function forecast(s, swap) {
 		power: perTick,
 		heat: (f.heat - start) / ran,
 		vented: vented / ran,
+		converted: converted / ran,
+		// Heat kept on the board per tick: in the parts or the pool.
+		held: (stored(f) - storedStart) / ran,
 		ep: (f.exoticParticles - ep) / ran,
 		profit,
 		cost,
@@ -171,6 +182,18 @@ export function forecast(s, swap) {
 		// The mark it would earn on the real board: 1 or 2, or 0 if it fails.
 		mark: failTick ? 0 : rising || paid ? 2 : 1,
 	};
+}
+
+/**
+ * A part that spends a share of what it holds (an accelerator) levels off
+ * instead of climbing: still rising slowly is settling, not building, when
+ * where it settles - what it holds plus its climb over that share - is below
+ * its limit.
+ */
+export function settles(p, then, now, span) {
+	if (!p?.consume) return false;
+	const rise = Math.max(0, now - then) / span;
+	return now + rise / p.consume < p.containment;
 }
 
 /** Tiles holding one part, for a replace-all. */

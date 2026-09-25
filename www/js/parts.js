@@ -106,10 +106,14 @@ const COMPONENTS = [
 	  containment: 20000, containmentMul: 180,
 	  desc: "Holds a great deal of heat and never sheds any. Refilling it empties it, for up to its price; full and not refilled, it fails." },
 
+	// Knockoff's accelerator held 100 heat but made its best particles at 5e8,
+	// so it could never make any, and anything that touched it overfilled it in
+	// a tick and melted the reactor. Here it holds twice its particle heat: the
+	// sweet spot is half full, and full is still a meltdown.
 	{ category: "particle_accelerator", title: "Particle Accelerator", levels: 5, cost: 1e12, costMul: 10000,
-	  containment: 100, containmentMul: 1e6, epHeat: 5e8, epHeatMul: 20000 },
+	  containment: 1e9, containmentMul: 20000, epHeat: 5e8, epHeatMul: 20000, consume: 0.01 },
 	{ category: "particle_accelerator", title: "Black Hole Particle Accelerator", level: 6, cost: 100e12,
-	  experimental: true, requires: "singularity_harnessing", containment: 1e32, epHeat: 1.6e30, transfer: 1e30 },
+	  experimental: true, requires: "singularity_harnessing", containment: 1e32, epHeat: 1.6e30, transfer: 1e30, consume: 0.01 },
 ];
 
 // One line on every part's sheet; the parts guide (guide.js) has the rest.
@@ -123,7 +127,7 @@ const DESC = {
 	heat_exchanger: "Moves heat between itself and the parts it touches until each is equally full, up to its rate.",
 	heat_inlet: "Pulls heat out of the parts it touches into the reactor, up to its rate from each.",
 	heat_outlet: "Pushes heat from the reactor into the parts it touches, up to its rate.",
-	particle_accelerator: "Turns the heat it holds into Exotic Particles. One that overflows melts the reactor down.",
+	particle_accelerator: "Turns the heat it holds into Exotic Particles, spending a hundredth of it each tick. One that overflows melts the reactor down.",
 };
 
 /** Expand one definition at one tier into a concrete part. */

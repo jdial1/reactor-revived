@@ -12,7 +12,7 @@ export const NOTES = {
 	selfheat: ["Extreme capacitors", (p) => p.id === "capacitor6",
 		"Heats itself by half of what the power lines sell."],
 	particles: ["Particle accelerators", (p) => p.category === "particle_accelerator",
-		"Makes Exotic Particles from the heat it holds - the fuller, the more - but they count only as far as the board sheds the heat it makes. One that overflows melts the reactor down."],
+		"Makes Exotic Particles from the heat it holds - the fuller, the more, up to half full - and spends a hundredth of that heat each tick doing it. They count only as far as the board handles the heat it makes. One that overflows melts the reactor down."],
 	burn: ["Extreme vents", (p) => p.id === "vent6",
 		"Pays for every point of heat it vents with a point of power."],
 	singularity: ["Black hole accelerators", (p) => p.id === "particle_accelerator6",

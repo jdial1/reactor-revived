@@ -178,8 +178,15 @@ function markTick(s, hasParts, power) {
 	if (!m.lost) {
 		// Any real climb, however slow: a huge tank filling a point a tick is building.
 		const rose = (then, now, cap) => now > then + Math.max(cap, 1) * 1e-9 + 1e-6;
+		// A part that spends a share of what it holds (an accelerator) is
+		// settling, not building, while it will level off below its limit.
+		const settling = (p, then, now) => p?.consume
+			&& now + Math.max(0, now - then) / MARK_WINDOW / p.consume < p.containment;
 		const building = rose(m.heat, s.heat, s.maxHeat)
-			|| s.tiles.some((t, i) => t.id && rose(m.parts[i] ?? 0, t.heatContained, s.stats.get(t.id)?.containment ?? 0));
+			|| s.tiles.some((t, i) => {
+				const p = t.id && s.stats.get(t.id);
+				return p && !settling(p, m.parts[i] ?? 0, t.heatContained) && rose(m.parts[i] ?? 0, t.heatContained, p.containment ?? 0);
+			});
 		m.grade = building || m.paid ? 2 : 1;
 	}
 	openWindow(s, m);

@@ -20,9 +20,14 @@ test("particles count as far as the board handles its heat", () => {
 	for (let i = 0; i < 2000; i++) tick(farm);
 	assert.ok(farm.exoticParticles > 0, "a holding farm makes particles");
 
-	// The same accelerator fed by a cell with nothing to shed the heat: it rolls
-	// as well while it fills, but the board handles none of what it makes.
-	const hoard = board([[5, 3, "uranium1"], [5, 4, "particle_accelerator1"]]);
-	for (let i = 0; i < 50 && !hoard.hasMeltedDown; i++) tick(hoard);
-	assert.equal(hoard.exoticParticles, 0, "heat stored toward a failure earns nothing");
+	// The same cell and accelerator, with a big coolant tank beside the cell
+	// taking half its heat and shedding none: the board handles less of what it
+	// makes, and keeps fewer of the particles it rolls.
+	const alone = board([[5, 3, "uranium1"], [5, 4, "particle_accelerator1"]]);
+	const hoard = board([[5, 3, "uranium1"], [5, 4, "particle_accelerator1"], [5, 2, "coolant_cell5"]]);
+	for (let i = 0; i < 200; i++) {
+		tick(alone);
+		tick(hoard);
+	}
+	assert.ok(hoard.exoticParticles < alone.exoticParticles, `${hoard.exoticParticles} vs ${alone.exoticParticles}`);
 });

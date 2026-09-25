@@ -11,13 +11,14 @@ const O = "heat_outlet1";
 const I = "heat_inlet1";
 const C = "coolant_cell1";
 const A = "particle_accelerator1";
+const D = "seaborgium2";
 
 /**
  * Draw a layout from rows of letters: U cell, V vent, X exchanger, O outlet,
- * I inlet, C coolant cell, A particle accelerator.
+ * I inlet, C coolant cell, A particle accelerator, D dual seaborgium cell.
  */
 function draw(rows) {
-	const key = { U, V, X, O, I, C, A };
+	const key = { U, V, X, O, I, C, A, D };
 	const tiles = [];
 	rows.forEach((line, r) => [...line].forEach((ch, c) => {
 		if (key[ch]) tiles.push([r, c, key[ch]]);
@@ -102,13 +103,10 @@ export const LESSONS = {
 	},
 	epfarm: {
 		title: "Feeding an accelerator",
-		text: "An accelerator turns the heat it holds into Exotic Particles - the fuller it runs, the more it makes - and one that overflows melts the whole reactor down. Here it touches no vent: exchangers feed it from the cells and pass its heat on to the vents, so it runs warm and never full. The first accelerator holds only 100 heat and earns slowly; the ones that unlock later hold more.",
+		text: "An accelerator turns the heat it holds into Exotic Particles - the fuller it runs, the more it makes, up to half full - and spends a hundredth of that heat every tick doing it, so a steady feed settles it where the feed and the spending meet. Here one dual seaborgium cell splits its heat between two accelerators, and each settles a little past half full. One that overflows melts the whole reactor down.",
 		tiles: draw([
 			"",
-			"...UU...",
-			"...XX...",
-			"...AXV..",
-			"....V...",
+			"..ADA...",
 		]),
 	},
 };
@@ -123,7 +121,7 @@ export const BROKEN = {
 	exchangers: [[0, 3], [0, 4], [1, 2], [1, 5], [2, 1], [2, 6]],
 	chain: [[4, 2]],
 	heatpipe: [[0, 1], [0, 4], [3, 1], [3, 4]],
-	epfarm: [[3, 5]],
+	epfarm: [[1, 4]],
 };
 
 /** An example with its broken tiles taken out. */

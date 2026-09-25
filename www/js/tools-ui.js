@@ -141,7 +141,7 @@ export function ledgerSheet(s) {
 		["Made by capacitors, selling", self ? num(self) : null],
 		["Shed by vents", num((r.vent ?? 0) - paid)],
 		["Shed by refilling condensators", paid ? num(paid) : null],
-		["Turned into power", converted ? num(converted) : null],
+		["Turned into power or particles", converted ? num(converted) : null],
 		["Held this tick", signed(r.held ?? 0)],
 		["Drawn into the reactor", r.inlet ? num(r.inlet) : null],
 		["Drawn out of the reactor", r.outlet ? num(r.outlet) : null],

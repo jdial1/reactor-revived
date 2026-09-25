@@ -513,6 +513,13 @@ the one rule dropped on purpose: it deleted heat.
 
 ## Differences from the original
 
+- The particle accelerator works. Knockoff's first one held 100 heat but made
+  its particles at 500 million, so it could never make one, and any heat that
+  reached it overfilled it in a tick and melted the reactor. Here each tier
+  holds twice its particle heat (the sweet spot is half full), and making
+  particles spends a hundredth of the heat it holds each tick - a named sink
+  that lets a steady feed settle it where the feed and the spending meet. The
+  example farm is one dual seaborgium cell between two accelerators.
 - Capacitors and plating speed only the vents and transfer parts they touch.
   Knockoff applied their bonus board-wide; here where a capacitor sits is a
   choice, as every other part's is.
