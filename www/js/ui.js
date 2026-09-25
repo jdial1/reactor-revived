@@ -10,7 +10,7 @@ import { play, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
 import { span } from "./flux.js";
-import { buildVerdict, renderVerdict, flowText, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
+import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
@@ -911,8 +911,13 @@ export function render(dom, s, game) {
 			: p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
 		if (dom.flowOn) {
-			const text = flowText(t, p);
-			if (row.flow.textContent !== text) row.flow.textContent = text;
+			const items = flowItems(t, p).map(([k, v]) => [k, compact(v)]);
+			const sig = items.join("|");
+			if (row.flowSig !== sig) {
+				row.flowSig = sig;
+				row.flow.replaceChildren(...items.map(([k, v]) =>
+					h("span", { className: `f-${k}` }, icon(k, "icon"), v)));
+			}
 		}
 		const venting = Boolean(p?.vent) && t.vented > 0;
 		row.fan.classList.toggle("spinning", venting);

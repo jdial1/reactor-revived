@@ -329,7 +329,7 @@ of this line loved, what broke, and what they asked for. What came of it:
   would forecast one board and run another; a test runs every example both
   ways and requires them to agree. Forecasts live only in the planner.
 - **Flow**, beside the verdict: an overlay of what each tile did with heat this
-  tick - made (+), taken in (▼), passed on (▲), vented (≈). Players
+  tick - made, taken in, passed on and vented, each as the rate line's own icon and a compact number (1.8K, 22M), at most three rows a tile so nothing runs off it at any tier. Players
   of this line kept calculators for exchangers and outlets; this is that, live.
 - **Heat made** on the rate line is what the cells make. It used to be what was
   left after the vents beside them took their share, which rounds below zero -

@@ -1198,3 +1198,19 @@ test("the dock's compact numbers fit a corner and never read high", async () => 
 		assert.ok(compact(n).length <= 5, `${n} -> ${compact(n)}`);
 	}
 });
+
+test("Flow shows at most three icon rows per tile, each a compact number", async () => {
+	const { flowItems } = await import("../www/js/tools-ui.js");
+	const { compact } = await import("../www/js/fmt.js");
+	const s = fresh();
+	const p = s.stats.get("heat_exchanger1");
+	const t = { activated: true, made: 0, heatIn: 1.568e6, heatOut: 44.6e3, vented: 2.335e6 };
+	const items = flowItems(t, p);
+	assert.ok(items.length <= 3);
+	assert.deepEqual(items.map(([k]) => k), ["inlet", "outlet", "vent"]);
+	for (const [, v] of items) assert.ok(compact(v).length <= 5, compact(v));
+	// A fourth line gives way: in and vent stay, pass-on goes.
+	const busy = flowItems({ ...t, made: 12 }, p);
+	assert.deepEqual(busy.map(([k]) => k), ["heat", "inlet", "vent"]);
+	assert.deepEqual(flowItems({ activated: true, made: 1.48e6 }, s.stats.get("uranium3")), [["heat", 1.48e6]]);
+});

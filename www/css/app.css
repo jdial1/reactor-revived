@@ -1073,8 +1073,10 @@ body.planning #goal { background: #0e2233; }
 	display: none;
 	align-items: center;
 	justify-content: center;
-	white-space: pre;
-	font: bold 8px/1.15 inherit;
+	flex-direction: column;
+	gap: 1px;
+	white-space: nowrap;
+	font: bold 8px/1 inherit;
 	font-family: inherit;
 	font-style: normal;
 	color: #fff;
@@ -1083,6 +1085,9 @@ body.planning #goal { background: #0e2233; }
 	pointer-events: none;
 }
 body.flow .tile .flow { display: flex; background: #0009; }
+/* One row per flow: the rate line's icon, then a compact number. */
+.tile .flow span { display: flex; align-items: center; gap: 1px; max-width: 100%; overflow: hidden; }
+.tile .flow .icon { width: 8px; height: 8px; flex: none; }
 
 /* Tool dialogs: replace-all, save states, examples. */
 .sheet.tool .tool-label { display: block; margin: 8px 0 4px; font-size: 10px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
