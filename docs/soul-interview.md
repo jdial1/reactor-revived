@@ -754,7 +754,14 @@ fall?
 *Push:* "Is the operator working days or nights?"
 *On record:* a board that warms toward red with heat, tile bars that stay grey
 until four-fifths full, each fuel glowing in its own colour.
-> Answer:
+> Answer: "Operator time is actual player time, maybe some very basic seasonal,
+> time related coloring/shading of game board"
+>
+> *On record, for 7.6:* the board's colour already carries meaning. It warms
+> toward red with the reactor's heat, and a tile's bar stays grey until
+> four-fifths full, because colour is kept for abnormal states (README, "Heat
+> you can see"). House rule 2 bars any clock outside the game that punishes
+> absence; a light that follows the time of day punishes nothing.
 
 **5.4** What is the quietest sound in the game, and why does it matter?
 *Push:* "What is quieter than the hum at Mark I?"
