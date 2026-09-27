@@ -355,7 +355,12 @@ shape every line.
 operator, the university, or the fuel?
 *Push:* "Who believes it most, and what would they lose if it stopped being
 true?"
-> Answer:
+> Answer: "The power demands real use could be a mystery, why the town need so
+> much power urgently"
+>
+> *For 2.6 and 7.7:* a mystery candidate that ties the ever-growing demand of 2.1
+> to the log's own open line about the particles ("They have stopped saying
+> what for").
 
 **2.5** What is scarce in the valley, and what is abundant that shouldn't be?
 *Push:* "At job 30, what is scarce then?"
