@@ -1,6 +1,6 @@
 # Privacy policy — Reactor Revived
 
-Last updated: 11 September 2026
+Last updated: 27 September 2026
 
 **Reactor Revived does not collect, transmit, or share any data about you.**
 
@@ -35,7 +35,7 @@ The app collects nothing from anyone, including children.
 ## Third-party content
 
 The game ships artwork and sounds made by other people, used under licences that
-permit it — Reactor Revival's part sprites, Buch's interface art (CC0), and
+permit it — Reactor Revival's part sprites and valley paintings, Buch's interface art (CC0), and
 Kenney's impact sounds (CC0). None of it contains code, and none of it phones
 anywhere. Credits are in the app under Options.
 

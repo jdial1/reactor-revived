@@ -846,6 +846,17 @@ with a small heavy drop; money rolls on drums.
 > game ships on the Play Store from a public repository. No licence for any
 > Stålenhag image, or for backgrounds from Reactor Revival, is recorded in this
 > repo. Until one is, the ethos can be carried only by the game's own design.
+>
+> Their provenance: "I made them inspired by stalenhag but full free use" (the
+> thirty paintings in Reactor Revival's `public/img/misc/stalenhag_bg/`).
+>
+> *Built:* four of them, chosen by the interviewer for fog, flat grey light and
+> green country (Revival's 25, 12, 3 and 17), stand behind the board as the
+> valley outside: one per season, darkened after seven (5.3), seen faintly
+> through the empty slots, fading as the reactor heats, still, and never in the
+> planner. Credited as the designer's own, in the manner of Simon Stålenhag.
+> Left out on purpose: the deserts, the gun turret, and the giant robot, which
+> would give away the robot mystery (3.1).
 
 ## Phase 6: Tensions and Taboos
 
@@ -1283,6 +1294,7 @@ beside what already ships.
 | Colours | ink `#c8d3de`, dim `#7b8794`, power `#58c470`, heat `#d8703a`, cash `#d8c15a`, particles `#b06fd8`; each fuel its own glow | A pale panel with a process diagram in orange, blue and black (5.6, lead reference); teal and orange plating. Colour that carries a signal is allowed; bright, glossy decoration is not (6.1) |
 | Light | the board warms toward red with heat; grey until abnormal | The player's real time (5.3). By day, flat grey light through fog; by night, the room's own lamps. Any shading stays out of the heat colours |
 | Outside | none | Fog, overcast, dreary, a chill: "the dreary outside essence" (5.1, 5.6) |
+| The valley outside | four paintings behind the board, one per season (`www/backdrops/`) | The designer's own paintings for Reactor Revival, in the manner of Simon Stålenhag: fog, flat grey light, green country, old plant standing in it. Still; faint through the empty slots; gone near the limit |
 | Reference images | none | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Sources not yet recorded |
 | Signature sounds | one hum; six heavy, dull impacts | The click and clank of placing and moving parts: "the physical weight, the effort of your actions, the heaviness of the situation" (5.4) |
 | The quietest sound | the hum at Mark I | The click and clank of a part going into place (5.4) |

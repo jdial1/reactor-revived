@@ -15,6 +15,7 @@ import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
 import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry } from "./records.js";
+import { backdropFor } from "./backdrop.js";
 import { NOTES, notesFor } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
@@ -195,7 +196,7 @@ const LINEAGE = [
 		"by cwmonkey. Incremental rebuilt in HTML5 - no engine, no build step. The direct parent "
 		+ "of this one, and the version the balance is checked against."],
 	["Reactor Revival", null,
-		"a later remake in the same line. Its part artwork is what you are looking at on the board."],
+		"a later remake in the same line. Its part artwork, and the valley behind the board, are what you are looking at."],
 	["Reactor Revived", null,
 		"this one: a clean-room rewrite for a phone, no dependencies, no network."],
 ];
@@ -872,6 +873,14 @@ export function render(dom, s, game) {
 		document.body.style.setProperty("--hot", warm);
 		document.body.style.setProperty("--quiet", 1 - 0.6 * warm);
 	}
+	// The valley behind the board: the season's painting, dark after seven.
+	const outside = backdropFor(new Date());
+	if (outside.src !== dom.backdrop) {
+		dom.backdrop = outside.src;
+		// Used from app.css, so the path is from css/.
+		dom.board.style.setProperty("--backdrop", `url(../${outside.src})`);
+	}
+	dom.board.classList.toggle("night", outside.night);
 	document.body.classList.toggle("near", f > 0.8);
 	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0, s.planner ? 0 : s.mark?.trend ?? 0, !s.planner && s.mark?.grade === 1);
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
@@ -952,6 +961,7 @@ export function render(dom, s, game) {
 		row.fan.style.backgroundImage = p?.vent ? art : "";
 		const queued = Boolean(t.id) && !t.activated;
 		row.cell.classList.toggle("queued", queued);
+		row.cell.classList.toggle("vacant", !t.id);
 		row.cell.title = queued ? `Waiting for $${fmt(p.cost)}` : "";
 		row.cell.classList.toggle("spent", Boolean(p?.ticks) && (p.category === "cell" || p.category === "module") && !t.ticks);
 		row.cell.classList.toggle("module", p?.category === "module");

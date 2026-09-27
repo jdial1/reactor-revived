@@ -159,7 +159,25 @@ main { overflow: hidden; position: relative; }
 	/* The room warms with the reactor. */
 	background: color-mix(in srgb, var(--bg), #3a1406 calc(var(--hot, 0) * 70%));
 	transition: background 600ms linear;
+	position: relative;
+	isolation: isolate;
 }
+/* The valley outside, seen through the fog and the empty slots. It fades as the
+   reactor heats, so near the limit the room's red is all there is. Still, and
+   never in the lab. */
+#board::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background: var(--backdrop, none) center / cover no-repeat;
+	opacity: calc(0.5 * (1 - var(--hot, 0)));
+	filter: saturate(0.75);
+	transition: opacity 600ms linear;
+}
+#board.night::before { filter: saturate(0.5) brightness(0.35); }
+body.planning #board::before { display: none; }
 /* Near the limit the grid shimmers like air over a hot plate. */
 body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 @keyframes haze {
@@ -195,6 +213,8 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 	box-shadow: inset 0 0 calc(var(--tile) * 0.35) rgb(255 110 40 / calc(var(--warm, 0) * 0.85));
 }
 .tile.queued { opacity: 0.45; border-style: dashed; }
+/* An empty slot shows a little of the valley it is not yet lighting. */
+.tile.vacant { background-color: rgb(15 19 24 / 0.72); }
 
 /* Light masks (Kenney, CC0), tinted: white alpha shapes coloured by CSS. */
 .tile .glow {

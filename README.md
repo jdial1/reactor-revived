@@ -34,7 +34,8 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **No image files but the art itself.** Every interface icon is inline SVG;
   the only bitmaps in the APK are the 90 part sprites and four UI frames,
-  37 KB together, and the only sounds are six impacts.
+  37 KB together, and four paintings of the valley outside, 144 KB; the only
+  sounds are six impacts.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,400 lines of game code, 750 of CSS, and a 105-line
@@ -415,6 +416,22 @@ own dock button; that it arrived, like a trophy or a field note, is filed in the
 operator's log book without a toast or a sound (house rule 3 of the soul
 instance, One Request, Waiting).
 
+## The valley outside
+
+Behind the board is the valley Harrow Station powers: one painting per season,
+chosen by the calendar, and darkened after seven in the evening, when the only
+light is the control room's own. It shows faintly through the empty slots - a
+slot not yet filled is a view of what it is not yet lighting - and fades as the
+reactor heats, so near the limit the room's red is all there is. It never moves,
+never changes while you watch, and is not shown in the planner.
+
+The four paintings (`www/backdrops/`) were made by this game's author for
+Reactor Revival, in the manner of Simon Stålenhag, and are free to use; they are
+not his work. Revival carries thirty; these four are the ones that look like
+Harrow's valley - fog, flat grey light, green country, old plant standing in it -
+resized to 900 px and re-encoded as WebP once, by hand, since there is no build
+step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
+
 ## Gauges
 
 Power, money and heat sit in one panel with nothing framed inside it. Power
@@ -674,5 +691,6 @@ fog, you learn it alone until it holds. The valley asks for more."*
 Original game by **cwmonkey**. Based on **Reactor Incremental** by **Cael**.
 
 The part artwork is Reactor Revival's, with fifteen sprites derived from it
-(see Part artwork). The sounds, light masks and interface frames are CC0, from
+(see Part artwork). The four paintings of the valley are also Reactor Revival's,
+made by this game's author in the manner of Simon Stålenhag, and free to use. The sounds, light masks and interface frames are CC0, from
 Kenney and from Buch on OpenGameArt.
