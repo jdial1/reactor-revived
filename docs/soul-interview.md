@@ -1071,7 +1071,14 @@ Today there are two sentences, and neither holds a world truth:
 **Where it goes:** it replaces the instance philosophy in the soul instance's
 Soul Choice. Containment stays as it is.
 
-> Soul sentence:
+> Soul sentence: **"Paid to start a Soviet reactor nobody else could, in an
+> English fog, you learn it alone until it holds. The valley asks for more."**
+> (25 words)
+>
+> *Provenance:* merged by the interviewer from three drafts built on the
+> designer's answers (0.1, 1.1, 2.5, 3.3, 4.2, 5.1, 5.2, 6.3); chosen by the
+> designer. It drops one idea the designer had kept, "a valley that never says
+> why". *Test:* it could not describe IC2, Reactor Incremental or Knockoff.
 
 ### 7.2 Pillars
 
