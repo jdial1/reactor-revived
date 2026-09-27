@@ -820,6 +820,13 @@ with a small heavy drop; money rolls on drums.
 > *What they share:* three of the four are control rooms whose walls draw the
 > process itself (a mimic diagram), so the operator reads the plant's flow off
 > the wall. The fourth is the valley outside: fog, iron, a few lamps.
+>
+> Which one is Harrow's control room: "The white with orange and blue
+> panels/gauges fits best" (the fourth).
+>
+> *For 7.6:* the lead reference is a pale panel painted with its own process
+> diagram in orange, blue and black, round dials, and a desk of black levers
+> and toggles. It sits beside the "teal/orange metal plating" of 5.2.
 
 ## Phase 6: Tensions and Taboos
 
