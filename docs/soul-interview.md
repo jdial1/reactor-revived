@@ -287,7 +287,15 @@ comedy never louder than deadpan.
 already has one: *"Thorium arrives on Tuesday."*
 *On record:* nothing yet. The physics (conserved heat, touching cells) is ours,
 nearly. The fuels are not: dolorium, nefastium, protium.
-> Answer:
+> Answer: "Progress is infinite , resources are infinite, meltdown is a finite
+> event with no long term world repercussions"
+>
+> *For 6.3:* "progress is infinite" beside the finite, maxed-out last hour of
+> 1.3; "resources are infinite" beside Containment's scarcity, where the 96
+> tiles are the one thing that never grows. "No long term world repercussions"
+> is the standing rule that a meltdown is a clean wipe, now said as a law of the
+> world, and it bears on 4.4 and the log's "If the station trips, all of them go
+> dark"
 
 **2.2** What does that truth cost, and who pays? Not in money.
 *Push:* "Power without cost is hollow. Who in the valley pays for the plant
