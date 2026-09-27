@@ -972,6 +972,14 @@ To settle:
 >    finished; the demand never is. For the Lock: the finished state needs to be
 >    noticed (1.3), and the demand needs a form that goes on past job 30 (2.1,
 >    3.5).
+>
+> 6. Rebuilding is the cost, and rebuilding is one tap: "Keep it, rebuilding is
+>    earned by knowledge and will cost more then a player has usually after
+>    losing everything in the reactor"
+>    *Settled, and kept.* *On record:* a meltdown keeps the money, and a rebuilt
+>    code queues every part the player cannot yet afford, so the board comes
+>    back as the money does. How much of a board a player can rebuild at once
+>    after a meltdown has not been measured.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
