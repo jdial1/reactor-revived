@@ -453,6 +453,17 @@ appear. They are here to decide who the log is written *for*.
 >
 > *Provenance:* these are the interviewer's words, chosen by the designer, not
 > the designer's own. Treat them as weaker than an answer given unprompted.
+>
+> Made theirs: "3, as part of the mystery could be the lack of actual humans
+> where every job is ran by humanoid robots.
+>
+> 5 is also good as the reading of letters sounds like a human selfish
+> emotional action that might imply they are actually human"
+>
+> *On record:* nothing in the build names a person, human or not. The log's
+> people are institutions (the mill, the clinic, the co-op, the university), and
+> the operator is only "you". *For 7.7:* this joins the mysteries answered as
+> the player climbs.
 
 **3.2** What do operators say at shift change? When a part fails? When the
 board goes quiet?
