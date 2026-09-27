@@ -699,7 +699,12 @@ is not written anywhere.
 outside?
 *Push:* "Which season is the game set in, if the log says 'Winter is coming' at
 job 13?"
-> Answer:
+> Answer: "It should feel cold, industrial, mildly musty but maintained
+>
+> Outside foggy, dreary, overcast, a chill in the air"
+>
+> *For 6.3:* the control room is "maintained"; in 2.7 the plant's complaint is
+> "poorly maintained infrastructure".
 
 **5.2** What is the plant made of? What does the operator touch?
 *Push:* "Name a material in the build today that is wrong."
