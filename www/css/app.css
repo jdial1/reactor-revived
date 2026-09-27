@@ -361,6 +361,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 .objectives li.current b { color: var(--ink); }
 .objectives li.current::before { box-shadow: inset 0 0 0 1px var(--cash); }
 .objectives li.current small { display: block; color: var(--ink); }
+.objectives li small[hidden] { display: none; }
 
 .objectives:not(.open) li.done, .objectives li.current ~ li { display: none; }
 .done-toggle {
@@ -928,6 +929,13 @@ body.melting { animation: melting 500ms ease-out; }
 	animation: met 1.6s ease-out forwards;
 }
 @keyframes met { 70% { opacity: 1; } to { opacity: 0; } }
+/* An order revised: said at the start of the goal line, in the colour of a
+   price, then gone. Not red: nothing was lost. */
+#goal .objective.revised::before {
+	content: "Revised\00a0";
+	color: var(--cash);
+	animation: met 1.6s ease-out forwards;
+}
 
 /* Modules. A casing is the icon its designer chose, framed in its colour. */
 .tile.module {

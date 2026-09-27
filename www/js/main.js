@@ -3,8 +3,8 @@ import { load, save, newState, place, exportSave as saveText, deserialize, seria
 import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart, refillByHand } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
-import { checkObjectives, OBJECTIVES } from "./objectives.js";
-import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog, refillCost } from "./ui.js";
+import { checkObjectives, checkOrder, goalAt, orderTitle, OBJECTIVES } from "./objectives.js";
+import { buildUI, render, ask, inspect, flash, toast, goalMet, goalRevised, rebootDialog, refillCost } from "./ui.js";
 import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES, fileEntry } from "./records.js";
 import { isComplete, COMPLETE_ENTRY } from "./complete.js";
 import { fmt } from "./fmt.js";
@@ -408,7 +408,8 @@ setInterval(() => {
 }, UI_MS);
 setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
-	const done = OBJECTIVES[s.objective];
+	const done = goalAt(s);
+	const revised = s.revised.length;
 	// Everything done, noticed once: a line in the log book, and the valley lit.
 	if (!s.planner && !s.records.complete && isComplete(s)) {
 		s.records.complete = { ticks: s.runTicks };
@@ -423,6 +424,11 @@ setInterval(() => {
 			ask("The log is finished. Reboot, and pick a rule for the next run?", () => game.reboot(false), "Reboot", true);
 		}
 	}
+	// The job was met as first asked, and asked again higher.
+	if (s.revised.length > revised) goalRevised(dom, goalAt(s).title);
+	// Past the log, the standing order: met, and raised.
+	const standing = s.order?.target;
+	if (!s.planner && checkOrder(s)) goalMet(dom, orderTitle(standing));
 }, OBJECTIVE_MS);
 setInterval(() => save(theGame()), SAVE_MS);
 

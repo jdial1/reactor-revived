@@ -3,7 +3,7 @@
 // rebuild that board onto today's. There is no rolling the game back to it: a
 // meltdown is final, and so is everything else.
 import { serialize } from "./state.js";
-import { OBJECTIVES } from "./objectives.js";
+import { goalAt } from "./objectives.js";
 import { markOf } from "./records.js";
 
 /** Record the game as it stands, filed under the goal just finished. */
@@ -11,7 +11,7 @@ export function takeSnapshot(s, objective, now = Date.now()) {
 	const { snapshots, ...save } = serialize(s);
 	const snap = {
 		objective,
-		title: OBJECTIVES[objective]?.title ?? "",
+		title: goalAt(s, objective)?.title ?? "",
 		at: now,
 		// Measured, not forecast: the floor reports only what has happened.
 		stats: {

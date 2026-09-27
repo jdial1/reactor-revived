@@ -6,6 +6,7 @@
 import { ROWS, COLS, activeTiles, tileAt } from "./sim.js";
 import { fmt } from "./fmt.js";
 import { UPGRADE_BY_ID } from "./upgrades.js";
+import { fileEntry } from "./records.js";
 
 /** Placed parts, optionally filtered. `live` cells are ones with ticks left. */
 function* placed(s) {
@@ -99,7 +100,12 @@ export const OBJECTIVES = [
 	  ...atLeast(10, (p) => p.category === "capacitor") },
 	{ title: "Make 500 power per tick",
 	  note: "Output required: 500 per tick. Rail yard load, replacing diesel.", reward: 5000,
-	  check: (s) => statsPower(s) >= 500 && !s.paused },
+	  check: (s) => statsPower(s) >= 500 && !s.paused,
+	  // Met as first asked, then asked again higher: the demand grows after it is
+	  // made (Soul Interview 3.5), and says so.
+	  revision: { title: "Make 750 power per tick",
+	    note: "Order revised. 500 cancelled. Output required: 750 per tick.",
+	    check: (s) => statsPower(s) >= 750 && !s.paused } },
 	{ title: "Upgrade Potent Uranium Cell to level 3",
 	  note: "Uranium stock weak. Raise its rating.", reward: 25000,
 	  check: (s) => s.levels.cell_power_uranium > 2 },
@@ -118,7 +124,10 @@ export const OBJECTIVES = [
 	  ...atLeast(5, liveCells("thorium3")) },
 	{ title: `Have $${fmt(1e10)}`,
 	  note: "Reserve required: $10B. Hold it.", reward: 1e10,
-	  check: (s) => s.money >= 1e10 },
+	  check: (s) => s.money >= 1e10,
+	  revision: { title: `Have $${fmt(1.5e10)}`,
+	    note: "Order revised. $10B cancelled. Reserve required: $15B.",
+	    check: (s) => s.money >= 1.5e10 } },
 	{ title: "Run 5 Quad Seaborgium Cells",
 	  note: "Three towns on this grid. If the station trips, all three go dark.", reward: 1e11,
 	  ...atLeast(5, liveCells("seaborgium3")) },
@@ -139,7 +148,10 @@ export const OBJECTIVES = [
 	  ...atLeast(5, liveCells("dolorium3")) },
 	{ title: `Make ${fmt(1000)} Exotic Particles`,
 	  note: "Particles required: 1,000. Reason: not required.", epReward: 1000,
-	  check: (s) => s.exoticParticles >= 1000 },
+	  check: (s) => s.exoticParticles >= 1000,
+	  revision: { title: `Make ${fmt(1500)} Exotic Particles`,
+	    note: "Order revised. 1,000 cancelled. Particles required: 1,500.",
+	    check: (s) => s.exoticParticles >= 1500 } },
 	{ title: "Run 5 Quad Nefastium Cells",
 	  note: "Nefastium. Signed for twice.", reward: 1e17,
 	  ...atLeast(5, liveCells("nefastium3")) },
@@ -150,11 +162,27 @@ export const OBJECTIVES = [
 	  note: "Demand met. All listed loads supplied. Maintain output.", check: () => false },
 ];
 
-/** Pay out every objective the state now satisfies, in order. */
+/** A job as it stands: once revised, its raised order in place of the first. */
+export function goalAt(s, i = s.objective) {
+	const o = OBJECTIVES[i];
+	return o?.revision && s.revised?.includes(i) ? { ...o, ...o.revision } : o;
+}
+
+/**
+ * Pay out every objective the state now satisfies, in order. A job with a
+ * revision is not paid the first time it is met: it is cancelled and asked
+ * again higher, once, with a line in the log book.
+ */
 export function checkObjectives(s) {
 	let paid = false;
-	while (s.objective < OBJECTIVES.length && OBJECTIVES[s.objective].check(s)) {
-		const o = OBJECTIVES[s.objective];
+	while (s.objective < OBJECTIVES.length && goalAt(s).check(s)) {
+		const first = OBJECTIVES[s.objective];
+		if (first.revision && !s.revised.includes(s.objective)) {
+			s.revised.push(s.objective);
+			fileEntry(s, first.revision.note);
+			break;
+		}
+		const o = goalAt(s);
 		if (o.reward) s.money += o.reward;
 		if (o.epReward) s.currentExoticParticles += o.epReward;
 		s.objective++;
@@ -162,3 +190,41 @@ export function checkObjectives(s) {
 	}
 	return paid;
 }
+
+// ---- the standing order ------------------------------------------------------
+// The log ends; the demand does not (Soul Interview 4.6, 6.3). Past the last job
+// one order stands at a time, always for more than the reactor made when it was
+// issued and never less than the order before it. It pays nothing: the output
+// sells as it always has. A reboot does not lower it.
+
+/** The next round figure (1, 2 or 5 of a power of ten) at or above x. */
+function roundUp(x) {
+	const k = 10 ** Math.floor(Math.log10(x));
+	return [1, 2, 5, 10].map((m) => m * k).find((v) => v >= x * (1 - 1e-9));
+}
+
+const nextOrder = (s) => roundUp(Math.max(s.order?.target ?? 0, statsPower(s), 1000) * 1.5);
+
+/** The order's line, in the goal line's words and the log book's. */
+export const orderTitle = (target) => `Increase output to ${fmt(target)} per tick`;
+export const orderEntry = (target) => `Increase output: ${fmt(target)} per tick. Reason: not required.`;
+
+/**
+ * Issue the standing order once the log is finished, and raise it when the
+ * reactor, running, meets it. True when an order was met.
+ */
+export function checkOrder(s) {
+	if (s.objective < OBJECTIVES.length - 1) return false;
+	if (!s.order) {
+		s.order = { target: nextOrder(s), met: 0 };
+		fileEntry(s, orderEntry(s.order.target));
+		return false;
+	}
+	if (s.paused || statsPower(s) < s.order.target) return false;
+	s.order = { target: nextOrder(s), met: s.order.met + 1 };
+	fileEntry(s, orderEntry(s.order.target));
+	return true;
+}
+
+/** How far the reactor is towards the standing order, for the goal line's bar. */
+export const orderProgress = (s) => (s.order ? Math.min(statsPower(s) / s.order.target, 1) : 0);

@@ -3,7 +3,7 @@
 import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
 import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
-import { OBJECTIVES } from "./objectives.js";
+import { OBJECTIVES, goalAt, orderTitle, orderProgress } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
 import { play, setHeat } from "./audio.js";
@@ -502,6 +502,12 @@ export function goalMet(dom, title) {
 	say(`Goal met - ${title}`);
 }
 
+/** The job was met as first asked, and has been asked again higher. */
+export function goalRevised(dom, title) {
+	flash(dom.objective, "revised");
+	say(`Order revised - ${title}`);
+}
+
 export function toast(text, glyph) {
 	document.getElementById("toast")?.remove();
 	const el = h("div", { id: "toast" }, glyph ? icon(glyph) : [], h("span", { textContent: text }));
@@ -744,10 +750,15 @@ function buildObjectiveList(dom) {
 				if (!s.lessonsSeen.includes(LESSON_AT[i])) s.lessonsSeen.push(LESSON_AT[i]);
 				lessonDialog(s, LESSON_AT[i], dom.game);
 			} });
-		const row = h("li", {}, h("b", { textContent: o.title }),
+		const title = h("b", { textContent: o.title });
+		const note = h("small", { textContent: o.note });
+		// A revised order keeps the first line under it; the standing order sits
+		// under the last job.
+		const after = h("small", { className: "revision", hidden: true });
+		const row = h("li", {}, title,
 			h("i", { textContent: o.reward ? `$${fmt(o.reward)}` : o.epReward ? `${fmt(o.epReward)} EP` : "" }),
-			h("small", { textContent: o.note }), lesson || "", load);
-		row.load = load;
+			note, after, lesson || "", load);
+		Object.assign(row, { load, heading: title, after });
 		dom.objectiveList.append(row);
 		return row;
 	});
@@ -842,11 +853,15 @@ export function render(dom, s, game) {
 		el.textContent = id === "held" && Math.abs(v) >= 0.5 ? `${v > 0 ? "+" : ""}${fmt(v)}` : fmt(id === "held" ? 0 : v);
 	}
 
-	const goal = OBJECTIVES[s.objective];
+	const goal = goalAt(s);
+	// Past the last job, the goal line carries the standing order.
+	const order = s.order && s.objective === OBJECTIVES.length - 1 && !s.planner;
 	const step = goal?.progress?.(s);
 	const prize = goal && (goal.reward ? `  $${fmt(goal.reward)}` : goal.epReward ? `  ${fmt(goal.epReward)} EP` : "");
 	dom.goalText.textContent = s.planner
 		? "Planner: free, not real"
+		: order
+			? orderTitle(s.order.target)
 		: goal
 			? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
 			: "Every goal met.";
@@ -863,7 +878,7 @@ export function render(dom, s, game) {
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
 	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);
-	dom.goalBar.style.setProperty("--p", step ? step[0] / step[1] : 0);
+	dom.goalBar.style.setProperty("--p", order ? orderProgress(s) : step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
 	// feedback goes quiet, and the hum climbs.
@@ -1162,7 +1177,18 @@ function renderObjectives(dom, s) {
 		row.load.hidden = !snap || !toolsAllowed(s);
 		if (snap) row.load.onclick = () => snapshotDialog(s, snap, dom.game);
 	});
-	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
+	dom.objectiveRows.forEach((row, i) => {
+		row.classList.toggle("current", i === s.objective);
+		const o = OBJECTIVES[i];
+		const revised = o.revision && s.revised?.includes(i);
+		const last = i === OBJECTIVES.length - 1 && s.order;
+		const title = goalAt(s, i).title;
+		const after = revised ? o.revision.note
+			: last ? `Standing order: ${orderTitle(s.order.target)}. Met since the log closed: ${s.order.met}.` : "";
+		if (row.heading.textContent !== title) row.heading.textContent = title;
+		if (row.after.textContent !== after) row.after.textContent = after;
+		row.after.hidden = !after;
+	});
 	// The log book's silent entries, newest first, under the jobs.
 	const entries = s.entries ?? [];
 	const last = entries.at(-1);
@@ -1310,6 +1336,7 @@ function renderRecords(dom, s) {
 		["Field notes", `${s.notes.length} of ${Object.keys(NOTES).length}`],
 		...(s.restored ? [["This run", "Restored from a save"]] : []),
 		...(r.complete ? [["Log, parts, upgrades and board", "All complete"]] : []),
+		...(s.order ? [["Standing orders met", String(s.order.met)]] : []),
 	];
 	// Fastest to each rung of power per tick, per kind of run, counted from its reboot.
 	for (const [run, times] of Object.entries(r.speed)) {

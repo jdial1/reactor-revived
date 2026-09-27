@@ -40,7 +40,7 @@ test("nothing the player reads states the square law, in the game or in the stor
 	const text = [
 		...STEPS.flatMap((step) => [step.title, step.text]),
 		...Object.values(NOTES).map(([title, , line]) => `${title} ${line}`),
-		...OBJECTIVES.flatMap((o) => [o.title, o.note]),
+		...OBJECTIVES.flatMap((o) => [o.title, o.note, o.revision?.title ?? "", o.revision?.note ?? ""]),
 		store,
 	].join(" ").toLowerCase();
 	for (const spoiler of ["square", "squared", "quadratic", "exponential", "multipl"]) assert.ok(!text.includes(spoiler), spoiler);

@@ -438,6 +438,16 @@ full rating. Demand continues."*, Records gains *All complete*, and from then
 on the valley stays lit, day and night. The content ends there; the demand does
 not. `www/js/complete.js` says what counts, and a test holds it.
 
+The demand also grows after it is made. Three late jobs - 500 power a tick, a
+$10B reserve, 1,000 particles - are cancelled the first time they are met and
+asked again half as much higher, once each; the goal line flashes *Revised* and
+the log book says what was cancelled, so a target that moves always says it
+moved. Past the last job a **standing order** takes the goal line: *Increase
+output to 2B per tick*, always a round figure above what the reactor makes when
+it is issued, raised each time it is met, never lowered - not by a quiet
+reactor, a save or a reboot. It pays nothing; Records counts the orders met.
+`test/demand.test.js` holds both.
+
 The four paintings (`www/backdrops/`) were made by this game's author for
 Reactor Revival, in the manner of Simon Stålenhag, and are free to use; they are
 not his work. Revival carries thirty; these four are the ones that look like

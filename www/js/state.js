@@ -97,6 +97,10 @@ export function newState(random = Math.random) {
 		log: [],
 		entries: [],
 		runMarked: false,
+		// Jobs whose order was cancelled and asked again higher, and the standing
+		// order past the last job (objectives.js). Both outlive a reboot.
+		revised: [],
+		order: null,
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -143,6 +147,8 @@ export function serialize(s) {
 		log: s.log,
 		entries: s.entries,
 		runMarked: s.runMarked || undefined,
+		revised: s.revised.length ? s.revised : undefined,
+		order: s.order ?? undefined,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -188,6 +194,8 @@ export function deserialize(saved, random = Math.random) {
 	s.log = saved.log ?? [];
 	s.entries = saved.entries ?? [];
 	s.runMarked = Boolean(saved.runMarked);
+	s.revised = saved.revised ?? [];
+	s.order = saved.order ?? null;
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

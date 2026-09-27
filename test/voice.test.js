@@ -46,7 +46,7 @@ test("every string the Voice Guide accepted is in the build", () => {
 
 test("nothing the player reads raises its voice", () => {
 	const lines = [
-		...OBJECTIVES.flatMap((o) => [o.title, o.note]),
+		...OBJECTIVES.flatMap((o) => [o.title, o.note, o.revision?.title, o.revision?.note]),
 		...Object.values(NOTES).flatMap(([title, , line]) => [title, line]),
 		...TROPHIES.flatMap(([, name, how]) => [name, how]),
 		...PARTS.map((p) => p.desc),
