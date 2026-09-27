@@ -880,16 +880,62 @@ and why?
 > not a boost"
 
 **6.3** Which answers contradict each other, or contradict a standing rule?
-Keep each contradiction, or resolve it? The known ones:
-- A universe worth interviewing for, and **no story beats**.
-- A meltdown as a **clean wipe**, and three towns that go dark if the station
-  trips.
-- **Immersion rated Low**, and this interview.
-- The university's reboot, and a town that needs the lights on.
+Keep each contradiction, or resolve it?
 
 *Push:* "Some contradictions are the soul, and some are confusion. Which is
 each?"
-> Answer (any changed standing rule is ledgered in the soul instance):
+
+Collected from Phases 0-5, with where each was noted. Each gets its own answer
+below. Any changed standing rule is ledgered in the soul instance.
+
+Already settled during the interview:
+- ~~"Unknown on purpose" against "answered as the player climbs"~~ (2.3, 2.6):
+  all mysteries are answered as the player climbs.
+- ~~A maintained control room against poorly maintained infrastructure~~ (2.7,
+  5.1): a clean room over a failing core.
+- ~~A clean-wipe meltdown against towns that go dark~~ (4.4): dark is the
+  valley's norm, and the receipt never mentions it.
+
+To settle:
+1. **Looking closer, or looking away.** The session ends "looking in
+   concentration reviewing the parts" (0.3) and "watching it flow together"
+   (1.1). Containment ends it by looking away ("a good design is one you can
+   stop watching"; the instance: "good enough to put in your pocket").
+2. **More struggle, or a build that took pain out.** "More of the struggle, the
+   pain" (0.3), against free refunds, no gesture that destroys, a planner that
+   forecasts failure, and Flow. 1.5 drew a line: "Frustration is failing with
+   no idea why, the struggle is the slow climb of knowledge."
+3. **The insider layer, and help inside the game.** The insider layer came from
+   "looking up online layouts" (0.2); "having to leave the app to search for
+   help" must never be felt (1.5); and the game ships example layouts in its
+   log.
+4. **The accelerator layout, handed over.** The story players would tell is
+   figuring out the accelerator layout (1.4); the log opens it as an example at
+   goal 22.
+5. **Complete, or endless.** The last hour is "maxed out all parts and
+   upgrades … no more goal/objectives" and demands "completed" (1.3, 4.6);
+   progress is infinite, layouts are endless, demand grows forever (1.4, 2.1,
+   4.6); Containment is a Rebirth Account that never ends.
+6. **Rebuilding is the cost, and rebuilding is one tap.** "Rebuilding is the
+   cost" (2.2), against layout codes, saved layouts and the planner's Build,
+   which put a board back at once outside Hardcore. The designer's reply:
+   planning takes knowledge, so it is "pretty restricted for new users".
+7. **A crumbling plant, and no random failures.** "Failing pipes … poorly
+   maintained infrastructure" (2.7), against the banned tone killer: a part that
+   fails for a reason the design did not cause.
+8. **Paid, or melancholy.** The operator is "driven by pay alone" (4.2) and ends
+   melancholy (4.6); the narrator is never emotional (3.4).
+9. **Where Harrow is.** Harrow Station, a valley with a mill, a co-op and a
+   bank, paid in dollars; a control room that is "very Chernobyl USSR", in
+   "Soviet off color plastics" (5.2).
+10. **Which game is the parent.** Reactor Incremental is the childhood game being
+    revived (0.2); the repo calls Knockoff the direct parent and checks the
+    balance against it, and house rule 1 is "Inside the Lineage".
+11. **A universe, and the standing rules.** Robots, an approval that never
+    comes, a lie that falls apart, and every mystery answered as the player
+    climbs, against "no story beats" and Immersion rated Low.
+
+> Answers:
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
