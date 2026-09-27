@@ -644,7 +644,9 @@ happens out there?
 *On record:* the sheet says what happened to the reactor and nothing about the
 towns on its grid. *"Restart the reactor."* The next job waits as if nothing
 happened.
-> Answer:
+> Answer: "The valley sees a drop in power, but that was the norm, the station
+> has been offline so long the new power is the unexpected not the meltdown of
+> it"
 
 **4.5** What does the operator lose that they can't get back?
 *Push:* "Permanence, even small. Mechanically almost nothing is lost: money and
