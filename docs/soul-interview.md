@@ -1164,16 +1164,16 @@ crumbling plant Felt; the reactor computer Mechanic.
 
 | Line | How the player feels it today | Verdict |
 | --- | --- | --- |
-| "The town has been on candles since the plant closed." | Goal 1: sell power by hand | |
-| "Nobody can stand at the valve all night." | Goal 3: the first vent | |
-| "Swapping spent cells by hand at 3 a.m. is how people get hurt." | Goal 7: perpetual rebuys retire a chore | |
-| "The plant clock runs slow." | Goal 11: Improved Chronometers speeds the tick | |
-| "Winter is coming. The town needs a reserve for the cold nights." | Goal 13: ten capacitors | |
-| "Every empty slot is a house still on candles." | Goal 18: fill every tile | |
-| "Three towns are on this grid now. If the station trips, all of them go dark." | Nothing. A meltdown touches no town (and 4.4 keeps it unsaid). | |
-| "They have stopped saying what for." | Particles buy research; their use in the world is never stated | |
-| "Nefastium. The supplier made you sign twice." | Nothing | |
-| "The last crate from the lab came without a manual." | Nothing: experimental parts come with a sheet and a guide entry like every other part | |
+| "The town has been on candles since the plant closed." | Goal 1: sell power by hand | Felt |
+| "Nobody can stand at the valve all night." | Goal 3: the first vent | Felt |
+| "Swapping spent cells by hand at 3 a.m. is how people get hurt." | Goal 7: perpetual rebuys retire a chore | Felt |
+| "The plant clock runs slow." | Goal 11: Improved Chronometers speeds the tick | Felt |
+| "Winter is coming. The town needs a reserve for the cold nights." | Goal 13: ten capacitors | Felt |
+| "Every empty slot is a house still on candles." | Goal 18: fill every tile | Felt |
+| "Three towns are on this grid now. If the station trips, all of them go dark." | Nothing. A meltdown touches no town (and 4.4 keeps it unsaid). | Flavour, on purpose |
+| "They have stopped saying what for." | Particles buy research; their use in the world is never stated | Letters |
+| "Nefastium. The supplier made you sign twice." | Nothing | Letters |
+| "The last crate from the lab came without a manual." | Nothing: experimental parts come with a sheet and a guide entry like every other part | Letters |
 
 ### 7.4 The Never List
 
@@ -1183,7 +1183,9 @@ The rules already locked elsewhere, collected here so they are read together:
 - Never congratulate a number. No praise, no confetti.
 - Never use an exclamation mark in interface text.
 - Never use red except for danger and loss.
-- Never tell a story beat. No scene, no cutscene, no character on screen.
+- ~~Never tell a story beat.~~ Changed in 6.3: story lives only in letters and
+  log entries, optional, never interrupting play (see below). Still never a
+  scene, a cutscene, or a character on screen.
 - Never leave wreckage or a scar after a meltdown.
 - Never punish absence: no notifications, streaks or daily rewards.
 - Never sell anything, show an ad, or touch the network.
