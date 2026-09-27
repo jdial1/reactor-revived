@@ -388,6 +388,13 @@ side by side.
 > "Swapping spent cells by hand at 3 a.m. is how people get hurt"). Knowledge as
 > the scarce thing is the understanding cap of 0.2 and the junior and master of
 > 1.1, now said as a law of the world.
+>
+> Why operators are scarce: "Mystery and why the plant never came back online
+> until now as the search found no one able to start it"
+>
+> *Goes to 7.7:* why knowledgeable operators are scarce is a mystery. That the
+> plant stayed cold because a search found nobody able to start it is a truth;
+> the designer places it (known or hidden) at the Lock.
 
 **2.6** Which question about this world should never be fully answered?
 *Push:* "Would the game be smaller if it were answered? Say how."
@@ -711,8 +718,10 @@ designer; nobody else places them.
   either. They are listed here so nobody "helpfully" fills them in.
 
 Placed by the designer: **why the plant closed is a sacred mystery** (2.3).
+Also a mystery: **why operators who can run it are scarce** (2.5).
 
-Unplaced, from the record: what the university wants
+Unplaced, from the record: that a search found nobody able to start the plant
+(2.5); what the university wants
 the particles for; what nefastium is; what came in the last crate; who kept the
 key.
 
