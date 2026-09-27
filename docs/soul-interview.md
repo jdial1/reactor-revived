@@ -159,6 +159,17 @@ library's word for it.
 *On record:* the soul calls it Watchful Calm: "a dangerous machine, quiet
 because it was built right." That is the library's name. What is yours?
 > Answer: "A feeling of accomplishment pulled from confusing and uncertainty"
+>
+> The turn: "The game replicates the struggle of programming
+>
+> A junior dev might look at code in pure confusion but a master sees the
+> structure
+>
+> Accomplishment from turning the reactor on and watching it a flow together"
+>
+> *For 4.3 and the Lock:* the build has no switch to turn the reactor on. A
+> part works from the tick it is placed; the nearest things to "on" are
+> unpausing, and Build in the planner putting a design onto the real board.
 
 **1.2** Name a second feeling that fights the first.
 *Push:* "Is that the fight you feel, or is there another one underneath it?"
