@@ -211,6 +211,15 @@ power. Keep it that way."* After it, the game goes on with no list.
 > First hour you have unlocked a lot more parts and the expectations of a
 > layout are much more"
 >
+> What makes the last hour complete: "Maxed out all parts and upgrades, a full
+> reactor, no more goal/objectives"
+>
+> *On record:* that state exists but is never named. All 72 upgrades have a
+> ceiling (1,382 levels in all; most stop at 32), every part unlocks, and the
+> log ends. Nothing in the game says when all three are true. A reboot clears
+> the 44 cash upgrades and keeps the 28 bought with particles, so a maxed board
+> is also something the player can choose to give up.
+>
 > *For 6.3, and the Structure axis:* "completing all content" has no state in
 > the build. The log's last job is "Nothing left on the list" (and a trophy of
 > the same name), then a reboot is offered and the game goes on: records,
