@@ -307,8 +307,8 @@ nearly. The fuels are not: dolorium, nefastium, protium.
 > overnight, the rail yard, the next valley, three towns) and stops at job 30:
 > "The valley has power." In the mechanics demand never appears: power sells in
 > any amount, and only the goals set a number to reach. The complexity half has
-> mechanics: parts unlock ten at a time, families arrive with the log, and each
-> doctrine set opens every five goals.
+> mechanics: each part appears once ten of the one before it are placed,
+> families arrive with the log, and a doctrine set opens every five goals.
 
 **2.2** What does that truth cost, and who pays? Not in money.
 *Push:* "Power without cost is hollow. Who in the valley pays for the plant
