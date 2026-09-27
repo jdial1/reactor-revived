@@ -420,7 +420,15 @@ unfinished?
 **2.7** If Harrow Station could speak, what would it complain about?
 *Push:* "Not about the player. About its life."
 *On record:* *"The old heat gauge sticks."* *"The plant clock runs slow."*
-> Answer:
+> Answer: "It's crumbling structure, outdated hardware, failing pipes, it's
+> poorly maintained infrastructure"
+>
+> *For 6.3 and 7.3:* Containment's tone killer is "a part that fails for a
+> reason the design did not cause", and it is on the instance's banned list. So
+> failing pipes can never become random failures. The log's two complaints on
+> record show a way that stays inside the rule: the sticking gauge is the manual
+> venting of goal 2, and the slow clock is the Improved Chronometers of goal 11.
+> Each is a complaint the player fixes with something they do or buy.
 
 ## Phase 3: People and Voice
 
