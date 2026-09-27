@@ -571,7 +571,8 @@ the morning and nobody is watching."
 the list in 7.5.)
 *On record:* no exclamation marks anywhere in the interface; no praise; red kept
 for danger and loss.
-> Answer (goes on the Never List):
+> Answer (goes on the Never List): "Emotional tones should be avoided, binary or
+> computer speak, demands should always be understood"
 
 ## Phase 4: The Player's Place
 
@@ -780,6 +781,12 @@ Play*). What this game refuses is income nobody designed, or time that is spent
 behind the player's back.
 
 New lines, from 1.5, 3.6, 6.1 and 6.2:
+- Never make the player bored, or fail with no idea why (1.5).
+- Never make the player leave the app to search for help (1.5).
+- Never let one layout become the only answer, so the game repeats (1.5).
+- Never use an emotional tone (3.4, 3.6).
+- Never use binary or computer speak (3.6).
+- Never write a demand the player cannot understand (3.6).
 >
 
 ### 7.5 Voice Guide
