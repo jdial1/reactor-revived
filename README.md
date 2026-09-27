@@ -10,7 +10,7 @@ a line that starts in Minecraft:
 | **IndustrialCraft 2** (2011) | The Minecraft mod whose nuclear reactor is the original puzzle: fuel rods heat their neighbours, vents and exchangers move that heat around, and a full grid melts down. |
 | **[IC2 Reactor Planner](https://forum.industrial-craft.net/thread/2147-new-reactor-planner-made-by-talonius/)** by Talonius | A desktop tool for laying a reactor out and simulating it before mining anything. The grid stops being a build and becomes a puzzle on its own. |
 | **[Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)** by Cael (2014) | The planner made into an idle game: sell the power, buy upgrades, reboot for Exotic Particles. The game this one revives, and where every number here starts. |
-| **[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)** by cwmonkey | Incremental rebuilt in HTML5 with no engine and no build step. The route Incremental survived by, the code this rewrite was read against, and what the balance is checked against. |
+| **[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)** by cwmonkey | Incremental rebuilt in HTML5 with no engine and no build step. The route Incremental survived by, and what the balance is checked against. |
 | **Reactor Revival** | A later remake in the same line. Its part artwork is what ships here. |
 | **Reactor Revived** | This one: a clean-room rewrite for a phone. |
 
