@@ -353,9 +353,13 @@ of this line loved, what broke, and what they asked for. What came of it:
   behind a dot on the goal line, and one tap from the planner: direct cooling (goal 6), indirect
   cooling through outlets (10), exchangers spreading a hot block across many
   first-tier vents (14), an exchanger chain carrying heat away to a vent field
-  (16), a heat pipe of coolant, inlets and outlets (18), and feeding a particle
-  accelerator - warm, never full - for Exotic Particles (22). A test holds every
-  one to holding, paying, and venting exactly what its cells make.
+  (16) and a heat pipe of coolant, inlets and outlets (18). A test holds every
+  one to holding, paying, and venting exactly what its cells make. Goal 22 is
+  different on purpose: it shows the particle accelerator's numbers as they
+  stand - what it holds, where it makes the most, the feed that holds it there
+  and the feed that fills it - and puts one accelerator alone in the planner.
+  How to feed it is the player's to work out; it is the story players of the
+  line tell each other, and the game does not tell it for them.
 - **Heat is conserved.** A cell's heat is split exactly between the parts
   around it. Knockoff rounded each share up, so 4 heat over 3 vents put 6 into
   them and sent -2 to the reactor: heat from nothing, which Flow made visible.
@@ -545,8 +549,9 @@ the one rule dropped on purpose: it deleted heat.
   reached it overfilled it in a tick and melted the reactor. Here each tier
   holds twice its particle heat (the sweet spot is half full), and making
   particles spends a hundredth of the heat it holds each tick - a named sink
-  that lets a steady feed settle it where the feed and the spending meet. The
-  example farm is one dual seaborgium cell between two accelerators.
+  that lets a steady feed settle it where the feed and the spending meet. A
+  test keeps a working farm (one dual seaborgium cell between two
+  accelerators) as a fixture; the game shows only the numbers.
 - Capacitors and plating speed only the vents and transfer parts they touch.
   Knockoff applied their bonus board-wide; here where a capacitor sits is a
   choice, as every other part's is.

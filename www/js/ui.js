@@ -13,7 +13,7 @@ import { span } from "./flux.js";
 import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
-import { LESSON_AT } from "./lessons.js";
+import { LESSON_AT, BENCHES } from "./lessons.js";
 import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry } from "./records.js";
 import { backdropFor } from "./backdrop.js";
 import { NOTES, notesFor } from "./notes.js";
@@ -738,7 +738,8 @@ function buildUpgrades(dom, game) {
 function buildObjectiveList(dom) {
 	dom.objectiveRows = OBJECTIVES.map((o, i) => {
 		const load = h("button", { className: "snap", textContent: "Saved - load", hidden: true });
-		const lesson = LESSON_AT[i] && h("button", { className: "snap", textContent: "See an example layout",
+		const lesson = LESSON_AT[i] && h("button", { className: "snap",
+			textContent: BENCHES[LESSON_AT[i]] ? "See its numbers" : "See an example layout",
 			onclick: () => {
 				const s = dom.game.state;
 				if (!s.lessonsSeen.includes(LESSON_AT[i])) s.lessonsSeen.push(LESSON_AT[i]);

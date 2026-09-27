@@ -1160,7 +1160,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | The options grow more complex | 2.1 | A part appears once ten of the one before it are placed; families arrive with the log; a doctrine set every five goals | | Felt |
 | Power is the cost; complexity brings instability | 2.2 | Heat grows faster than power as cells crowd; meltdowns | | Felt |
 | Rebuilding is the cost | 2.2, 6.3 | The board is lost; rebuilt codes queue what cannot be afforded | | Felt |
-| Knowledge is scarce | 2.5 | The guide states rules, never answers; the examples teach inside the game (6.3) | Goal 22 teaches the accelerator's numbers, not its layout (6.3) | Mechanic |
+| Knowledge is scarce | 2.5 | The guide states rules, never answers; the examples teach inside the game (6.3); goal 22 shows the accelerator's numbers and no layout (built) | Goal 22 teaches the accelerator's numbers, not its layout (6.3) | Mechanic, built |
 | The plant is crumbling | 2.7, 6.3 | The sticking gauge (goal 2), the slow clock (goal 11) | Kept as flavour, fixed by upgrades like those (6.3) | Felt |
 | The demand is a lie that falls apart | 2.4 | Late log lines stop explaining; nothing past job 30 | | Letters |
 | Why the plant closed | 2.3 | Nothing | Answered as the player climbs (2.6) | Letters |

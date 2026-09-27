@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { PARTS } from "../www/js/parts.js";
 import { UPGRADE_BY_ID } from "../www/js/upgrades.js";
 import { FAMILIES } from "../www/js/guide.js";
-import { LESSONS } from "../www/js/lessons.js";
+import { LESSONS, BENCHES } from "../www/js/lessons.js";
 
 test("the parts guide covers every family, and every part has a line on its sheet", () => {
 	const keys = new Set(FAMILIES.map(([k]) => k));
@@ -21,6 +21,7 @@ test("the guide states rules, never the answers", () => {
 		...FAMILIES.flatMap(([, , , lines]) => lines),
 		...PARTS.map((p) => p.desc),
 		...Object.values(LESSONS).map((l) => l.text),
+		...Object.values(BENCHES).map((b) => b.text),
 	].join(" ").toLowerCase();
 	// The square law is the player's first discovery.
 	for (const spoiler of ["square", "squared", "quadratic", "exponential"]) assert.ok(!text.includes(spoiler), spoiler);

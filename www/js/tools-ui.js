@@ -7,7 +7,7 @@ import { COLS, stored } from "./sim.js";
 import { PARTS, isPartVisible } from "./parts.js";
 import { forecast } from "./forecast.js";
 import { replaceQuote } from "./layout.js";
-import { LESSONS, BROKEN, brokenTiles, MARKS as LESSON_MARKS } from "./lessons.js";
+import { LESSONS, BROKEN, brokenTiles, MARKS as LESSON_MARKS, BENCHES, benchNumbers } from "./lessons.js";
 import { modId } from "./module.js";
 import { markOf, MARKS, MARK_MEANS, MARK_WINDOW, lastIncident, ticks } from "./records.js";
 
@@ -385,6 +385,7 @@ export function snapshotDialog(s, snap, game) {
 export const lessonTiles = (name) => LESSONS[name].tiles.map(([r, c, id]) => [r * COLS + c, id]);
 
 export function lessonDialog(s, name, game) {
+	if (BENCHES[name]) return benchDialog(s, name, game);
 	const l = LESSONS[name];
 	const dialog = modal(l.title,
 		h("h2", { textContent: l.title }),
@@ -402,5 +403,23 @@ export function lessonDialog(s, name, game) {
 			dialog.close();
 			game.startPlanner({ tiles: brokenTiles(name).map(([r, c, id]) => [r * COLS + c, id]), modules: [] });
 		} }) : "");
+	return dialog;
+}
+
+/** A part's numbers without its arrangement, and one of it alone in the planner. */
+function benchDialog(s, name, game) {
+	const b = BENCHES[name];
+	const p = s.stats.get(b.part);
+	const show = (v) => (typeof v === "number" ? fmt(v) : v);
+	const dialog = modal(b.title,
+		h("h2", { textContent: b.title }),
+		h("i", { textContent: b.text }),
+		h("dl", { className: "bench" }, ...benchNumbers(p).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: show(v) })])),
+		h("div", { className: "row" },
+			h("button", { textContent: "Close", onclick: () => dialog.close() }),
+			h("button", { className: "wide", textContent: "Try one in the planner", onclick: () => {
+				dialog.close();
+				game.startPlanner({ tiles: [[5 * COLS + 3, b.part]], modules: [] });
+			} })));
 	return dialog;
 }
