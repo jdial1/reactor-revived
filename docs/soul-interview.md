@@ -361,6 +361,17 @@ true?"
 > *For 2.6 and 7.7:* a mystery candidate that ties the ever-growing demand of 2.1
 > to the log's own open line about the particles ("They have stopped saying
 > what for").
+>
+> Wrong belief, or open question: "Wrong belief that starts falling about as
+> demands continue growing to absurd levels where the requests start fairly
+> mundane but the need becomes so high and urgent, they give up trying to lie"
+>
+> *On record:* the log already walks part of this arc without saying so. The
+> early jobs are mundane (the mill's second shift, the clinic's lights, the
+> rail yard), the late ones stop explaining ("They have stopped saying what
+> for", "The supplier made you sign twice", "came without a manual"). It is
+> told in the one line per job the standing rules allow. *For 7.3:* past job 30
+> the demand has no line and no number.
 
 **2.5** What is scarce in the valley, and what is abundant that shouldn't be?
 *Push:* "At job 30, what is scarce then?"
