@@ -76,13 +76,21 @@ and is the right place to see it on a real phone signed the way the store will
 sign it. Create the release, upload the `.aab`, add yourself, share the opt-in
 link.
 
+## Backup is off, on purpose
+
+`android:allowBackup="false"`. Android's cloud backup restores the last copy it
+took when the app is reinstalled, which brings a board back from before a
+meltdown - in a Hardcore run too, where importing a save is refused for exactly
+that reason. A meltdown has to be final for its receipt to matter. On Android 12
+and later this turns off cloud backup only; moving to a new phone with Android's
+device transfer still carries the game as it stands, which is not a rewind.
+Check that on a real phone. **Export save** in Options is the other way to move
+a game, and a restored export says *Restored* on the goal line.
+
 ## What is not done, and should be before a public release
 
-- **No version bump plan.** `versionCode` is 1 in `app/build.gradle.kts`; Play
+- **No version bump plan.** `versionCode` is 3 in `app/build.gradle.kts`; Play
   rejects a second upload with the same number, so bump it every time.
-- **`android:allowBackup="true"`** is the manifest default and is left on: your
-  save rides along with Android's backup. That is a choice, not an oversight,
-  but it is worth knowing.
 - **No back-button handling.** Pressing back closes the app from any page rather
   than stepping back to the reactor.
 - **Late-game balance is unvalidated.** The upgrade ceiling is inherited from

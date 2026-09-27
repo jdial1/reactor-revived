@@ -376,7 +376,8 @@ of this line loved, what broke, and what they asked for. What came of it:
   pulling it out, so tearing a design down to improve it costs nothing else.
 - **Say it once.** The board, the bars and the hum carry the information, so
   nothing repeats them: a tap you cannot afford flashes without a sound, and
-  red is kept for losing a save, a run or a design.
+  red is kept for danger - heat near the limit, a design that will fail, and
+  losing a save, a run or a design. A price out of reach is grey, not red.
 - **Import asks first** and refuses a file it cannot read (Knockoff #36 - and
   here an unknown version used to load as a brand-new game). A save is a way
   back past a meltdown, so a Hardcore run cannot be restored from one, and any
@@ -530,7 +531,8 @@ the one rule dropped on purpose: it deleted heat.
   pages. Only Pause, or leaving the app (which banks Time Flux), stops it.
 - Portrait, and 12x8 rather than 11x14. Fewer tiles, but the whole reactor is
   visible at once with tiles big enough to hit on a phone, which matters more
-  than matching a tile count. The expansion upgrades still grow it to 32x28.
+  than matching a tile count. The board never grows: Knockoff's two expansion
+  upgrades are gone, because a bigger board would no longer fit the screen.
 - Touch instead of a mouse. Tap to place, tap a placed part to inspect it,
   every action on a placed part in its sheet, drag to paint, pinch to zoom. The original's six
   modifier-key macros are gone; dragging covers what they were for.
@@ -655,6 +657,6 @@ test, and every change traced from mechanic to feeling.
 
 Original game by **cwmonkey**. Based on **Reactor Incremental** by **Cael**.
 
-The generated pack is original and drawn at runtime. The other packs are the
-artwork of the games they are named for and belong to their authors; they are
-included so this game can be played in the style of the ones it came from.
+The part artwork is Reactor Revival's, with fifteen sprites derived from it
+(see Part artwork). The sounds, light masks and interface frames are CC0, from
+Kenney and from Buch on OpenGameArt.

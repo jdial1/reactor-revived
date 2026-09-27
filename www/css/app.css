@@ -277,7 +277,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 .upgrade span { display: flex; justify-content: space-between; }
 .upgrade u { text-decoration: none; color: var(--cash); }
 .upgrade s { text-decoration: none; color: var(--dim); }
-.upgrade.poor u { color: #8c5b5b; }
+.upgrade.poor u { color: var(--dim); }
 
 .upgrade .delta { display: flex; align-items: center; gap: 5px; font-style: normal; font-size: 11px; }
 .upgrade .delta s { text-decoration: none; color: var(--dim); }
@@ -296,7 +296,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 	background-size: 4px 4px;
 }
 .upgrade.preview b { color: var(--dim); }
-.upgrade.preview u { color: #8c5b5b; }
+.upgrade.preview u { color: var(--dim); }
 
 .objective {
 	background: var(--panel);
@@ -536,7 +536,7 @@ footer {
 	background: var(--face) var(--dither);
 	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
 }
-.part.poor u { color: #8c5b5b; }
+.part.poor u { color: var(--dim); }
 /* The part's own art at 166%, cropped by a box that is the same middle 60% of
    the tile - which keeps the rotor at the scale the rest of the art is drawn at.
    Filling the whole tile made a spinning vent half again the size of a still one. */
@@ -741,7 +741,7 @@ dialog .row button { flex: 1; padding: 10px; }
 
 /* --dim measured 3.1:1 on the faces the skin brought in. */
 .upgrade p, .part u { color: #97a3b1; }
-.part.poor u { color: #c08383; }
+.part.poor u { color: var(--dim); }
 
 /* Keyboard first: one way on to the board, and a way past it. */
 .skip {
@@ -1026,7 +1026,7 @@ textarea.code {
 	user-select: text;
 	-webkit-user-select: text;
 }
-dialog .note { margin: 0 0 8px; color: #d87a7a; }
+dialog .note { margin: 0 0 8px; color: var(--ink); }
 dialog .note:empty { display: none; }
 
 /* Planning: the board wears a blueprint edge so it never passes for the real one. */

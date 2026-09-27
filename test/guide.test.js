@@ -28,6 +28,23 @@ test("the guide states rules, never the answers", () => {
 	for (const advice of ["you should", "put a", "place a", "best"]) assert.ok(!text.includes(advice), advice);
 });
 
+test("nothing the player reads states the square law, in the game or in the store", async () => {
+	const { readFileSync } = await import("node:fs");
+	const { STEPS } = await import("../www/js/tutorial.js");
+	const { NOTES } = await import("../www/js/notes.js");
+	const { OBJECTIVES } = await import("../www/js/objectives.js");
+	// The listing's short and full descriptions, as they go into the console.
+	const listing = readFileSync(new URL("../docs/play/listing.md", import.meta.url), "utf8");
+	const store = listing.split("## Release notes")[0].match(/```[\s\S]*?```/g).join(" ");
+	const text = [
+		...STEPS.flatMap((step) => [step.title, step.text]),
+		...Object.values(NOTES).map(([title, , line]) => `${title} ${line}`),
+		...OBJECTIVES.flatMap((o) => [o.title, o.note]),
+		store,
+	].join(" ").toLowerCase();
+	for (const spoiler of ["square", "squared", "quadratic", "exponential", "multipl"]) assert.ok(!text.includes(spoiler), spoiler);
+});
+
 test("the parts datasheet copies every open family with its numbers", async () => {
 	const { newState } = await import("../www/js/state.js");
 	const { datasheet } = await import("../www/js/guide.js");

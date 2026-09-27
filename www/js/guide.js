@@ -91,7 +91,7 @@ export const FAMILIES = [
 		"An accelerator holds heat and turns the heat it holds into Exotic Particles: the fuller it runs, the more it makes, up to half full. It holds twice its particle heat.",
 		"Making them spends a hundredth of the heat it holds, every tick, so a steady feed settles it where what comes in meets what it spends.",
 		"Particles count only as far as the board handles the heat it makes, tick by tick. One that overflows melts the whole reactor down.",
-		"Each tier has its own Improved upgrade, which doubles the heat it can turn into particles.",
+		"Each tier has its own Improved upgrade: each level adds its base particle heat, and, below the top tier, the room to hold it.",
 	], []],
 
 	["module", "Modules", "icon:modules", [
