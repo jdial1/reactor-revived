@@ -1232,7 +1232,16 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 | Victory | "The valley has power. Keep it that way." | |
 | Defeat | "Heat passed twice what the reactor could hold. Every part in it was destroyed." | |
 
-- **Five banned phrasings,** from 3.6.
+- **Banned,** from 3.6 and 6.1: any emotional tone; binary or computer speak;
+  a demand the player cannot understand without decoding it; praise of any
+  kind. Robotic is allowed when it is understood ("Increase output. Reason: not
+  required." passes).
+- **Voice references,** chosen in 3.5 (the interviewer's drafts): "Section 1.1.
+  Before start-up, confirm the operator key is present and turns freely. Harrow
+  Station has been idle for eleven years." (early); "Output required: 200 per
+  tick. Clinic load. Maintain overnight." (middle); "500. Continuous." and
+  "Increase output. Reason: not required." (late); "Component lost: Basic Heat
+  Vent, row 6, column 7. Held 80 of 80. Replace." (a failure).
 - **The rewrite rule:** every generic system string is rewritten in voice, or
   kept plain on purpose, with the reason. These are in the build today in a
   default voice:
@@ -1250,18 +1259,22 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 
 ### 7.6 Sensory Palette
 
-A hard spec for anyone making art or sound, human or tool. It is filled from
-Phase 5 and checked against what already ships:
+A hard spec for anyone making art or sound, human or tool. Filled from Phase 5,
+beside what already ships.
 
-| | On record | From the interview |
+| | On record (the build today) | From the interview (the spec) |
 | --- | --- | --- |
-| Materials | steel ramp, bevelled frames, checker grain, recessed slot | |
-| Colours | ink `#c8d3de`, dim `#7b8794`, power `#58c470`, heat `#d8703a`, cash `#d8c15a`, particles `#b06fd8`; each fuel its own glow | |
-| Light | the board warms toward red with heat; grey until abnormal | |
-| Three reference images | none | |
-| Signature sounds | one hum; six heavy, dull impacts | |
-| The quietest sound | the hum at Mark I | |
-| Button feel | a heavy drop; a flash with no sound when refused | |
+| Part art | Reactor Revival's 128x128 sprites, stored at 64px and 32 colours; a dock part drawn at 31px | 16x16 pixel art, "dense and intentional" (0.4). 2D, never 3D; never over-greebled; never generic factory parts, only the parts this reactor needs |
+| The room | none | A control room left in clean order over a failing core (5.1). Cold, industrial, mildly musty |
+| Materials | steel ramp, bevelled frames, checker grain, recessed slot | Soviet off-colour plastics; teal and orange metal plating; tactile switches, knobs, valves, mechanical controls, manual overrides (5.2) |
+| Colours | ink `#c8d3de`, dim `#7b8794`, power `#58c470`, heat `#d8703a`, cash `#d8c15a`, particles `#b06fd8`; each fuel its own glow | A pale panel with a process diagram in orange, blue and black (5.6, lead reference); teal and orange plating. Colour that carries a signal is allowed; bright, glossy decoration is not (6.1) |
+| Light | the board warms toward red with heat; grey until abnormal | The player's real time (5.3). By day, flat grey light through fog; by night, the room's own lamps. Any shading stays out of the heat colours |
+| Outside | none | Fog, overcast, dreary, a chill: "the dreary outside essence" (5.1, 5.6) |
+| Reference images | none | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Sources not yet recorded |
+| Signature sounds | one hum; six heavy, dull impacts | The click and clank of placing and moving parts: "the physical weight, the effort of your actions, the heaviness of the situation" (5.4) |
+| The quietest sound | the hum at Mark I | The click and clank of a part going into place (5.4) |
+| Button feel | a heavy drop; a flash with no sound when refused | One tap, heard as a two-stage click-clack; slow in feel, never in speed (5.5). Buying upgrades is the press that feels most like an app today (5.5) |
+| Automated systems | Heat Control Operator switched on the Upgrades page; auto-sell and perpetual rebuys with no light or switch | Each has a light and a switch the operator can see from the reactor (5.2) |
 
 ### 7.7 Lore Bible
 
