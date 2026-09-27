@@ -6,6 +6,12 @@ import { freshRecords } from "./records.js";
 
 const SAVE_KEY = "reactor-revived";
 const SAVE_VERSION = 3; // 1 indexed tiles against a grid that could grow; 2 had no modules
+// 1.2's doctrine upgrades, as the set and side each became.
+const OLD_DOCTRINES = {
+	cascade_vents: ["doctrine2", "left"], salvage_crews: ["doctrine2", "right"],
+	overclocked_cells: ["doctrine3", "left"], throttled_cells: ["doctrine3", "right"],
+	diagonal_pulse: ["doctrine4", "left"], isolated_cores: ["doctrine4", "right"],
+};
 
 const BASE = {
 	money: 10,
@@ -148,12 +154,18 @@ export function deserialize(saved, random = Math.random) {
 	// learned the game the hard way; do not start teaching them now.
 	if (!("tutorialDone" in saved)) s.tutorialDone = true;
 	for (const id of Object.keys(s.levels)) if (saved.levels?.[id]) s.levels[id] = saved.levels[id];
+	s.doctrines = { ...saved.doctrines };
+	// 1.2 sold each doctrine side as its own upgrade; they are sides of a set now.
+	for (const [id, [set, side]] of Object.entries(OLD_DOCTRINES)) {
+		if (!saved.levels?.[id]) continue;
+		s.levels[set] = 1;
+		s.doctrines[set] ??= side;
+	}
 	Object.assign(s.placed, saved.placed);
 	s.modules = saved.modules ?? [];
 	s.nextModuleId = saved.nextModuleId ?? s.modules.length + 1;
 	s.snapshots = saved.snapshots ?? [];
 	s.lessonsSeen = saved.lessonsSeen ?? [];
-	s.doctrines = saved.doctrines ?? {};
 	// JSON writes Infinity as null; a record that never happened reads as absent.
 	s.records = { ...freshRecords(), ...saved.records };
 	s.notes = saved.notes ?? [];
