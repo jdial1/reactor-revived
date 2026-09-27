@@ -240,9 +240,9 @@ export function buildUI(game) {
 		dom.money.rewind(() => play("coin"));
 	});
 
+	// The reactor's on switch: a lamp lit while it runs, and the word for its state.
 	dom.pauseLabel = h("span", {});
-	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
-	dom.pause = h("button", { className: "pause squeeze", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
+	dom.pause = h("button", { className: "pause reactor-switch", onclick: game.togglePause }, dom.pauseLabel);
 
 	dom.goalText = h("span", {});
 	dom.runTag = h("b", { className: "run-tag", hidden: true });
@@ -820,10 +820,11 @@ export function render(dom, s, game) {
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
 	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
-	if (dom.pauseLabel.textContent !== (s.paused ? "Resume" : "Pause")) {
-		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
-		dom.pause.setAttribute("aria-label", dom.pauseLabel.textContent);
-		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
+	if (dom.pauseLabel.textContent !== (s.paused ? "Off" : "On")) {
+		dom.pauseLabel.textContent = s.paused ? "Off" : "On";
+		dom.pause.classList.toggle("on", !s.paused);
+		dom.pause.setAttribute("aria-label", s.paused ? "Reactor off. Turn it on" : "Reactor on. Turn it off");
+		dom.pause.setAttribute("aria-pressed", String(!s.paused));
 	}
 	if (s.hasMeltedDown && !dom.meltdownShown) {
 		dom.meltdownShown = true;

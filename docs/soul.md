@@ -120,7 +120,7 @@ the reactor) works against the soul.
 - *audio_information* conflicts with Total-information UIs and needs a visual
   twin. Here the hum's trend has one on screen: the held column and Mark II.
 - *trusting_the_player* conflicts with text-box tutorials. Here the tutorial is
-  seven cards, five of which wait for the player to act, and none says where a
+  eight cards, six of which wait for the player to act, and none says where a
   part goes.
 
 ## The pillars, in this game
@@ -159,7 +159,7 @@ listed.
 | The Cheerful Toast | "Replaced with X" repeated what the board already showed | Fixed: removed |
 | The Red Signal | Every confirmation was red, including "OK" and "Skip"; selling a part was styled as danger | Fixed: red only for a lost save, run or design |
 | Refactoring cost (workbench rule) | A hot part refunded less, on top of leaving its heat behind | Fixed: refund is the price less fuel used |
-| The Wordy Tutorial | Seventeen cards | Fixed: seven cards, five that wait for an action |
+| The Wordy Tutorial | Seventeen cards | Fixed: eight cards, six that wait for an action |
 | The Law Is Theirs to Find (listing) | The Play short description stated the square law | Fixed: the listing is rewritten, and a test reads the listing, tutorial, field notes and log for it |
 | Hidden Math (part sheet) | A boosted vent's sheet showed its base rate once bonuses went local | Fixed: the sheet shows the rate where it sits |
 | The Backdoor Rewind (cloud) | `allowBackup` let a reinstall restore past a meltdown | Fixed: backup is off; device transfer and Export save still move a game |

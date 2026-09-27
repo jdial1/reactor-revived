@@ -81,3 +81,16 @@ test("the switches ride along in the save", () => {
 	const fresh = deserialize(serialize(game()), () => 1);
 	assert.deepEqual([fresh.sellOn, fresh.rebuyOn, fresh.operatorOn], [true, true, false], "selling and rebuying start on");
 });
+
+test("a new station starts off, and turning it on is the first thing the tutorial asks after a cell", async () => {
+	const { STEPS } = await import("../www/js/tutorial.js");
+	const s = newState(() => 1);
+	assert.equal(s.paused, true, "the reactor starts off");
+	const i = STEPS.findIndex((x) => x.title === "Start-up");
+	assert.equal(i, 2, "right after the first cell is placed");
+	assert.equal(STEPS[i].waitFor(s), false);
+	s.paused = false;
+	assert.equal(STEPS[i].waitFor(s), true);
+	// A save keeps whichever way its switch was set.
+	assert.equal(deserialize(serialize(s), () => 1).paused, false);
+});

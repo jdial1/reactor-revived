@@ -163,10 +163,10 @@ the pack system.
 
 ## Tutorial
 
-`www/js/tutorial.js` is seven steps of data: a selector to spotlight, a title,
-the text, and for five of them a `waitFor` predicate on game state - place a
-cell, put a second cell touching it, sell power, vent the heat to zero, put a
-vent anywhere - where it goes is the player's to work out. Those steps will not advance until the player has really
+`www/js/tutorial.js` is eight steps of data: a selector to spotlight, a title,
+the text, and for six of them a `waitFor` predicate on game state - place a
+cell, turn the reactor on, put a second cell touching it, sell power, vent the
+heat to zero, put a vent anywhere - where it goes is the player's to work out. Those steps will not advance until the player has really
 done it, and they reuse the same board checks the goals do rather than
 restating them. It used to be seventeen cards; the rest is left to the
 operator's log, which opens each tab when it gets there, and to the parts, which
@@ -559,7 +559,10 @@ the one rule dropped on purpose: it deleted heat.
   Knockoff applied their bonus board-wide; here where a capacitor sits is a
   choice, as every other part's is.
 - The reactor keeps running on the Upgrades, Experiments, Modules and Options
-  pages. Only Pause, or leaving the app (which banks Time Flux), stops it.
+  pages. Only its on switch, or leaving the app (which banks Time Flux), stops
+  it. The switch sits in the header with a lamp, lit while the reactor runs,
+  and a new station starts with it off: turning the reactor on is the new
+  operator's first act, and the tutorial's third card.
 - Portrait, and 12x8 rather than 11x14. Fewer tiles, but the whole reactor is
   visible at once with tiles big enough to hit on a phone, which matters more
   than matching a tile count. The board never grows: Knockoff's two expansion

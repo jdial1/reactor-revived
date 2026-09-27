@@ -25,7 +25,9 @@ const BASE = {
 	hasMeltedDown: false,
 	soldPower: false,
 	soldHeat: false,
-	paused: false,
+	// The reactor's on switch. A new station starts off: turning it on is the
+	// operator's first act (Soul Interview 1.1).
+	paused: true,
 	muted: false,
 	tutorialDone: false,
 	// Time Flux: ms banked while away, whether it is being spent, and when the

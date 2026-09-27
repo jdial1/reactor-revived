@@ -116,6 +116,18 @@ a { color: var(--power); }
 	padding: 5px 8px;
 	font-size: 11px;
 }
+/* The reactor's on switch, lamp and all, like the automation panel's. */
+#goal .reactor-switch { min-width: 58px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+#goal .reactor-switch::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #23292f;
+	box-shadow: inset 0 0 0 1px #07090c;
+}
+#goal .reactor-switch.on { color: var(--ink); }
+#goal .reactor-switch.on::before { background: var(--power); box-shadow: inset 0 0 0 1px #07090c, 0 0 6px var(--power); }
 
 .purse {
 	display: grid;

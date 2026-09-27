@@ -15,6 +15,7 @@ test("time away is banked, a glance away is not, and the bank is capped", () => 
 
 test("flux runs at ten times speed until the bank is empty, and stops itself", () => {
 	const s = newState(() => 1);
+	s.paused = false; // a new station starts off; this one is running
 	s.flux = 25 * s.loopWait;
 	assert.equal(spendFlux(s), 0); // off until turned on
 	s.fluxOn = true;

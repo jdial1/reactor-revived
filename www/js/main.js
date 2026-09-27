@@ -203,8 +203,10 @@ const game = {
 		s.fluxOn = !s.fluxOn && s.flux >= s.loopWait;
 	},
 
+	/** The reactor's on switch. */
 	togglePause() {
 		s.paused = !s.paused;
+		play("place");
 	},
 
 
