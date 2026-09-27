@@ -812,7 +812,9 @@ with a small heavy drop; money rolls on drums.
 **5.6** Name three real images or places that are this world's look.
 *Push:* "A photo you could send. Not a game, not a film, not Chernobyl."
 > Answer: four photographs, sent by the designer (not stored in the repo; their
-> sources are not recorded yet). As the interviewer describes them:
+> sources unknown: "googled images, no sources found"). Reference only: never
+> stored in the repo, copied, traced or shipped, since nobody can say who owns
+> them. As the interviewer describes them:
 >
 > 1. An old, empty control room under a glass skylight: curved walls of
 >    bottle-green and cream panels full of round gauges and switches, a
@@ -1172,7 +1174,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | The valley may be run by humanoid robots | 3.1 | Nothing | Suspected, then found out slowly | Letters, accepted: `clock`, `torch`, `continue`, `unregistered`, `works`, `courier` |
 | Reactor roles need a human leader's approval; the leaders are gone | 3.1 | Nothing | Answered as the player climbs | Letters, accepted: `suspension`, `queue`, `director` |
 | The robots link task lists without complaints or compliments | 3.2 | The log gives orders; no string praises the player | | Felt |
-| The voice drifts from formal guides to bare demands | 3.2, 3.4 | Built as a draft: jobs 0-9 are manual sections, 10-19 work orders, 20-29 bare demands (7.5, the log's voice arc); test/voice.test.js holds the shape | | Mechanic, built; wording awaits the designer |
+| The voice drifts from formal guides to bare demands | 3.2, 3.4 | Built: jobs 0-9 are manual sections, 10-19 work orders, 20-29 bare demands (7.5, the log's voice arc); test/voice.test.js holds the shape | | Mechanic, built; wording accepted |
 | The ship has no captain | 3.3 | Institutions act with nobody named behind them | | Letters, accepted: `director`, `programme` |
 | The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | Letters, accepted: `vacancy` |
 | Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | Letters, accepted: `unregistered` |
@@ -1204,7 +1206,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 *The lines above are as the interview found them. The log's voice arc (7.5)
 rewrote them; each keeps its meaning and verdict.*
 
-**The letters** (6.3: story only in letters and log entries), built as drafts.
+**The letters** (6.3: story only in letters and log entries), built and accepted.
 A letter is filed in the operator's log as the station climbs, with one silent
 line in the log book ("Letter received: …"); it opens in place, and nothing
 outside the log says it came. Each hints before it answers; every mystery in
@@ -1302,7 +1304,7 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   Vent, row 6, column 7. Held 80 of 80. Replace." (a failure).
 - *The wording in the tables was drafted by the interviewer; the designer
   accepted all of it.*
-- **The log's voice arc** (3.2, 3.4, 2.4), built as a draft: the log is an old
+- **The log's voice arc** (3.2, 3.4, 2.4), built and accepted: the log is an old
   start-up guide that becomes work orders, then demands. Jobs 0-9 are numbered
   manual sections (the numbering skips, as excerpts do); jobs 10-19 are work
   orders, still giving a reason; jobs 20-29 have stopped giving one, and the
@@ -1310,44 +1312,45 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   required"). Jobs 0 and 30 are the accepted Greeting and Victory. Every line
   keeps the meaning 7.3 gave it. The shape is held by test/voice.test.js
   (manual sections first, no pleasantries, shorter in each third); the words
-  are drafts: accept, change or strike each.
+  were drafted by the interviewer and accepted by the designer ("accept all the
+  draft wording").
 
-| Job | Title | Draft |
+| Job | Title | Accepted |
 | --- | --- | --- |
-| 0 | Place your first part in the reactor | "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years." |
-| 1 | Sell power: tap the power bar | "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power bar." |
-| 2 | Vent by hand: tap the heat bar down to 0 | "Section 1.3. Heat gauge. The gauge is known to stick. Vent by hand and confirm the reading falls." |
-| 3 | Cool a cell with a Heat Vent | "Section 2.4. Excess heat should be vented before the reactor is left unattended. Operators are advised not to remain at the valve overnight." |
-| 4 | Buy an upgrade | "Section 2.6. Maintenance budget. The town's first payment has cleared. It is to be spent on the plant." |
-| 5 | Place a Dual cell | "Section 3.1. Deliveries. Supply sent Dual cells by mistake. Install one and record the result." |
-| 6 | Run 10 cells at once | "Section 3.3. Load increase. The mill has requested a second shift. Ten cells are to run at once." |
-| 7 | Buy a Perpetual cell upgrade | "Section 4.1. Night refuelling. Replacing spent cells by hand at 3 a.m. has caused injuries. Automate replacement." |
-| 8 | Place a Capacitor | "Section 4.2. Storage. Output produced between sales is lost. Install storage." |
-| 9 | Design and place a module (Modules) | "Section 4.5. Spares. Spare cores are to be kept in casings, ready to install. Design one and install it." |
-| 10 | Make 200 power per tick | "Output required: 200 per tick. Clinic load. Maintain overnight." |
-| 11 | Buy Improved Chronometers | "Station clock running slow. Each lost second is output not delivered. Correct it." |
-| 12 | Run 5 kinds of part at once | "Inspection due. Present a plant, not a pile of fuel." |
-| 13 | Have 10 Capacitors | "Winter reserve required. Cold nights. Store output." |
-| 14 | Make 500 power per tick | "Output required: 500 per tick. Rail yard load, replacing diesel." |
-| 15 | Upgrade Potent Uranium Cell to level 3 | "Uranium stock weak. Raise its rating." |
-| 16 | Auto-sell 500 power per tick | "Co-op load, sold off the line. 500. Continuous." |
-| 17 | Run 5 Quad Plutonium Cells | "Second valley connected. Plutonium required." |
-| 18 | Fill every tile in the reactor | "Every empty slot is a house on candles. Fill them." |
-| 19 | Run 5 Quad Thorium Cells | "Thorium delivery: Tuesday. Install on arrival." |
-| 20 | Have $10B | "Reserve required: $10B. Hold it." |
-| 21 | Run 5 Quad Seaborgium Cells | "Three towns on this grid. If the station trips, all three go dark." |
-| 22 | Make 10 Exotic Particles | "Accelerator installed. Particles required: 10. Use: not stated." |
-| 23 | Make 51 Exotic Particles | "Particles required: 51. Break room reassigned." |
-| 24 | Reboot the reactor (Experiments) | "Shut down. Rebuild the core. Restart." |
-| 25 | Buy research (Experiments) | "Particles are for research. Spend them." |
-| 26 | Run 5 Quad Dolorium Cells | "Dolorium required. Candles: no longer remembered." |
-| 27 | Make 1K Exotic Particles | "Particles required: 1,000. Reason: not required." |
-| 28 | Run 5 Quad Nefastium Cells | "Nefastium. Signed for twice." |
-| 29 | Place an experimental part (Exotic) | "Crate received. No manual. Install." |
-| 30 | Nothing left on the list | "Demand met. All listed loads supplied. Maintain output." |
+| 0 | Place your first part in the reactor | Accepted: "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years." |
+| 1 | Sell power: tap the power bar | Accepted: "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power bar." |
+| 2 | Vent by hand: tap the heat bar down to 0 | Accepted: "Section 1.3. Heat gauge. The gauge is known to stick. Vent by hand and confirm the reading falls." |
+| 3 | Cool a cell with a Heat Vent | Accepted: "Section 2.4. Excess heat should be vented before the reactor is left unattended. Operators are advised not to remain at the valve overnight." |
+| 4 | Buy an upgrade | Accepted: "Section 2.6. Maintenance budget. The town's first payment has cleared. It is to be spent on the plant." |
+| 5 | Place a Dual cell | Accepted: "Section 3.1. Deliveries. Supply sent Dual cells by mistake. Install one and record the result." |
+| 6 | Run 10 cells at once | Accepted: "Section 3.3. Load increase. The mill has requested a second shift. Ten cells are to run at once." |
+| 7 | Buy a Perpetual cell upgrade | Accepted: "Section 4.1. Night refuelling. Replacing spent cells by hand at 3 a.m. has caused injuries. Automate replacement." |
+| 8 | Place a Capacitor | Accepted: "Section 4.2. Storage. Output produced between sales is lost. Install storage." |
+| 9 | Design and place a module (Modules) | Accepted: "Section 4.5. Spares. Spare cores are to be kept in casings, ready to install. Design one and install it." |
+| 10 | Make 200 power per tick | Accepted: "Output required: 200 per tick. Clinic load. Maintain overnight." |
+| 11 | Buy Improved Chronometers | Accepted: "Station clock running slow. Each lost second is output not delivered. Correct it." |
+| 12 | Run 5 kinds of part at once | Accepted: "Inspection due. Present a plant, not a pile of fuel." |
+| 13 | Have 10 Capacitors | Accepted: "Winter reserve required. Cold nights. Store output." |
+| 14 | Make 500 power per tick | Accepted: "Output required: 500 per tick. Rail yard load, replacing diesel." |
+| 15 | Upgrade Potent Uranium Cell to level 3 | Accepted: "Uranium stock weak. Raise its rating." |
+| 16 | Auto-sell 500 power per tick | Accepted: "Co-op load, sold off the line. 500. Continuous." |
+| 17 | Run 5 Quad Plutonium Cells | Accepted: "Second valley connected. Plutonium required." |
+| 18 | Fill every tile in the reactor | Accepted: "Every empty slot is a house on candles. Fill them." |
+| 19 | Run 5 Quad Thorium Cells | Accepted: "Thorium delivery: Tuesday. Install on arrival." |
+| 20 | Have $10B | Accepted: "Reserve required: $10B. Hold it." |
+| 21 | Run 5 Quad Seaborgium Cells | Accepted: "Three towns on this grid. If the station trips, all three go dark." |
+| 22 | Make 10 Exotic Particles | Accepted: "Accelerator installed. Particles required: 10. Use: not stated." |
+| 23 | Make 51 Exotic Particles | Accepted: "Particles required: 51. Break room reassigned." |
+| 24 | Reboot the reactor (Experiments) | Accepted: "Shut down. Rebuild the core. Restart." |
+| 25 | Buy research (Experiments) | Accepted: "Particles are for research. Spend them." |
+| 26 | Run 5 Quad Dolorium Cells | Accepted: "Dolorium required. Candles: no longer remembered." |
+| 27 | Make 1K Exotic Particles | Accepted: "Particles required: 1,000. Reason: not required." |
+| 28 | Run 5 Quad Nefastium Cells | Accepted: "Nefastium. Signed for twice." |
+| 29 | Place an experimental part (Exotic) | Accepted: "Crate received. No manual. Install." |
+| 30 | Nothing left on the list | Accepted: "Demand met. All listed loads supplied. Maintain output." |
 
 - **Requests that grow** (3.5: "request 200 power then cancel and make it 300"),
-  built as drafts. Three jobs are cancelled the first time they are met and
+  built and accepted. Three jobs are cancelled the first time they are met and
   asked again at half as much more, once: job 14 (500 power a tick, then 750),
   job 20 ($10B, then $15B) and job 27 (1,000 particles, then 1,500). One in the
   work orders, two in the demands: more often as the demand grows. The first
@@ -1359,27 +1362,27 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   one before, kept through a reboot, and paid nothing (the output sells as it
   always has). Records counts the orders met. The lines:
 
-| Where | Draft |
+| Where | Accepted |
 | --- | --- |
-| Job 14, revised | "Order revised. 500 cancelled. Output required: 750 per tick." |
-| Job 20, revised | "Order revised. $10B cancelled. Reserve required: $15B." |
-| Job 27, revised | "Order revised. 1,000 cancelled. Particles required: 1,500." |
-| Goal line, past job 30 | "Increase output to \<figure\> per tick" |
-| Log book, each order issued | "Increase output: \<figure\> per tick. Reason: not required." |
-| The last job's row | "Standing order: Increase output to \<figure\> per tick. Met since the log closed: \<n\>." |
+| Job 14, revised | Accepted: "Order revised. 500 cancelled. Output required: 750 per tick." |
+| Job 20, revised | Accepted: "Order revised. $10B cancelled. Reserve required: $15B." |
+| Job 27, revised | Accepted: "Order revised. 1,000 cancelled. Particles required: 1,500." |
+| Goal line, past job 30 | Accepted: "Increase output to \<figure\> per tick" |
+| Log book, each order issued | Accepted: "Increase output: \<figure\> per tick. Reason: not required." |
+| The last job's row | Accepted: "Standing order: \<order\>. Met since the log closed: \<n\>." (the order in the goal line's words) |
 
-- **The plant computer** (4.3, 5.5), built as a draft: the Upgrades and
+- **The plant computer** (4.3, 5.5), built and accepted: the Upgrades and
   Experiments pages are one terminal's two screens. Teal plating, a cream plate
   with an orange rule (the lead reference's white panel and orange line), a dark
   phosphor screen, a lamp lit in the price's colour while anything is within
   budget. A tap still buys one level. The lines:
 
-| Where | Draft |
+| Where | Accepted |
 | --- | --- |
-| The plate | "Plant computer" and "Maintenance" / "Research" |
-| The prompt, Upgrades | "Maintenance. Budget: $\<figure\>." |
-| The prompt, Experiments | "Research. \<figure\> EP available." |
-| The prompt, after a purchase | "Authorised: \<upgrade\>, level \<n\>." (a single-level upgrade drops the level) |
+| The plate | Accepted: "Plant computer" and "Maintenance" / "Research" |
+| The prompt, Upgrades | Accepted: "Maintenance. Budget: $\<figure\>." |
+| The prompt, Experiments | Accepted: "Research. \<figure\> EP available." |
+| The prompt, after a purchase | Accepted: "Authorised: \<upgrade\>, level \<n\>." (a single-level upgrade drops the level) |
 
 - **The rewrite rule:** every generic system string is rewritten in voice, or
   kept plain on purpose, with the reason. These are in the build today in a
@@ -1410,7 +1413,7 @@ beside what already ships.
 | Light | the board warms toward red with heat; grey until abnormal | The player's real time (5.3). By day, flat grey light through fog; by night, the room's own lamps. Any shading stays out of the heat colours |
 | Outside | none | Fog, overcast, dreary, a chill: "the dreary outside essence" (5.1, 5.6) |
 | The valley outside | four paintings behind the board, one per season (`www/backdrops/`) | The designer's own paintings for Reactor Revival, in the manner of Simon Stålenhag: fog, flat grey light, green country, old plant standing in it. Still; faint through the empty slots; gone near the limit |
-| Reference images | none | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Sources not yet recorded |
+| Reference images | none | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Found by image search; sources unknown, so reference only: never stored, traced or shipped |
 | Signature sounds | one hum; six heavy, dull impacts | The click and clank of placing and moving parts: "the physical weight, the effort of your actions, the heaviness of the situation" (5.4) |
 | The quietest sound | the hum at Mark I | The click and clank of a part going into place (5.4) |
 | Button feel | a heavy drop; a flash with no sound when refused | One tap, heard as a two-stage click-clack; slow in feel, never in speed (5.5). Built for the plant computer: an upgrade is a key pressed through, inverse video while held, a click then a clack (5.5). Other presses are still one sound |
