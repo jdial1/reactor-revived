@@ -170,6 +170,8 @@ because it was built right." That is the library's name. What is yours?
 > *For 4.3 and the Lock:* the build has no switch to turn the reactor on. A
 > part works from the tick it is placed; the nearest things to "on" are
 > unpausing, and Build in the planner putting a design onto the real board.
+>
+> Their reply: "Pause/un pause is the on switch"
 
 **1.2** Name a second feeling that fights the first.
 *Push:* "Is that the fight you feel, or is there another one underneath it?"
@@ -177,7 +179,7 @@ because it was built right." That is the library's name. What is yours?
 leaves the room"). The log hints at others it has never named: a town that
 depends on you ("If the station trips, all of them go dark"), and a university
 that has stopped saying what the particles are for.
-> Answer:
+> Answer: "Understanding which can be hard and not fun"
 
 **1.3** What should the player feel in the first sixty seconds, the first hour,
 and the last hour? And what does the operator feel at those three points?
