@@ -82,7 +82,15 @@ looking at?
 *On record:* the README's "Why it exists" is about craft (a 2013 browser game
 with no build step, "that constraint *is* the aesthetic"). It says why the code
 looks like this, not why the game exists.
-> Answer:
+> Answer: "it is a rewrite and revival of that game, that game was my childhood
+> or middle school and it died, no one carried on the torch like the last 6
+> games, so I need to"
+>
+> The moment: "I was in college looking for it, and there a knockoff on github
+> last update 5 years ago..."
+>
+> What it made them want: "I wanted to carry the torch bring back the glory of
+> the game to a modern mobile device"
 
 **0.2** Which game in the line (IC2 in a Minecraft base, the planner, Reactor
 Incremental, Knockoff) made you think "I want to feel that again, but
