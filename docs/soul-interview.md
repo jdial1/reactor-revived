@@ -966,6 +966,12 @@ To settle:
 >    power: it makes particles from the heat it holds, most at half full, and
 >    holds twice its particle heat. The parts guide already says so; the
 >    "Feeding an accelerator" example goes further and hands over the farm.)
+>
+> 5. Complete, or endless: "Both, content ends but demand keeps growing"
+>    *Settled, and kept:* the parts, upgrades and log are finite and can all be
+>    finished; the demand never is. For the Lock: the finished state needs to be
+>    noticed (1.3), and the demand needs a form that goes on past job 30 (2.1,
+>    3.5).
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
