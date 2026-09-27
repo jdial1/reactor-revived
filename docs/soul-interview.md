@@ -99,7 +99,11 @@ different"? What was the different?
 the bugs. The feeling."
 *On record:* the README's "From the players" lists what players asked for. It
 does not say what *you* missed.
-> Answer:
+> Answer: "Reactor Incremental is the game of my childhood,"
+>
+> The different: "it felt limited built for a dated tech stack , flash player on
+> a web browser, very sensitive UI (a wrong click is fully game over) , it had a
+> very easy entry but very high total understanding cap"
 
 **0.3** If one person could play this once, who would it be, and what would you
 want them to feel when they lock the phone?
