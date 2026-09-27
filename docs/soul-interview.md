@@ -493,6 +493,14 @@ ticks without incident"*. "Incident" is the only plant word the game uses.
 > it pays, and a one-line note", and the notes give orders without praise ("Put
 > a vent on it." "Automate it."). No string in the game compliments the player
 > (interface_voice: never congratulate a number).
+>
+> Where the gap shows: "As the tasks continue they should move from formal human
+> like requests to very robotic direct demands that lack any pleasantries"
+>
+> *For 7.5:* a voice arc across the log, the same shape as the lie falling
+> apart in 2.4. The log as it stands is direct from the first line ("Sell them
+> something." "Put a vent on it."), so today it starts where this arc should
+> end.
 
 **3.3** Who owns Harrow Station, who sent the operator, and what are they
 afraid of?
