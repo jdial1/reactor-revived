@@ -999,6 +999,14 @@ To settle:
 >    *Settled, and kept:* a Soviet-built control room in an English valley. Why
 >    it is there joins the mysteries answered as the player climbs. *Still open:*
 >    the money is in dollars today ($, `www/js/ui.js`).
+>
+> 10. Which game is the parent: "Name Incremental as the parent, Knockoff as the
+>     route"
+>     *Settled, with a change for the Lock:* the README, docs/soul.md and the
+>     soul instance's house rule 1 name Reactor Incremental as the game being
+>     revived, and Knockoff as the route it survived by. The balance can stay
+>     checked against Knockoff running live, and the docs say why: it is the
+>     version of the line that still runs.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
