@@ -295,7 +295,7 @@ nearly. The fuels are not: dolorium, nefastium, protium.
 > tiles are the one thing that never grows. "No long term world repercussions"
 > is the standing rule that a meltdown is a clean wipe, now said as a law of the
 > world, and it bears on 4.4 and the log's "If the station trips, all of them go
-> dark"
+> dark."
 
 **2.2** What does that truth cost, and who pays? Not in money.
 *Push:* "Power without cost is hollow. Who in the valley pays for the plant
