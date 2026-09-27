@@ -943,6 +943,14 @@ To settle:
 >    *Settled, and kept:* a session runs struggle, then watching it flow, then
 >    confirming it holds, then leaving. Containment's "stop watching" is the last
 >    step, not the whole.
+>
+> 2. More struggle, or a build that took pain out: "All four are fine, they help
+>    you understand why, forecast is only for planner not live reactor as a
+>    means of reviewing and testing"
+>    *Settled, and kept:* free refunds, no destructive gestures, the planner's
+>    forecast and Flow stay; each helps the player learn why. The forecast
+>    stays in the planner, as it is today ("Forecasts live only in the
+>    planner").
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
