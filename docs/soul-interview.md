@@ -598,6 +598,9 @@ says how they came to hold the key.
 > climb: the log's last form letter records the operator as "not a registered
 > unit" (7.7, `unregistered`).
 >
+> Who kept the key, placed after the Lock: "the key was left in the lock by the
+> last operator". Nobody kept it; it stayed where it was left.
+>
 > Does the valley notice them: "The reaction is all automated systems, a new
 > power source notices by all nodes/towns that have a lack of power"
 >
@@ -1447,7 +1450,11 @@ Answered as the player climbs (2.3, 2.4, 2.5, 2.6, 3.1):
 - what came in the last crate
 - why a Soviet-built reactor stands in an English valley (6.3)
 
-Unplaced, from the record: who kept the key.
+Placed after the Lock: **who kept the key.** Nobody: "the key was left in the
+lock by the last operator". A known truth, told by what is already in the game
+without a new line. The first job confirms the key "is present and turns
+freely", and the notice found in the desk says the operator of record retired
+(`suspension`): the last operator left, and left the key. Nothing is unplaced.
 
 **The answers, as the letters give them.** Drafted by the interviewer to fit
 what the designer had placed, and accepted by the designer ("accept the
