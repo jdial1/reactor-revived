@@ -349,7 +349,8 @@ shape every line.
 > For now, or on purpose: "Unknown on purpose"
 >
 > *Goes to 7.7* as a sacred mystery: why Harrow Station closed is never
-> answered, by the game or the team.
+> answered, by the game or the team. (Changed in 2.6: answered as the player
+> climbs.)
 
 **2.4** What does the valley believe that is wrong: about the plant, the
 operator, the university, or the fuel?
@@ -408,6 +409,8 @@ unfinished?
 > why operators are scarce was a mystery.
 >
 > In due time means: "The game answers them eventually, as the player climbs"
+>
+> The two placed earlier too: "Answered as the player climbs, all of them"
 >
 > *On record, for 7.3 and 7.7:* the only place the game can answer anything
 > under "no story beats" is the log's one line per job, and the log ends at job
@@ -718,22 +721,26 @@ Phase 5 and checked against what already ships:
 
 ### 7.7 Lore Bible
 
-Three layers. The on-record mysteries (2.3 and 2.6) are placed by the
-designer; nobody else places them.
+Three layers, placed by the designer; nobody else places them.
 
 - **Known truths:** what the player can learn from the log and the sheets.
-- **Hidden truths:** true, and only ever hinted at through the log, the names
-  and the mechanics.
-- **Sacred mysteries:** never answered. The team doesn't need to know them
-  either. They are listed here so nobody "helpfully" fills them in.
+- **Hidden truths, answered as the player climbs:** true, hinted at first, and
+  answered outright once the player has climbed far enough (2.6).
+- **Sacred mysteries:** **none, by the designer's choice** (2.6: "Answered as
+  the player climbs, all of them"). Nothing in this world stays unanswered
+  forever. So the answers have to be written, by the designer, before the
+  lines that reveal them.
 
-Placed by the designer: **why the plant closed is a sacred mystery** (2.3).
-Also a mystery: **why operators who can run it are scarce** (2.5).
+Answered as the player climbs (2.3, 2.4, 2.5, 2.6):
+- why Harrow Station closed
+- why operators who can run it are scarce, and why the plant stayed cold (a
+  search found nobody able to start it)
+- what the growing demand is really for (the lie that falls apart)
+- what the university wants the particles for
+- what nefastium is
+- what came in the last crate
 
-Unplaced, from the record: that a search found nobody able to start the plant
-(2.5); what the university wants
-the particles for; what nefastium is; what came in the last crate; who kept the
-key.
+Unplaced, from the record: who kept the key.
 
 ### 7.8 The Soul Check
 
