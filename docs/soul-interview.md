@@ -120,6 +120,20 @@ want them to feel when they lock the phone?
 > Answer: "I want the game for me, an audience of 1, I want it to not only be a
 > lineage but an actual upgrade, improved on the recipe of old, carrying the
 > torch while adjusting/refining the model just enough to feel more"
+>
+> Their face: "I would be looking in concentration reviewing the parts,
+> interactions, reactor flow, etc"
+>
+> More of what: "more of the struggle, the pain, 'sucking is the first step to
+> being awesome', the feel of acomplishment"
+>
+> *For 1.1, 1.2 and 6.3:* the soul docs end a good session by looking away
+> (Containment: "A good design is one you can stop watching"; the instance:
+> "good enough to put in your pocket"). This answer ends it by looking closer,
+> in concentration. And the build has spent a lot of work taking pain out
+> (free refunds, no gesture that destroys, the planner's forecast, example
+> layouts), where this answer asks for more of the struggle. Which of those is
+> the game?
 
 **0.4** What is the part you are a little embarrassed by: too personal or too
 strange to say out loud? It may be about reactors, about the town, about a
