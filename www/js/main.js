@@ -5,7 +5,7 @@ import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog, refillCost } from "./ui.js";
-import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell } from "./records.js";
+import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES } from "./records.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
@@ -189,10 +189,11 @@ const game = {
 		play("place");
 	},
 
-	/** Heat Control Operator on or off: free, any time, once bought. */
-	toggleOperator() {
-		if (!(s.levels.heat_control_operator > 0)) return;
-		s.operatorOn = !s.operatorOn;
+	/** A panel switch on or off: free, any time, once its system is bought. */
+	toggleSwitch(field) {
+		const sw = SWITCHES.find(([f]) => f === field);
+		if (!sw || !sw[2](s)) return;
+		s[field] = field === "operatorOn" ? !s.operatorOn : s[field] === false;
 		applyUpgrades(s);
 		compile(s);
 		play("place");

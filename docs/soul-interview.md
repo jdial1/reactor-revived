@@ -1179,7 +1179,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | The content ends; the demand never does | 4.6, 6.3 | The log ends at job 30; the finished state is never noticed | Notice the finished state (1.3) | Mechanic |
 | Melancholy creeps in, unnamed | 4.6, 6.3 | Nothing | Carried by what the log stops saying (6.3) | Letters (the log's voice) |
 | Unpausing is the on switch | 1.1 | Pause is a small button in the header | | Mechanic |
-| Every automated system has a light and a switch | 5.2 | Heat Control Operator's switch is on the Upgrades page; auto-sell and perpetual rebuys have none | A light and a switch on the reactor for each | Mechanic |
+| Every automated system has a light and a switch | 5.2 | Built: Sell, Rebuy and Operator switches with lamps on the reactor's panel | A light and a switch on the reactor for each | Mechanic, built |
 | A Soviet-built reactor stands in an English valley | 6.3 | Nothing | Answered as the player climbs | Letters |
 
 **The log's lines on record**

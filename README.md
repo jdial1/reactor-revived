@@ -326,7 +326,7 @@ of this line loved, what broke, and what they asked for. What came of it:
 - **The verdict line**, in the planner: what the board makes, whether it
   holds - or the tick it fails and what goes first - and profit after fuel.
   `www/js/forecast.js` copies the board and runs it 600 ticks under the floor's
-  own rules - the power cap, auto-sell, and only the rebuys you have bought -
+  own rules - the power cap, auto-sell, and only the rebuys you have bought and switched on -
   changing nothing but money, then follows any heat still climbing (the
   reactor's, or any part's) on to where it gives out. A lab that changed more
   would forecast one board and run another; a test runs every example both
@@ -605,6 +605,22 @@ own lineage kept by never asking for anything: no ads, no purchases, no
 accounts, no network. Nothing is sold, nothing can be skipped for money, and
 nothing runs on a timer that punishes being away - Time Flux banks the time
 instead. It stays that way.
+
+## The automation panel
+
+Every automated system the player owns has a switch and a lamp on the reactor
+screen, under the floor line, and nowhere else: **Sell** (the power lines
+selling on their own), **Rebuy** (spent cells, reflectors, condensator refills
+and capacitor buyouts replacing themselves) and **Operator** (Heat Control
+Operator). A lamp is lit while its system runs. The panel appears with the first
+system bought, and a switch with its own; in a Manual feed run there is no Rebuy
+to switch. Knockoff let its automation be toggled; here the toggles sit where a
+control room keeps them, in sight of the reactor. Selling and rebuying start on,
+the operator starts off.
+
+A switch changes how the machine runs, so flipping one starts the board's mark
+again, as a doctrine does, and the planner's forecast runs with the switches as
+they are set.
 
 ## Records and runs
 

@@ -38,8 +38,11 @@ const BASE = {
 	restored: false,
 	// Particles made but not yet whole, after the board's handling of heat.
 	epCarry: 0,
-	// Heat Control Operator, once bought, is a switch; it starts off.
+	// Automation, once bought, is switched on the reactor's panel: Heat Control
+	// Operator starts off, selling and rebuying start on.
 	operatorOn: false,
+	sellOn: true,
+	rebuyOn: true,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -112,6 +115,8 @@ export function serialize(s) {
 		restored: s.restored || undefined,
 		epCarry: s.epCarry || undefined,
 		operatorOn: s.operatorOn || undefined,
+		sellOn: s.sellOn === false ? false : undefined,
+		rebuyOn: s.rebuyOn === false ? false : undefined,
 		hasMeltedDown: s.hasMeltedDown,
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
 		paused: s.paused,
@@ -152,7 +157,7 @@ export function deserialize(saved, random = Math.random) {
 	const s = newState(random);
 	if (!saved || (saved.v !== SAVE_VERSION && saved.v !== 2)) return s;
 
-	for (const k of Object.keys(BASE)) if (k in saved) s[k] = saved[k];
+	for (const k of Object.keys(BASE)) if (saved[k] !== undefined) s[k] = saved[k];
 	// A save from before the tutorial existed belongs to someone who has already
 	// learned the game the hard way; do not start teaching them now.
 	if (!("tutorialDone" in saved)) s.tutorialDone = true;

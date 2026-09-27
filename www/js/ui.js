@@ -14,7 +14,7 @@ import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, 
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT, BENCHES } from "./lessons.js";
-import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry } from "./records.js";
+import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry, SWITCHES } from "./records.js";
 import { backdropFor } from "./backdrop.js";
 import { NOTES, notesFor } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
@@ -400,7 +400,11 @@ export function buildUI(game) {
 	// The board's tools sit on the strip that says what the board does.
 	const verdict = buildVerdict(dom, game);
 	verdict.append(dom.plan, dom.planBuild, dom.planDiscard);
-	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, dom.tabs));
+	// The panel: a lamp and a switch for each automated system the player owns.
+	dom.switches = SWITCHES.map(([field, label]) => h("button", { className: "switch", hidden: true,
+		ariaPressed: "false", onclick: () => game.toggleSwitch(field) }, label));
+	dom.panel = h("div", { id: "switches", hidden: true, ariaLabel: "Automation" }, ...dom.switches);
+	root.append(h("footer", {}, verdict, dom.panel, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	dom.game = game;
 	buildDock(dom, game);
@@ -714,11 +718,6 @@ function buildUpgrades(dom, game) {
 		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
 		section.rows.push(row);
 		section.list.append(button);
-		// Heat Control Operator is bought once and then switched.
-		if (u.id === "heat_control_operator") {
-			row.toggle = h("button", { className: "side operator-toggle", hidden: true, onclick: () => game.toggleOperator() });
-			section.list.append(row.toggle);
-		}
 		// A doctrine set's two sides, beside the row that buys it: readable
 		// before buying, switchable after.
 		if (u.set) {
@@ -888,6 +887,7 @@ export function render(dom, s, game) {
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
 	if (!dom.tiles) buildGrid(dom, s);
+	renderSwitches(dom, s);
 	renderLocks(dom, s);
 	renderVerdict(dom, s);
 	renderSecrets(dom, s);
@@ -1095,15 +1095,6 @@ function renderUpgrades(dom, s) {
 			now.textContent = step.to;
 		}
 
-		if (row.toggle) {
-			row.toggle.hidden = !owned;
-			const on = Boolean(s.operatorOn);
-			const text = on ? "On: outlets wait until the reactor is over its limit. Tap to switch off."
-				: "Off: outlets push as usual. Tap to switch on and hold a hot reactor.";
-			if (row.toggle.textContent !== text) row.toggle.textContent = text;
-			row.toggle.classList.toggle("on", on);
-		}
-
 		// An owned upgrade stays listed, so the price must say when the next level
 		// is out of reach.
 		button.classList.toggle("poor", !affordable && lv < maxLevel(u));
@@ -1140,6 +1131,22 @@ function renderUpgrades(dom, s) {
 		section.count.textContent = n ? String(n) : "";
 		section.count.title = n ? `${n} affordable` : "";
 	}
+}
+
+/** A lamp lit for each automated system that is running; hidden until bought. */
+function renderSwitches(dom, s) {
+	let any = false;
+	SWITCHES.forEach(([field, label, owned], i) => {
+		const b = dom.switches[i];
+		const has = owned(s);
+		const on = field === "operatorOn" ? Boolean(s.operatorOn) : s[field] !== false;
+		any ||= has;
+		b.hidden = !has;
+		b.classList.toggle("on", on);
+		b.setAttribute("aria-pressed", String(on));
+		b.title = `${label}: ${on ? "running" : "off"}`;
+	});
+	dom.panel.hidden = !any;
 }
 
 function renderObjectives(dom, s) {

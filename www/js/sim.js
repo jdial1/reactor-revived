@@ -499,7 +499,7 @@ function wear(s, t) {
 }
 
 /** Whether auto-buy owns this part and will replace it when it runs out. */
-export const replaces = (s, p) => autoFeed(s) && (p.category === "module"
+export const replaces = (s, p) => autoFeed(s) && s.rebuyOn !== false && (p.category === "module"
 	? p.consumables.length > 0 && p.consumables.every((k) => s.perpetual.has(k))
 	: s.perpetual.has(p.category === "cell" ? p.type : p.category));
 
@@ -644,7 +644,7 @@ function explode(s, t, p) {
 	// A perpetual capacitor buys itself out of trouble, dumping its heat into
 	// the reactor instead of blowing up - this tick, so the ledger never dips.
 	if (t.heat <= 0 && p.category === "capacitor"
-		&& s.perpetualCapacitors && s.money >= p.cost * 10) {
+		&& s.perpetualCapacitors && s.rebuyOn !== false && s.money >= p.cost * 10) {
 		s.money -= p.cost * 10;
 		s.heat += t.heatContained;
 		t.heatContained = 0;
@@ -674,6 +674,7 @@ function explode(s, t, p) {
 }
 
 function sell(s, extremeCapacitors) {
+	if (s.sellOn === false) return;
 	let amount = Math.ceil(s.maxPower * s.autoSellMul);
 	if (!amount) return;
 
