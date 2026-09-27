@@ -550,6 +550,11 @@ the one rule dropped on purpose: it deleted heat.
   affordable, dithered.
 - The Google Drive save integration is gone. Saves live in `localStorage`, with
   export and import through Android's document picker.
+- Two systems are this game's own, not the line's. **Doctrine sets**: every
+  upgrade the line had makes a number bigger, and a doctrine side changes the
+  shape of a good layout instead (see Doctrines above). **Modules**: nothing
+  earlier in the line sealed a design into one part; here a proven 3x3 takes a
+  single tile of a board smaller than Knockoff's, at the cut its casing takes.
 
 ## Where the design came from
 
