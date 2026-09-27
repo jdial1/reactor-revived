@@ -718,7 +718,13 @@ job 13?"
 *On record:* steel frames with bevels (Buch's, recoloured to a steel ramp), a
 checker grain on every face, a recessed odometer slot, part sprites with a
 steel body and a black outline.
-> Answer (becomes the material palette):
+> Answer (becomes the material palette): "The control room is very Chernobyl
+> USSR with industrial buttons, gauges, valves"
+>
+> *Red flag:* "Chernobyl" is on this interview's list of nuclear shorthand. Pushed
+> below for what it means specifically. *For 6.3:* the setting on record is
+> Harrow Station, a valley with a mill, a clinic, a co-op and a bank, and the
+> money is dollars.
 
 **5.3** What is the light like: time of day, colour temperature, where shadows
 fall?
