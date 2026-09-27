@@ -1090,7 +1090,23 @@ slogan.
 
 | Pillar | This means... | This forbids... | Test for any feature, line or asset |
 | --- | --- | --- | --- |
-| | | | |
+| **One Request, Waiting** | One request at a time, in a silent room. The demand arrives as a line in the log and waits. | Stacked quests, badges, timers on requests, anything that fills the silence. | "Does this add a second request, or a second voice, to the room?" → reject |
+
+*Provenance:* drafted by the interviewer from 6.4 ("The silence, the lack of
+outside prompts/requests, an idle request waiting on fulfillment, alone
+loneliness"), one of three drafts; chosen by the designer. It becomes the soul
+instance's third house rule.
+
+*Self-test on the build* (a pillar that cuts nothing is written to pass). Each
+of these adds a second voice or a badge to the room today:
+- the dot on the goal line marking an example layout waiting in the log
+  (`www/js/ui.js`)
+- a toast for every part unlocked, every new dock part, modules unlocking, a
+  trophy and a field note (`www/js/ui.js`)
+- the toast that closes a Time Flux run (`www/js/main.js`)
+
+Each gets a verdict at the Soul Check: change, cut, or keep with a ledger
+entry.
 
 ### 7.3 World Laws to Mechanics
 
@@ -1146,6 +1162,10 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   carries a signal is allowed.
 - Never tell story anywhere but letters and log entries; never make it
   required, and never let it interrupt play (6.3).
+- Never let the world see or thank the operator; only the power is noticed
+  (4.1).
+- Never explain the demand before the player has climbed to its answer (2.4,
+  2.6).
 >
 
 ### 7.5 Voice Guide
