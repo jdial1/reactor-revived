@@ -773,7 +773,13 @@ until four-fifths full, each fuel glowing in its own colour.
 *Push:* "What is quieter than the hum at Mark I?"
 *On record:* the hum murmurs at 0.75x speed when cold and settles lower once
 Mark I is earned; all impact sounds duck by up to 60% near the limit.
-> Answer:
+> Answer: "the click clanking of shifting/moving/placing parts"
+>
+> *On record:* placing plays one of six impacts from Kenney's Impact Sounds,
+> chosen by measurement for being heavy and dull; the README's example of a
+> winner is a heavy wooden impact, and nothing records which impact became the
+> place sound. Moving a part plays the same place sound. *For 7.6:* "clanking"
+> is metal; set it beside the teal and orange metal plating of 5.2.
 
 **5.5** What does a button press feel like here, and what in the plant does it
 stand for?
