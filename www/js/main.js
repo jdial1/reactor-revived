@@ -1,6 +1,6 @@
 // Wiring: the loops, and the actions the UI can trigger.
 import { load, save, newState, place, exportSave as saveText, deserialize, serialize, isSave } from "./state.js";
-import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart } from "./sim.js";
+import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart, refillByHand } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
@@ -81,8 +81,7 @@ const game = {
 		if (p?.category !== "condensator") return;
 		const price = refillCost(p, t);
 		if (s.money < price) return;
-		s.money -= price;
-		t.heatContained = 0;
+		refillByHand(s, t, price);
 		play("vent");
 	},
 

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize } from "../www/js/state.js";
-import { compile, tick, tileAt, movePart, stored } from "../www/js/sim.js";
+import { compile, tick, tileAt, movePart, stored, refillByHand } from "../www/js/sim.js";
 import { reboot } from "../www/js/upgrades.js";
 import { readLayout, applyLayout, layoutCode, contextNote } from "../www/js/layout.js";
 import { MARK_WINDOW, markOf, markLine, lastIncident } from "../www/js/records.js";
@@ -171,6 +171,29 @@ test("the ledger balances: every point of heat made is vented, converted or held
 			assert.ok(Math.abs(r.heat - out) < 1e-6 * Math.max(1, r.heat), `tick ${i}: made ${r.heat}, out ${out}`);
 		}
 	}
+});
+
+test("a condensator emptied by hand is booked as paid, and the board is not Mark I", () => {
+	const s = game();
+	put(s, 5, 5, "uranium1");
+	put(s, 5, 6, "condensator1");
+	compile(s);
+	const cond = tileAt(s, 5, 6);
+	const full = s.stats.get("condensator1").containment * 0.9;
+	for (let i = 0; i < 3 * MARK_WINDOW; i++) {
+		if (i === MARK_WINDOW + 10) cond.heatContained = full;
+		if (cond.heatContained >= full) {
+			const held = cond.heatContained;
+			refillByHand(s, cond, 50);
+			tick(s);
+			assert.equal(s.rate.paid, held, "the heat left through a sink the player paid for");
+			assert.equal(s.rate.paidCost, 50);
+		} else tick(s);
+		const r = s.rate;
+		assert.ok(Math.abs(r.heat - (r.vent + (r.converted ?? 0) + r.held)) < 1e-6 * Math.max(1, r.heat), `tick ${i}: the line balances`);
+		assert.notEqual(markOf(s), "Mark I", `tick ${i}: storage paid to empty is not a held machine`);
+	}
+	assert.equal(s.records.markOne, 0);
 });
 
 test("a part that blows or is sold leaves its heat in the reactor", () => {
