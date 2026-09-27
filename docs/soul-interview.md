@@ -1039,6 +1039,11 @@ planner and the marks, and none of the heart. What exactly is missing from it?
 > Answer (lists what the Lock must protect): "Its lacks an atmosphere, a why, a
 > reason for continuing, a grid reactor game with no drive or push forward,
 > relying purely on a players want for more"
+>
+> How close is this build: "Closer to the hollow version, it lacks the why"
+>
+> *For the Lock:* the build's machine is whole; its why is missing. Phases 2-4
+> hold the answers the why is made from.
 
 ---
 
