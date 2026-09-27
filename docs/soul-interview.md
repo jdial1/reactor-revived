@@ -991,6 +991,14 @@ To settle:
 >    *Settled, and kept:* the operator arrives for the pay; the melancholy
 >    arrives later, unnamed, carried by what the log stops saying and what the
 >    demand keeps asking (3.2, 3.4, 4.6). No line names the feeling.
+>
+> 9. Where Harrow is: "Keep the mix, the mismatch is part of the mystery
+>
+>    An old USSR reactor build in a very English UK fog overcast dreary
+>    environment is very intriguing"
+>    *Settled, and kept:* a Soviet-built control room in an English valley. Why
+>    it is there joins the mysteries answered as the player climbs. *Still open:*
+>    the money is in dollars today ($, `www/js/ui.js`).
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
@@ -1169,6 +1177,7 @@ Answered as the player climbs (2.3, 2.4, 2.5, 2.6, 3.1):
 - what the university wants the particles for
 - what nefastium is
 - what came in the last crate
+- why a Soviet-built reactor stands in an English valley (6.3)
 
 Unplaced, from the record: who kept the key.
 
