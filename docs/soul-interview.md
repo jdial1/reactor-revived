@@ -835,6 +835,17 @@ with a small heavy drop; money rolls on drums.
 > and toggles. It sits beside the "teal/orange metal plating" of 5.2.
 >
 > What the foggy stair gives: "The fog is the dreary outside essence"
+>
+> Added after the interview: "Stalenhag images have a certain ethos that seems
+> fitting for this genre … It would be nice to incorporate them into this game
+> either spiritually through design UI/UX changes to actual background
+> wallpapers"
+>
+> *On record:* Simon Stålenhag's paintings are his copyright. Wallpaper sites
+> that host them say the images are for private, non-commercial use, and this
+> game ships on the Play Store from a public repository. No licence for any
+> Stålenhag image, or for backgrounds from Reactor Revival, is recorded in this
+> repo. Until one is, the ethos can be carried only by the game's own design.
 
 ## Phase 6: Tensions and Taboos
 
