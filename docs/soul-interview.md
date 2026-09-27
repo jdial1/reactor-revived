@@ -686,6 +686,12 @@ is not written anywhere.
 > *On record:* the log's last line is close already: "The valley has power. Keep
 > it that way." *For 6.3:* the demands are "completed" at the end, and the
 > demand is "infinite growth".
+>
+> Whose melancholy, the player's or the operator's: "Both"
+>
+> *For 6.3:* in 4.2 the operator is "driven by pay alone"; here the operator
+> ends melancholy. And the narrator is never emotional (3.4), so the game must
+> produce the melancholy without ever naming it.
 
 ## Phase 5: Texture
 
