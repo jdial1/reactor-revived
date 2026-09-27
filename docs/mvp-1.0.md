@@ -45,7 +45,8 @@ Phase 8 audit re-ran this review on the build at `a7c0215`. It closed items 2, 4
 and 5, and found four things this plan had missed: a hand refill left the
 ledger and let a board earn Mark I, a 1.2 save lost its doctrines on load, the
 guide overstated the Improved accelerator, and prices out of reach were red.
-All four are fixed and the first two are tested. Items 3, 6 and 7 stay open.
+All four are fixed and the first two are tested. It also found doctrine sets and
+modules unnamed as the game's own inventions; the README now names them. Items 3, 6 and 7 stay open.
 
 ## Scope of 1.0
 
