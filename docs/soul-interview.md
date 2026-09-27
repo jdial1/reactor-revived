@@ -780,6 +780,9 @@ Mark I is earned; all impact sounds duck by up to 60% near the limit.
 > winner is a heavy wooden impact, and nothing records which impact became the
 > place sound. Moving a part plays the same place sound. *For 7.6:* "clanking"
 > is metal; set it beside the teal and orange metal plating of 5.2.
+>
+> Why it matters: "It tells you the physical weight, the effort of your actions,
+> the heavyness of the situation"
 
 **5.5** What does a button press feel like here, and what in the plant does it
 stand for?
