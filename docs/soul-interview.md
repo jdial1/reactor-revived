@@ -323,6 +323,13 @@ them go dark."* *"Nefastium. The supplier made you sign twice."*
 > power grows linearly with a cell's neighbours and heat with their square, so
 > the more a board makes, the closer it runs to melting. A meltdown wipes the
 > board and keeps money, research and records.
+>
+> Is it enough: "Losing the board is enough, rebuilding is the cost"
+>
+> *For 6.3:* outside Hardcore, rebuilding can be one tap. A layout code, a
+> saved layout from the log, or the planner's Build puts the whole board back
+> onto the empty grid, and the money to pay for it survived the meltdown. Only
+> Hardcore takes those away.
 
 **2.3** Why did Harrow Station close eleven years ago? What happened that
 everyone in the valley still feels?
