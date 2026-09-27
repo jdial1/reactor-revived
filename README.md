@@ -429,6 +429,13 @@ slot not yet filled is a view of what it is not yet lighting - and fades as the
 reactor heats, so near the limit the room's red is all there is. It never moves,
 never changes while you watch, and is not shown in the planner.
 
+When everything is done - the log finished, every part on issue, every upgrade
+at its maximum, every tile filled - the game notices once, without a toast: the
+log book files *"All listed loads supplied. All parts on issue. All systems at
+full rating. Demand continues."*, Records gains *All complete*, and from then
+on the valley stays lit, day and night. The content ends there; the demand does
+not. `www/js/complete.js` says what counts, and a test holds it.
+
 The four paintings (`www/backdrops/`) were made by this game's author for
 Reactor Revival, in the manner of Simon Stålenhag, and are free to use; they are
 not his work. Revival carries thirty; these four are the ones that look like

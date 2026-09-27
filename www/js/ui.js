@@ -882,6 +882,8 @@ export function render(dom, s, game) {
 		dom.board.style.setProperty("--backdrop", `url(../${outside.src})`);
 	}
 	dom.board.classList.toggle("night", outside.night);
+	// Once everything is complete, the valley stays lit (Soul Interview 4.6).
+	dom.board.classList.toggle("lit", Boolean(s.records?.complete));
 	document.body.classList.toggle("near", f > 0.8);
 	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0, s.planner ? 0 : s.mark?.trend ?? 0, !s.planner && s.mark?.grade === 1);
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
@@ -1307,6 +1309,7 @@ function renderRecords(dom, s) {
 		["Exotic Particles ever", fmt(s.totalExoticParticles + s.exoticParticles)],
 		["Field notes", `${s.notes.length} of ${Object.keys(NOTES).length}`],
 		...(s.restored ? [["This run", "Restored from a save"]] : []),
+		...(r.complete ? [["Log, parts, upgrades and board", "All complete"]] : []),
 	];
 	// Fastest to each rung of power per tick, per kind of run, counted from its reboot.
 	for (const [run, times] of Object.entries(r.speed)) {

@@ -1176,7 +1176,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | The Upgrades page has no fiction; buying feels "very app like" (5.5) | | Mechanic |
 | A meltdown returns the valley to its dark | 4.4 | Never said, by the designer's choice | | Flavour, on purpose |
 | What is lost: time, the board, the count, the pay for the dark hours | 4.5 | All four are true in the build | | Felt |
-| The content ends; the demand never does | 4.6, 6.3 | The log ends at job 30; the finished state is never noticed | Notice the finished state (1.3) | Mechanic |
+| The content ends; the demand never does | 4.6, 6.3 | Built: when the log, every part, every upgrade and the board are complete, the log book files a robotic confirmation ("… Demand continues."), Records says All complete, and the valley stays lit. The demand going on is still to build | Notice the finished state (1.3) | Mechanic, half built |
 | Melancholy creeps in, unnamed | 4.6, 6.3 | Nothing | Carried by what the log stops saying (6.3) | Letters (the log's voice) |
 | Unpausing is the on switch | 1.1 | Built: the header's switch reads On or Off with a lamp; a new station starts off, and turning it on is the tutorial's third card | | Mechanic, built |
 | Every automated system has a light and a switch | 5.2 | Built: Sell, Rebuy and Operator switches with lamps on the reactor's panel | A light and a switch on the reactor for each | Mechanic, built |

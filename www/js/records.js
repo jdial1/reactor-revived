@@ -32,6 +32,8 @@ export const freshRecords = () => ({
 	speed: {},
 	// Ticks from a reboot to the run's first Mark I board, per kind of run.
 	markRun: {},
+	// When everything was first complete: the run's ticks then. Kept for good.
+	complete: null,
 });
 
 // Parts a restriction takes off the dock.

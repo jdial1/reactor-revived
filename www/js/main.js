@@ -5,7 +5,8 @@ import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
 import { checkObjectives, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog, refillCost } from "./ui.js";
-import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES } from "./records.js";
+import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES, fileEntry } from "./records.js";
+import { isComplete, COMPLETE_ENTRY } from "./complete.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
@@ -408,6 +409,11 @@ setInterval(() => {
 setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
 	const done = OBJECTIVES[s.objective];
+	// Everything done, noticed once: a line in the log book, and the valley lit.
+	if (!s.planner && !s.records.complete && isComplete(s)) {
+		s.records.complete = { ticks: s.runTicks };
+		fileEntry(s, COMPLETE_ENTRY);
+	}
 	if (!s.planner && checkObjectives(s)) {
 		goalMet(dom, done.title);
 		// A save state for the job just done, to come back to from the log.
