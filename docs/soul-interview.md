@@ -801,7 +801,25 @@ with a small heavy drop; money rolls on drums.
 
 **5.6** Name three real images or places that are this world's look.
 *Push:* "A photo you could send. Not a game, not a film, not Chernobyl."
-> Answer:
+> Answer: four photographs, sent by the designer (not stored in the repo; their
+> sources are not recorded yet). As the interviewer describes them:
+>
+> 1. An old, empty control room under a glass skylight: curved walls of
+>    bottle-green and cream panels full of round gauges and switches, a
+>    process diagram painted in line along the upper wall, a dark operator's
+>    desk in the middle, an orange ceiling, daylight from above.
+> 2. A stone stair climbing through thick fog toward dark towers, iron railings
+>    and tall lamp posts with a few warm lamps lit, one person walking up.
+> 3. A grid control room's wall-sized mimic board: an ivory board crossed by lit
+>    yellow and pink lines through round nodes, red seven-segment readouts,
+>    analog clocks, and modern monitors at its foot.
+> 4. A control panel painted with its own process diagram in orange, blue and
+>    black lines, rows of round dials and small windows, and a desk of black
+>    levers and toggles below.
+>
+> *What they share:* three of the four are control rooms whose walls draw the
+> process itself (a mimic diagram), so the operator reads the plant's flow off
+> the wall. The fourth is the valley outside: fog, iron, a few lamps.
 
 ## Phase 6: Tensions and Taboos
 
