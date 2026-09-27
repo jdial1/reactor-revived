@@ -117,7 +117,9 @@ does not say what *you* missed.
 **0.3** If one person could play this once, who would it be, and what would you
 want them to feel when they lock the phone?
 *Push:* "Describe their face. Where are they sitting?"
-> Answer:
+> Answer: "I want the game for me, an audience of 1, I want it to not only be a
+> lineage but an actual upgrade, improved on the recipe of old, carrying the
+> torch while adjusting/refining the model just enough to feel more"
 
 **0.4** What is the part you are a little embarrassed by: too personal or too
 strange to say out loud? It may be about reactors, about the town, about a
