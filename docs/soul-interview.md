@@ -330,6 +330,13 @@ them go dark."* *"Nefastium. The supplier made you sign twice."*
 > saved layout from the log, or the planner's Build puts the whole board back
 > onto the empty grid, and the money to pay for it survived the meltdown. Only
 > Hardcore takes those away.
+>
+> Their reply: "The ability to create and load a plan requires enough knowledge
+> that it is pretty restricted for new users"
+>
+> *On record:* nothing locks it. The Plan button is in the header from the first
+> minute of a new game (`www/js/ui.js`), hidden only in a Hardcore run; what
+> restricts it is knowing what to put in it.
 
 **2.3** Why did Harrow Station close eleven years ago? What happened that
 everyone in the valley still feels?
@@ -337,7 +344,7 @@ everyone in the valley still feels?
 *On record:* nothing. The log never says why it closed. Decide also whether the
 answer is ever said (7.7). Under "no story beats" it may never be; it can still
 shape every line.
-> Answer:
+> Answer: "Unknown"
 
 **2.4** What does the valley believe that is wrong: about the plant, the
 operator, the university, or the fuel?
