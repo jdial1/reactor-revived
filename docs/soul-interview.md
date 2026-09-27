@@ -508,7 +508,13 @@ afraid of?
 *On record:* money comes from the town ("The town's first payment cleared"),
 experiments from the university, and fuel from a supplier. Nobody is named as
 owner.
-> Answer:
+> Answer: "Humans hold power and leadership roles on the surface formally, but
+> there is no actual leaders 'the ship has no captain a drift at sea set on a
+> route mapped out years ago'"
+>
+> *On record:* the log's institutions keep their forms: "An inspector is
+> coming." "The bank called. For once it was not about a loan." The payments
+> clear and the letters arrive, with nobody named behind them.
 
 **3.4** Who writes the operator's log? The game already has a narrator in the
 log, the trophies, the tooltips and the errors. What kind of person is it?
