@@ -703,8 +703,15 @@ job 13?"
 >
 > Outside foggy, dreary, overcast, a chill in the air"
 >
-> *For 6.3:* the control room is "maintained"; in 2.7 the plant's complaint is
-> "poorly maintained infrastructure".
+> *For 6.3 (resolved below):* the control room is "maintained"; in 2.7 the
+> plant's complaint is "poorly maintained infrastructure".
+>
+> Maintained by whom: "Maintain as the control room was left in fairly clean
+> order but under the hood core infrastructure needs reviewed and replaced"
+>
+> *Resolved:* a clean surface over a failing core. *On record:* replacing is
+> already a verb (a part's sheet, and "Replace or upgrade all"), and every tier
+> upgrade is a part swapped for a better one.
 
 **5.2** What is the plant made of? What does the operator touch?
 *Push:* "Name a material in the build today that is wrong."
