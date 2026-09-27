@@ -951,6 +951,10 @@ To settle:
 >    forecast and Flow stay; each helps the player learn why. The forecast
 >    stays in the planner, as it is today ("Forecasts live only in the
 >    planner").
+>
+> 3. Where a player learns from better layouts: "From the game itself"
+>    *Settled:* the insider layer lives inside the game, in its example layouts
+>    and their broken copies. Nobody has to leave the app to get past the cap.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
