@@ -1024,6 +1024,14 @@ To settle:
 Harrow? Which lines, sounds and colours?
 *Push:* "Would you keep the town, or only the plant?"
 > Answer: "A control room and an ever growing demand for power is the core"
+>
+> The one detail that makes it Harrow's: "The silence, the lack of outside
+> prompts/requests, an idle request waiting on fulfillment, alone loneliness"
+>
+> *On record:* the build already keeps one request at a time. The goal line
+> shows the current job and nothing else, no toast marks a goal met, and the
+> interface goes quiet as the reactor heats. *For 7.2:* the minimum form is a
+> silent control room, one request waiting, and an operator alone with it.
 
 **6.5** Picture a stranger's reactor idle game with all ninety parts, the
 planner and the marks, and none of the heart. What exactly is missing from it?
