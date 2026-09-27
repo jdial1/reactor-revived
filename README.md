@@ -188,7 +188,9 @@ eleven years above a town that has been on candles since it closed. Each item is
 the job, what it pays, and a one-line note from whoever asked for it - the mill
 wanting a second shift, the clinic keeping its lights on overnight, the
 university that sends an accelerator and stops saying what the particles are
-for. The checks are unchanged; only the reason for them is new. IC2 players ran
+for. The notes change as the demand grows: the first ten are sections of an old
+start-up guide, the next ten are work orders, and the last ten are demands that
+no longer give a reason. The checks are unchanged; only the reason for them is new. IC2 players ran
 their reactors inside a base they had built, so the reactor had somewhere to
 be. This gives it one.
 

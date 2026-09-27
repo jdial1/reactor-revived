@@ -57,3 +57,15 @@ test("nothing the player reads raises its voice", () => {
 		assert.ok(!text.includes("!"), `an exclamation mark: ${text}`);
 	}
 });
+
+test("the log's voice drifts from manual sections to bare demands", () => {
+	const notes = OBJECTIVES.map((o) => o.note);
+	// Jobs 0-9 are pages of an old start-up guide; from job 10 on, none are.
+	for (const note of notes.slice(0, 10)) assert.match(note, /^Section \d+\.\d+\. /, note);
+	for (const note of notes.slice(10)) assert.doesNotMatch(note, /^Section /, note);
+	// No pleasantries at any point, and the demands only get shorter.
+	for (const note of notes) assert.doesNotMatch(note, /\b(please|thank|kindly|sorry)\b/i, note);
+	const words = (list) => list.reduce((n, note) => n + note.split(/\s+/).length, 0) / list.length;
+	assert.ok(words(notes.slice(20, 30)) < words(notes.slice(10, 20)), "the last ten are terser than the middle ten");
+	assert.ok(words(notes.slice(10, 20)) < words(notes.slice(0, 10)), "the work orders are terser than the manual");
+});

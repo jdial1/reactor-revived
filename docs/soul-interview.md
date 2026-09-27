@@ -1168,7 +1168,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | The valley may be run by humanoid robots | 3.1 | Nothing | Suspected, then found out slowly | Letters |
 | Reactor roles need a human leader's approval; the leaders are gone | 3.1 | Nothing | Answered as the player climbs | Letters |
 | The robots link task lists without complaints or compliments | 3.2 | The log gives orders; no string praises the player | | Felt |
-| The voice drifts from formal guides to bare demands | 3.2, 3.4 | Nothing: the log is direct from its first line | | Letters (the log's voice) |
+| The voice drifts from formal guides to bare demands | 3.2, 3.4 | Built as a draft: jobs 0-9 are manual sections, 10-19 work orders, 20-29 bare demands (7.5, the log's voice arc); test/voice.test.js holds the shape | | Mechanic, built; wording awaits the designer |
 | The ship has no captain | 3.3 | Institutions act with nobody named behind them | | Letters |
 | The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | Letters |
 | Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | Letters |
@@ -1186,16 +1186,19 @@ crumbling plant Felt; the reactor computer Mechanic.
 
 | Line | How the player feels it today | Verdict |
 | --- | --- | --- |
-| "The town has been on candles since the plant closed." | Goal 1: sell power by hand | Felt |
-| "Nobody can stand at the valve all night." | Goal 3: the first vent | Felt |
-| "Swapping spent cells by hand at 3 a.m. is how people get hurt." | Goal 7: perpetual rebuys retire a chore | Felt |
-| "The plant clock runs slow." | Goal 11: Improved Chronometers speeds the tick | Felt |
-| "Winter is coming. The town needs a reserve for the cold nights." | Goal 13: ten capacitors | Felt |
-| "Every empty slot is a house still on candles." | Goal 18: fill every tile | Felt |
-| "Three towns are on this grid now. If the station trips, all of them go dark." | Nothing. A meltdown touches no town (and 4.4 keeps it unsaid). | Flavour, on purpose |
-| "They have stopped saying what for." | Particles buy research; their use in the world is never stated | Letters |
-| "Nefastium. The supplier made you sign twice." | Nothing | Letters |
-| "The last crate from the lab came without a manual." | Nothing: experimental parts come with a sheet and a guide entry like every other part | Letters |
+| "The town has been on candles since the plant closed." | Goal 1: sell power by hand | Felt. In the arc: "…on candles since the station closed." |
+| "Nobody can stand at the valve all night." | Goal 3: the first vent | Felt. In the arc: the 3.5 reference, "Operators are advised not to remain at the valve overnight." |
+| "Swapping spent cells by hand at 3 a.m. is how people get hurt." | Goal 7: perpetual rebuys retire a chore | Felt. In the arc: "Replacing spent cells by hand at 3 a.m. has caused injuries." |
+| "The plant clock runs slow." | Goal 11: Improved Chronometers speeds the tick | Felt. In the arc: "Station clock running slow." |
+| "Winter is coming. The town needs a reserve for the cold nights." | Goal 13: ten capacitors | Felt. In the arc: "Winter reserve required. Cold nights." |
+| "Every empty slot is a house still on candles." | Goal 18: fill every tile | Felt. In the arc: "Every empty slot is a house on candles." |
+| "Three towns are on this grid now. If the station trips, all of them go dark." | Nothing. A meltdown touches no town (and 4.4 keeps it unsaid). | Flavour, on purpose. In the arc: "…all three go dark." |
+| "They have stopped saying what for." | Particles buy research; their use in the world is never stated | Letters. In the arc the log itself stops: "Reason: not required." |
+| "Nefastium. The supplier made you sign twice." | Nothing | Letters. In the arc: "Nefastium. Signed for twice." |
+| "The last crate from the lab came without a manual." | Nothing: experimental parts come with a sheet and a guide entry like every other part | Letters. In the arc: "Crate received. No manual. Install." |
+
+*The lines above are as the interview found them. The log's voice arc (7.5)
+rewrote them; each keeps its meaning and verdict.*
 
 ### 7.4 The Never List
 
@@ -1266,6 +1269,50 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   Vent, row 6, column 7. Held 80 of 80. Replace." (a failure).
 - *The wording in the tables was drafted by the interviewer; the designer
   accepted all of it.*
+- **The log's voice arc** (3.2, 3.4, 2.4), built as a draft: the log is an old
+  start-up guide that becomes work orders, then demands. Jobs 0-9 are numbered
+  manual sections (the numbering skips, as excerpts do); jobs 10-19 are work
+  orders, still giving a reason; jobs 20-29 have stopped giving one, and the
+  lie about what the power is for falls apart ("Use: not stated", "Reason: not
+  required"). Jobs 0 and 30 are the accepted Greeting and Victory. Every line
+  keeps the meaning 7.3 gave it. The shape is held by test/voice.test.js
+  (manual sections first, no pleasantries, shorter in each third); the words
+  are drafts: accept, change or strike each.
+
+| Job | Title | Draft |
+| --- | --- | --- |
+| 0 | Place your first part in the reactor | "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years." |
+| 1 | Sell power: tap the power bar | "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power bar." |
+| 2 | Vent by hand: tap the heat bar down to 0 | "Section 1.3. Heat gauge. The gauge is known to stick. Vent by hand and confirm the reading falls." |
+| 3 | Cool a cell with a Heat Vent | "Section 2.4. Excess heat should be vented before the reactor is left unattended. Operators are advised not to remain at the valve overnight." |
+| 4 | Buy an upgrade | "Section 2.6. Maintenance budget. The town's first payment has cleared. It is to be spent on the plant." |
+| 5 | Place a Dual cell | "Section 3.1. Deliveries. Supply sent Dual cells by mistake. Install one and record the result." |
+| 6 | Run 10 cells at once | "Section 3.3. Load increase. The mill has requested a second shift. Ten cells are to run at once." |
+| 7 | Buy a Perpetual cell upgrade | "Section 4.1. Night refuelling. Replacing spent cells by hand at 3 a.m. has caused injuries. Automate replacement." |
+| 8 | Place a Capacitor | "Section 4.2. Storage. Output produced between sales is lost. Install storage." |
+| 9 | Design and place a module (Modules) | "Section 4.5. Spares. Spare cores are to be kept in casings, ready to install. Design one and install it." |
+| 10 | Make 200 power per tick | "Output required: 200 per tick. Clinic load. Maintain overnight." |
+| 11 | Buy Improved Chronometers | "Station clock running slow. Each lost second is output not delivered. Correct it." |
+| 12 | Run 5 kinds of part at once | "Inspection due. Present a plant, not a pile of fuel." |
+| 13 | Have 10 Capacitors | "Winter reserve required. Cold nights. Store output." |
+| 14 | Make 500 power per tick | "Output required: 500 per tick. Rail yard load, replacing diesel." |
+| 15 | Upgrade Potent Uranium Cell to level 3 | "Uranium stock weak. Raise its rating." |
+| 16 | Auto-sell 500 power per tick | "Co-op load, sold off the line. 500. Continuous." |
+| 17 | Run 5 Quad Plutonium Cells | "Second valley connected. Plutonium required." |
+| 18 | Fill every tile in the reactor | "Every empty slot is a house on candles. Fill them." |
+| 19 | Run 5 Quad Thorium Cells | "Thorium delivery: Tuesday. Install on arrival." |
+| 20 | Have $10B | "Reserve required: $10B. Hold it." |
+| 21 | Run 5 Quad Seaborgium Cells | "Three towns on this grid. If the station trips, all three go dark." |
+| 22 | Make 10 Exotic Particles | "Accelerator installed. Particles required: 10. Use: not stated." |
+| 23 | Make 51 Exotic Particles | "Particles required: 51. Break room reassigned." |
+| 24 | Reboot the reactor (Experiments) | "Shut down. Rebuild the core. Restart." |
+| 25 | Buy research (Experiments) | "Particles are for research. Spend them." |
+| 26 | Run 5 Quad Dolorium Cells | "Dolorium required. Candles: no longer remembered." |
+| 27 | Make 1K Exotic Particles | "Particles required: 1,000. Reason: not required." |
+| 28 | Run 5 Quad Nefastium Cells | "Nefastium. Signed for twice." |
+| 29 | Place an experimental part (Exotic) | "Crate received. No manual. Install." |
+| 30 | Nothing left on the list | "Demand met. All listed loads supplied. Maintain output." |
+
 - **The rewrite rule:** every generic system string is rewritten in voice, or
   kept plain on purpose, with the reason. These are in the build today in a
   default voice:
