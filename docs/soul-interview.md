@@ -139,7 +139,9 @@ want them to feel when they lock the phone?
 strange to say out loud? It may be about reactors, about the town, about a
 phone, or about you.
 *Push:* none. Protect whatever comes out; it is usually the soul.
-> Answer:
+> Answer: "the part set needs a complete rebuild instead of a pixel enhance and
+> scaling, but it is impossible no asset pack exists and LLM prompts fail to
+> match what is needed"
 
 ## Phase 1: The Feeling
 
