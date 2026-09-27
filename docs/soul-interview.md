@@ -1326,6 +1326,17 @@ Generic: would it exist, unchanged, in a stranger's reactor idle game? If yes,
 Anything that touches the Never List (7.4) is cut, as the banned list already
 works.
 
+**The pillar's self-test, judged** (One Request, Waiting, 7.2). Recommended by
+the interviewer; accepted by the designer:
+
+| # | What | Verdict |
+| --- | --- | --- |
+| 1 | The dot on the goal line marking an example layout waiting in the log | Keep, with a ledger entry: it sits on the one request's own line and points at help inside the game (6.3) |
+| 2 | Unlock toasts: parts supplied, new dock parts, casing design authorised | Change: a silent entry in the log book; the part still appears in the dock |
+| 3 | Trophy and field note toasts | Change: filed silently in the log book and the record |
+| 4 | The toast that closes a Time Flux run | Keep, with a ledger entry: a receipt of what happened while away (1.5) |
+| 5 | The welcome-back toast ("Away 3h - banked as Time Flux") | Change: shown on the Time Flux gauge in the header |
+
 ## After the interview
 
 1. File the answers in this document, verbatim.
