@@ -482,7 +482,17 @@ board goes quiet?
 log line, a trophy name, the floor line, an error?"
 *On record:* the floor line reads like a plant-gate sign, *"Mark I · 4,210
 ticks without incident"*. "Incident" is the only plant word the game uses.
-> Answer:
+> Answer: "The operator expects everything is normal, people say hello, good
+> evening.
+>
+> Robots actually connect with local radios and link task lists without
+> complaints or compliments"
+>
+> *On record:* the operator's log is already a task list, exactly that way. The
+> README calls the goals "a checklist from one place", each item "the job, what
+> it pays, and a one-line note", and the notes give orders without praise ("Put
+> a vent on it." "Automate it."). No string in the game compliments the player
+> (interface_voice: never congratulate a number).
 
 **3.3** Who owns Harrow Station, who sent the operator, and what are they
 afraid of?
