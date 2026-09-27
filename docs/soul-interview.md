@@ -980,6 +980,12 @@ To settle:
 >    code queues every part the player cannot yet afford, so the board comes
 >    back as the money does. How much of a board a player can rebuild at once
 >    after a meltdown has not been measured.
+>
+> 7. A crumbling plant, and no random failures: "Keep it as flavour, fixed by
+>    upgrades like those"
+>    *Settled, and kept:* the plant's decay is told in the log and answered by
+>    upgrades and actions the player chooses, like the sticking gauge (goal 2)
+>    and the slow clock (goal 11). Nothing ever fails at random.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
