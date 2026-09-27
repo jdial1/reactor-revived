@@ -936,6 +936,8 @@ To settle:
     climbs, against "no story beats" and Immersion rated Low.
 
 > Answers:
+>
+> 1. Looking closer, or looking away: "Both, struggle first then watch it flow"
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
