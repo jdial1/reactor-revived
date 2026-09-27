@@ -345,6 +345,11 @@ everyone in the valley still feels?
 answer is ever said (7.7). Under "no story beats" it may never be; it can still
 shape every line.
 > Answer: "Unknown"
+>
+> For now, or on purpose: "Unknown on purpose"
+>
+> *Goes to 7.7* as a sacred mystery: why Harrow Station closed is never
+> answered, by the game or the team.
 
 **2.4** What does the valley believe that is wrong: about the plant, the
 operator, the university, or the fuel?
@@ -681,7 +686,9 @@ designer; nobody else places them.
 - **Sacred mysteries:** never answered. The team doesn't need to know them
   either. They are listed here so nobody "helpfully" fills them in.
 
-Unplaced, from the record: why the plant closed; what the university wants
+Placed by the designer: **why the plant closed is a sacred mystery** (2.3).
+
+Unplaced, from the record: what the university wants
 the particles for; what nefastium is; what came in the last crate; who kept the
 key.
 
