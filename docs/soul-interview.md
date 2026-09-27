@@ -315,7 +315,14 @@ nearly. The fuels are not: dolorium, nefastium, protium.
 running?"
 *On record:* *"Three towns are on this grid now. If the station trips, all of
 them go dark."* *"Nefastium. The supplier made you sign twice."*
-> Answer:
+> Answer: "Power is the cost, meltdowns if you push too far
+>
+> Complexity comes risk and instability"
+>
+> *On record:* this is the lineage's oldest rule, kept in every game since IC2:
+> power grows linearly with a cell's neighbours and heat with their square, so
+> the more a board makes, the closer it runs to melting. A meltdown wipes the
+> board and keeps money, research and records.
 
 **2.3** Why did Harrow Station close eleven years ago? What happened that
 everyone in the valley still feels?
