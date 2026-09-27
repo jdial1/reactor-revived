@@ -865,7 +865,16 @@ banned list). Name an image, a sound or a word."
 pass and notifications. Which one would hurt the *valley* most if it arrived,
 and why?
 *Push:* "The answer says what the town values."
-> Answer:
+> Answer: "The game is a solo quest of accomplishment from the player
+> perspective, ads break the 4th wall, a diamond store breaks the 4th wall, an
+> in-game boost cheapens the reward of accomplishment"
+>
+> *On record:* the build has things that touch the fourth wall without selling
+> anything. Options holds a lineage page naming the real games (IC2, Reactor
+> Incremental, Knockoff) and their authors; the trophy "Ancestor Worship" is
+> earned by naming a design after one of them; typing "mark i" as a code builds
+> IC2's checkerboard. And Time Flux spends banked time at ten times speed: a
+> speed-up, earned by being away, never bought.
 
 **6.3** Which answers contradict each other, or contradict a standing rule?
 Keep each contradiction, or resolve it? The known ones:
