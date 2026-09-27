@@ -733,6 +733,21 @@ steel body and a black outline.
 > digit drums behind a recessed slot, and the power and heat bars are the
 > buttons that sell and vent by hand, which are manual overrides in all but
 > name.
+>
+> Made of: "Soviet off color plastics, teal/orange metal plating"
+>
+> Wrong in the build today: "Any computer automated systems like heat operator
+> controls without a visual indicator in the reactor, any system without a
+> visual light or button to toggle"
+>
+> *On record:* teal was taken out once. The interface is cut from Buch's frames,
+> which are drawn in lilac and teal, and every colour was remapped to a steel
+> ramp (README, "Interface skin"). Orange is already the heat colour. The
+> automated systems today have no light on the reactor page: Heat Control
+> Operator's switch sits on the Upgrades page under its upgrade, and auto-sell
+> and perpetual rebuys, once bought, have no light and no switch anywhere.
+> *For 7.3 and 7.6:* every automated system gets a light and a switch the
+> operator can see from the reactor.
 
 **5.3** What is the light like: time of day, colour temperature, where shadows
 fall?
