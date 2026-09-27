@@ -257,7 +257,18 @@ unconfirmed. Replace it if yours is truer.
 *Push:* "Name one the soul docs don't already name."
 *On record:* never congratulated for a number; never punished for being away;
 comedy never louder than deadpan.
-> Answer (goes on the Never List):
+> Answer (goes on the Never List): "Boredom or complete frustration, having to
+> leave the app to search for help, having no alternative layouts or options so
+> the game becomes completely repetitive"
+>
+> *On record:* two of these already have names in the library.
+> "Leave the app to search for help" is pitfalls/outside_tool.txt, and the
+> instance's Workbench row ("if players would need an outside tool to design
+> well, does the game ship it?"). "No alternative layouts" is
+> pitfalls/checkerboard_forever.txt, already on the instance's watchlist.
+>
+> *For 6.3:* in 0.2 the insider layer came from "looking up online layouts". Here,
+> leaving the app to search for help is a thing to never feel.
 
 ## Phase 2: The World's Truths
 
