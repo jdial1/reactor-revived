@@ -1005,8 +1005,7 @@ To settle:
 >     *Settled, with a change for the Lock:* the README, docs/soul.md and the
 >     soul instance's house rule 1 name Reactor Incremental as the game being
 >     revived, and Knockoff as the route it survived by. The balance can stay
->     checked against Knockoff running live, and the docs say why: it is the
->     version of the line that still runs.
+>     checked against Knockoff running live, as long as the docs say why.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
