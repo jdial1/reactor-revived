@@ -1011,6 +1011,14 @@ To settle:
 >     environment building, some storytelling"
 >     *Bends two standing rules:* "no story beats" and Immersion rated Low. For
 >     the soul instance's ledger once its bounds are set (below).
+>
+>     The bounds: "Letters and log entries only, never interrupting play
+>
+>     Optional sauce not required or interruptive"
+>     *Settled, with a ledger entry at the Lock:* "no story beats" becomes
+>     "story only in letters and log entries: optional, never required, never
+>     interrupting play". Immersion moves off Low for the soul instance's
+>     Psychological Target, with the same bounds.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
@@ -1114,6 +1122,8 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 - Never draw cartoony, glossy, blobby characters (6.1).
 - Never use bright, glossy icons or modern material design (6.1). Colour that
   carries a signal is allowed.
+- Never tell story anywhere but letters and log entries; never make it
+  required, and never let it interrupt play (6.3).
 >
 
 ### 7.5 Voice Guide
