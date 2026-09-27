@@ -592,7 +592,10 @@ says how they came to hold the key.
 > spark in the night, an unexpected variable in the code". Still open: human or
 > robot, and whether the valley notices them.
 >
-> Answer:
+> Human or robot: "Find out as they climb"
+>
+> Does the valley notice them: "The reaction is all automated systems, a new
+> power source notices by all nodes/towns that have a lack of power"
 
 **4.2** What does the operator want, and what does the valley want from them?
 Are those the same?
@@ -857,6 +860,7 @@ Three layers, placed by the designer; nobody else places them.
 Answered as the player climbs (2.3, 2.4, 2.5, 2.6, 3.1):
 - that the valley may have no humans left: its jobs are run by humanoid robots,
   suspected first and found out slowly (3.1)
+- whether the operator is human or a robot (4.1)
 - that robots need a human leader's approval for reactor roles, those leaders
   are gone, and so the approval never comes: the reason the search found
   nobody (3.1)
