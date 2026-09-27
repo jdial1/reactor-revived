@@ -158,7 +158,7 @@ library's word for it.
 *Push:* "Calm how? What is the player's hand doing while they feel it?"
 *On record:* the soul calls it Watchful Calm: "a dangerous machine, quiet
 because it was built right." That is the library's name. What is yours?
-> Answer:
+> Answer: "A feeling of accomplishment pulled from confusing and uncertainty"
 
 **1.2** Name a second feeling that fights the first.
 *Push:* "Is that the fight you feel, or is there another one underneath it?"
