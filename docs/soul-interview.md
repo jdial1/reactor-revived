@@ -104,6 +104,15 @@ does not say what *you* missed.
 > The different: "it felt limited built for a dated tech stack , flash player on
 > a web browser, very sensitive UI (a wrong click is fully game over) , it had a
 > very easy entry but very high total understanding cap"
+>
+> The moment it clicked: "looking up online layouts there was a layer of insider
+> understanding after playing for a while, reading between the lines matrix
+> style, the part interactions, the art dance as a reactor processes and churns
+> through the logic you have built out in the reactor"
+>
+> *For 6.3:* that insider layer came from layouts found outside the game. The
+> build now ships layouts inside it (examples, codes, the planner). Does that
+> feed the insider layer, or spend it?
 
 **0.3** If one person could play this once, who would it be, and what would you
 want them to feel when they lock the phone?
