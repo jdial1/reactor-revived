@@ -515,6 +515,17 @@ owner.
 > *On record:* the log's institutions keep their forms: "An inspector is
 > coming." "The bank called. For once it was not about a loan." The payments
 > clear and the letters arrive, with nobody named behind them.
+>
+> On the route, or off it: "The operator is a new human/robot (not sure yet)
+> moving into a new area , looking for a job and finds a reactor with an opening
+> today with extravagant pay and every benefit possible
+>
+> The operator is a new seed ,a spark in the night, an unexpected variable in
+> the code"
+>
+> *On record:* the game opens on "Day one. Harrow Station has sat cold for
+> eleven years. The key still turns." Nothing says how the operator came to
+> hold the key; no job posting appears.
 
 **3.4** Who writes the operator's log? The game already has a narrator in the
 log, the trophies, the tooltips and the errors. What kind of person is it?
@@ -544,6 +555,11 @@ the valley notice them?
 *Push:* "Why did the key still turn? Who kept it?"
 *On record:* the player is "you" in the log, from *"Day one"* onward. Nothing
 says how they came to hold the key.
+> Answered early, in 3.3: a newcomer, human or robot ("not sure yet"), who
+> answers an opening with extravagant pay and every benefit; "a new seed, a
+> spark in the night, an unexpected variable in the code". Still open: human or
+> robot, and whether the valley notices them.
+>
 > Answer:
 
 **4.2** What does the operator want, and what does the valley want from them?
