@@ -406,6 +406,13 @@ unfinished?
 >
 > *For 6.3:* in 2.3 why the plant closed was "Unknown on purpose", and in 2.5
 > why operators are scarce was a mystery.
+>
+> In due time means: "The game answers them eventually, as the player climbs"
+>
+> *On record, for 7.3 and 7.7:* the only place the game can answer anything
+> under "no story beats" is the log's one line per job, and the log ends at job
+> 30. docs/soul-brainstorm.md already holds an unbuilt idea for more room, E6
+> "A second log": dry job lines at later tiers, one line per job, no story.
 
 **2.7** If Harrow Station could speak, what would it complain about?
 *Push:* "Not about the player. About its life."
