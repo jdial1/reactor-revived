@@ -596,6 +596,12 @@ says how they came to hold the key.
 >
 > Does the valley notice them: "The reaction is all automated systems, a new
 > power source notices by all nodes/towns that have a lack of power"
+>
+> Does anything notice the operator: "The operator stays invisible; only the
+> power is noticed"
+>
+> *For 7.4 and 7.5:* no line in the game addresses the operator as a person,
+> thanks them, or reacts to them; only to the power.
 
 **4.2** What does the operator want, and what does the valley want from them?
 Are those the same?
