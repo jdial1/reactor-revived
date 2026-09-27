@@ -537,6 +537,8 @@ vent on it." "Automate it."). The trophies are flat. One line is almost a joke:
 > Answer: "The operator logs were old guides for new operators which change
 > over time as the go from very formal startup reactor guides to more more
 > more"
+>
+> The voice: "Technical, concise but never emotional"
 
 **3.5** Write one line exactly as the game should say it.
 *Push:* "Now write the line the game should show when a part fails at three in
@@ -761,7 +763,9 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 
 ### 7.5 Voice Guide
 
-- **The narrator,** from 3.4: two or three words and one *but*.
+- **The narrator,** from 3.4: **technical, concise, but never emotional.** The
+  log is old guides for new operators, drifting from formal start-up guides to
+  bare demands (3.2, 3.4).
 - **Five reference lines.** A candidate is on record for each; confirm it or
   rewrite it:
 
