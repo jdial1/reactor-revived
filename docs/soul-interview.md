@@ -762,6 +762,12 @@ until four-fifths full, each fuel glowing in its own colour.
 > four-fifths full, because colour is kept for abnormal states (README, "Heat
 > you can see"). House rule 2 bars any clock outside the game that punishes
 > absence; a light that follows the time of day punishes nothing.
+>
+> Night and day: "A day reactor uses actual outside light vs night reactor
+> using internal artificial lighting"
+>
+> *For 7.6:* by day, the light is whatever comes through the fog and overcast of
+> 5.1; by night, the room's own lamps.
 
 **5.4** What is the quietest sound in the game, and why does it matter?
 *Push:* "What is quieter than the hum at Mark I?"
