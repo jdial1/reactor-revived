@@ -534,7 +534,9 @@ what?"
 *On record:* the log speaks in short imperatives with no warmth added ("Put a
 vent on it." "Automate it."). The trophies are flat. One line is almost a joke:
 *"It is already cold."*
-> Answer:
+> Answer: "The operator logs were old guides for new operators which change
+> over time as the go from very formal startup reactor guides to more more
+> more"
 
 **3.5** Write one line exactly as the game should say it.
 *Push:* "Now write the line the game should show when a part fails at three in
