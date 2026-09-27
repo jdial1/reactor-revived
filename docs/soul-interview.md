@@ -614,6 +614,16 @@ shuts the plant down.
 > thing, for different reasons") in their own words: "4 fits best, an operator
 > there for the pay, the valley needs power for reason unknown and
 > understanding is not required for an operator to provide it"
+>
+> The player and the operator: "accomplishment pulled from confusion is the
+> actual player of the game feeling
+>
+> In game, the operator is driven by pay alone"
+>
+> *For the Lock:* two layers, kept apart. The player (the person holding the
+> phone) climbs toward understanding; the operator (the one in the world) is
+> there for the pay. No line in the game gives the operator the player's
+> feelings.
 
 **4.3** For each verb (**place**, **inspect then sell, move or replace**,
 **buy**), what does doing it mean inside the fiction?
