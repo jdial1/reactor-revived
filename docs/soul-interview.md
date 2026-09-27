@@ -1006,6 +1006,11 @@ To settle:
 >     soul instance's house rule 1 name Reactor Incremental as the game being
 >     revived, and Knockoff as the route it survived by. The balance can stay
 >     checked against Knockoff running live, as long as the docs say why.
+>
+> 11. A universe, and the standing rules: "Allow some character building, some
+>     environment building, some storytelling"
+>     *Bends two standing rules:* "no story beats" and Immersion rated Low. For
+>     the soul instance's ledger once its bounds are set (below).
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
