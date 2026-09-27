@@ -1036,7 +1036,9 @@ Harrow? Which lines, sounds and colours?
 **6.5** Picture a stranger's reactor idle game with all ninety parts, the
 planner and the marks, and none of the heart. What exactly is missing from it?
 *Push:* "Which of those missing things is missing from this build too?"
-> Answer (lists what the Lock must protect):
+> Answer (lists what the Lock must protect): "Its lacks an atmosphere, a why, a
+> reason for continuing, a grid reactor game with no drive or push forward,
+> relying purely on a players want for more"
 
 ---
 
