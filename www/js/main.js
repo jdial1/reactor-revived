@@ -10,7 +10,7 @@ import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
 import { layoutCode, readLayout, applyLayout, describe, layoutOf, contextNote, gridOf } from "./layout.js";
-import { bankTime, spendFlux, span } from "./flux.js";
+import { bankTime, spendFlux } from "./flux.js";
 import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
 import { replaceAll } from "./layout.js";
 import { play, setMuted } from "./audio.js";
@@ -387,10 +387,12 @@ function gameLoop() {
 	setTimeout(gameLoop, s.loopWait);
 }
 
-/** Bank the time away, and say so if there was any. */
+/** Bank the time away; the Time Flux gauge shows it, with no toast. */
 function welcomeBack() {
 	const banked = bankTime(theGame(), Date.now());
-	if (banked) toast(`Away ${span(banked)} - banked as Time Flux`, "flux");
+	if (!banked) return;
+	render(dom, s, game);
+	flash(dom.flux, "banked");
 }
 
 boot();
@@ -417,7 +419,7 @@ setInterval(() => save(theGame()), SAVE_MS);
 
 // Android calls these back when the picker has actually done something, so the
 // confirmation is the file existing rather than the button being pressed.
-window.saved = () => toast("Save exported", "options");
+window.saved = () => toast("Station record written to file.", "options");
 
 // Called by the Android side once the player has picked a file to load. A file
 // that is not a save we can read is refused, and one that is still asks first:
@@ -430,12 +432,12 @@ window.importSave = (json) => {
 		// not JSON at all
 	}
 	if (!isSave(saved)) {
-		toast("That file is not a Reactor Revived save this version can read", "options");
+		toast("File rejected. Not a station record this build can read.", "options");
 		return;
 	}
 	// A save is a way back past a meltdown. Hardcore has no way back.
 	if (theGame().restriction === "hardcore" || saved.restriction === "hardcore") {
-		toast("A Hardcore run cannot be restored from a save", "options");
+		toast("Restore refused. A Hardcore run cannot be restored from a save.", "options");
 		return;
 	}
 	ask(`Replace your current game with this save ($${fmt(saved.money ?? 0)})?`, () => {
@@ -445,7 +447,7 @@ window.importSave = (json) => {
 		real = null;
 		save(s);
 		boot();
-		toast("Save imported", "options");
+		toast("Station record loaded.", "options");
 	}, "Replace", true);
 };
 

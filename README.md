@@ -320,7 +320,7 @@ of this line loved, what broke, and what they asked for. What came of it:
   Incremental players asked for a way to test without losing income.
 - **Time Flux.** Knockoff's, with its issue #23 answered. Nothing ticks while the
   game is out of sight; the time is banked, up to eight hours, and coming back
-  says how long you were gone. The bank sits in the header and, when tapped,
+  lights the bank, which sits in the header and, when tapped,
   runs at ten times speed, counting down, until it is empty or tapped again.
 - **The verdict line**, in the planner: what the board makes, whether it
   holds - or the tick it fails and what goes first - and profit after fuel.
@@ -410,7 +410,10 @@ it. If the board, the hum or a bar already says it, nothing else does: no pop on
 placement, no wash or floating number on a sell or vent, no flash on an upgrade,
 no toast for a goal (a tick appears on the goal line instead) or for a price the
 button already shows. What stays is what the board cannot say - a refused tap
-shakes, a tier unlocking is announced, and a meltdown stops everything.
+shakes, and a meltdown stops everything. A part coming into reach flashes on its
+own dock button; that it arrived, like a trophy or a field note, is filed in the
+operator's log book without a toast or a sound (house rule 3 of the soul
+instance, One Request, Waiting).
 
 ## Gauges
 
@@ -451,9 +454,9 @@ the bells and beeps score bright, and none of them are here. `impactWood_heavy`
 scored 0.95 deep at 77 crossings a second; `impactBell_heavy` scored 0.51 at
 874, which is the tinny sound this game is trying not to make.
 
-Nine cues come from six files: a lower playback rate is a bigger, longer version
-of the same impact, so a tier unlocking is a part being placed at 0.78, and a
-meltdown is a punch at 0.8. Nothing in `www/js/sim.js` knows any of this exists -
+Seven cues: the six impacts, each at its own playback rate - a lower rate is a
+bigger, longer version of the same impact, so a meltdown is a punch at 0.8 - and
+the hum. Nothing filed silently in the log book makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
 audio is dispatched from the renderer and from `main.js`, and a test still
 asserts the simulation touches no DOM.
 
@@ -543,7 +546,7 @@ the one rule dropped on purpose: it deleted heat.
   Vents, coolant and plating come with the goal that asks for a vent; capacitors
   and reflectors with the one that asks for a capacitor; exchangers, inlets and
   outlets with the first example layout that uses them; accelerators when
-  particles become the job. Each arrival is announced once.
+  particles become the job. Each arrival is filed once in the log book.
 - Every dock part shows its numbers in its corners, with the rate bar's icons:
   power in blue, heat in red, life in purple, price in green, and its art in
   the middle.

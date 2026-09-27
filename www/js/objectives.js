@@ -53,7 +53,7 @@ const anyUpgrade = (s, match) => Object.entries(s.levels).some(([id, lv]) => lv 
 
 export const OBJECTIVES = [
 	{ title: "Place your first part in the reactor",
-	  note: "Day one. Harrow Station has sat cold for eleven years. The key still turns.", reward: 10,
+	  note: "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years.", reward: 10,
 	  check: (s) => some(s, () => true) },
 	{ title: "Sell power: tap the power bar",
 	  note: "The town has been on candles since the plant closed. Sell them something.", reward: 10,
@@ -144,7 +144,7 @@ export const OBJECTIVES = [
 	  note: "The last crate from the lab came without a manual.", epReward: 10000,
 	  check: (s) => some(s, (p) => p.level === 6) },
 	{ title: "Nothing left on the list",
-	  note: "The valley has power. Keep it that way.", check: () => false },
+	  note: "Demand met. All listed loads supplied. Maintain output.", check: () => false },
 ];
 
 /** Pay out every objective the state now satisfies, in order. */

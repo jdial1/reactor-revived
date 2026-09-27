@@ -1230,7 +1230,7 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 | Tooltip | A part's one-line description, e.g. the vent: "Holds heat up to its limit and sheds up to its rate every tick. Past its limit it fails." | Accepted: keep as is; already technical and concise |
 | Error | "A Hardcore run cannot be restored from a save" | Accepted: "Restore refused. A Hardcore run cannot be restored from a save." |
 | Victory | "The valley has power. Keep it that way." | Accepted: "Demand met. All listed loads supplied. Maintain output." |
-| Defeat | "Heat passed twice what the reactor could hold. Every part in it was destroyed." | Accepted: "Meltdown. Core heat exceeded twice rated capacity. All components destroyed." |
+| Defeat | "Heat passed twice what the reactor could hold. Every part in it was destroyed." | Accepted: "Meltdown. Core heat exceeded twice rated capacity. All components destroyed." In the build without its first word, which the sheet's heading already says: "Core heat exceeded twice rated capacity. All components destroyed." |
 
 - **Banned,** from 3.6 and 6.1: any emotional tone; binary or computer speak;
   a demand the player cannot understand without decoding it; praise of any
@@ -1347,5 +1347,12 @@ the interviewer; accepted by the designer:
 3. Rewrite the strings in 7.5 and settle every row in 7.3 in one pass, then
    extend `test/guide.test.js` to hold the Never List's text rules (no
    exclamation marks; the banned phrasings) over every string the player reads.
+   **Strings done:** the thirteen accepted rewrites and the Soul Check's toast
+   verdicts are in the build. Parts supplied, casing designs, trophies and field
+   notes are filed silently in the operator's log book; the welcome-back toast
+   is gone and the Time Flux gauge shows the bank; the "unlock" and "goal"
+   sounds are retired. `test/voice.test.js` holds every accepted string to the
+   build and keeps exclamation marks out of what the player reads. The rows in
+   7.3 marked Mechanic or Letters are still to build.
 4. Re-run the Seed Card (Phase 0 of the soul instance) against 1.3 and 1.4. The
    inferred fortieth minute and next-day story are replaced by the designer's.

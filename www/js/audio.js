@@ -7,17 +7,14 @@
 // crosses zero, and the ones that won are heavy and dull - Kenney's bells and
 // beeps score bright and are not here.
 //
-// Some cues are one file played slower. A lower rate is a bigger, longer
-// version of the same impact, which is cheaper than shipping another file and
-// keeps the set sounding related.
+// A cue can play its file slower: a lower rate is a bigger, longer version of
+// the same impact. Nothing that is only filed in the log book makes a sound.
 const CUES = {
 	place: ["place", 1, 0.55],
-	unlock: ["place", 0.78, 0.7],
 	sell: ["sell", 1, 0.5],
 	coin: ["coin", 1, 0.5],
 	vent: ["vent", 0.92, 0.5],
 	buy: ["buy", 1, 0.55],
-	goal: ["buy", 0.82, 0.7],
 	boom: ["boom", 0.8, 0.9],
 };
 

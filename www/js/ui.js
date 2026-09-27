@@ -14,7 +14,7 @@ import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, 
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT } from "./lessons.js";
-import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell } from "./records.js";
+import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry } from "./records.js";
 import { NOTES, notesFor } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
@@ -292,6 +292,8 @@ export function buildUI(game) {
 		h("h2", { textContent: "Harrow Station - operator's log" }),
 		dom.doneToggle,
 		dom.objectiveList,
+		dom.entryHead = h("h3", { textContent: "Entered", hidden: true }),
+		dom.entryList = h("ul", { className: "entries" }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dom.goalSheet.close() })));
 	root.append(dom.goalSheet);
@@ -517,11 +519,11 @@ export const flash = (el, cls) => {
 function meltdownNotice(lines, onAcknowledge) {
 	const dialog = h("dialog", { className: "sheet meltdown" },
 		h("h2", { textContent: "Meltdown" }),
-		h("i", { textContent: "Heat passed twice what the reactor could hold. Every part in it was destroyed." }),
+		h("i", { textContent: "Core heat exceeded twice rated capacity. All components destroyed." }),
 		// The receipt: read off the ledger as the reactor fell. Words, not wreckage.
 		lines?.length ? h("ul", { className: "receipt" }, ...lines.map((l) => h("li", { textContent: l }))) : "",
 		h("div", { className: "row" },
-			h("button", { className: "wide", textContent: "Restart the reactor", onclick: () => dialog.close() })));
+			h("button", { className: "wide", textContent: "Begin start-up", onclick: () => dialog.close() })));
 	dialog.addEventListener("close", () => { dialog.remove(); onAcknowledge(); });
 	document.body.append(dialog);
 	dialog.showModal();
@@ -985,8 +987,7 @@ export function render(dom, s, game) {
 
 		if (visible && row.wasLocked) {
 			flash(button, "unlocked");
-			play("unlock");
-			toast(`${part.title} unlocked`, "upgrades");
+			fileEntry(s, `Supplied: ${part.title}.`);
 		}
 		row.wasLocked = !visible;
 
@@ -1141,6 +1142,14 @@ function renderObjectives(dom, s) {
 		if (snap) row.load.onclick = () => snapshotDialog(s, snap, dom.game);
 	});
 	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
+	// The log book's silent entries, newest first, under the jobs.
+	const entries = s.entries ?? [];
+	const last = entries.at(-1);
+	const sig = `${entries.length}:${last?.tick}:${last?.text}`;
+	if (sig === dom.entrySig) return;
+	dom.entrySig = sig;
+	dom.entryHead.hidden = !entries.length;
+	dom.entryList.replaceChildren(...[...entries].reverse().map((e) => h("li", { textContent: e.text })));
 }
 
 function showGoals(dom) {
@@ -1169,18 +1178,12 @@ function renderLocks(dom, s) {
 		dom.tabsOpen = sig;
 		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.hidden = !tabs.includes(b.dataset.value);
 		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
-		if (fresh.length) {
-			play("unlock");
-			toast(`New in the dock: ${fresh.join(", ")}`, "reactor");
-		}
+		if (fresh.length) fileEntry(s, `Supplied: ${fresh.join(", ")}.`);
 	}
 	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
 	// Announced when it happens, not on every load of a game already past it.
-	if (open && dom.modulesOpen === false) {
-		play("unlock");
-		toast("Modules unlocked - design one on the Modules page", "modules");
-	}
+	if (open && dom.modulesOpen === false) fileEntry(s, "Casing design authorised. See Modules.");
 	dom.modulesOpen = open;
 	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
 	if (!open && dom.page === "modules") {
@@ -1298,21 +1301,20 @@ function renderRecords(dom, s) {
 	dom.records.replaceChildren(...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })]));
 }
 
-/** A field note or a trophy earned: said quietly, once. */
+/** A field note or a trophy earned: filed in the log book, without a word. */
 function renderNotes(dom, s) {
 	if (dom.trophiesSeen === undefined) dom.trophiesSeen = s.trophies.length;
 	if (s.trophies.length > dom.trophiesSeen) {
 		dom.trophiesSeen = s.trophies.length;
 		const id = s.trophies[s.trophies.length - 1];
-		play("goal");
-		toast(`Trophy: ${TROPHIES.find(([t]) => t === id)[1]}`, "goals");
+		fileEntry(s, `Entered in the record: ${TROPHIES.find(([t]) => t === id)[1]}.`);
 	}
 	if (s.notes.length === Object.keys(NOTES).length) award(s, "notes");
 	if (dom.notesSeen === undefined) dom.notesSeen = s.notes.length;
 	if (s.notes.length <= dom.notesSeen) return;
 	const id = s.notes[s.notes.length - 1];
 	dom.notesSeen = s.notes.length;
-	toast(`Field note: ${NOTES[id][0]}`, "options");
+	fileEntry(s, `Field note filed: ${NOTES[id][0]}.`);
 }
 
 /** Reboot, with the choice of a rule for the run it starts. */

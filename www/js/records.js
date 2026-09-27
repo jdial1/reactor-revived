@@ -237,6 +237,18 @@ export function logEvent(s, text) {
 	return e;
 }
 
+/**
+ * Filed in the operator's log book without a word: parts supplied, casings
+ * authorised, trophies and field notes. One request waits in the room; nothing
+ * else speaks (house rule 3, One Request, Waiting). The real game only.
+ */
+export function fileEntry(s, text) {
+	if (s.planner || s.sealed) return;
+	s.entries ??= [];
+	s.entries.push({ tick: s.runTicks, text });
+	if (s.entries.length > 40) s.entries.shift();
+}
+
 // ---- incidents and the receipt ----------------------------------------------
 
 /** A part lost to heat on the real board: kept, the last few, as a receipt. */
