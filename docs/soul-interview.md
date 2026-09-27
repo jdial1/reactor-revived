@@ -955,6 +955,17 @@ To settle:
 > 3. Where a player learns from better layouts: "From the game itself"
 >    *Settled:* the insider layer lives inside the game, in its example layouts
 >    and their broken copies. Nobody has to leave the app to get past the cap.
+>
+> 4. The accelerator layout, handed over: "Show less of it so players figure it
+>    out
+>
+>    Use a middle ground of showing how about much power needs pushed into a
+>    tier 1 accelerator to start making EP and not immediately blow up"
+>    *Settled, with a change for the Lock:* goal 22 teaches the accelerator's
+>    numbers, not its layout. (In the build an accelerator runs on heat, not
+>    power: it makes particles from the heat it holds, most at half full, and
+>    holds twice its particle heat. The parts guide already says so; the
+>    "Feeding an accelerator" example goes further and hands over the farm.)
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
