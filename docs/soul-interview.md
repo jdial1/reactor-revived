@@ -986,6 +986,11 @@ To settle:
 >    *Settled, and kept:* the plant's decay is told in the log and answered by
 >    upgrades and actions the player chooses, like the sticking gauge (goal 2)
 >    and the slow clock (goal 11). Nothing ever fails at random.
+>
+> 8. Paid, or melancholy: "Keep both, pay first then melancholy creeps in"
+>    *Settled, and kept:* the operator arrives for the pay; the melancholy
+>    arrives later, unnamed, carried by what the log stops saying and what the
+>    demand keeps asking (3.2, 3.4, 4.6). No line names the feeling.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
