@@ -1124,37 +1124,41 @@ Each truth gets one of four verdicts from the designer:
 How each is felt today was checked against the build. The last column is the
 designer's.
 
+Verdicts given by the designer in bulk: groups A (mysteries) and C (voice) as
+Letters, group B (proposed systems) as Mechanic; infinite scale and the
+crumbling plant Felt; the reactor computer Mechanic.
+
 **The world's truths (Phases 2-6)**
 
 | Truth | Source | How the player feels it today | Proposed in the interview | Verdict |
 | --- | --- | --- | --- | --- |
-| Progress and scale are infinite; resources are spent | 2.1 | Money, power and particles grow without limit; every upgrade has a ceiling | | |
+| Progress and scale are infinite; resources are spent | 2.1 | Money, power and particles grow without limit; every upgrade has a ceiling | | Felt |
 | A meltdown is finite and leaves no mark on the world | 2.1 | A clean wipe that keeps money, research and records | | Felt |
-| Demand only ever grows | 2.1, 2.5 | Goal targets rise through job 30; nothing after it | Requests that grow after they are made: 200, cancelled, now 300 (3.5) | |
+| Demand only ever grows | 2.1, 2.5 | Goal targets rise through job 30; nothing after it | Requests that grow after they are made: 200, cancelled, now 300 (3.5) | Mechanic |
 | The options grow more complex | 2.1 | A part appears once ten of the one before it are placed; families arrive with the log; a doctrine set every five goals | | Felt |
 | Power is the cost; complexity brings instability | 2.2 | Heat grows faster than power as cells crowd; meltdowns | | Felt |
 | Rebuilding is the cost | 2.2, 6.3 | The board is lost; rebuilt codes queue what cannot be afforded | | Felt |
-| Knowledge is scarce | 2.5 | The guide states rules, never answers; the examples teach inside the game (6.3) | Goal 22 teaches the accelerator's numbers, not its layout (6.3) | |
-| The plant is crumbling | 2.7, 6.3 | The sticking gauge (goal 2), the slow clock (goal 11) | Kept as flavour, fixed by upgrades like those (6.3) | |
-| The demand is a lie that falls apart | 2.4 | Late log lines stop explaining; nothing past job 30 | | |
-| Why the plant closed | 2.3 | Nothing | Answered as the player climbs (2.6) | |
-| Capable operators are scarce; the search found nobody | 2.5 | Nothing | Answered as the player climbs | |
-| The valley may be run by humanoid robots | 3.1 | Nothing | Suspected, then found out slowly | |
-| Reactor roles need a human leader's approval; the leaders are gone | 3.1 | Nothing | Answered as the player climbs | |
+| Knowledge is scarce | 2.5 | The guide states rules, never answers; the examples teach inside the game (6.3) | Goal 22 teaches the accelerator's numbers, not its layout (6.3) | Mechanic |
+| The plant is crumbling | 2.7, 6.3 | The sticking gauge (goal 2), the slow clock (goal 11) | Kept as flavour, fixed by upgrades like those (6.3) | Felt |
+| The demand is a lie that falls apart | 2.4 | Late log lines stop explaining; nothing past job 30 | | Letters |
+| Why the plant closed | 2.3 | Nothing | Answered as the player climbs (2.6) | Letters |
+| Capable operators are scarce; the search found nobody | 2.5 | Nothing | Answered as the player climbs | Letters |
+| The valley may be run by humanoid robots | 3.1 | Nothing | Suspected, then found out slowly | Letters |
+| Reactor roles need a human leader's approval; the leaders are gone | 3.1 | Nothing | Answered as the player climbs | Letters |
 | The robots link task lists without complaints or compliments | 3.2 | The log gives orders; no string praises the player | | Felt |
-| The voice drifts from formal guides to bare demands | 3.2, 3.4 | Nothing: the log is direct from its first line | | |
-| The ship has no captain | 3.3 | Institutions act with nobody named behind them | | |
-| The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | |
-| Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | |
+| The voice drifts from formal guides to bare demands | 3.2, 3.4 | Nothing: the log is direct from its first line | | Letters (the log's voice) |
+| The ship has no captain | 3.3 | Institutions act with nobody named behind them | | Letters |
+| The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | Letters |
+| Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | Letters |
 | Only the power is noticed | 4.1 | No line addresses the operator | | Felt |
-| The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | The Upgrades page has no fiction; buying feels "very app like" (5.5) | | |
+| The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | The Upgrades page has no fiction; buying feels "very app like" (5.5) | | Mechanic |
 | A meltdown returns the valley to its dark | 4.4 | Never said, by the designer's choice | | Flavour, on purpose |
 | What is lost: time, the board, the count, the pay for the dark hours | 4.5 | All four are true in the build | | Felt |
-| The content ends; the demand never does | 4.6, 6.3 | The log ends at job 30; the finished state is never noticed | Notice the finished state (1.3) | |
-| Melancholy creeps in, unnamed | 4.6, 6.3 | Nothing | Carried by what the log stops saying (6.3) | |
-| Unpausing is the on switch | 1.1 | Pause is a small button in the header | | |
-| Every automated system has a light and a switch | 5.2 | Heat Control Operator's switch is on the Upgrades page; auto-sell and perpetual rebuys have none | A light and a switch on the reactor for each | |
-| A Soviet-built reactor stands in an English valley | 6.3 | Nothing | Answered as the player climbs | |
+| The content ends; the demand never does | 4.6, 6.3 | The log ends at job 30; the finished state is never noticed | Notice the finished state (1.3) | Mechanic |
+| Melancholy creeps in, unnamed | 4.6, 6.3 | Nothing | Carried by what the log stops saying (6.3) | Letters (the log's voice) |
+| Unpausing is the on switch | 1.1 | Pause is a small button in the header | | Mechanic |
+| Every automated system has a light and a switch | 5.2 | Heat Control Operator's switch is on the Upgrades page; auto-sell and perpetual rebuys have none | A light and a switch on the reactor for each | Mechanic |
+| A Soviet-built reactor stands in an English valley | 6.3 | Nothing | Answered as the player climbs | Letters |
 
 **The log's lines on record**
 
