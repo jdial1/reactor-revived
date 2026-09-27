@@ -296,6 +296,19 @@ nearly. The fuels are not: dolorium, nefastium, protium.
 > is the standing rule that a meltdown is a clean wipe, now said as a law of the
 > world, and it bears on 4.4 and the log's "If the station trips, all of them go
 > dark."
+>
+> On an ordinary day: "Resources scale to infinite like most upgrades, resources
+> can be depleted by buying parts/upgrades but scaling is infinite
+>
+> An operator sees an ever growing demand and an ever growing complexity of
+> options to handle that demand"
+>
+> *For 7.3:* demand grows through the log (the mill's second shift, the clinic
+> overnight, the rail yard, the next valley, three towns) and stops at job 30:
+> "The valley has power." In the mechanics demand never appears: power sells in
+> any amount, and only the goals set a number to reach. The complexity half has
+> mechanics: parts unlock ten at a time, families arrive with the log, and each
+> doctrine set opens every five goals.
 
 **2.2** What does that truth cost, and who pays? Not in money.
 *Push:* "Power without cost is hollow. Who in the valley pays for the plant
