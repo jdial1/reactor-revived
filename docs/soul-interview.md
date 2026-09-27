@@ -647,6 +647,12 @@ happened.
 > Answer: "The valley sees a drop in power, but that was the norm, the station
 > has been offline so long the new power is the unexpected not the meltdown of
 > it"
+>
+> Does the meltdown sheet mention the valley: "Only about the reactor, the
+> valley stays unmentioned"
+>
+> *For 7.4:* the meltdown receipt speaks only of the reactor. The valley going
+> dark is never said.
 
 **4.5** What does the operator lose that they can't get back?
 *Push:* "Permanence, even small. Mechanically almost nothing is lost: money and
