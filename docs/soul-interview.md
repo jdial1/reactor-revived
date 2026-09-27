@@ -142,6 +142,14 @@ phone, or about you.
 > Answer: "the part set needs a complete rebuild instead of a pixel enhance and
 > scaling, but it is impossible no asset pack exists and LLM prompts fail to
 > match what is needed"
+>
+> What they get wrong: "the original is very low 16x16 pixel art but still
+> dense and intentional, LLM prompts give 128x128 icons over greebled or asset
+> packs are 3d instead of 2d and are generic factory parts and not needed parts"
+>
+> *For 5.2 and 7.6:* the first line of the art spec. The build today ships
+> Reactor Revival's 128x128 sprites stored at 64px and 32 colours, and draws a
+> dock part at 31px.
 
 ## Phase 1: The Feeling
 
