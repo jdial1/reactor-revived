@@ -379,7 +379,15 @@ true?"
 *"Nobody in town remembers the candles now."* The mechanics keep ninety-six
 tiles scarce forever while money inflates. The two curves have never been set
 side by side.
-> Answer:
+> Answer: "Operators are scarce with enough knowledge to run the reactor
+>
+> Nodes/stations/towns that need more power are everywhere"
+>
+> *On record:* the operator works alone. Nobody else appears at the plant, and
+> the log's early lines say so ("Nobody can stand at the valve all night",
+> "Swapping spent cells by hand at 3 a.m. is how people get hurt"). Knowledge as
+> the scarce thing is the understanding cap of 0.2 and the junior and master of
+> 1.1, now said as a law of the world.
 
 **2.6** Which question about this world should never be fully answered?
 *Push:* "Would the game be smaller if it were answered? Say how."
