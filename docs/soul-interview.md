@@ -241,6 +241,17 @@ unconfirmed. Replace it if yours is truer.
 >
 > *For 6.3:* "endless design layouts" here, and "completing all content" in the
 > last hour (1.3). Both can be true; the Lock decides how.
+>
+> As they would tell it: "They would be excited to say they figured out the
+> accelerator layout"
+>
+> *On record, and for 6.3:* the accelerator layout is the one Knockoff never let
+> anyone figure out (its first accelerator could never make a particle). Here
+> the log hands it over: at goal 22, "Feeding an accelerator" opens as an
+> example, one dual seaborgium cell between two accelerators, with its rule
+> spelled out. The moment players would be excited to tell is the one the game
+> currently gives away. This answer also replaces the Seed Card's inferred
+> next-day story (the checkerboard rebuilt round exchangers).
 
 **1.5** What must this game never make anyone feel?
 *Push:* "Name one the soul docs don't already name."
