@@ -1023,7 +1023,7 @@ To settle:
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
 *Push:* "Would you keep the town, or only the plant?"
-> Answer:
+> Answer: "A control room and an ever growing demand for power is the core"
 
 **6.5** Picture a stranger's reactor idle game with all ninety parts, the
 planner and the marks, and none of the heart. What exactly is missing from it?
