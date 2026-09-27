@@ -875,6 +875,9 @@ and why?
 > earned by naming a design after one of them; typing "mark i" as a code builds
 > IC2's checkerboard. And Time Flux spends banked time at ten times speed: a
 > speed-up, earned by being away, never bought.
+>
+> The lineage nods, and Time Flux: "Lineage nods are fine, Time Flux is earned
+> not a boost"
 
 **6.3** Which answers contradict each other, or contradict a standing rule?
 Keep each contradiction, or resolve it? The known ones:
