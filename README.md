@@ -644,6 +644,25 @@ A switch changes how the machine runs, so flipping one starts the board's mark
 again, as a doctrine does, and the planner's forecast runs with the switches as
 they are set.
 
+## The plant computer
+
+Upgrades and research are not bought from a shop. They are authorised on the
+**plant computer**, a terminal in the control room: teal plating around a dark
+phosphor screen, a cream plate with its name (*Maintenance* on the Upgrades
+page, *Research* on Experiments), and a lamp lit while anything on the screen is
+within budget. The screen's first line stays in view as the list scrolls: the
+budget (*Maintenance. Budget: $60K.*), or for four seconds after a purchase,
+what was done (*Authorised: Forceful Fusion, level 1.*), which is also said to a
+screen reader once.
+
+The upgrades are lines on the screen, not cards. A tap is a key pressed
+through: the line goes to inverse video while it is held, and again when the
+computer takes it, and it is heard in two stages - a short click (the place
+impact, fast and quiet) and then the buy impact as the clack. One tap still buys
+one level; nothing takes longer than it did (Soul Interview 5.5: slow in feel,
+not in speed). The colours that carry a signal stay: a price within reach in
+cash, a raised figure in power, particles in violet.
+
 ## Records and runs
 
 Options keeps a **Records** page, the statistics page Reactor Incremental had:

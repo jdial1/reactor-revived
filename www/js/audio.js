@@ -16,6 +16,9 @@ const CUES = {
 	vent: ["vent", 0.92, 0.5],
 	buy: ["buy", 1, 0.55],
 	boom: ["boom", 0.8, 0.9],
+	// The first stage of a key on the plant computer: the place impact, played
+	// fast and quiet, is a short click before the clack (Soul Interview 5.5).
+	click: ["place", 1.9, 0.22],
 };
 
 export const FILES = [...new Set(Object.values(CUES).map(([file]) => file))];
@@ -50,6 +53,12 @@ export function play(cue, pitch = 1) {
 	// Before the first tap a browser refuses to play at all; there is nothing
 	// to do about it and nothing worth saying.
 	el.play().catch(() => {});
+}
+
+/** A key pressed through: a click, then the cue as its clack. One tap, two stages. */
+export function press(cue) {
+	play("click");
+	setTimeout(() => play(cue), 70);
 }
 
 // The machine's own voice: a loop that climbs in pitch and loudness with heat.

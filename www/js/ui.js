@@ -302,16 +302,21 @@ export function buildUI(game) {
 	dom.upgradeList = h("div", { className: "upgrades" });
 	dom.upgradeEmpty = h("p", { className: "empty", textContent:
 		"Nothing you can afford yet. Sell power by tapping the power bar." });
-	dom.pages.upgrades.append(dom.upgradeEmpty, dom.upgradeList);
+	// Upgrades and research are authorised on the plant computer, a terminal in
+	// the control room, not bought from a shop (Soul Interview 4.3, 5.5).
+	dom.terminals = {
+		upgrades: terminal("Maintenance", dom.upgradeEmpty, dom.upgradeList),
+		experiments: terminal("Research", dom.experimentList = h("div", { className: "upgrades" })),
+	};
+	dom.pages.upgrades.append(dom.terminals.upgrades.el);
 
-	dom.experimentList = h("div", { className: "upgrades" });
 	dom.epStatus = h("p", { className: "ep-status" });
 	dom.pages.experiments.append(
 		dom.epStatus,
 		h("div", { className: "reboot" },
 			h("button", { className: "wide", textContent: "Reboot reactor", onclick: () => game.reboot(false) }),
 			h("button", { className: "wide", textContent: "Reboot & refund all EP", onclick: () => game.reboot(true) })),
-		dom.experimentList,
+		dom.terminals.experiments.el,
 	);
 
 	dom.pages.options.append(
@@ -674,6 +679,28 @@ export function inspect(s, t, sell) {
 	dialog.addEventListener("close", () => dialog.remove());
 	document.body.append(dialog);
 	dialog.showModal();
+}
+
+/** The plant computer's housing: a plate, a lamp, and a screen that scrolls. */
+function terminal(title, ...contents) {
+	const lamp = h("i", { className: "lamp", role: "img" });
+	// Not a live region: the budget changes every tick. A purchase is said once.
+	const prompt = h("p", { className: "prompt" });
+	const el = h("div", { className: "computer" },
+		h("div", { className: "plate" },
+			h("b", { textContent: "Plant computer" }), h("span", { textContent: title }), lamp),
+		h("div", { className: "screen" }, prompt, ...contents));
+	return { el, lamp, prompt };
+}
+
+/** A purchase the computer took: the row answers, and the prompt says what was done. */
+export function authorised(dom, s, u) {
+	const row = dom.upgradeRows.find((r) => r.u.id === u.id);
+	flash(row?.button, "authorised");
+	const lv = s.levels[u.id];
+	const text = `Authorised: ${u.title}${maxLevel(u) > 1 ? `, level ${lv}` : ""}.`;
+	dom.authorised = { text, page: dom.page, until: Date.now() + 4000 };
+	say(text);
 }
 
 function buildUpgrades(dom, game) {
@@ -1134,6 +1161,17 @@ function renderUpgrades(dom, s) {
 	}
 
 	if (dom.page === "upgrades") dom.upgradeEmpty.hidden = buyable.length > 0;
+
+	// The terminal: its lamp lit while anything on this screen can be authorised,
+	// and its prompt saying the budget, or what was just authorised.
+	const term = dom.terminals[dom.page];
+	term.lamp.classList.toggle("on", buyable.length > 0);
+	term.lamp.ariaLabel = buyable.length ? "Ready: within budget" : "Nothing within budget";
+	const last = dom.authorised?.page === dom.page && dom.authorised.until > Date.now() && dom.authorised.text;
+	const line = last || (dom.page === "experiments"
+		? `Research. ${fmt(s.currentExoticParticles)} EP available.`
+		: `Maintenance. Budget: $${fmt(s.money)}.`);
+	if (term.prompt.textContent !== line) term.prompt.textContent = line;
 
 	outOfReach.sort((a, b) => a.price - b.price);
 	for (const { row } of outOfReach.slice(0, PREVIEW_COUNT)) {

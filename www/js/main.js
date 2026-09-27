@@ -2,9 +2,9 @@
 import { load, save, newState, place, exportSave as saveText, deserialize, serialize, isSave } from "./state.js";
 import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart, refillByHand } from "./sim.js";
 import { isPartVisible } from "./parts.js";
-import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
+import { buy as buyUpgrade, reboot as rebootState, applyUpgrades, UPGRADE_BY_ID } from "./upgrades.js";
 import { checkObjectives, checkOrder, goalAt, orderTitle, OBJECTIVES } from "./objectives.js";
-import { buildUI, render, ask, inspect, flash, toast, goalMet, goalRevised, rebootDialog, refillCost } from "./ui.js";
+import { buildUI, render, ask, inspect, flash, toast, goalMet, goalRevised, authorised, rebootDialog, refillCost } from "./ui.js";
 import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES, fileEntry } from "./records.js";
 import { isComplete, COMPLETE_ENTRY } from "./complete.js";
 import { fmt } from "./fmt.js";
@@ -14,7 +14,7 @@ import { layoutCode, readLayout, applyLayout, describe, layoutOf, contextNote, g
 import { bankTime, spendFlux } from "./flux.js";
 import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
 import { replaceAll } from "./layout.js";
-import { play, setMuted } from "./audio.js";
+import { play, press, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
 
@@ -139,7 +139,8 @@ const game = {
 			return;
 		}
 		compile(s);
-		play("buy");
+		press("buy");
+		authorised(dom, s, UPGRADE_BY_ID.get(id));
 	},
 
 	// A reboot can take a rule for the run it starts: nothing carries over but

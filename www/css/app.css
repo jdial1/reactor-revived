@@ -24,6 +24,13 @@
 	--dolorium: #b08cff;
 	--nefastium: #ff6f5a;
 	--protium: #f0f4ff;
+	/* The plant computer: teal plating, a cream plate, a dark phosphor screen. */
+	--plating: #2f4744;
+	--plating-hi: #4a6a66;
+	--plate: #d9d2bd;
+	--screen: #08110f;
+	--phosphor: #a9d6c6;
+	--phosphor-dim: #5f8479;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
@@ -1390,3 +1397,101 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 /* Grey until abnormal: a tile's heat bar takes colour only past four-fifths. */
 .tile .heat { background: #6f7882; }
 .tile.hot .heat { background: var(--heat); }
+
+/* The plant computer (Soul Interview 4.3, 5.5). Upgrades and research are
+   authorised on a terminal in the control room: teal plating around a dark
+   screen, a cream plate with its name, a lamp lit while anything on the screen
+   is within budget. The rows are lines on the screen, not cards; a tap is a
+   key pressed through, answered in inverse video. Signal colours stay: a price
+   within reach in cash, a raised figure in power. */
+.computer {
+	padding: 8px 8px 10px;
+	background: var(--plating) var(--dither);
+	border: 2px solid var(--plating-hi);
+	border-bottom-color: #1b2927;
+	border-right-color: #1b2927;
+	box-shadow: inset 0 0 0 1px #0006;
+}
+.computer .plate {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 8px;
+	padding: 3px 8px;
+	color: #1a1a16;
+	background: var(--plate);
+	border-bottom: 3px solid var(--heat);
+	font-size: 10px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+.computer .plate span { color: #4b4a40; }
+.computer .lamp {
+	width: 10px;
+	height: 10px;
+	margin-left: auto;
+	border-radius: 50%;
+	background: #3a2a1a;
+	box-shadow: inset 0 0 0 1px #0008;
+}
+.computer .lamp.on { background: var(--cash); box-shadow: 0 0 6px var(--cash), inset 0 0 0 1px #0004; }
+.computer .screen {
+	position: relative;
+	padding: 0 8px 8px;
+	color: var(--phosphor);
+	background:
+		repeating-linear-gradient(#0000 0 2px, #00000038 2px 3px),
+		var(--screen);
+	border: 3px solid #050807;
+	box-shadow: inset 0 0 18px #000c;
+	text-shadow: 0 0 4px #a9d6c640;
+}
+.computer .prompt {
+	position: sticky;
+	top: -8px;
+	z-index: 1;
+	margin: 0 -8px 6px;
+	padding: 6px 8px;
+	background: var(--screen);
+	border-bottom: 1px dashed var(--phosphor-dim);
+}
+.computer .prompt::before { content: "> "; color: var(--phosphor-dim); }
+.computer .empty { color: var(--phosphor-dim); }
+.computer .upgrades { gap: 0; }
+.computer .section-head { color: var(--phosphor-dim); border-bottom-color: #1d302b; }
+.computer .section-head .count { color: var(--screen); background: var(--phosphor); }
+#page-experiments .computer .section-head .count { background: var(--ep); }
+.computer .upgrade,
+.computer .upgrade.poor {
+	padding: 6px 2px 7px;
+	color: var(--phosphor);
+	background: none;
+	border: 0;
+	border-bottom: 1px dashed #1d302b;
+	border-image: none;
+	border-radius: 0;
+}
+.computer .upgrade b { color: var(--phosphor); font-weight: normal; }
+.computer .upgrade i,
+.computer .upgrade s,
+.computer .upgrade .delta s,
+.computer .upgrade .delta s::after { color: var(--phosphor-dim); }
+.computer .upgrade .delta b { color: var(--power); background: none; border: 0; padding: 0; }
+.computer .upgrade .kind { opacity: 0.7; }
+.computer .upgrade.poor b { color: var(--phosphor-dim); }
+.computer .upgrade.preview { background-image: none; opacity: 0.6; }
+/* A key pressed through: the line in inverse video while it is held... */
+.computer .upgrade:active,
+.computer .upgrade.authorised {
+	color: var(--screen);
+	background: var(--phosphor);
+	text-shadow: none;
+	filter: none;
+}
+.computer .upgrade:active :is(b, i, s, u, em),
+.computer .upgrade.authorised :is(b, i, s, u, em) { color: var(--screen); }
+/* ...and held a moment longer when the computer takes it. */
+.computer .upgrade.authorised { animation: authorised 700ms steps(2, end); }
+@keyframes authorised { to { background: none; } }
+.computer .upgrade.denied { animation: shake 220ms; }
+#page-experiments .computer .lamp.on { background: var(--ep); box-shadow: 0 0 6px var(--ep), inset 0 0 0 1px #0004; }

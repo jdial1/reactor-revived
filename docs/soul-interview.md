@@ -1173,7 +1173,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | Letters |
 | Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | Letters |
 | Only the power is noticed | 4.1 | No line addresses the operator | | Felt |
-| The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | The Upgrades page has no fiction; buying feels "very app like" (5.5) | | Mechanic |
+| The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | Built: Upgrades and Experiments are the plant computer's two screens; a purchase is a key pressed through, heard as click then clack, and the prompt line says what was authorised (7.5, the plant computer) | | Mechanic, built |
 | A meltdown returns the valley to its dark | 4.4 | Never said, by the designer's choice | | Flavour, on purpose |
 | What is lost: time, the board, the count, the pay for the dark hours | 4.5 | All four are true in the build | | Felt |
 | The content ends; the demand never does | 4.6, 6.3 | Built: when the log, every part, every upgrade and the board are complete, the log book files a robotic confirmation ("… Demand continues."), Records says All complete, and the valley stays lit. The demand goes on as the standing order (7.5) | Notice the finished state (1.3) | Mechanic, built |
@@ -1278,28 +1278,6 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   keeps the meaning 7.3 gave it. The shape is held by test/voice.test.js
   (manual sections first, no pleasantries, shorter in each third); the words
   are drafts: accept, change or strike each.
-- **Requests that grow** (3.5: "request 200 power then cancel and make it 300"),
-  built as drafts. Three jobs are cancelled the first time they are met and
-  asked again at half as much more, once: job 14 (500 power a tick, then 750),
-  job 20 ($10B, then $15B) and job 27 (1,000 particles, then 1,500). One in the
-  work orders, two in the demands: more often as the demand grows. The first
-  order is not paid; the raised one pays what the first would have. A target
-  that moves says it moved (1.5): the goal line flashes *Revised*, the log book
-  files the line below, and the job's row keeps its first note with the
-  revision under it. Past job 30 a **standing order** stands: always a round
-  figure above what the reactor makes when it is issued, never lower than the
-  one before, kept through a reboot, and paid nothing (the output sells as it
-  always has). Records counts the orders met. The lines:
-
-| Where | Draft |
-| --- | --- |
-| Job 14, revised | "Order revised. 500 cancelled. Output required: 750 per tick." |
-| Job 20, revised | "Order revised. $10B cancelled. Reserve required: $15B." |
-| Job 27, revised | "Order revised. 1,000 cancelled. Particles required: 1,500." |
-| Goal line, past job 30 | "Increase output to \<figure\> per tick" |
-| Log book, each order issued | "Increase output: \<figure\> per tick. Reason: not required." |
-| The last job's row | "Standing order: Increase output to \<figure\> per tick. Met since the log closed: \<n\>." |
-
 
 | Job | Title | Draft |
 | --- | --- | --- |
@@ -1335,6 +1313,41 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 | 29 | Place an experimental part (Exotic) | "Crate received. No manual. Install." |
 | 30 | Nothing left on the list | "Demand met. All listed loads supplied. Maintain output." |
 
+- **Requests that grow** (3.5: "request 200 power then cancel and make it 300"),
+  built as drafts. Three jobs are cancelled the first time they are met and
+  asked again at half as much more, once: job 14 (500 power a tick, then 750),
+  job 20 ($10B, then $15B) and job 27 (1,000 particles, then 1,500). One in the
+  work orders, two in the demands: more often as the demand grows. The first
+  order is not paid; the raised one pays what the first would have. A target
+  that moves says it moved (1.5): the goal line flashes *Revised*, the log book
+  files the line below, and the job's row keeps its first note with the
+  revision under it. Past job 30 a **standing order** stands: always a round
+  figure above what the reactor makes when it is issued, never lower than the
+  one before, kept through a reboot, and paid nothing (the output sells as it
+  always has). Records counts the orders met. The lines:
+
+| Where | Draft |
+| --- | --- |
+| Job 14, revised | "Order revised. 500 cancelled. Output required: 750 per tick." |
+| Job 20, revised | "Order revised. $10B cancelled. Reserve required: $15B." |
+| Job 27, revised | "Order revised. 1,000 cancelled. Particles required: 1,500." |
+| Goal line, past job 30 | "Increase output to \<figure\> per tick" |
+| Log book, each order issued | "Increase output: \<figure\> per tick. Reason: not required." |
+| The last job's row | "Standing order: Increase output to \<figure\> per tick. Met since the log closed: \<n\>." |
+
+- **The plant computer** (4.3, 5.5), built as a draft: the Upgrades and
+  Experiments pages are one terminal's two screens. Teal plating, a cream plate
+  with an orange rule (the lead reference's white panel and orange line), a dark
+  phosphor screen, a lamp lit in the price's colour while anything is within
+  budget. A tap still buys one level. The lines:
+
+| Where | Draft |
+| --- | --- |
+| The plate | "Plant computer" and "Maintenance" / "Research" |
+| The prompt, Upgrades | "Maintenance. Budget: $\<figure\>." |
+| The prompt, Experiments | "Research. \<figure\> EP available." |
+| The prompt, after a purchase | "Authorised: \<upgrade\>, level \<n\>." (a single-level upgrade drops the level) |
+
 - **The rewrite rule:** every generic system string is rewritten in voice, or
   kept plain on purpose, with the reason. These are in the build today in a
   default voice:
@@ -1367,7 +1380,7 @@ beside what already ships.
 | Reference images | none | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Sources not yet recorded |
 | Signature sounds | one hum; six heavy, dull impacts | The click and clank of placing and moving parts: "the physical weight, the effort of your actions, the heaviness of the situation" (5.4) |
 | The quietest sound | the hum at Mark I | The click and clank of a part going into place (5.4) |
-| Button feel | a heavy drop; a flash with no sound when refused | One tap, heard as a two-stage click-clack; slow in feel, never in speed (5.5). Buying upgrades is the press that feels most like an app today (5.5) |
+| Button feel | a heavy drop; a flash with no sound when refused | One tap, heard as a two-stage click-clack; slow in feel, never in speed (5.5). Built for the plant computer: an upgrade is a key pressed through, inverse video while held, a click then a clack (5.5). Other presses are still one sound |
 | Automated systems | Heat Control Operator switched on the Upgrades page; auto-sell and perpetual rebuys with no light or switch | Each has a light and a switch the operator can see from the reactor (5.2) |
 
 ### 7.7 Lore Bible
