@@ -1110,12 +1110,55 @@ entry.
 
 ### 7.3 World Laws to Mechanics
 
-Every truth from Phase 2 shows up as a system, or is marked flavour-only on
-purpose. **No log line, trophy name or field note ships without a row here.**
+Every truth shows up as something the player feels in play, or is marked
+flavour-only on purpose. **No log line, letter, trophy name or field note ships
+without a row here.**
 
-The log's existing lines, audited. The last column is the designer's call.
+Each truth gets one of four verdicts from the designer:
+- **Felt:** a mechanic already carries it.
+- **Mechanic:** a system to build (only systems the designer proposed are named).
+- **Letters:** told in letters or log entries, the one channel story may use
+  (6.3).
+- **Flavour, on purpose:** true, and never felt.
 
-| Line on record | How the player feels it mechanically today | Flavour-only on purpose? |
+How each is felt today was checked against the build. The last column is the
+designer's.
+
+**The world's truths (Phases 2-6)**
+
+| Truth | Source | How the player feels it today | Proposed in the interview | Verdict |
+| --- | --- | --- | --- | --- |
+| Progress and scale are infinite; resources are spent | 2.1 | Money, power and particles grow without limit; every upgrade has a ceiling | | |
+| A meltdown is finite and leaves no mark on the world | 2.1 | A clean wipe that keeps money, research and records | | Felt |
+| Demand only ever grows | 2.1, 2.5 | Goal targets rise through job 30; nothing after it | Requests that grow after they are made: 200, cancelled, now 300 (3.5) | |
+| The options grow more complex | 2.1 | A part appears once ten of the one before it are placed; families arrive with the log; a doctrine set every five goals | | Felt |
+| Power is the cost; complexity brings instability | 2.2 | Heat grows faster than power as cells crowd; meltdowns | | Felt |
+| Rebuilding is the cost | 2.2, 6.3 | The board is lost; rebuilt codes queue what cannot be afforded | | Felt |
+| Knowledge is scarce | 2.5 | The guide states rules, never answers; the examples teach inside the game (6.3) | Goal 22 teaches the accelerator's numbers, not its layout (6.3) | |
+| The plant is crumbling | 2.7, 6.3 | The sticking gauge (goal 2), the slow clock (goal 11) | Kept as flavour, fixed by upgrades like those (6.3) | |
+| The demand is a lie that falls apart | 2.4 | Late log lines stop explaining; nothing past job 30 | | |
+| Why the plant closed | 2.3 | Nothing | Answered as the player climbs (2.6) | |
+| Capable operators are scarce; the search found nobody | 2.5 | Nothing | Answered as the player climbs | |
+| The valley may be run by humanoid robots | 3.1 | Nothing | Suspected, then found out slowly | |
+| Reactor roles need a human leader's approval; the leaders are gone | 3.1 | Nothing | Answered as the player climbs | |
+| The robots link task lists without complaints or compliments | 3.2 | The log gives orders; no string praises the player | | Felt |
+| The voice drifts from formal guides to bare demands | 3.2, 3.4 | Nothing: the log is direct from its first line | | |
+| The ship has no captain | 3.3 | Institutions act with nobody named behind them | | |
+| The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | |
+| Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | |
+| Only the power is noticed | 4.1 | No line addresses the operator | | Felt |
+| The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | The Upgrades page has no fiction; buying feels "very app like" (5.5) | | |
+| A meltdown returns the valley to its dark | 4.4 | Never said, by the designer's choice | | Flavour, on purpose |
+| What is lost: time, the board, the count, the pay for the dark hours | 4.5 | All four are true in the build | | Felt |
+| The content ends; the demand never does | 4.6, 6.3 | The log ends at job 30; the finished state is never noticed | Notice the finished state (1.3) | |
+| Melancholy creeps in, unnamed | 4.6, 6.3 | Nothing | Carried by what the log stops saying (6.3) | |
+| Unpausing is the on switch | 1.1 | Pause is a small button in the header | | |
+| Every automated system has a light and a switch | 5.2 | Heat Control Operator's switch is on the Upgrades page; auto-sell and perpetual rebuys have none | A light and a switch on the reactor for each | |
+| A Soviet-built reactor stands in an English valley | 6.3 | Nothing | Answered as the player climbs | |
+
+**The log's lines on record**
+
+| Line | How the player feels it today | Verdict |
 | --- | --- | --- |
 | "The town has been on candles since the plant closed." | Goal 1: sell power by hand | |
 | "Nobody can stand at the valve all night." | Goal 3: the first vent | |
@@ -1123,11 +1166,10 @@ The log's existing lines, audited. The last column is the designer's call.
 | "The plant clock runs slow." | Goal 11: Improved Chronometers speeds the tick | |
 | "Winter is coming. The town needs a reserve for the cold nights." | Goal 13: ten capacitors | |
 | "Every empty slot is a house still on candles." | Goal 18: fill every tile | |
-| "Three towns are on this grid now. If the station trips, all of them go dark." | Nothing. A meltdown touches no town. | |
+| "Three towns are on this grid now. If the station trips, all of them go dark." | Nothing. A meltdown touches no town (and 4.4 keeps it unsaid). | |
 | "They have stopped saying what for." | Particles buy research; their use in the world is never stated | |
 | "Nefastium. The supplier made you sign twice." | Nothing | |
 | "The last crate from the lab came without a manual." | Nothing: experimental parts come with a sheet and a guide entry like every other part | |
-| *(new truths from Phase 2)* | | |
 
 ### 7.4 The Never List
 
