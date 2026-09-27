@@ -464,6 +464,8 @@ appear. They are here to decide who the log is written *for*.
 > people are institutions (the mill, the clinic, the co-op, the university), and
 > the operator is only "you". *For 7.7:* this joins the mysteries answered as
 > the player climbs.
+>
+> True, or suspected: "Suspected, the player slowly finds out"
 
 **3.2** What do operators say at shift change? When a part fails? When the
 board goes quiet?
