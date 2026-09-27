@@ -269,6 +269,16 @@ comedy never louder than deadpan.
 >
 > *For 6.3:* in 0.2 the insider layer came from "looking up online layouts". Here,
 > leaving the app to search for help is a thing to never feel.
+>
+> The line between the pain wanted and the frustration banned: "Frustration is
+> failing with no idea why, the struggle is the slow climb of knowledge"
+>
+> *On record:* this is components/legible_failure.txt, a Core component of the
+> instance: every failure names its cause. The build's answers are the heat bar
+> on every tile, Flow, the shift log's first-out line, and the meltdown receipt
+> (the first part lost and what it held). It also sorts the explosions in 1.2:
+> one the player can explain is the struggle; one they can't is the
+> frustration.
 
 ## Phase 2: The World's Truths
 
