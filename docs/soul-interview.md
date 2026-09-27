@@ -573,6 +573,12 @@ the list in 7.5.)
 for danger and loss.
 > Answer (goes on the Never List): "Emotional tones should be avoided, binary or
 > computer speak, demands should always be understood"
+>
+> Is "Increase output. Reason: not required." computer speak? "Robotic, but
+> understood; that one's fine"
+>
+> *For 7.5:* the line is understanding. Robotic is allowed as long as the
+> player can read it without decoding it.
 
 ## Phase 4: The Player's Place
 
