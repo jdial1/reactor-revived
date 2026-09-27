@@ -236,7 +236,11 @@ screenshot, or neither?"
 my checkerboard wasteful, so I rebuilt it round exchangers, and it has been
 Mark I for four thousand ticks."* It was inferred from the build and is
 unconfirmed. Replace it if yours is truer.
-> Answer:
+> Answer: "The puzzle solving , intricate part interactions and endless design
+> layouts"
+>
+> *For 6.3:* "endless design layouts" here, and "completing all content" in the
+> last hour (1.3). Both can be true; the Lock decides how.
 
 **1.5** What must this game never make anyone feel?
 *Push:* "Name one the soul docs don't already name."
