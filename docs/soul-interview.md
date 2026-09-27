@@ -677,7 +677,15 @@ different?
 *Push:* "If neither changes, the thirty jobs were decoration."
 *On record:* *"Nobody in town remembers the candles now."* The operator's change
 is not written anywhere.
-> Answer:
+> Answer: "Maybe a sense of meloncholy, seeing the ever growing demand,
+> infinite growth,
+>
+> The valley glows and in a very robotic response confirms power demands
+> completed"
+>
+> *On record:* the log's last line is close already: "The valley has power. Keep
+> it that way." *For 6.3:* the demands are "completed" at the end, and the
+> demand is "infinite growth".
 
 ## Phase 5: Texture
 
