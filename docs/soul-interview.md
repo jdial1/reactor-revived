@@ -798,6 +798,12 @@ with a small heavy drop; money rolls on drums.
 > *For 7.6:* a press is one tap, heard as two stages (click, then clack), with
 > weight and travel in how it looks and sounds. Nothing takes longer to act:
 > painting a row and Time Flux keep their speed.
+>
+> Which press feels most like an app: "Buying upgrades feels very app like"
+>
+> *For 7.6:* today an upgrade is a card in a scrolling list on the Upgrades
+> page, bought with a tap and a "buy" sound. In 4.3 upgrades are made "using
+> reactor computer", which the page could become.
 
 **5.6** Name three real images or places that are this world's look.
 *Push:* "A photo you could send. Not a game, not a film, not Chernobyl."
@@ -827,6 +833,8 @@ with a small heavy drop; money rolls on drums.
 > *For 7.6:* the lead reference is a pale panel painted with its own process
 > diagram in orange, blue and black, round dials, and a desk of black levers
 > and toggles. It sits beside the "teal/orange metal plating" of 5.2.
+>
+> What the foggy stair gives: "The fog is the dreary outside essence"
 
 ## Phase 6: Tensions and Taboos
 
