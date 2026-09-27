@@ -439,7 +439,20 @@ worry, their small joy.
 yard, the co-op, the bank, the university, the supplier, an inspector, "the
 foreman". Nobody has a name. Under "no story beats" this person may never
 appear. They are here to decide who the log is written *for*.
-> Answer:
+> Answer: at the designer's request the interviewer offered five examples
+> (strange ones, as the guide allows when someone is stuck). The designer chose
+> three: "3,4,5 are all good"
+>
+> 3. The man who winds the town clock. It runs slow, like the plant's. Worry:
+>    the two clocks have never agreed. Joy: the day they do.
+> 4. The clinic's night nurse, who measures power by how many machines she can
+>    run at once. Worry: a trip at 3 a.m. Joy: the first night she didn't need
+>    the torch.
+> 5. The courier who carries the university's letters to the plant. Worry: the
+>    letters are getting shorter. Joy: she has started reading them.
+>
+> *Provenance:* these are the interviewer's words, chosen by the designer, not
+> the designer's own. Treat them as weaker than an answer given unprompted.
 
 **3.2** What do operators say at shift change? When a part fails? When the
 board goes quiet?
