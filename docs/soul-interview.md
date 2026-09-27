@@ -658,7 +658,19 @@ happened.
 *Push:* "Permanence, even small. Mechanically almost nothing is lost: money and
 research survive a meltdown. Is that true in the fiction too?"
 *On record:* a meltdown count in Records, and the trophy *Short Fuse*.
-> Answer:
+> Answer: at the designer's request the interviewer offered five options inside
+> the standing rules; the designer chose four: "1,2,3,4 are all good"
+>
+> 1. Only time: rebuilding is the cost (2.2). True in the build.
+> 2. The board itself, exactly as it was, unless saved as a code or a saved
+>    layout; no rewind brings it back. True in the build.
+> 3. The count: Records keep the number of meltdowns, and "ticks without
+>    incident" starts again at zero. True in the build.
+> 4. The pay for the dark hours: time the station was dark earned nothing.
+>    True in the mechanics, never said in the fiction.
+>
+> *Provenance:* the interviewer's words, chosen by the designer. Not chosen: a
+> first that can only happen once.
 
 **4.6** How is the operator different at the end, and how is the valley
 different?
