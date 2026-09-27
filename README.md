@@ -659,7 +659,7 @@ They hint before they answer, and by the end each of the world's open questions
 has an answer (why the plant closed, why nobody else could run it, what the
 demand and the particles are for, what came in the last crate). Like the log,
 they speak of the station and the power, never to the operator. The words, and
-the answers they give, are drafts awaiting the designer: every letter has a row
+the answers they give, are accepted by the designer: every letter has a row
 in `docs/soul-interview.md` (7.3), and `test/letters.test.js` fails for one
 that does not.
 

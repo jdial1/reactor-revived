@@ -3,8 +3,9 @@
 // the operator's log with one silent line in the log book, and read or not.
 // They arrive as the player climbs, hinting first and answering later: every
 // mystery is answered in due time (2.6, 7.7). Like the log, they speak of the
-// station and the power, never to the operator. The words are drafts for the
-// designer; each has a row in docs/soul-interview.md (7.3).
+// station and the power, never to the operator. Drafted by the interviewer and
+// accepted by the designer; each has a row in docs/soul-interview.md (7.3), and
+// the answers they give are canon (7.7). The operator is human.
 import { OBJECTIVES } from "./objectives.js";
 import { fileEntry } from "./records.js";
 

@@ -594,6 +594,10 @@ says how they came to hold the key.
 >
 > Human or robot: "Find out as they climb"
 >
+> *Placed after the letters were built:* "operator is human". Found out as they
+> climb: the log's last form letter records the operator as "not a registered
+> unit" (7.7, `unregistered`).
+>
 > Does the valley notice them: "The reaction is all automated systems, a new
 > power source notices by all nodes/towns that have a lack of power"
 >
@@ -1019,8 +1023,8 @@ To settle:
 >    An old USSR reactor build in a very English UK fog overcast dreary
 >    environment is very intriguing"
 >    *Settled, and kept:* a Soviet-built control room in an English valley. Why
->    it is there joins the mysteries answered as the player climbs. *Still open:*
->    the money is in dollars today ($, `www/js/ui.js`).
+>    it is there joins the mysteries answered as the player climbs. *Settled
+>    after the Lock:* the money stays in dollars ("dollars are fine").
 >
 > 10. Which game is the parent: "Name Incremental as the parent, Knockoff as the
 >     route"
@@ -1162,16 +1166,16 @@ crumbling plant Felt; the reactor computer Mechanic.
 | Rebuilding is the cost | 2.2, 6.3 | The board is lost; rebuilt codes queue what cannot be afforded | | Felt |
 | Knowledge is scarce | 2.5 | The guide states rules, never answers; the examples teach inside the game (6.3); goal 22 shows the accelerator's numbers and no layout (built) | Goal 22 teaches the accelerator's numbers, not its layout (6.3) | Mechanic, built |
 | The plant is crumbling | 2.7, 6.3 | The sticking gauge (goal 2), the slow clock (goal 11) | Kept as flavour, fixed by upgrades like those (6.3) | Felt |
-| The demand is a lie that falls apart | 2.4 | Late log lines stop explaining; past job 30 the standing order gives its reason as "not required" | | Letters, drafted: `works` |
-| Why the plant closed | 2.3 | Nothing | Answered as the player climbs (2.6) | Letters, drafted: `suspension`, `director` |
-| Capable operators are scarce; the search found nobody | 2.5 | Nothing | Answered as the player climbs | Letters, drafted: `vacancy`, `director` |
-| The valley may be run by humanoid robots | 3.1 | Nothing | Suspected, then found out slowly | Letters, drafted: `clock`, `torch`, `continue`, `unregistered`, `works`, `courier` |
-| Reactor roles need a human leader's approval; the leaders are gone | 3.1 | Nothing | Answered as the player climbs | Letters, drafted: `suspension`, `queue`, `director` |
+| The demand is a lie that falls apart | 2.4 | Late log lines stop explaining; past job 30 the standing order gives its reason as "not required" | | Letters, accepted: `works` |
+| Why the plant closed | 2.3 | Nothing | Answered as the player climbs (2.6) | Letters, accepted: `suspension`, `director` |
+| Capable operators are scarce; the search found nobody | 2.5 | Nothing | Answered as the player climbs | Letters, accepted: `vacancy`, `director` |
+| The valley may be run by humanoid robots | 3.1 | Nothing | Suspected, then found out slowly | Letters, accepted: `clock`, `torch`, `continue`, `unregistered`, `works`, `courier` |
+| Reactor roles need a human leader's approval; the leaders are gone | 3.1 | Nothing | Answered as the player climbs | Letters, accepted: `suspension`, `queue`, `director` |
 | The robots link task lists without complaints or compliments | 3.2 | The log gives orders; no string praises the player | | Felt |
 | The voice drifts from formal guides to bare demands | 3.2, 3.4 | Built as a draft: jobs 0-9 are manual sections, 10-19 work orders, 20-29 bare demands (7.5, the log's voice arc); test/voice.test.js holds the shape | | Mechanic, built; wording awaits the designer |
-| The ship has no captain | 3.3 | Institutions act with nobody named behind them | | Letters, drafted: `director`, `programme` |
-| The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | Letters, drafted: `vacancy` |
-| Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | Letters, drafted: `unregistered` |
+| The ship has no captain | 3.3 | Institutions act with nobody named behind them | | Letters, accepted: `director`, `programme` |
+| The operator answered an opening with extravagant pay | 3.3, 4.2 | Nothing: no posting, and nothing says pay | | Letters, accepted: `vacancy` |
+| Human or robot, the operator finds out | 4.1 | Nothing | Answered as the player climbs | Letters, accepted: `unregistered` |
 | Only the power is noticed | 4.1 | No line addresses the operator | | Felt |
 | The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | Built: Upgrades and Experiments are the plant computer's two screens; a purchase is a key pressed through, heard as click then clack, and the prompt line says what was authorised (7.5, the plant computer) | | Mechanic, built |
 | A meltdown returns the valley to its dark | 4.4 | Never said, by the designer's choice | | Flavour, on purpose |
@@ -1180,7 +1184,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | Melancholy creeps in, unnamed | 4.6, 6.3 | Nothing | Carried by what the log stops saying (6.3) | Letters (the log's voice) |
 | Unpausing is the on switch | 1.1 | Built: the header's switch reads On or Off with a lamp; a new station starts off, and turning it on is the tutorial's third card | | Mechanic, built |
 | Every automated system has a light and a switch | 5.2 | Built: Sell, Rebuy and Operator switches with lamps on the reactor's panel | A light and a switch on the reactor for each | Mechanic, built |
-| A Soviet-built reactor stands in an English valley | 6.3 | Nothing | Answered as the player climbs | Letters, drafted: `drawings`, `export` |
+| A Soviet-built reactor stands in an English valley | 6.3 | Nothing | Answered as the player climbs | Letters, accepted: `drawings`, `export` |
 
 **The log's lines on record**
 
@@ -1205,29 +1209,29 @@ A letter is filed in the operator's log as the station climbs, with one silent
 line in the log book ("Letter received: …"); it opens in place, and nothing
 outside the log says it came. Each hints before it answers; every mystery in
 7.7 is answered by the end (2.6). Like the log, they speak of the station and
-the power, never to the operator (4.1). The answers they give are the
-interviewer's proposals (7.7, below), not yet the designer's: accept, change
-or strike each. test/letters.test.js holds the rules: the order, a hint before
+the power, never to the operator (4.1). The letters and the answers they give
+were drafted by the interviewer and accepted by the designer whole ("accept the
+letters"), with one answer placed by the designer: the operator is human (7.7). test/letters.test.js holds the rules: the order, a hint before
 each answer, every mystery answered, the voice, the university's letters
 getting shorter (3.1, the courier's worry), and a row here for every letter.
 
 | Letter | From | Arrives | Text | Hints and answers | Verdict |
 | --- | --- | --- | --- | --- | --- |
-| `suspension` | Regional Energy Authority | Job 2 | "Found in the control-room desk. Notice of suspension. Harrow Station. The operator of record has retired. No successor has been approved. Operation is suspended pending the approval of an operator by the Director of Appointments." | hints: why harrow station closed; hints: why the approval never comes | Letters, draft |
-| `vacancy` | Situations Vacant, Harrow and District | Job 5 | "Operator required. Harrow Station. Immediate start. Pay above scale. Housing, fuel and every benefit. This notice has been issued weekly for eleven years. Issue 573. Applications received: 1." | hints: why operators are scarce, and the plant stayed cold | Letters, draft |
-| `drawings` | Harrow Supply | Job 8 | "Parts for this reactor are made to its original drawings. The drawings are not in English. Sections 1 to 4 of the operating manual have been translated. Section 5 onwards has not." | hints: why a soviet-built reactor stands in an english valley | Letters, draft |
-| `queue` | Regional Energy Authority | Job 11 | "Application for approval: operator, Harrow Station. Received. Position in queue: 1. Awaiting the Director of Appointments." | hints: why the approval never comes | Letters, draft |
-| `clock` | Harrow Town Clerk | Job 13 | "The market hall clock runs slow, by the amount the station clock did. Its keeper has wound it daily for forty-one years, without leave. He asks which clock is set by which." | hints: whether the valley's people are people | Letters, draft |
-| `torch` | Harrow Clinic, night ward | Job 16 | "Machines run overnight: fourteen. Torch not required since the first of the month." | hints: whether the valley's people are people | Letters, draft |
-| `director` | Regional Energy Authority | Job 19 | "Approval of operator, Harrow Station: pending. The post of Director of Appointments is vacant. Appointments to that post are made by the Director of Appointments." | answers: why the approval never comes; answers: why harrow station closed; answers: why operators are scarce, and the plant stayed cold | Letters, draft |
-| `export` | Harrow Supply | Job 21 | "This reactor was bought under an export agreement and assembled here from crates. The other party to the agreement no longer exists. Parts continue to be made to its drawings." | answers: why a soviet-built reactor stands in an english valley | Letters, draft |
-| `programme` | University, Department of Physics | Job 22 | "An accelerator has been installed at Harrow Station. Particles are to be collected and dispatched weekly, as set out in the programme. The programme was set by the Faculty. The Faculty has not met since." | hints: what the university wants the particles for | Letters, draft |
-| `continue` | University, Department of Physics | Job 25 | "Opened in transit. Resealed by hand. Particles received. Continue." | hints: whether the valley's people are people | Letters, draft |
-| `signatures` | Harrow Supply | Job 28 | "Nefastium is made at the university's accelerator from the particles sent there. It is not found in nature. Two signatures are required on receipt: the operator's, and a supervising officer's. Where no supervising officer is present, the operator signs for both." | answers: what nefastium is | Letters, draft |
-| `objective` | Packing slip, the last crate | Job 29 | "Found in the crate. Department of Physics programme. Objective: a reactor that runs without an operator. Contents: first parts of the series. Manual: not required." | answers: what the university wants the particles for; answers: what came in the last crate | Letters, draft |
-| `unregistered` | Regional Energy Authority | The log finished (job 30) | "Operator of record, Harrow Station: not approved. The operator is not a registered unit. Approval applies to registered units only. No action required." | answers: what the operator is; answers: whether the valley's people are people | Letters, draft |
-| `works` | Harrow Works | Three standing orders met | "Units completed this year: 1,208. Each is issued a task list and a load. The schedule has not been revised since it was issued. Increase output." | answers: what the demand is for | Letters, draft |
-| `courier` | The courier | Everything complete | "Nothing to deliver this week. Came anyway." | hints: whether the valley's people are people | Letters, draft |
+| `suspension` | Regional Energy Authority | Job 2 | "Found in the control-room desk. Notice of suspension. Harrow Station. The operator of record has retired. No successor has been approved. Operation is suspended pending the approval of an operator by the Director of Appointments." | hints: why harrow station closed; hints: why the approval never comes | Letters, accepted |
+| `vacancy` | Situations Vacant, Harrow and District | Job 5 | "Operator required. Harrow Station. Immediate start. Pay above scale. Housing, fuel and every benefit. This notice has been issued weekly for eleven years. Issue 573. Applications received: 1." | hints: why operators are scarce, and the plant stayed cold | Letters, accepted |
+| `drawings` | Harrow Supply | Job 8 | "Parts for this reactor are made to its original drawings. The drawings are not in English. Sections 1 to 4 of the operating manual have been translated. Section 5 onwards has not." | hints: why a soviet-built reactor stands in an english valley | Letters, accepted |
+| `queue` | Regional Energy Authority | Job 11 | "Application for approval: operator, Harrow Station. Received. Position in queue: 1. Awaiting the Director of Appointments." | hints: why the approval never comes | Letters, accepted |
+| `clock` | Harrow Town Clerk | Job 13 | "The market hall clock runs slow, by the amount the station clock did. Its keeper has wound it daily for forty-one years, without leave. He asks which clock is set by which." | hints: whether the valley's people are people | Letters, accepted |
+| `torch` | Harrow Clinic, night ward | Job 16 | "Machines run overnight: fourteen. Torch not required since the first of the month." | hints: whether the valley's people are people | Letters, accepted |
+| `director` | Regional Energy Authority | Job 19 | "Approval of operator, Harrow Station: pending. The post of Director of Appointments is vacant. Appointments to that post are made by the Director of Appointments." | answers: why the approval never comes; answers: why harrow station closed; answers: why operators are scarce, and the plant stayed cold | Letters, accepted |
+| `export` | Harrow Supply | Job 21 | "This reactor was bought under an export agreement and assembled here from crates. The other party to the agreement no longer exists. Parts continue to be made to its drawings." | answers: why a soviet-built reactor stands in an english valley | Letters, accepted |
+| `programme` | University, Department of Physics | Job 22 | "An accelerator has been installed at Harrow Station. Particles are to be collected and dispatched weekly, as set out in the programme. The programme was set by the Faculty. The Faculty has not met since." | hints: what the university wants the particles for | Letters, accepted |
+| `continue` | University, Department of Physics | Job 25 | "Opened in transit. Resealed by hand. Particles received. Continue." | hints: whether the valley's people are people | Letters, accepted |
+| `signatures` | Harrow Supply | Job 28 | "Nefastium is made at the university's accelerator from the particles sent there. It is not found in nature. Two signatures are required on receipt: the operator's, and a supervising officer's. Where no supervising officer is present, the operator signs for both." | answers: what nefastium is | Letters, accepted |
+| `objective` | Packing slip, the last crate | Job 29 | "Found in the crate. Department of Physics programme. Objective: a reactor that runs without an operator. Contents: first parts of the series. Manual: not required." | answers: what the university wants the particles for; answers: what came in the last crate | Letters, accepted |
+| `unregistered` | Regional Energy Authority | The log finished (job 30) | "Operator of record, Harrow Station: not approved. The operator is not a registered unit. Approval applies to registered units only. No action required." | answers: what the operator is; answers: whether the valley's people are people | Letters, accepted |
+| `works` | Harrow Works | Three standing orders met | "Units completed this year: 1,208. Each is issued a task list and a load. The schedule has not been revised since it was issued. Increase output." | answers: what the demand is for | Letters, accepted |
+| `courier` | The courier | Everything complete | "Nothing to deliver this week. Came anyway." | hints: whether the valley's people are people | Letters, accepted |
 
 ### 7.4 The Never List
 
@@ -1427,7 +1431,7 @@ Three layers, placed by the designer; nobody else places them.
 Answered as the player climbs (2.3, 2.4, 2.5, 2.6, 3.1):
 - that the valley may have no humans left: its jobs are run by humanoid robots,
   suspected first and found out slowly (3.1)
-- whether the operator is human or a robot (4.1)
+- that the operator is human (4.1; placed by the designer: "operator is human")
 - that robots need a human leader's approval for reactor roles, those leaders
   are gone, and so the approval never comes: the reason the search found
   nobody (3.1)
@@ -1442,8 +1446,11 @@ Answered as the player climbs (2.3, 2.4, 2.5, 2.6, 3.1):
 
 Unplaced, from the record: who kept the key.
 
-**Proposed answers, as the letters give them** (the interviewer's drafts,
-written to fit what the designer has placed; accept, change or strike each):
+**The answers, as the letters give them.** Drafted by the interviewer to fit
+what the designer had placed, and accepted by the designer ("accept the
+letters"). *Provenance:* the interviewer's words, chosen by the designer.
+Letters that state them are the canon; a later line may deepen one, never
+contradict it.
 - **Why it closed:** paperwork, not an accident. The operator of record
   retired, and operation was suspended until a successor was approved (`suspension`).
 - **Why the approval never comes:** the Director of Appointments' post is
@@ -1459,9 +1466,10 @@ written to fit what the designer has placed; accept, change or strike each):
   taken leave (`clock`). Left open on purpose: the night nurse who no longer
   needs a torch, and the courier who opens the letters and came when there was
   nothing to deliver (`torch`, `continue`, `courier`).
-- **The operator:** not a registered unit, and so outside the approval that
-  kept every unit away (`unregistered`). The designer was "not sure yet" (3.3);
-  this is the draft's answer.
+- **The operator:** human, placed by the designer ("operator is human"). Not a
+  registered unit, and so outside the approval that kept every unit away,
+  which is how a human could start the plant when no unit could
+  (`unregistered`).
 - **The demand:** the works turn out units on a schedule nobody has revised, and
   each new unit is issued a load (`works`).
 - **The particles and the last crate:** the university's programme, set by a
@@ -1471,9 +1479,10 @@ written to fit what the designer has placed; accept, change or strike each):
 - **Nefastium:** made at the university's accelerator from the particles sent
   there; receipt takes two signatures, and with no supervising officer the
   operator signs for both (`signatures`).
-- **A tension to settle:** 4.1 says only the power is noticed, and 2.6 says
-  every mystery is answered, including what the operator is. The draft lets one
-  form letter notice the operator as a record, never as a person.
+- **Settled with the letters:** 4.1 says only the power is noticed, and 2.6
+  says every mystery is answered, including what the operator is. One form
+  letter notices the operator as a record, never as a person; the designer
+  accepted it with the rest. No other line may notice the operator.
 
 ### 7.8 The Soul Check
 
