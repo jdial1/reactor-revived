@@ -466,6 +466,15 @@ appear. They are here to decide who the log is written *for*.
 > the player climbs.
 >
 > True, or suspected: "Suspected, the player slowly finds out"
+>
+> How it connects: "They're the reason the search found nobody, robots are too
+> specialized for tasks and require the approval of higher human leaders for
+> reactor roles, which those humans no longer exist so the wait time for
+> approval is infinite"
+>
+> *For 4.1:* if every reactor role waits on an approval that can never come,
+> the operator is the one who started the plant without it. What the operator
+> is, and how they got the key, is Phase 4's question.
 
 **3.2** What do operators say at shift change? When a part fails? When the
 board goes quiet?
@@ -765,7 +774,12 @@ Three layers, placed by the designer; nobody else places them.
   forever. So the answers have to be written, by the designer, before the
   lines that reveal them.
 
-Answered as the player climbs (2.3, 2.4, 2.5, 2.6):
+Answered as the player climbs (2.3, 2.4, 2.5, 2.6, 3.1):
+- that the valley may have no humans left: its jobs are run by humanoid robots,
+  suspected first and found out slowly (3.1)
+- that robots need a human leader's approval for reactor roles, those leaders
+  are gone, and so the approval never comes: the reason the search found
+  nobody (3.1)
 - why Harrow Station closed
 - why operators who can run it are scarce, and why the plant stayed cold (a
   search found nobody able to start it)
