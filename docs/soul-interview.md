@@ -183,6 +183,14 @@ that has stopped saying what the particles are for.
 >
 > When: "Linking cells to exchangers to coolant tanks , to vents and seem the
 > heat flow, the process working"
+>
+> Where it stopped being fun: "Each time the link failed and reactor exploded"
+>
+> *For 6.3:* the build already softens exactly this. The planner runs a chain
+> for free and names the tick it would fail, Flow shows each tile's heat, and
+> the log hands over worked chains (the exchanger chain at goal 16, the heat
+> pipe at goal 18) with broken copies to mend. Which of the explosions are the
+> struggle this game wants more of, and which are the not-fun kind?
 
 **1.3** What should the player feel in the first sixty seconds, the first hour,
 and the last hour? And what does the operator feel at those three points?
