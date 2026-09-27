@@ -1226,11 +1226,11 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 
 | Slot | On record | In voice |
 | --- | --- | --- |
-| Greeting | "Day one. Harrow Station has sat cold for eleven years. The key still turns." | Draft: "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years." |
-| Tooltip | A part's one-line description, e.g. the vent: "Holds heat up to its limit and sheds up to its rate every tick. Past its limit it fails." | Draft: keep as is; already technical and concise |
-| Error | "A Hardcore run cannot be restored from a save" | Draft: "Restore refused. A Hardcore run cannot be restored from a save." |
-| Victory | "The valley has power. Keep it that way." | Draft: "Demand met. All listed loads supplied. Maintain output." |
-| Defeat | "Heat passed twice what the reactor could hold. Every part in it was destroyed." | Draft: "Meltdown. Core heat exceeded twice rated capacity. All components destroyed." |
+| Greeting | "Day one. Harrow Station has sat cold for eleven years. The key still turns." | Accepted: "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years." |
+| Tooltip | A part's one-line description, e.g. the vent: "Holds heat up to its limit and sheds up to its rate every tick. Past its limit it fails." | Accepted: keep as is; already technical and concise |
+| Error | "A Hardcore run cannot be restored from a save" | Accepted: "Restore refused. A Hardcore run cannot be restored from a save." |
+| Victory | "The valley has power. Keep it that way." | Accepted: "Demand met. All listed loads supplied. Maintain output." |
+| Defeat | "Heat passed twice what the reactor could hold. Every part in it was destroyed." | Accepted: "Meltdown. Core heat exceeded twice rated capacity. All components destroyed." |
 
 - **Banned,** from 3.6 and 6.1: any emotional tone; binary or computer speak;
   a demand the player cannot understand without decoding it; praise of any
@@ -1242,21 +1242,22 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   tick. Clinic load. Maintain overnight." (middle); "500. Continuous." and
   "Increase output. Reason: not required." (late); "Component lost: Basic Heat
   Vent, row 6, column 7. Held 80 of 80. Replace." (a failure).
-- *Drafts in the tables are the interviewer's, awaiting the designer.*
+- *The wording in the tables was drafted by the interviewer; the designer
+  accepted all of it.*
 - **The rewrite rule:** every generic system string is rewritten in voice, or
   kept plain on purpose, with the reason. These are in the build today in a
   default voice:
 
 | String | Where | In voice, or plain on purpose? |
 | --- | --- | --- |
-| "Save exported" / "Save imported" | `www/js/main.js` | Draft: "Station record written to file." / "Station record loaded." |
-| "Copied" | `www/js/ui.js` (layout codes, records) | Draft: plain on purpose; a button's state, one word |
-| "\<part\> unlocked" | `www/js/ui.js` | Draft: "Supplied: \<part\>." (the supplier on record: "Supply sent Dual cells by mistake") |
-| "New in the dock: ..." | `www/js/ui.js` | Draft: "Supplied: \<part\>, \<part\>." (the same form) |
-| "Modules unlocked - design one on the Modules page" | `www/js/ui.js` | Draft: "Casing design authorised. See Modules." |
-| "Trophy: \<name\>" / "Field note: \<name\>" | `www/js/ui.js` | Draft: "Entered in the record: \<name\>." / "Field note filed: \<name\>." |
-| "That file is not a Reactor Revived save this version can read" | `www/js/main.js` | Draft: "File rejected. Not a station record this build can read." |
-| "Restart the reactor" (the meltdown button) | `www/js/ui.js` | Draft: "Begin start-up" |
+| "Save exported" / "Save imported" | `www/js/main.js` | Accepted: "Station record written to file." / "Station record loaded." |
+| "Copied" | `www/js/ui.js` (layout codes, records) | Accepted: plain on purpose; a button's state, one word |
+| "\<part\> unlocked" | `www/js/ui.js` | Accepted: "Supplied: \<part\>." (the supplier on record: "Supply sent Dual cells by mistake") |
+| "New in the dock: ..." | `www/js/ui.js` | Accepted: "Supplied: \<part\>, \<part\>." (the same form) |
+| "Modules unlocked - design one on the Modules page" | `www/js/ui.js` | Accepted: "Casing design authorised. See Modules." |
+| "Trophy: \<name\>" / "Field note: \<name\>" | `www/js/ui.js` | Accepted: "Entered in the record: \<name\>." / "Field note filed: \<name\>." |
+| "That file is not a Reactor Revived save this version can read" | `www/js/main.js` | Accepted: "File rejected. Not a station record this build can read." |
+| "Restart the reactor" (the meltdown button) | `www/js/ui.js` | Accepted: "Begin start-up" |
 
 ### 7.6 Sensory Palette
 
