@@ -1222,7 +1222,7 @@ getting shorter (3.1, the courier's worry), and a row here for every letter.
 
 | Letter | From | Arrives | Text | Hints and answers | Verdict |
 | --- | --- | --- | --- | --- | --- |
-| `suspension` | Regional Energy Authority | Job 2 | "Found in the control-room desk. Notice of suspension. Harrow Station. The operator of record has retired. No successor has been approved. Operation is suspended pending the approval of an operator by the Director of Appointments." | hints: why harrow station closed; hints: why the approval never comes | Letters, accepted |
+| `suspension` | Regional Energy Authority | Job 2 | "Found in the control-room desk. Notice of suspension. Harrow Station. The operator of record has retired. No successor has been approved. Operation is suspended pending the approval of an operator by the Director of Appointments. Operator key: left in the lock." | hints: why harrow station closed; hints: why the approval never comes | Letters, accepted |
 | `vacancy` | Situations Vacant, Harrow and District | Job 5 | "Operator required. Harrow Station. Immediate start. Pay above scale. Housing, fuel and every benefit. This notice has been issued weekly for eleven years. Issue 573. Applications received: 1." | hints: why operators are scarce, and the plant stayed cold | Letters, accepted |
 | `drawings` | Harrow Supply | Job 8 | "Parts for this reactor are made to its original drawings. The drawings are not in English. Sections 1 to 4 of the operating manual have been translated. Section 5 onwards has not." | hints: why a soviet-built reactor stands in an english valley | Letters, accepted |
 | `queue` | Regional Energy Authority | Job 11 | "Application for approval: operator, Harrow Station. Received. Position in queue: 1. Awaiting the Director of Appointments." | hints: why the approval never comes | Letters, accepted |
@@ -1451,10 +1451,10 @@ Answered as the player climbs (2.3, 2.4, 2.5, 2.6, 3.1):
 - why a Soviet-built reactor stands in an English valley (6.3)
 
 Placed after the Lock: **who kept the key.** Nobody: "the key was left in the
-lock by the last operator". A known truth, told by what is already in the game
-without a new line. The first job confirms the key "is present and turns
-freely", and the notice found in the desk says the operator of record retired
-(`suspension`): the last operator left, and left the key. Nothing is unplaced.
+lock by the last operator". A known truth, said in the notice found in the
+desk (`suspension`): the operator of record retired, and its last line reads
+"Operator key: left in the lock." The first job's "present and turns freely"
+is the same key. Added at the designer's request. Nothing is unplaced.
 
 **The answers, as the letters give them.** Drafted by the interviewer to fit
 what the designer had placed, and accepted by the designer ("accept the
