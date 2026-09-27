@@ -101,6 +101,9 @@ export function newState(random = Math.random) {
 		// order past the last job (objectives.js). Both outlive a reboot.
 		revised: [],
 		order: null,
+		// Letters received and letters opened (letters.js). Both outlive a reboot.
+		letters: [],
+		lettersRead: [],
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -149,6 +152,8 @@ export function serialize(s) {
 		runMarked: s.runMarked || undefined,
 		revised: s.revised.length ? s.revised : undefined,
 		order: s.order ?? undefined,
+		letters: s.letters.length ? s.letters : undefined,
+		lettersRead: s.lettersRead.length ? s.lettersRead : undefined,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -196,6 +201,8 @@ export function deserialize(saved, random = Math.random) {
 	s.runMarked = Boolean(saved.runMarked);
 	s.revised = saved.revised ?? [];
 	s.order = saved.order ?? null;
+	s.letters = saved.letters ?? [];
+	s.lettersRead = saved.lettersRead ?? [];
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

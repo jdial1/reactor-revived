@@ -7,6 +7,7 @@ import { checkObjectives, checkOrder, goalAt, orderTitle, OBJECTIVES } from "./o
 import { buildUI, render, ask, inspect, flash, toast, goalMet, goalRevised, authorised, rebootDialog, refillCost } from "./ui.js";
 import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES, fileEntry } from "./records.js";
 import { isComplete, COMPLETE_ENTRY } from "./complete.js";
+import { checkLetters } from "./letters.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
@@ -430,6 +431,8 @@ setInterval(() => {
 	// Past the log, the standing order: met, and raised.
 	const standing = s.order?.target;
 	if (!s.planner && checkOrder(s)) goalMet(dom, orderTitle(standing));
+	// Letters come as the station climbs: filed, never announced.
+	checkLetters(s);
 }, OBJECTIVE_MS);
 setInterval(() => save(theGame()), SAVE_MS);
 

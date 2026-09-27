@@ -17,6 +17,7 @@ import { LESSON_AT, BENCHES } from "./lessons.js";
 import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry, SWITCHES } from "./records.js";
 import { backdropFor } from "./backdrop.js";
 import { NOTES, notesFor } from "./notes.js";
+import { LETTERS, LETTER_BY_ID, readLetter } from "./letters.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -293,6 +294,9 @@ export function buildUI(game) {
 		h("h2", { textContent: "Harrow Station - operator's log" }),
 		dom.doneToggle,
 		dom.objectiveList,
+		// Letters: filed here as they come, opened or not (letters.js).
+		dom.letterHead = h("h3", { textContent: "Letters", hidden: true }),
+		dom.letterList = h("div", { className: "letters" }),
 		dom.entryHead = h("h3", { textContent: "Entered", hidden: true }),
 		dom.entryList = h("ul", { className: "entries" }),
 		h("div", { className: "row" },
@@ -1227,6 +1231,7 @@ function renderObjectives(dom, s) {
 		if (row.after.textContent !== after) row.after.textContent = after;
 		row.after.hidden = !after;
 	});
+	renderLetters(dom, s);
 	// The log book's silent entries, newest first, under the jobs.
 	const entries = s.entries ?? [];
 	const last = entries.at(-1);
@@ -1235,6 +1240,37 @@ function renderObjectives(dom, s) {
 	dom.entrySig = sig;
 	dom.entryHead.hidden = !entries.length;
 	dom.entryList.replaceChildren(...[...entries].reverse().map((e) => h("li", { textContent: e.text })));
+}
+
+const letterSig = (s) => `${(s.letters ?? []).join()}|${(s.lettersRead ?? []).join()}`;
+
+/** Letters, newest first: each a slip that opens in place, and is read once opened. */
+function renderLetters(dom, s) {
+	const got = s.letters ?? [];
+	const sig = letterSig(s);
+	if (sig === dom.letterSig) return;
+	dom.letterSig = sig;
+	dom.letterHead.hidden = !got.length;
+	dom.letterList.replaceChildren(...[...got].reverse().map((id) => {
+		const l = LETTER_BY_ID.get(id);
+		if (!l) return "";
+		const summary = h("summary", { textContent: l.from });
+		summary.classList.toggle("unread", !s.lettersRead.includes(id));
+		const slip = h("details", { className: "letter" }, summary,
+			l.found ? h("small", { textContent: l.found }) : "",
+			l.mark ? h("small", { textContent: l.mark }) : "",
+			...l.lines.map((line) => h("p", { textContent: line })));
+		slip.addEventListener("toggle", () => {
+			if (!slip.open) return;
+			// The live game, not the one this list was drawn from: a save may
+			// have been loaded since.
+			readLetter(dom.game.state, id);
+			summary.classList.remove("unread");
+			// Opening one is not a reason to redraw the list and close it again.
+			dom.letterSig = letterSig(dom.game.state);
+		});
+		return slip;
+	}));
 }
 
 function showGoals(dom) {
@@ -1375,6 +1411,7 @@ function renderRecords(dom, s) {
 		...(s.restored ? [["This run", "Restored from a save"]] : []),
 		...(r.complete ? [["Log, parts, upgrades and board", "All complete"]] : []),
 		...(s.order ? [["Standing orders met", String(s.order.met)]] : []),
+		["Letters", `${(s.letters ?? []).length} of ${LETTERS.length}`],
 	];
 	// Fastest to each rung of power per tick, per kind of run, counted from its reboot.
 	for (const [run, times] of Object.entries(r.speed)) {

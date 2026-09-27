@@ -1495,3 +1495,34 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 @keyframes authorised { to { background: none; } }
 .computer .upgrade.denied { animation: shake 220ms; }
 #page-experiments .computer .lamp.on { background: var(--ep); box-shadow: 0 0 6px var(--ep), inset 0 0 0 1px #0004; }
+
+/* Letters: cream slips in the log, typed dark, opened in place. An unread one
+   carries a dot in the price colour; nothing outside the log says it came. */
+.letters { display: grid; gap: 4px; margin-bottom: 10px; }
+.letter {
+	color: #23221c;
+	background: var(--plate);
+	border-left: 3px solid #b8ae92;
+	padding: 5px 8px;
+}
+.letter summary {
+	cursor: pointer;
+	list-style: none;
+	font-size: 11px;
+	letter-spacing: 0.04em;
+}
+.letter summary::-webkit-details-marker { display: none; }
+.letter summary::before { content: "\25B8\00a0"; color: #6b6656; }
+.letter[open] summary::before { content: "\25BE\00a0"; }
+.letter summary.unread::after {
+	content: "";
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	margin-left: 6px;
+	vertical-align: middle;
+	border-radius: 50%;
+	background: #a8862a;
+}
+.letter p { margin: 6px 0 0; font-size: 12px; line-height: 1.45; }
+.letter small { display: block; margin-top: 6px; font-size: 10px; font-style: italic; color: #5b5747; }

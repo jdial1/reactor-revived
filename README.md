@@ -644,6 +644,25 @@ A switch changes how the machine runs, so flipping one starts the board's mark
 again, as a doctrine does, and the planner's forecast runs with the switches as
 they are set.
 
+## Letters
+
+The valley's story is told in letters, and only there and in the log (Soul
+Interview 6.3): optional, never required, never interrupting play. A letter is
+filed in the operator's log as the station climbs - fifteen of them, from the
+Regional Energy Authority, Harrow Supply, the town clerk, the clinic's night
+ward, the university, the works and, once, the courier - with one silent line
+in the log book (*Letter received: Harrow Supply.*). Nothing outside the log says
+it came. A slip opens in place and carries a dot until it has been opened;
+Records counts them.
+
+They hint before they answer, and by the end each of the world's open questions
+has an answer (why the plant closed, why nobody else could run it, what the
+demand and the particles are for, what came in the last crate). Like the log,
+they speak of the station and the power, never to the operator. The words, and
+the answers they give, are drafts awaiting the designer: every letter has a row
+in `docs/soul-interview.md` (7.3), and `test/letters.test.js` fails for one
+that does not.
+
 ## The plant computer
 
 Upgrades and research are not bought from a shop. They are authorised on the
