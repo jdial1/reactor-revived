@@ -180,6 +180,9 @@ leaves the room"). The log hints at others it has never named: a town that
 depends on you ("If the station trips, all of them go dark"), and a university
 that has stopped saying what the particles are for.
 > Answer: "Understanding which can be hard and not fun"
+>
+> When: "Linking cells to exchangers to coolant tanks , to vents and seem the
+> heat flow, the process working"
 
 **1.3** What should the player feel in the first sixty seconds, the first hour,
 and the last hour? And what does the operator feel at those three points?
