@@ -543,7 +543,28 @@ vent on it." "Automate it."). The trophies are flat. One line is almost a joke:
 **3.5** Write one line exactly as the game should say it.
 *Push:* "Now write the line the game should show when a part fails at three in
 the morning and nobody is watching."
-> Answer (becomes the voice reference):
+> Answer (becomes the voice reference): at the designer's request the
+> interviewer offered six lines; the designer chose all of them: "Those are all
+> good"
+>
+> 1. "Section 1.1. Before start-up, confirm the operator key is present and
+>    turns freely. Harrow Station has been idle for eleven years."
+> 2. "Section 2.4. Excess heat should be vented before the reactor is left
+>    unattended. Operators are advised not to remain at the valve overnight."
+> 3. "Output required: 200 per tick. Clinic load. Maintain overnight."
+> 4. "500. Continuous."
+> 5. "Increase output. Reason: not required."
+> 6. "Component lost: Basic Heat Vent, row 6, column 7. Held 80 of 80. Replace."
+>
+> *Provenance:* the interviewer's words, chosen by the designer.
+>
+> The designer's own addition: "later demands could request 200 power then
+> cancel and make it 300 like the demands are growing even after being
+> requested"
+>
+> *For 7.3:* the first mechanic proposed for the growing demand, which today has
+> none. Under 1.5 ("frustration is failing with no idea why"), a target that
+> moves has to say that it moved.
 
 **3.6** What phrase or tone would this game never use?
 *Push:* "Which string in the build today comes closest to breaking it?" (See
