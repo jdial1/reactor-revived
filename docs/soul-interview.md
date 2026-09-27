@@ -725,6 +725,14 @@ steel body and a black outline.
 > below for what it means specifically. *For 6.3:* the setting on record is
 > Harrow Station, a valley with a mill, a clinic, a co-op and a bank, and the
 > money is dollars.
+>
+> Without the word: "Tactile switches knobs, mechanical controls, valves,
+> blinking lights , manual overrides"
+>
+> *On record:* the build has two mechanical controls already: the money rolls on
+> digit drums behind a recessed slot, and the power and heat bars are the
+> buttons that sell and vent by hand, which are manual overrides in all but
+> name.
 
 **5.3** What is the light like: time of day, colour temperature, where shadows
 fall?
