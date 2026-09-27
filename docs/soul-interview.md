@@ -205,6 +205,19 @@ power. Keep it that way."* After it, the game goes on with no list.
 >
 > Last hour , feeling of completeness/ satisfaction with the state of
 > completing all content"
+>
+> What changes: "First 60 secs you are busy working through very minor layouts
+>
+> First hour you have unlocked a lot more parts and the expectations of a
+> layout are much more"
+>
+> *For 6.3, and the Structure axis:* "completing all content" has no state in
+> the build. The log's last job is "Nothing left on the list" (and a trophy of
+> the same name), then a reboot is offered and the game goes on: records,
+> restriction runs, trophies. Containment is a Rebirth Account, and the
+> instance never ends. Also: how long goals 1-18 take has never been measured
+> (P1 item 8 in mvp-1.0.md), so whether the first hour reaches middle-tier
+> parts and a full grid ("Fill every tile" is goal 18) is not known.
 
 **1.4** What moment would a player tell a friend about? Say it the way they
 would say it.
