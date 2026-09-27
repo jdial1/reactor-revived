@@ -629,7 +629,14 @@ shuts the plant down.
 **buy**), what does doing it mean inside the fiction?
 *Push:* "Placing a part in a plant cold for eleven years is not the same as
 placing one in a new build. Which is this?"
-> Answer:
+> Answer: "They are requests for the reactor demand, from a log book, they are
+> notes in a book, we can change phrasing but the ask is the same, add parts,
+> upgrade using reactor computer, remove/sell parts to make room, etc"
+>
+> *For 5.2 and 7.6:* "the reactor computer" is the first named object the
+> operator uses. Today the Upgrades page has no fiction; it could be that
+> computer. *For 7.3:* the verbs are the job, as the log book asks for it; their
+> meaning in the fiction is kept thin on purpose.
 
 **4.4** What does a meltdown mean in the valley? Not the dialog: what actually
 happens out there?
