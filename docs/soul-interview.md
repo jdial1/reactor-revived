@@ -609,7 +609,11 @@ Are those the same?
 *On record:* the player chases marks, records and the perfect board; the town
 wants the lights on; the university wants particles, and the reboot it asks for
 shuts the plant down.
-> Answer:
+> Answer: at the designer's request the interviewer offered four options built
+> from the designer's earlier answers; the designer chose the fourth ("The same
+> thing, for different reasons") in their own words: "4 fits best, an operator
+> there for the pay, the valley needs power for reason unknown and
+> understanding is not required for an operator to provide it"
 
 **4.3** For each verb (**place**, **inspect then sell, move or replace**,
 **buy**), what does doing it mean inside the fiction?
