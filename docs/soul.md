@@ -80,13 +80,14 @@ game to glance at and return to).
 | Social | Low | Designs travel as codes; play is solitary. |
 | Mastery | High | Ratios, geometry, conservation. |
 | Achievement | High | Marks, records, restriction-run times, trophies. |
-| Immersion | Low | The machine is the point. |
+| Immersion | Medium | The machine is the point, and the world gives it a why: letters and log entries, optional, never interrupting play (the Soul Interview, 6.3 and 6.5). |
 | Creativity | High | A layout that holds is the player's own. |
 
-**Ideal-player watch:** the operator's log has one line of Harrow Station per
-job. That is an Immersion feature. It stays because it is one deadpan line
-that never gates play. Anything larger in that direction would work against
-the soul.
+**Ideal-player watch:** Immersion rose from Low to Medium in the Soul
+Interview, because the build "lacks the why". It stays bounded: story lives
+only in letters and log entries, is never required, and never interrupts play.
+Anything past those bounds (a scene, a character on screen, a line that stops
+the reactor) works against the soul.
 
 ## Components
 
@@ -237,13 +238,36 @@ Then, from the pre-ship drift audit in the soul instance (27 September 2026):
 - **Time as a test input:** stamina is proven by running. The 300-tick mark
   window, Time Flux and the forecast are what make that bearable.
 
+## The world
+
+The machine above is specified to the last point of heat. The world around it
+was settled in the Soul Interview ([soul-interview.md](soul-interview.md)),
+where every answer is kept in the designer's words:
+
+> "Paid to start a Soviet reactor nobody else could, in an English fog, you
+> learn it alone until it holds. The valley asks for more."
+
+- **The pillar:** One Request, Waiting. One request at a time, in a silent
+  room; nothing else speaks.
+- **The voice:** technical, concise, never emotional. The log drifts from
+  formal start-up guides to bare demands.
+- **The look:** 16x16 parts, dense and intentional; Soviet off-colour plastics,
+  teal and orange plating, a process diagram on a pale panel; fog outside.
+- **The Never List, the voice rewrites, the sensory palette and the world's
+  truths with their mechanics** are in the interview's Lock (section 7), and
+  are the reference for every string, asset and letter.
+
 ## Standing rules
 
 These sit on top of the soul:
 
-- Stay inside the lineage.
+- Stay inside the lineage. Reactor Incremental is the game being revived;
+  Knockoff is the route it survived by.
 - A meltdown is an absolute clean wipe (a receipt is words, not wreckage).
-- No story beats.
+- Story only in letters and log entries: optional, never required, never
+  interrupting play. No scene, no cutscene, no character on screen. (This was
+  "no story beats" until the Soul Interview.)
+- One request at a time, in a silent room (house rule 3, One Request, Waiting).
 - No roguelite generations, board variants or scars.
 - No network or monetisation.
 - Comedy is deadpan only.

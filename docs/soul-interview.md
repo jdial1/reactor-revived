@@ -1342,7 +1342,8 @@ the interviewer; accepted by the designer:
 1. File the answers in this document, verbatim.
 2. Put the Soul Sentence, the atmosphere pillar and any changed standing rule
    into the soul instance, with ledger entries for anything that bends
-   Containment.
+   Containment. **Done:** the soul instance, [soul.md](soul.md) and the README
+   carry them, and the bends are ledgered.
 3. Rewrite the strings in 7.5 and settle every row in 7.3 in one pass, then
    extend `test/guide.test.js` to hold the Never List's text rules (no
    exclamation marks; the banned phrasings) over every string the player reads.

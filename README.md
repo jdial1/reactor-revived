@@ -1,14 +1,16 @@
 # Reactor Revived
 
-An Android port of [Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)
-by cwmonkey, the latest in a line that starts in Minecraft:
+A revival of [Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)
+for Android phones, by way of cwmonkey's
+[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff), the latest in
+a line that starts in Minecraft:
 
 | | |
 |---|---|
 | **IndustrialCraft 2** (2011) | The Minecraft mod whose nuclear reactor is the original puzzle: fuel rods heat their neighbours, vents and exchangers move that heat around, and a full grid melts down. |
 | **[IC2 Reactor Planner](https://forum.industrial-craft.net/thread/2147-new-reactor-planner-made-by-talonius/)** by Talonius | A desktop tool for laying a reactor out and simulating it before mining anything. The grid stops being a build and becomes a puzzle on its own. |
-| **[Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)** by Cael (2014) | The planner made into an idle game: sell the power, buy upgrades, reboot for Exotic Particles. Every number here starts there. |
-| **[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)** by cwmonkey | Incremental rebuilt in HTML5 with no engine and no build step. The direct parent of this rewrite, and what the balance is checked against. |
+| **[Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)** by Cael (2014) | The planner made into an idle game: sell the power, buy upgrades, reboot for Exotic Particles. The game this one revives, and where every number here starts. |
+| **[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)** by cwmonkey | Incremental rebuilt in HTML5 with no engine and no build step. The route Incremental survived by, the code this rewrite was read against, and what the balance is checked against. |
 | **Reactor Revival** | A later remake in the same line. Its part artwork is what ships here. |
 | **Reactor Revived** | This one: a clean-room rewrite for a phone. |
 
@@ -502,9 +504,10 @@ falls back to an unsigned bundle without it. See `docs/play/checklist.md`.
 
 ## Balance parity
 
-The numbers are checked against the *running* original at
+The numbers are checked against Knockoff *running* at
 [cwmonkey.github.io/reactor-knockoff](https://cwmonkey.github.io/reactor-knockoff/),
-not against its source. Two adjacent uranium cells report 4 power and 8 heat
+not against its source: Reactor Incremental is the game being revived, and
+Knockoff is the version of it that runs in a browser today. Two adjacent uranium cells report 4 power and 8 heat
 there and here; part costs, containments, vent rates and tick counts match
 across tiers. Those observations are permanent tests, so the balance cannot
 quietly drift.
@@ -658,8 +661,10 @@ library's instillation-report shape: the verbs, the economy's shape, the ideal
 player, each component and its conflicts, the pitfalls scanned, the litmus
 test, and every change traced from mechanic to feeling.
 [docs/soul-interview.md](docs/soul-interview.md) is the other half: the
-questions that decide the world around the machine - why the plant closed, who
-the operator is, how the game speaks - and turn the answers into rules.
+designer's answers about the world around the machine - why the plant runs, who
+the operator is, how the game speaks and looks - turned into rules. Its soul
+sentence: *"Paid to start a Soviet reactor nobody else could, in an English
+fog, you learn it alone until it holds. The valley asks for more."*
 
 ## Credits
 
