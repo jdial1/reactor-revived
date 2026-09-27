@@ -445,11 +445,14 @@ vents. The heat bar reddens past 60%; a full power bar brightens and dims,
 because output going nowhere is worth noticing. Money rolls on digit drums
 behind a single recessed slot, with Exotic Particles as plain text under it.
 
-Parts wear light masks from **Kenney's Light Masks** and **Particle Pack**
-(CC0), six white alpha PNGs in `www/fx/` (6.7 KB), tinted by CSS
-(`mask-image` over a `background-color`). A cell's glow matches its shape - one
-bar, two bars, or a 2x2 for a quad - in its fuel's own colour, and breathes while
-it has life left. An accelerator holding heat shows a violet orb, a working vent
+Parts wear light masks, six white alpha PNGs in `www/fx/` (5.7 KB), tinted by
+CSS (`mask-image` over a `background-color`). A cell's glow is the fuel inside
+its own glass: `docs/derive_glow.py` builds the single, dual and quad masks from
+the cell sprites themselves (the fuel-coloured pixels of all seven fuels, grown
+a pixel and softened), so the light sits on the rods, including the staggered
+four of a quad. It glows in the fuel's own colour, and breathes while it has
+life left. The orb, puff and spark are from **Kenney's Light Masks** and
+**Particle Pack** (CC0). An accelerator holding heat shows a violet orb, a working vent
 puffs steam while its fan turns, and an exploding part throws a spark.
 
 ## Sound
