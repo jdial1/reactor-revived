@@ -790,7 +790,7 @@ stand for?
 a plant?"
 *On record:* six impacts, chosen for being heavy and dull; a placed part settles
 with a small heavy drop; money rolls on drums.
-> Answer:
+> Answer: "Buttons should be tactile mechanical double click industrial slow"
 
 **5.6** Name three real images or places that are this world's look.
 *Push:* "A photo you could send. Not a game, not a film, not Chernobyl."
