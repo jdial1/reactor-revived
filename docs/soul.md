@@ -14,6 +14,10 @@ Litmus, the Feature Gate Log, the Soul Ledger and the pre-ship drift audit. New
 features go through its Feature Gate before they are built, and every bend from
 Containment is entered in its ledger.
 
+The machine is specified; the world around it is not. [soul-interview.md](soul-interview.md)
+is the question set for that: Harrow Station, the operator, the valley, the
+voice and the materials, each answer locked into a rule the build must follow.
+
 On the surface: a grid, a few bars, numbers that climb. Beneath: a
 conservation puzzle on a small fixed board, where the same parts in a
 different arrangement run for a week or melt in ninety seconds. Players

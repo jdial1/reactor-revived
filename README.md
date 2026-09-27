@@ -657,6 +657,9 @@ workbench. [docs/soul.md](docs/soul.md) is the soul as it applies here, in the
 library's instillation-report shape: the verbs, the economy's shape, the ideal
 player, each component and its conflicts, the pitfalls scanned, the litmus
 test, and every change traced from mechanic to feeling.
+[docs/soul-interview.md](docs/soul-interview.md) is the other half: the
+questions that decide the world around the machine - why the plant closed, who
+the operator is, how the game speaks - and turn the answers into rules.
 
 ## Credits
 

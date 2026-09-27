@@ -1,0 +1,539 @@
+# The Soul Interview: Reactor Revived
+
+A question set for finding what this game is *about*, and turning it into rules
+the build has to follow. It is the general Soul Interview adapted to this repo:
+every question is asked about Harrow Station, the operator and the valley, and
+every answer has a place in the build to go.
+
+## Why this game needs it
+
+The machine is specified to the last point of heat. [soul.md](soul.md) and the
+soul instance (`game-souls/instances/reactor_revived.txt`) say what the reactor
+does, what it must never do, and how every feature is checked. What they do not
+say is **why anyone is here**. That covers the atmosphere, the operator's reason
+for turning the key, the town, and the world outside the 12 x 8. When a
+requirement is silent, the build falls back to the average nuclear game: a
+green glow, a hazard trefoil, a klaxon, a wasteland, a wink at Chernobyl. None
+of those is in the game yet. This interview is how to keep it that way on
+purpose rather than by luck.
+
+What is on record today is thin and specific, which is a good start:
+
+- **The operator's log** (`www/js/objectives.js`): thirty jobs, each with one
+  line. *"Day one. Harrow Station has sat cold for eleven years. The key still
+  turns."* ... *"The valley has power. Keep it that way."*
+- **The trophies** (`www/js/records.js`): named flatly. *A Very Expensive Fan.
+  Ancestor Worship. Paperwork.*
+- **A handful of voiced strings:** *"It is already cold."* after ten taps on a
+  cold heat bar; the meltdown sheet, *"Heat passed twice what the reactor could
+  hold. Every part in it was destroyed."*
+- **The materials:** a steel UI cut from Buch's frames, heavy dull impacts, one
+  hum, fuel glows in their own colours, a money odometer on drums.
+
+### The frame the answers live inside
+
+These are the game's standing rules ([soul.md](soul.md), "Standing rules"). An
+answer may challenge one, and question 6.3 asks it to, but changing one means
+returning to Phase 2 of the soul instance and writing a ledger entry.
+
+- **No story beats.** The universe never arrives as a scene, a cutscene or a
+  character on screen. It reaches the player only through the log's one line
+  per job, names, the voice of system text, the materials, and the sound.
+- **Comedy is deadpan only.**
+- **A meltdown is an absolute clean wipe.** A receipt is words, not wreckage.
+- **Immersion is rated Low.** The machine is the point. The world is there to
+  give the machine somewhere to be and someone to be for, as an IC2 player's
+  base did.
+- **Stay inside the lineage.**
+
+So the aim is not more lore. It is fewer, truer words that point at a larger
+world, so that every line, sound and colour comes from the same place.
+
+## How to run it
+
+- **The designer answers; the interviewer never does.** Offering options
+  anchors the answer to the average. If the designer is completely stuck,
+  offer one example, and make it strange.
+- **One phase per sitting.** Answers improve overnight.
+- **Always ask the push.** The first answer is usually a cliche; the second or
+  third is usually true.
+- **Read "On record" only after the first answer.** It is what the repo says
+  today, so push against it. It is not the answer. Whoever drafted a line, it is
+  only a first answer: keep it if the push turns up nothing truer, and replace
+  it if the push does.
+- **Record exact words** under each question. The designer's phrasing often is
+  the tone. Don't clean it up.
+- **Red flags for this game.** Any answer that could describe 500 other games,
+  and in particular:
+  - the library's own terms offered as feelings: "watchful calm", "Mark I",
+    "the square law"
+  - nuclear shorthand: "Chernobyl", "Fallout", "atompunk", "retro-futurist",
+    "glowing", "radioactive", "post-apocalyptic"
+  - idle-game shorthand: "satisfying", "chill", "number go up", "cozy"
+
+---
+
+## Phase 0: The Spark
+
+**0.1** What was the exact moment you first wanted to make *this* game, not
+rewrite Knockoff but make Reactor Revived? Where were you, and what were you
+looking at?
+*Push:* "Not the constraint, not the lineage. The moment."
+*On record:* the README's "Why it exists" is about craft (a 2013 browser game
+with no build step, "that constraint *is* the aesthetic"). It says why the code
+looks like this, not why the game exists.
+> Answer:
+
+**0.2** Which game in the line (IC2 in a Minecraft base, the planner, Reactor
+Incremental, Knockoff) made you think "I want to feel that again, but
+different"? What was the different?
+*Push:* "What did that game get wrong, or leave out? Not a bug; the README has
+the bugs. The feeling."
+*On record:* the README's "From the players" lists what players asked for. It
+does not say what *you* missed.
+> Answer:
+
+**0.3** If one person could play this once, who would it be, and what would you
+want them to feel when they lock the phone?
+*Push:* "Describe their face. Where are they sitting?"
+> Answer:
+
+**0.4** What is the part you are a little embarrassed by: too personal or too
+strange to say out loud? It may be about reactors, about the town, about a
+phone, or about you.
+*Push:* none. Protect whatever comes out; it is usually the soul.
+> Answer:
+
+## Phase 1: The Feeling
+
+**1.1** Name the one feeling the game exists to produce. Not "fun", and not the
+library's word for it.
+*Push:* "Calm how? What is the player's hand doing while they feel it?"
+*On record:* the soul calls it Watchful Calm: "a dangerous machine, quiet
+because it was built right." That is the library's name. What is yours?
+> Answer:
+
+**1.2** Name a second feeling that fights the first.
+*Push:* "Is that the fight you feel, or is there another one underneath it?"
+*On record:* Containment's fight is calm against danger ("the danger never
+leaves the room"). The log hints at others it has never named: a town that
+depends on you ("If the station trips, all of them go dark"), and a university
+that has stopped saying what the particles are for.
+> Answer:
+
+**1.3** What should the player feel in the first sixty seconds, the first hour,
+and the last hour? And what does the operator feel at those three points?
+*Push:* "What changes between those three?"
+*On record:* the first line of the log is *"Day one ... The key still turns."*
+The first hour is selling and venting by hand. The last line is *"The valley has
+power. Keep it that way."* After it, the game goes on with no list.
+> Answer:
+
+**1.4** What moment would a player tell a friend about? Say it the way they
+would say it.
+*Push:* "With excitement, or quietly? Would they send the layout code, or a
+screenshot, or neither?"
+*On record:* the Seed Card in the soul instance guesses: *"The vent upgrade made
+my checkerboard wasteful, so I rebuilt it round exchangers, and it has been
+Mark I for four thousand ticks."* It was inferred from the build and is
+unconfirmed. Replace it if yours is truer.
+> Answer:
+
+**1.5** What must this game never make anyone feel?
+*Push:* "Name one the soul docs don't already name."
+*On record:* never congratulated for a number; never punished for being away;
+comedy never louder than deadpan.
+> Answer (goes on the Never List):
+
+## Phase 2: The World's Truths
+
+**2.1** What is one thing true in Harrow's world that isn't true in ours?
+*Push:* "What does that change about an ordinary Tuesday in town?" The log
+already has one: *"Thorium arrives on Tuesday."*
+*On record:* nothing yet. The physics (conserved heat, touching cells) is ours,
+nearly. The fuels are not: dolorium, nefastium, protium.
+> Answer:
+
+**2.2** What does that truth cost, and who pays? Not in money.
+*Push:* "Power without cost is hollow. Who in the valley pays for the plant
+running?"
+*On record:* *"Three towns are on this grid now. If the station trips, all of
+them go dark."* *"Nefastium. The supplier made you sign twice."*
+> Answer:
+
+**2.3** Why did Harrow Station close eleven years ago? What happened that
+everyone in the valley still feels?
+*Push:* "How do people in town talk about it, or avoid talking about it?"
+*On record:* nothing. The log never says why it closed. Decide also whether the
+answer is ever said (7.7). Under "no story beats" it may never be; it can still
+shape every line.
+> Answer:
+
+**2.4** What does the valley believe that is wrong: about the plant, the
+operator, the university, or the fuel?
+*Push:* "Who believes it most, and what would they lose if it stopped being
+true?"
+> Answer:
+
+**2.5** What is scarce in the valley, and what is abundant that shouldn't be?
+*Push:* "At job 30, what is scarce then?"
+*On record:* the fiction runs from scarcity to abundance, from *"on candles"* to
+*"Nobody in town remembers the candles now."* The mechanics keep ninety-six
+tiles scarce forever while money inflates. The two curves have never been set
+side by side.
+> Answer:
+
+**2.6** Which question about this world should never be fully answered?
+*Push:* "Would the game be smaller if it were answered? Say how."
+*On record:* the log already leaves three open. *"They have stopped saying what
+for."* *"The supplier made you sign twice."* *"The last crate from the lab came
+without a manual."* Which of these are mysteries on purpose, and which are just
+unfinished?
+> Answer:
+
+**2.7** If Harrow Station could speak, what would it complain about?
+*Push:* "Not about the player. About its life."
+*On record:* *"The old heat gauge sticks."* *"The plant clock runs slow."*
+> Answer:
+
+## Phase 3: People and Voice
+
+**3.1** Describe one ordinary person in the valley: their job, their small
+worry, their small joy.
+*Push:* "Not the foreman or the physicists. Someone the log never mentions."
+*On record:* the log's people are institutions: the mill, the clinic, the rail
+yard, the co-op, the bank, the university, the supplier, an inspector, "the
+foreman". Nobody has a name. Under "no story beats" this person may never
+appear. They are here to decide who the log is written *for*.
+> Answer:
+
+**3.2** What do operators say at shift change? When a part fails? When the
+board goes quiet?
+*Push:* "Idioms carry more world than lore. Where would the player see one: a
+log line, a trophy name, the floor line, an error?"
+*On record:* the floor line reads like a plant-gate sign, *"Mark I · 4,210
+ticks without incident"*. "Incident" is the only plant word the game uses.
+> Answer:
+
+**3.3** Who owns Harrow Station, who sent the operator, and what are they
+afraid of?
+*Push:* "What would they do to stop that fear coming true?"
+*On record:* money comes from the town ("The town's first payment cleared"),
+experiments from the university, and fuel from a supplier. Nobody is named as
+owner.
+> Answer:
+
+**3.4** Who writes the operator's log? The game already has a narrator in the
+log, the trophies, the tooltips and the errors. What kind of person is it?
+*Push:* "Two or three words, and one *but*: tired, dry, kind ... but never
+what?"
+*On record:* the log speaks in short imperatives with no warmth added ("Put a
+vent on it." "Automate it."). The trophies are flat. One line is almost a joke:
+*"It is already cold."*
+> Answer:
+
+**3.5** Write one line exactly as the game should say it.
+*Push:* "Now write the line the game should show when a part fails at three in
+the morning and nobody is watching."
+> Answer (becomes the voice reference):
+
+**3.6** What phrase or tone would this game never use?
+*Push:* "Which string in the build today comes closest to breaking it?" (See
+the list in 7.5.)
+*On record:* no exclamation marks anywhere in the interface; no praise; red kept
+for danger and loss.
+> Answer (goes on the Never List):
+
+## Phase 4: The Player's Place
+
+**4.1** Who is the player: hired, returning, inheriting, or something else? Does
+the valley notice them?
+*Push:* "Why did the key still turn? Who kept it?"
+*On record:* the player is "you" in the log, from *"Day one"* onward. Nothing
+says how they came to hold the key.
+> Answer:
+
+**4.2** What does the operator want, and what does the valley want from them?
+Are those the same?
+*Push:* "Where do they pull apart? A mismatch is story without cutscenes."
+*On record:* the player chases marks, records and the perfect board; the town
+wants the lights on; the university wants particles, and the reboot it asks for
+shuts the plant down.
+> Answer:
+
+**4.3** For each verb (**place**, **inspect then sell, move or replace**,
+**buy**), what does doing it mean inside the fiction?
+*Push:* "Placing a part in a plant cold for eleven years is not the same as
+placing one in a new build. Which is this?"
+> Answer:
+
+**4.4** What does a meltdown mean in the valley? Not the dialog: what actually
+happens out there?
+*Push:* "The standing rule forbids wreckage. Does it forbid a line?"
+*On record:* the sheet says what happened to the reactor and nothing about the
+towns on its grid. *"Restart the reactor."* The next job waits as if nothing
+happened.
+> Answer:
+
+**4.5** What does the operator lose that they can't get back?
+*Push:* "Permanence, even small. Mechanically almost nothing is lost: money and
+research survive a meltdown. Is that true in the fiction too?"
+*On record:* a meltdown count in Records, and the trophy *Short Fuse*.
+> Answer:
+
+**4.6** How is the operator different at the end, and how is the valley
+different?
+*Push:* "If neither changes, the thirty jobs were decoration."
+*On record:* *"Nobody in town remembers the candles now."* The operator's change
+is not written anywhere.
+> Answer:
+
+## Phase 5: Texture
+
+**5.1** What does the control room smell like? What is the weather doing
+outside?
+*Push:* "Which season is the game set in, if the log says 'Winter is coming' at
+job 13?"
+> Answer:
+
+**5.2** What is the plant made of? What does the operator touch?
+*Push:* "Name a material in the build today that is wrong."
+*On record:* steel frames with bevels (Buch's, recoloured to a steel ramp), a
+checker grain on every face, a recessed odometer slot, part sprites with a
+steel body and a black outline.
+> Answer (becomes the material palette):
+
+**5.3** What is the light like: time of day, colour temperature, where shadows
+fall?
+*Push:* "Is the operator working days or nights?"
+*On record:* a board that warms toward red with heat, tile bars that stay grey
+until four-fifths full, each fuel glowing in its own colour.
+> Answer:
+
+**5.4** What is the quietest sound in the game, and why does it matter?
+*Push:* "What is quieter than the hum at Mark I?"
+*On record:* the hum murmurs at 0.75x speed when cold and settles lower once
+Mark I is earned; all impact sounds duck by up to 60% near the limit.
+> Answer:
+
+**5.5** What does a button press feel like here, and what in the plant does it
+stand for?
+*Push:* "Which press in the build today feels most like an app and least like
+a plant?"
+*On record:* six impacts, chosen for being heavy and dull; a placed part settles
+with a small heavy drop; money rolls on drums.
+> Answer:
+
+**5.6** Name three real images or places that are this world's look.
+*Push:* "A photo you could send. Not a game, not a film, not Chernobyl."
+> Answer:
+
+## Phase 6: Tensions and Taboos
+
+**6.1** What would a player expect from a nuclear game, or an idle game, that
+this one should refuse, on the atmosphere side?
+*Push:* "The mechanical refusals are already written (the soul instance's
+banned list). Name an image, a sound or a word."
+> Answer (goes on the Never List):
+
+**6.2** The fair-play contract already refuses daily rewards, ads, a battle
+pass and notifications. Which one would hurt the *valley* most if it arrived,
+and why?
+*Push:* "The answer says what the town values."
+> Answer:
+
+**6.3** Which answers contradict each other, or contradict a standing rule?
+Keep each contradiction, or resolve it? The known ones:
+- A universe worth interviewing for, and **no story beats**.
+- A meltdown as a **clean wipe**, and three towns that go dark if the station
+  trips.
+- **Immersion rated Low**, and this interview.
+- The university's reboot, and a town that needs the lights on.
+
+*Push:* "Some contradictions are the soul, and some are confusion. Which is
+each?"
+> Answer (any changed standing rule is ledgered in the soul instance):
+
+**6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
+Harrow? Which lines, sounds and colours?
+*Push:* "Would you keep the town, or only the plant?"
+> Answer:
+
+**6.5** Picture a stranger's reactor idle game with all ninety parts, the
+planner and the marks, and none of the heart. What exactly is missing from it?
+*Push:* "Which of those missing things is missing from this build too?"
+> Answer (lists what the Lock must protect):
+
+---
+
+## Phase 7: Lock
+
+This phase turns the answers into artifacts that constrain the build. Each
+artifact says where it lives, so the answers reach the game and not just this
+file.
+
+### 7.1 The Soul Sentence
+
+At most 25 words, holding the world's truth (Phase 2), the feeling (1.1), and
+the fight (1.2).
+
+**Test:** could it describe IC2, Reactor Incremental or Knockoff? If yes,
+rewrite it.
+
+Today there are two sentences, and neither holds a world truth:
+- Containment: *"A good design is one you can stop watching."* This belongs to
+  the whole family.
+- The soul instance's philosophy: *"A reactor small enough to hold in one hand,
+  and good enough to put in your pocket."* It was written from the build, not
+  by the designer.
+
+**Where it goes:** it replaces the instance philosophy in the soul instance's
+Soul Choice. Containment stays as it is.
+
+> Soul sentence:
+
+### 7.2 Pillars
+
+The machine already has its pillars: Containment's four, and the instance's two
+house rules. An instance allows at most three house rules, so **the atmosphere
+gets one pillar in the instance**. Anything more is carried by the Never List
+and the Voice Guide instead. Each pillar needs all four parts, or it is a
+slogan.
+
+| Pillar | This means... | This forbids... | Test for any feature, line or asset |
+| --- | --- | --- | --- |
+| | | | |
+
+### 7.3 World Laws to Mechanics
+
+Every truth from Phase 2 shows up as a system, or is marked flavour-only on
+purpose. **No log line, trophy name or field note ships without a row here.**
+
+The log's existing lines, audited. The last column is the designer's call.
+
+| Line on record | How the player feels it mechanically today | Flavour-only on purpose? |
+| --- | --- | --- |
+| "The town has been on candles since the plant closed." | Goal 1: sell power by hand | |
+| "Nobody can stand at the valve all night." | Goal 3: the first vent | |
+| "Swapping spent cells by hand at 3 a.m. is how people get hurt." | Goal 7: perpetual rebuys retire a chore | |
+| "The plant clock runs slow." | Goal 11: Improved Chronometers speeds the tick | |
+| "Winter is coming. The town needs a reserve for the cold nights." | Goal 13: ten capacitors | |
+| "Every empty slot is a house still on candles." | Goal 18: fill every tile | |
+| "Three towns are on this grid now. If the station trips, all of them go dark." | Nothing. A meltdown touches no town. | |
+| "They have stopped saying what for." | Particles buy research; their use in the world is never stated | |
+| "Nefastium. The supplier made you sign twice." | Nothing | |
+| "The last crate from the lab came without a manual." | Nothing: experimental parts come with a sheet and a guide entry like every other part | |
+| *(new truths from Phase 2)* | | |
+
+### 7.4 The Never List
+
+The rules already locked elsewhere, collected here so they are read together:
+
+- Never state the square law, in the game or in the store.
+- Never congratulate a number. No praise, no confetti.
+- Never use an exclamation mark in interface text.
+- Never use red except for danger and loss.
+- Never tell a story beat. No scene, no cutscene, no character on screen.
+- Never leave wreckage or a scar after a meltdown.
+- Never punish absence: no notifications, streaks or daily rewards.
+- Never sell anything, show an ad, or touch the network.
+- Never be funnier than deadpan.
+
+The general Soul Interview suggests "never reward the player for doing
+nothing (no idle income)". **That one does not transfer.** Here a board that
+runs without its operator is the reward for a design that holds (*Absence Is
+Play*). What this game refuses is income nobody designed, or time that is spent
+behind the player's back.
+
+New lines, from 1.5, 3.6, 6.1 and 6.2:
+>
+
+### 7.5 Voice Guide
+
+- **The narrator,** from 3.4: two or three words and one *but*.
+- **Five reference lines.** A candidate is on record for each; confirm it or
+  rewrite it:
+
+| Slot | On record | In voice |
+| --- | --- | --- |
+| Greeting | "Day one. Harrow Station has sat cold for eleven years. The key still turns." | |
+| Tooltip | A part's one-line description, e.g. the vent: "Holds heat up to its limit and sheds up to its rate every tick. Past its limit it fails." | |
+| Error | "A Hardcore run cannot be restored from a save" | |
+| Victory | "The valley has power. Keep it that way." | |
+| Defeat | "Heat passed twice what the reactor could hold. Every part in it was destroyed." | |
+
+- **Five banned phrasings,** from 3.6.
+- **The rewrite rule:** every generic system string is rewritten in voice, or
+  kept plain on purpose, with the reason. These are in the build today in a
+  default voice:
+
+| String | Where | In voice, or plain on purpose? |
+| --- | --- | --- |
+| "Save exported" / "Save imported" | `www/js/main.js` | |
+| "Copied" | `www/js/ui.js` (layout codes, records) | |
+| "\<part\> unlocked" | `www/js/ui.js` | |
+| "New in the dock: ..." | `www/js/ui.js` | |
+| "Modules unlocked - design one on the Modules page" | `www/js/ui.js` | |
+| "Trophy: \<name\>" / "Field note: \<name\>" | `www/js/ui.js` | |
+| "That file is not a Reactor Revived save this version can read" | `www/js/main.js` | |
+| "Restart the reactor" (the meltdown button) | `www/js/ui.js` | |
+
+### 7.6 Sensory Palette
+
+A hard spec for anyone making art or sound, human or tool. It is filled from
+Phase 5 and checked against what already ships:
+
+| | On record | From the interview |
+| --- | --- | --- |
+| Materials | steel ramp, bevelled frames, checker grain, recessed slot | |
+| Colours | ink `#c8d3de`, dim `#7b8794`, power `#58c470`, heat `#d8703a`, cash `#d8c15a`, particles `#b06fd8`; each fuel its own glow | |
+| Light | the board warms toward red with heat; grey until abnormal | |
+| Three reference images | none | |
+| Signature sounds | one hum; six heavy, dull impacts | |
+| The quietest sound | the hum at Mark I | |
+| Button feel | a heavy drop; a flash with no sound when refused | |
+
+### 7.7 Lore Bible
+
+Three layers. The on-record mysteries (2.3 and 2.6) are placed by the
+designer; nobody else places them.
+
+- **Known truths:** what the player can learn from the log and the sheets.
+- **Hidden truths:** true, and only ever hinted at through the log, the names
+  and the mechanics.
+- **Sacred mysteries:** never answered. The team doesn't need to know them
+  either. They are listed here so nobody "helpfully" fills them in.
+
+Unplaced, from the record: why the plant closed; what the university wants
+the particles for; what nefastium is; what came in the last crate; who kept the
+key.
+
+### 7.8 The Soul Check
+
+The soul instance already gates every feature: its Feature Gate card names the
+component or pillar a feature serves, traces it, runs the seven-row Instance
+Litmus, and checks the banned list. The Soul Check adds three fields to that
+card for anything with words, sound or look. They are card fields, not litmus
+rows, so the Instance Litmus stays at seven.
+
+```
+Voice: is every string in the narrator's voice (7.5), or plain on purpose?
+World: does it express a law from 7.3, or is it flavour-only on purpose?
+Generic: would it exist, unchanged, in a stranger's reactor idle game? If yes,
+         it is hollow; make it Harrow's.
+```
+
+Anything that touches the Never List (7.4) is cut, as the banned list already
+works.
+
+## After the interview
+
+1. File the answers in this document, verbatim.
+2. Put the Soul Sentence, the atmosphere pillar and any changed standing rule
+   into the soul instance, with ledger entries for anything that bends
+   Containment.
+3. Rewrite the strings in 7.5 and settle every row in 7.3 in one pass, then
+   extend `test/guide.test.js` to hold the Never List's text rules (no
+   exclamation marks; the banned phrasings) over every string the player reads.
+4. Re-run the Seed Card (Phase 0 of the soul instance) against 1.3 and 1.4. The
+   inferred fortieth minute and next-day story are replaced by the designer's.
