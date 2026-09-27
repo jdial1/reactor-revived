@@ -791,6 +791,13 @@ a plant?"
 *On record:* six impacts, chosen for being heavy and dull; a placed part settles
 with a small heavy drop; money rolls on drums.
 > Answer: "Buttons should be tactile mechanical double click industrial slow"
+>
+> What "double click" and "slow" mean: "Two-stage click-clack sound, slow in
+> feel not speed"
+>
+> *For 7.6:* a press is one tap, heard as two stages (click, then clack), with
+> weight and travel in how it looks and sounds. Nothing takes longer to act:
+> painting a row and Time Flux keep their speed.
 
 **5.6** Name three real images or places that are this world's look.
 *Push:* "A photo you could send. Not a game, not a film, not Chernobyl."
