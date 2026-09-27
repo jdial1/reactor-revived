@@ -402,7 +402,10 @@ side by side.
 for."* *"The supplier made you sign twice."* *"The last crate from the lab came
 without a manual."* Which of these are mysteries on purpose, and which are just
 unfinished?
-> Answer:
+> Answer: "All mysteries can be answered in due time"
+>
+> *For 6.3:* in 2.3 why the plant closed was "Unknown on purpose", and in 2.5
+> why operators are scarce was a mystery.
 
 **2.7** If Harrow Station could speak, what would it complain about?
 *Push:* "Not about the player. About its life."
