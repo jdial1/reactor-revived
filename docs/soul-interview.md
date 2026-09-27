@@ -938,6 +938,11 @@ To settle:
 > Answers:
 >
 > 1. Looking closer, or looking away: "Both, struggle first then watch it flow"
+>    And the pocket: "You watch confirm stability and can leave confident the
+>    reactor is stable"
+>    *Settled, and kept:* a session runs struggle, then watching it flow, then
+>    confirming it holds, then leaving. Containment's "stop watching" is the last
+>    step, not the whole.
 
 **6.4** If you cut 80% of the atmosphere, which 20% keeps it recognisably
 Harrow? Which lines, sounds and colours?
