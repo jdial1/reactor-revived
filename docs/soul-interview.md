@@ -198,7 +198,13 @@ and the last hour? And what does the operator feel at those three points?
 *On record:* the first line of the log is *"Day one ... The key still turns."*
 The first hour is selling and venting by hand. The last line is *"The valley has
 power. Keep it that way."* After it, the game goes on with no list.
-> Answer:
+> Answer: "First 60 sec should be intrigue, light understanding,
+>
+> First hour, getting into middle tier parts , full reactor grids with plenty
+> of upgrades, the understanding good and tight
+>
+> Last hour , feeling of completeness/ satisfaction with the state of
+> completing all content"
 
 **1.4** What moment would a player tell a friend about? Say it the way they
 would say it.
