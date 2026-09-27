@@ -842,7 +842,18 @@ with a small heavy drop; money rolls on drums.
 this one should refuse, on the atmosphere side?
 *Push:* "The mechanical refusals are already written (the soul instance's
 banned list). Name an image, a sound or a word."
-> Answer (goes on the Never List):
+> Answer (goes on the Never List): "No in app purchases(diamonds, boosts,
+> skills)
+>
+> Cartoony glossy blobby characters should be avoided
+>
+> Bright colored icons, material modern design"
+>
+> *On record:* the first is already house rule 2 (nothing sold). The build has
+> no characters at all. It does colour its icons: every interface icon is an
+> inline SVG, and each dock part shows its numbers in its corners with the rate
+> bar's icons in bright colours by kind (power blue, heat red, life purple,
+> money green; `www/css/app.css`).
 
 **6.2** The fair-play contract already refuses daily rewards, ads, a battle
 pass and notifications. Which one would hurt the *valley* most if it arrived,
@@ -960,6 +971,9 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 - Never use an emotional tone (3.4, 3.6).
 - Never use binary or computer speak (3.6).
 - Never write a demand the player cannot understand (3.6).
+- Never sell a currency, a boost or a skill (6.1).
+- Never draw cartoony, glossy, blobby characters (6.1).
+- Never use bright-coloured icons or modern material design (6.1).
 >
 
 ### 7.5 Voice Guide
