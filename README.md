@@ -684,10 +684,17 @@ budget (*Maintenance. Budget: $60K.*), or for four seconds after a purchase,
 what was done (*Authorised: Forceful Fusion, level 1.*), which is also said to a
 screen reader once.
 
-The upgrades are lines on the screen, not cards. Each fuel's three share one
-row of condensed tiles - **Power**, **Time**, **Autobuy** - showing what the next
-level moves, its price and the level, with the full name and description in the
-tile's label; once any of the three shows, all three do, the rest dimmed. A tap is a key pressed
+The upgrades are lines on the screen, not cards, and a part family's upgrades
+share one row of condensed tiles: what the next level moves, its price and the
+level, with the full name and description in the tile's label. Each fuel is
+**Power · Time · Autobuy**, and so are the reflectors; vents and exchangers are
+**Rate · By plating · By capacitor**; capacitors are **Capacity** and
+**Replace**, under Autobuy's column. On the Experiments screen the six
+accelerator tiers are two rows of three, and the nine experimental-part unlocks
+a 3x3 grid, where each price shows the rise that buying another brings. Tile
+rows lead their section; once any tile of a row shows, all of it does, the rest
+dimmed, so every tile keeps its place. `TILE_ROWS` in `www/js/upgrades.js` is
+the one list of them. A tap is a key pressed
 through: the line goes to inverse video while it is held, and again when the
 computer takes it, and it is heard in two stages - a short click (the place
 impact, fast and quiet) and then the buy impact as the clack. One tap still buys

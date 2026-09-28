@@ -2,7 +2,7 @@
 // signature changes.
 import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
-import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
+import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel, TILE_ROW_LABEL } from "./upgrades.js";
 import { OBJECTIVES, goalAt, orderTitle, orderProgress } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
@@ -744,10 +744,11 @@ function buildUpgrades(dom, game) {
 		const kind = kindOf(u);
 		const badge = h("i", { className: `kind ${kind}`, title: kind },
 			icon(kind === "utility" ? "options" : kind));
-		// A fuel's three (Power, Time, Autobuy) share one row as condensed tiles:
-		// the heading names the fuel, so a tile says only what it moves. Its full
-		// name and description stay in its label and tooltip.
-		const tile = Boolean(u.short);
+		// A part family's upgrades share one row as condensed tiles (TILE_ROWS in
+		// upgrades.js): the heading or the row's label names the family, so a
+		// tile says only what it moves. Its full name and description stay in its
+		// label and tooltip.
+		const tile = Boolean(u.row);
 		const button = tile
 			? h("button", { className: "upgrade tile", title: u.desc, ariaLabel: `${u.title}. ${u.desc}`, onclick: () => game.buy(u.id) },
 				h("b", { textContent: u.short }), delta, h("span", {}, cost, level))
@@ -762,8 +763,24 @@ function buildUpgrades(dom, game) {
 		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
 		section.rows.push(row);
 		if (tile) {
-			if (!section.tiles) section.list.append(section.tiles = h("div", { className: "tiles" }));
-			section.tiles.append(button);
+			section.tileRows ??= new Map();
+			let tiles = section.tileRows.get(u.row);
+			if (!tiles) {
+				const label = TILE_ROW_LABEL[u.row];
+				tiles = h("div", { className: "tiles", role: "group", ariaLabel: label ?? u.row });
+				section.tileRows.set(u.row, tiles);
+				// Tile rows lead their section: they are its main families, and the
+				// single upgrades follow as lines.
+				if (!section.tileArea) section.list.prepend(section.tileArea = h("div", { className: "tile-area" }));
+				section.tileArea.append(...(label ? [h("h4", { className: "tile-label", textContent: label })] : []), tiles);
+				tiles.rows = [];
+				tiles.label = tiles.previousElementSibling?.classList.contains("tile-label") ? tiles.previousElementSibling : null;
+			}
+			// Its own place in the row, three to a line, gaps kept.
+			button.style.gridColumn = String(u.slot % 3 + 1);
+			button.style.gridRow = String(Math.floor(u.slot / 3) + 1);
+			tiles.append(button);
+			tiles.rows.push(row);
 		} else section.list.append(button);
 		// A doctrine set's two sides, beside the row that buys it: readable
 		// before buying, switchable after.
@@ -1200,14 +1217,20 @@ function renderUpgrades(dom, s) {
 		row.button.classList.add("preview");
 	}
 
-	// A fuel's row of three shows whole once any of it shows: the rest as
-	// previews, so Power, Time and Autobuy always keep their places.
+	// A tile row shows whole once any of it shows: the rest as previews, so
+	// every tile keeps its place. A row with nothing showing takes its label.
 	for (const section of dom.upgradeSections) {
-		if (!section.tiles || section.rows.every((r) => r.button.hidden)) continue;
-		for (const r of section.rows) {
-			if (!r.button.hidden || !isUnlocked(s, r.u)) continue;
-			r.button.hidden = false;
-			r.button.classList.add("preview");
+		for (const tiles of section.tileRows?.values() ?? []) {
+			const any = tiles.rows.some((r) => !r.button.hidden);
+			if (any) {
+				for (const r of tiles.rows) {
+					if (!r.button.hidden || !isUnlocked(s, r.u)) continue;
+					r.button.hidden = false;
+					r.button.classList.add("preview");
+				}
+			}
+			tiles.hidden = !any;
+			if (tiles.label) tiles.label.hidden = !any;
 		}
 	}
 

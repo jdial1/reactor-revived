@@ -154,19 +154,18 @@ const PA_UPGRADES = [1, 2, 3, 4, 5, 6].map((i) => ({
 }));
 
 // cell_power / cell_tick / cell_perpetual for every cell type that has a price.
-// `short` is what a fuel's row of three calls each, side by side on the page.
+// `short` is what a fuel's row of three calls each (TILE_ROWS, below).
 const CELL_KINDS = [
 	{ kind: "power", title: "Potent", short: "Power", desc: "cells produce 100% more power per level.", mul: 10 },
 	{ kind: "tick", title: "Enriched", short: "Time", desc: "cells last twice as long per level.", mul: 10 },
 	{ kind: "perpetual", title: "Perpetual", short: "Autobuy", desc: "cells replace themselves when depleted, at 1.5x cost.", levels: 1 },
 ];
 
-const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, short, desc, mul, levels }) =>
+const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, desc, mul, levels }) =>
 	CELLS_WITH_UPGRADES.map((c) => ({
 		id: `cell_${kind}_${c.type}`,
 		group: `cell_${kind}_upgrades`,
 		title: `${title} ${c.title}`,
-		short,
 		desc: `${c.title} ${desc}`,
 		cost: c.upgradeCosts[kind],
 		mul,
@@ -176,6 +175,39 @@ const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, short, desc, mul, level
 );
 
 export const UPGRADES = [...CASH, ...DOCTRINES, ...EXOTIC, ...PART_UNLOCKS, ...PA_UPGRADES, ...CELL_UPGRADES];
+
+// Upgrades for one part family share one row of condensed tiles on the page,
+// the way a fuel's Power, Time and Autobuy do: [row, label, [[id, short], ...]].
+// A row's label is only there when its section heading names more than one
+// family. A tile's slot is its place in the row, three to a line, so a pair can
+// leave a gap and keep its last tile under the others' last (Autobuy).
+const TILE_ROWS = [
+	...CELLS_WITH_UPGRADES.map((c) => [c.type, null,
+		CELL_KINDS.map(({ kind, short }) => [`cell_${kind}_${c.type}`, short])]),
+	["capacitors", "Capacitors", [["improved_wiring", "Capacity"], null, ["perpetual_capacitors", "Replace"]]],
+	["reflectors", "Reflectors", [["improved_neutron_reflection", "Power"], ["improved_reflector_density", "Time"], ["perpetual_reflectors", "Autobuy"]]],
+	["vents", "Vents", [["improved_heat_vents", "Rate"], ["improved_heatsinks", "By plating"], ["active_venting", "By capacitor"]]],
+	["exchangers", null, [["improved_heat_exchangers", "Rate"], ["reinforced_heat_exchangers", "By plating"], ["active_exchangers", "By capacitor"]]],
+	["accelerators", null, PA_UPGRADES.map((u) => [u.id, u.title.replace(/^Improved /, "").replace(/ Particle Accelerator$/, "")])],
+	["parts", null, [
+		["heat_reflection", "Thermal reflector"], ["experimental_capacitance", "Extreme capacitor"],
+		["vortex_cooling", "Extreme vent"], ["underground_heat_extraction", "Extreme exchanger"],
+		["vortex_extraction", "Extreme inlet"], ["explosive_ejection", "Extreme outlet"],
+		["thermionic_conversion", "Thermionic coolant"], ["micro_capacitance", "Charged plating"],
+		["singularity_harnessing", "Black hole"],
+	]],
+];
+
+/** A tile row's label, where it needs one. */
+export const TILE_ROW_LABEL = Object.fromEntries(TILE_ROWS.map(([row, label]) => [row, label]));
+
+for (const [row, , tiles] of TILE_ROWS) {
+	tiles.forEach((tile, slot) => {
+		if (!tile) return;
+		const u = UPGRADES.find((x) => x.id === tile[0]);
+		Object.assign(u, { row, short: tile[1], slot });
+	});
+}
 
 // Grouped by what an upgrade acts on, the way Incremental and Knockoff laid
 // their pages out: the reactor, each fuel on its own, then the dock's families.
