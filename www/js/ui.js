@@ -2,7 +2,7 @@
 // signature changes.
 import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
-import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
+import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel, TILE_ROW_LABEL } from "./upgrades.js";
 import { OBJECTIVES, goalAt, orderTitle, orderProgress } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
@@ -744,17 +744,44 @@ function buildUpgrades(dom, game) {
 		const kind = kindOf(u);
 		const badge = h("i", { className: `kind ${kind}`, title: kind },
 			icon(kind === "utility" ? "options" : kind));
-		const button = h("button", { className: "upgrade", onclick: () => game.buy(u.id) },
-			badge,
-			h("b", { textContent: u.title }),
-			h("i", { textContent: u.desc }),
-			delta,
-			h("span", {}, cost, level));
-		const row = { u, button, cost, level, delta, was, now };
+		// A part family's upgrades share one row as condensed tiles (TILE_ROWS in
+		// upgrades.js): the heading or the row's label names the family, so a
+		// tile says only what it moves. Its full name and description stay in its
+		// label and tooltip.
+		const tile = Boolean(u.row);
+		const button = tile
+			? h("button", { className: "upgrade tile", title: u.desc, ariaLabel: `${u.title}. ${u.desc}`, onclick: () => game.buy(u.id) },
+				h("b", { textContent: u.short }), delta, h("span", {}, cost, level))
+			: h("button", { className: "upgrade", onclick: () => game.buy(u.id) },
+				badge,
+				h("b", { textContent: u.title }),
+				h("i", { textContent: u.desc }),
+				delta,
+				h("span", {}, cost, level));
+		const row = { u, button, cost, level, delta, was, now, tile };
 		dom.upgradeRows.push(row);
 		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
 		section.rows.push(row);
-		section.list.append(button);
+		if (tile) {
+			section.tileRows ??= new Map();
+			let tiles = section.tileRows.get(u.row);
+			if (!tiles) {
+				const label = TILE_ROW_LABEL[u.row];
+				tiles = h("div", { className: "tiles", role: "group", ariaLabel: label ?? u.row });
+				section.tileRows.set(u.row, tiles);
+				// Tile rows lead their section: they are its main families, and the
+				// single upgrades follow as lines.
+				if (!section.tileArea) section.list.prepend(section.tileArea = h("div", { className: "tile-area" }));
+				section.tileArea.append(...(label ? [h("h4", { className: "tile-label", textContent: label })] : []), tiles);
+				tiles.rows = [];
+				tiles.label = tiles.previousElementSibling?.classList.contains("tile-label") ? tiles.previousElementSibling : null;
+			}
+			// Its own place in the row, three to a line, gaps kept.
+			button.style.gridColumn = String(u.slot % 3 + 1);
+			button.style.gridRow = String(Math.floor(u.slot / 3) + 1);
+			tiles.append(button);
+			tiles.rows.push(row);
+		} else section.list.append(button);
 		// A doctrine set's two sides, beside the row that buys it: readable
 		// before buying, switchable after.
 		if (u.set) {
@@ -1134,10 +1161,17 @@ function renderUpgrades(dom, s) {
 
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
+		// A switch tile (Autobuy) has no level: owned, it says On where the price
+		// was; not yet, its "off -> on" already says what it does.
+		if (row.tile && maxLevel(u) === 1) {
+			if (lv) cost.textContent = "On";
+			level.textContent = "";
+		}
 
 		// Measured, not declared. A switch has nothing to show and says so.
 		// A doctrine set's two sides say what it does; a single delta cannot.
-		const step = u.set ? null : nextLevel(s, u);
+		// A switch tile has no measured change; it says what buying it turns on.
+		const step = u.set ? null : nextLevel(s, u) ?? (row.tile && !lv ? { from: "off", to: "on" } : null);
 		delta.hidden = !step;
 		if (step) {
 			was.textContent = step.from;
@@ -1181,6 +1215,23 @@ function renderUpgrades(dom, s) {
 	for (const { row } of outOfReach.slice(0, PREVIEW_COUNT)) {
 		row.button.hidden = false;
 		row.button.classList.add("preview");
+	}
+
+	// A tile row shows whole once any of it shows: the rest as previews, so
+	// every tile keeps its place. A row with nothing showing takes its label.
+	for (const section of dom.upgradeSections) {
+		for (const tiles of section.tileRows?.values() ?? []) {
+			const any = tiles.rows.some((r) => !r.button.hidden);
+			if (any) {
+				for (const r of tiles.rows) {
+					if (!r.button.hidden || !isUnlocked(s, r.u)) continue;
+					r.button.hidden = false;
+					r.button.classList.add("preview");
+				}
+			}
+			tiles.hidden = !any;
+			if (tiles.label) tiles.label.hidden = !any;
+		}
 	}
 
 	// A section with nothing showing is not a heading over nothing.
