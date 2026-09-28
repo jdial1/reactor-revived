@@ -478,12 +478,24 @@ test("objectives pay out in order and only once", () => {
 test("objectives chain when several are satisfied at once", () => {
 	const s = fresh();
 	s.soldPower = true;
-	s.soldHeat = true;
+	s.handVents = 10;
 	put(s, 5, 5, "uranium1");
 	put(s, 5, 6, "vent1");
 	compile(s);
 	checkObjectives(s);
-	assert.equal(s.objective, 4, "placed, sold power, sold heat, vent beside a cell");
+	assert.equal(s.objective, 4, "placed, sold power, vented by hand, vent beside a cell");
+});
+
+test("venting by hand is ten taps that take heat off, however hot it gets", () => {
+	const s = fresh();
+	s.objective = 2;
+	s.handVents = 9;
+	s.heat = 1e6;
+	assert.equal(checkObjectives(s), false, "nine is not ten");
+	assert.deepEqual(OBJECTIVES[2].progress(s), [9, 10]);
+	s.handVents = 10;
+	assert.ok(checkObjectives(s), "ten, with the reactor still hot: the heat left does not matter");
+	assert.equal(s.objective, 3);
 });
 
 test("the objective list terminates", () => {

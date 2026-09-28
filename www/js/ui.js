@@ -14,7 +14,7 @@ import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, 
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT, BENCHES } from "./lessons.js";
-import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry, SWITCHES } from "./records.js";
+import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry, tidyEntries, SWITCHES } from "./records.js";
 import { backdropFor } from "./backdrop.js";
 import { NOTES, notesFor } from "./notes.js";
 import { LETTERS, LETTER_BY_ID, readLetter } from "./letters.js";
@@ -284,6 +284,15 @@ export function buildUI(game) {
 	dom.pages.reactor.append(dom.board);
 
 	dom.objectiveList = h("ol", { className: "objectives" });
+	// A line that opens and closes the list under it; closed to start.
+	const fold = (list) => {
+		const b = h("button", { className: "done-toggle", ariaExpanded: "false", hidden: true, onclick: () => {
+			const el = list();
+			el.hidden = !el.hidden;
+			b.setAttribute("aria-expanded", String(!el.hidden));
+		} });
+		return b;
+	};
 	// Finished jobs fold into one line; what comes after the current one stays
 	// unwritten until it is the current one.
 	dom.doneToggle = h("button", { className: "done-toggle", ariaExpanded: "false", onclick: () => {
@@ -294,11 +303,13 @@ export function buildUI(game) {
 		h("h2", { textContent: "Harrow Station - operator's log" }),
 		dom.doneToggle,
 		dom.objectiveList,
-		// Letters: filed here as they come, opened or not (letters.js).
-		dom.letterHead = h("h3", { textContent: "Letters", hidden: true }),
-		dom.letterList = h("div", { className: "letters" }),
-		dom.entryHead = h("h3", { textContent: "Entered", hidden: true }),
-		dom.entryList = h("ul", { className: "entries" }),
+		// Letters, and the log book's entries: each folded into one line until
+		// opened, as the finished jobs are. The letters' line says how many are
+		// unread, which is how a new one is noticed.
+		dom.letterToggle = fold(() => dom.letterList),
+		dom.letterList = h("div", { className: "letters", hidden: true }),
+		dom.entryToggle = fold(() => dom.entryList),
+		dom.entryList = h("ul", { className: "entries", hidden: true }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dom.goalSheet.close() })));
 	root.append(dom.goalSheet);
@@ -1289,8 +1300,18 @@ function renderObjectives(dom, s) {
 	const sig = `${entries.length}:${last?.tick}:${last?.text}`;
 	if (sig === dom.entrySig) return;
 	dom.entrySig = sig;
-	dom.entryHead.hidden = !entries.length;
-	dom.entryList.replaceChildren(...[...entries].reverse().map((e) => h("li", { textContent: e.text })));
+	const lines = tidyEntries(entries);
+	dom.entryToggle.hidden = !lines.length;
+	dom.entryToggle.textContent = `${lines.length} log book ${lines.length === 1 ? "entry" : "entries"}`;
+	dom.entryList.replaceChildren(...lines.map((text) => h("li", { textContent: text })));
+}
+
+/** The letters' folded line: how many, and how many are still unread. */
+function letterCount(dom, s) {
+	const got = s.letters ?? [];
+	const unread = got.filter((id) => !(s.lettersRead ?? []).includes(id)).length;
+	dom.letterToggle.hidden = !got.length;
+	dom.letterToggle.textContent = `${got.length} ${got.length === 1 ? "letter" : "letters"}${unread ? `, ${unread} unread` : ""}`;
 }
 
 const letterSig = (s) => `${(s.letters ?? []).join()}|${(s.lettersRead ?? []).join()}`;
@@ -1301,7 +1322,7 @@ function renderLetters(dom, s) {
 	const sig = letterSig(s);
 	if (sig === dom.letterSig) return;
 	dom.letterSig = sig;
-	dom.letterHead.hidden = !got.length;
+	letterCount(dom, s);
 	dom.letterList.replaceChildren(...[...got].reverse().map((id) => {
 		const l = LETTER_BY_ID.get(id);
 		if (!l) return "";
@@ -1317,6 +1338,7 @@ function renderLetters(dom, s) {
 			// have been loaded since.
 			readLetter(dom.game.state, id);
 			summary.classList.remove("unread");
+			letterCount(dom, dom.game.state);
 			// Opening one is not a reason to redraw the list and close it again.
 			dom.letterSig = letterSig(dom.game.state);
 		});

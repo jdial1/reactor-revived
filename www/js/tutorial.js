@@ -2,11 +2,12 @@
 // that wait for the player to do the thing rather than read about it. The game
 // keeps running underneath - the overlay takes no taps except on its own card.
 import { h, ask, say } from "./ui.js";
-import { some, adjacentToCell } from "./objectives.js";
+import { some, adjacentToCell, HAND_VENTS } from "./objectives.js";
 
 const cell = (p) => p.category === "cell";
 
-// { target: selector to spotlight or null, title, text, waitFor?: (s) => bool, doing?: what to do }
+// { target: selector to spotlight or null, title, text, waitFor?: (s) => bool,
+//   doing?: what to do, or (s) => what to do, when it counts up }
 // Short on purpose: each card asks for one thing and waits for it to be done.
 // Everything else is taught by the operator's log, which opens each tab as it
 // gets there, and by the parts, which say what they do when tapped.
@@ -31,8 +32,8 @@ export const STEPS = [
 	  waitFor: (s) => s.soldPower },
 	{ target: ".gauge.heat", title: "Heat",
 	  text: "Heat collects here. Over the maximum the screen shakes; at twice the maximum the reactor melts down and every part is lost. Tapping the bar vents a little by hand.",
-	  doing: "Tap the heat bar until it reads 0.",
-	  waitFor: (s) => s.soldHeat },
+	  doing: (s) => `Vent by hand: tap the heat bar ${HAND_VENTS} times (${Math.min(s.handVents ?? 0, HAND_VENTS)} of ${HAND_VENTS}).`,
+	  waitFor: (s) => (s.handVents ?? 0) >= HAND_VENTS },
 	{ target: "#dock-tabs", title: "A vent",
 	  text: "Hands do not scale. A Vent, under Cooling, takes heat from the parts it touches and sheds some every second - and explodes if it fills. Where it goes is up to you; the line will say whether it is working. If you cannot afford it yet, place it anyway: it waits, dashed, and buys itself.",
 	  doing: "Place a Vent.",
@@ -109,8 +110,9 @@ export function renderTutorial(s) {
 	}
 
 	const waiting = Boolean(current.waitFor) && !current.waitFor(s);
-	doing.hidden = !current.doing;
-	doing.textContent = waiting ? current.doing : current.doing ? "Done." : "";
+	const ask = typeof current.doing === "function" ? current.doing(s) : current.doing;
+	doing.hidden = !ask;
+	doing.textContent = waiting ? ask : ask ? "Done." : "";
 	doing.classList.toggle("done", !waiting);
 	next.disabled = waiting;
 	next.textContent = waiting ? "Waiting for you" : step === STEPS.length - 1 ? "Play" : "Next";
@@ -133,6 +135,10 @@ export function renderTutorial(s) {
 		Object.assign(ring.style, { left: "50%", top: "50%", width: "0px", height: "0px" });
 	}
 	ring.classList.toggle("empty", !visible);
+	// A step that waits for the player leaves the board and the dock undimmed:
+	// they are what the player has to reach, and the ring alone points the way.
+	// Only the cards that are read, not done, dim the room.
+	ring.classList.toggle("act", Boolean(current.waitFor));
 
 	// Put the card on whichever side of the target has more room.
 	const below = !visible || box.top + box.height / 2 < innerHeight / 2;
