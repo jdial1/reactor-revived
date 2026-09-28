@@ -3,7 +3,7 @@
 import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
 import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel } from "./upgrades.js";
-import { OBJECTIVES } from "./objectives.js";
+import { OBJECTIVES, goalAt, orderTitle, orderProgress } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
 import { play, setHeat } from "./audio.js";
@@ -13,9 +13,11 @@ import { span } from "./flux.js";
 import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
-import { LESSON_AT } from "./lessons.js";
-import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell } from "./records.js";
+import { LESSON_AT, BENCHES } from "./lessons.js";
+import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry, SWITCHES } from "./records.js";
+import { backdropFor } from "./backdrop.js";
 import { NOTES, notesFor } from "./notes.js";
+import { LETTERS, LETTER_BY_ID, readLetter } from "./letters.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -195,7 +197,7 @@ const LINEAGE = [
 		"by cwmonkey. Incremental rebuilt in HTML5 - no engine, no build step. The direct parent "
 		+ "of this one, and the version the balance is checked against."],
 	["Reactor Revival", null,
-		"a later remake in the same line. Its part artwork is what you are looking at on the board."],
+		"a later remake in the same line. Its part artwork, and the valley behind the board, are what you are looking at."],
 	["Reactor Revived", null,
 		"this one: a clean-room rewrite for a phone, no dependencies, no network."],
 ];
@@ -239,9 +241,9 @@ export function buildUI(game) {
 		dom.money.rewind(() => play("coin"));
 	});
 
+	// The reactor's on switch: a lamp lit while it runs, and the word for its state.
 	dom.pauseLabel = h("span", {});
-	dom.pauseIcon = h("span", { className: "swap" }, icon("pause"));
-	dom.pause = h("button", { className: "pause squeeze", onclick: game.togglePause }, dom.pauseIcon, dom.pauseLabel);
+	dom.pause = h("button", { className: "pause reactor-switch", onclick: game.togglePause }, dom.pauseLabel);
 
 	dom.goalText = h("span", {});
 	dom.runTag = h("b", { className: "run-tag", hidden: true });
@@ -292,6 +294,11 @@ export function buildUI(game) {
 		h("h2", { textContent: "Harrow Station - operator's log" }),
 		dom.doneToggle,
 		dom.objectiveList,
+		// Letters: filed here as they come, opened or not (letters.js).
+		dom.letterHead = h("h3", { textContent: "Letters", hidden: true }),
+		dom.letterList = h("div", { className: "letters" }),
+		dom.entryHead = h("h3", { textContent: "Entered", hidden: true }),
+		dom.entryList = h("ul", { className: "entries" }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dom.goalSheet.close() })));
 	root.append(dom.goalSheet);
@@ -299,16 +306,21 @@ export function buildUI(game) {
 	dom.upgradeList = h("div", { className: "upgrades" });
 	dom.upgradeEmpty = h("p", { className: "empty", textContent:
 		"Nothing you can afford yet. Sell power by tapping the power bar." });
-	dom.pages.upgrades.append(dom.upgradeEmpty, dom.upgradeList);
+	// Upgrades and research are authorised on the plant computer, a terminal in
+	// the control room, not bought from a shop (Soul Interview 4.3, 5.5).
+	dom.terminals = {
+		upgrades: terminal("Maintenance", dom.upgradeEmpty, dom.upgradeList),
+		experiments: terminal("Research", dom.experimentList = h("div", { className: "upgrades" })),
+	};
+	dom.pages.upgrades.append(dom.terminals.upgrades.el);
 
-	dom.experimentList = h("div", { className: "upgrades" });
 	dom.epStatus = h("p", { className: "ep-status" });
 	dom.pages.experiments.append(
 		dom.epStatus,
 		h("div", { className: "reboot" },
 			h("button", { className: "wide", textContent: "Reboot reactor", onclick: () => game.reboot(false) }),
 			h("button", { className: "wide", textContent: "Reboot & refund all EP", onclick: () => game.reboot(true) })),
-		dom.experimentList,
+		dom.terminals.experiments.el,
 	);
 
 	dom.pages.options.append(
@@ -397,7 +409,11 @@ export function buildUI(game) {
 	// The board's tools sit on the strip that says what the board does.
 	const verdict = buildVerdict(dom, game);
 	verdict.append(dom.plan, dom.planBuild, dom.planDiscard);
-	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, dom.tabs));
+	// The panel: a lamp and a switch for each automated system the player owns.
+	dom.switches = SWITCHES.map(([field, label]) => h("button", { className: "switch", hidden: true,
+		ariaPressed: "false", onclick: () => game.toggleSwitch(field) }, label));
+	dom.panel = h("div", { id: "switches", hidden: true, ariaLabel: "Automation" }, ...dom.switches);
+	root.append(h("footer", {}, verdict, dom.panel, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	dom.game = game;
 	buildDock(dom, game);
@@ -495,6 +511,12 @@ export function goalMet(dom, title) {
 	say(`Goal met - ${title}`);
 }
 
+/** The job was met as first asked, and has been asked again higher. */
+export function goalRevised(dom, title) {
+	flash(dom.objective, "revised");
+	say(`Order revised - ${title}`);
+}
+
 export function toast(text, glyph) {
 	document.getElementById("toast")?.remove();
 	const el = h("div", { id: "toast" }, glyph ? icon(glyph) : [], h("span", { textContent: text }));
@@ -517,11 +539,11 @@ export const flash = (el, cls) => {
 function meltdownNotice(lines, onAcknowledge) {
 	const dialog = h("dialog", { className: "sheet meltdown" },
 		h("h2", { textContent: "Meltdown" }),
-		h("i", { textContent: "Heat passed twice what the reactor could hold. Every part in it was destroyed." }),
+		h("i", { textContent: "Core heat exceeded twice rated capacity. All components destroyed." }),
 		// The receipt: read off the ledger as the reactor fell. Words, not wreckage.
 		lines?.length ? h("ul", { className: "receipt" }, ...lines.map((l) => h("li", { textContent: l }))) : "",
 		h("div", { className: "row" },
-			h("button", { className: "wide", textContent: "Restart the reactor", onclick: () => dialog.close() })));
+			h("button", { className: "wide", textContent: "Begin start-up", onclick: () => dialog.close() })));
 	dialog.addEventListener("close", () => { dialog.remove(); onAcknowledge(); });
 	document.body.append(dialog);
 	dialog.showModal();
@@ -663,6 +685,28 @@ export function inspect(s, t, sell) {
 	dialog.showModal();
 }
 
+/** The plant computer's housing: a plate, a lamp, and a screen that scrolls. */
+function terminal(title, ...contents) {
+	const lamp = h("i", { className: "lamp", role: "img" });
+	// Not a live region: the budget changes every tick. A purchase is said once.
+	const prompt = h("p", { className: "prompt" });
+	const el = h("div", { className: "computer" },
+		h("div", { className: "plate" },
+			h("b", { textContent: "Plant computer" }), h("span", { textContent: title }), lamp),
+		h("div", { className: "screen" }, prompt, ...contents));
+	return { el, lamp, prompt };
+}
+
+/** A purchase the computer took: the row answers, and the prompt says what was done. */
+export function authorised(dom, s, u) {
+	const row = dom.upgradeRows.find((r) => r.u.id === u.id);
+	flash(row?.button, "authorised");
+	const lv = s.levels[u.id];
+	const text = `Authorised: ${u.title}${maxLevel(u) > 1 ? `, level ${lv}` : ""}.`;
+	dom.authorised = { text, page: dom.page, until: Date.now() + 4000 };
+	say(text);
+}
+
 function buildUpgrades(dom, game) {
 	dom.upgradeRows = [];
 	// One heading and list per section and page, in SECTIONS order; a fuel's
@@ -711,11 +755,6 @@ function buildUpgrades(dom, game) {
 		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
 		section.rows.push(row);
 		section.list.append(button);
-		// Heat Control Operator is bought once and then switched.
-		if (u.id === "heat_control_operator") {
-			row.toggle = h("button", { className: "side operator-toggle", hidden: true, onclick: () => game.toggleOperator() });
-			section.list.append(row.toggle);
-		}
 		// A doctrine set's two sides, beside the row that buys it: readable
 		// before buying, switchable after.
 		if (u.set) {
@@ -735,16 +774,22 @@ function buildUpgrades(dom, game) {
 function buildObjectiveList(dom) {
 	dom.objectiveRows = OBJECTIVES.map((o, i) => {
 		const load = h("button", { className: "snap", textContent: "Saved - load", hidden: true });
-		const lesson = LESSON_AT[i] && h("button", { className: "snap", textContent: "See an example layout",
+		const lesson = LESSON_AT[i] && h("button", { className: "snap",
+			textContent: BENCHES[LESSON_AT[i]] ? "See its numbers" : "See an example layout",
 			onclick: () => {
 				const s = dom.game.state;
 				if (!s.lessonsSeen.includes(LESSON_AT[i])) s.lessonsSeen.push(LESSON_AT[i]);
 				lessonDialog(s, LESSON_AT[i], dom.game);
 			} });
-		const row = h("li", {}, h("b", { textContent: o.title }),
+		const title = h("b", { textContent: o.title });
+		const note = h("small", { textContent: o.note });
+		// A revised order keeps the first line under it; the standing order sits
+		// under the last job.
+		const after = h("small", { className: "revision", hidden: true });
+		const row = h("li", {}, title,
 			h("i", { textContent: o.reward ? `$${fmt(o.reward)}` : o.epReward ? `${fmt(o.epReward)} EP` : "" }),
-			h("small", { textContent: o.note }), lesson || "", load);
-		row.load = load;
+			note, after, lesson || "", load);
+		Object.assign(row, { load, heading: title, after });
 		dom.objectiveList.append(row);
 		return row;
 	});
@@ -817,10 +862,11 @@ export function render(dom, s, game) {
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
 	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
-	if (dom.pauseLabel.textContent !== (s.paused ? "Resume" : "Pause")) {
-		dom.pauseLabel.textContent = s.paused ? "Resume" : "Pause";
-		dom.pause.setAttribute("aria-label", dom.pauseLabel.textContent);
-		dom.pauseIcon.replaceChildren(icon(s.paused ? "play" : "pause"));
+	if (dom.pauseLabel.textContent !== (s.paused ? "Off" : "On")) {
+		dom.pauseLabel.textContent = s.paused ? "Off" : "On";
+		dom.pause.classList.toggle("on", !s.paused);
+		dom.pause.setAttribute("aria-label", s.paused ? "Reactor off. Turn it on" : "Reactor on. Turn it off");
+		dom.pause.setAttribute("aria-pressed", String(!s.paused));
 	}
 	if (s.hasMeltedDown && !dom.meltdownShown) {
 		dom.meltdownShown = true;
@@ -838,11 +884,15 @@ export function render(dom, s, game) {
 		el.textContent = id === "held" && Math.abs(v) >= 0.5 ? `${v > 0 ? "+" : ""}${fmt(v)}` : fmt(id === "held" ? 0 : v);
 	}
 
-	const goal = OBJECTIVES[s.objective];
+	const goal = goalAt(s);
+	// Past the last job, the goal line carries the standing order.
+	const order = s.order && s.objective === OBJECTIVES.length - 1 && !s.planner;
 	const step = goal?.progress?.(s);
 	const prize = goal && (goal.reward ? `  $${fmt(goal.reward)}` : goal.epReward ? `  ${fmt(goal.epReward)} EP` : "");
 	dom.goalText.textContent = s.planner
 		? "Planner: free, not real"
+		: order
+			? orderTitle(s.order.target)
 		: goal
 			? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
 			: "Every goal met.";
@@ -859,7 +909,7 @@ export function render(dom, s, game) {
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
 	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);
-	dom.goalBar.style.setProperty("--p", step ? step[0] / step[1] : 0);
+	dom.goalBar.style.setProperty("--p", order ? orderProgress(s) : step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
 	// feedback goes quiet, and the hum climbs.
@@ -870,12 +920,23 @@ export function render(dom, s, game) {
 		document.body.style.setProperty("--hot", warm);
 		document.body.style.setProperty("--quiet", 1 - 0.6 * warm);
 	}
+	// The valley behind the board: the season's painting, dark after seven.
+	const outside = backdropFor(new Date());
+	if (outside.src !== dom.backdrop) {
+		dom.backdrop = outside.src;
+		// Used from app.css, so the path is from css/.
+		dom.board.style.setProperty("--backdrop", `url(../${outside.src})`);
+	}
+	dom.board.classList.toggle("night", outside.night);
+	// Once everything is complete, the valley stays lit (Soul Interview 4.6).
+	dom.board.classList.toggle("lit", Boolean(s.records?.complete));
 	document.body.classList.toggle("near", f > 0.8);
 	setHeat(f, !s.paused && (s.rate?.power ?? 0) > 0, s.planner ? 0 : s.mark?.trend ?? 0, !s.planner && s.mark?.grade === 1);
 	document.body.classList.toggle("hot", s.heat > s.maxHeat);
 	document.body.classList.toggle("critical", s.heat > s.maxHeat * 1.5);
 
 	if (!dom.tiles) buildGrid(dom, s);
+	renderSwitches(dom, s);
 	renderLocks(dom, s);
 	renderVerdict(dom, s);
 	renderSecrets(dom, s);
@@ -950,6 +1011,7 @@ export function render(dom, s, game) {
 		row.fan.style.backgroundImage = p?.vent ? art : "";
 		const queued = Boolean(t.id) && !t.activated;
 		row.cell.classList.toggle("queued", queued);
+		row.cell.classList.toggle("vacant", !t.id);
 		row.cell.title = queued ? `Waiting for $${fmt(p.cost)}` : "";
 		row.cell.classList.toggle("spent", Boolean(p?.ticks) && (p.category === "cell" || p.category === "module") && !t.ticks);
 		row.cell.classList.toggle("module", p?.category === "module");
@@ -985,8 +1047,7 @@ export function render(dom, s, game) {
 
 		if (visible && row.wasLocked) {
 			flash(button, "unlocked");
-			play("unlock");
-			toast(`${part.title} unlocked`, "upgrades");
+			fileEntry(s, `Supplied: ${part.title}.`);
 		}
 		row.wasLocked = !visible;
 
@@ -1083,15 +1144,6 @@ function renderUpgrades(dom, s) {
 			now.textContent = step.to;
 		}
 
-		if (row.toggle) {
-			row.toggle.hidden = !owned;
-			const on = Boolean(s.operatorOn);
-			const text = on ? "On: outlets wait until the reactor is over its limit. Tap to switch off."
-				: "Off: outlets push as usual. Tap to switch on and hold a hot reactor.";
-			if (row.toggle.textContent !== text) row.toggle.textContent = text;
-			row.toggle.classList.toggle("on", on);
-		}
-
 		// An owned upgrade stays listed, so the price must say when the next level
 		// is out of reach.
 		button.classList.toggle("poor", !affordable && lv < maxLevel(u));
@@ -1114,6 +1166,17 @@ function renderUpgrades(dom, s) {
 
 	if (dom.page === "upgrades") dom.upgradeEmpty.hidden = buyable.length > 0;
 
+	// The terminal: its lamp lit while anything on this screen can be authorised,
+	// and its prompt saying the budget, or what was just authorised.
+	const term = dom.terminals[dom.page];
+	term.lamp.classList.toggle("on", buyable.length > 0);
+	term.lamp.ariaLabel = buyable.length ? "Ready: within budget" : "Nothing within budget";
+	const last = dom.authorised?.page === dom.page && dom.authorised.until > Date.now() && dom.authorised.text;
+	const line = last || (dom.page === "experiments"
+		? `Research. ${fmt(s.currentExoticParticles)} EP available.`
+		: `Maintenance. Budget: $${fmt(s.money)}.`);
+	if (term.prompt.textContent !== line) term.prompt.textContent = line;
+
 	outOfReach.sort((a, b) => a.price - b.price);
 	for (const { row } of outOfReach.slice(0, PREVIEW_COUNT)) {
 		row.button.hidden = false;
@@ -1130,6 +1193,22 @@ function renderUpgrades(dom, s) {
 	}
 }
 
+/** A lamp lit for each automated system that is running; hidden until bought. */
+function renderSwitches(dom, s) {
+	let any = false;
+	SWITCHES.forEach(([field, label, owned], i) => {
+		const b = dom.switches[i];
+		const has = owned(s);
+		const on = field === "operatorOn" ? Boolean(s.operatorOn) : s[field] !== false;
+		any ||= has;
+		b.hidden = !has;
+		b.classList.toggle("on", on);
+		b.setAttribute("aria-pressed", String(on));
+		b.title = `${label}: ${on ? "running" : "off"}`;
+	});
+	dom.panel.hidden = !any;
+}
+
 function renderObjectives(dom, s) {
 	const done = Math.min(s.objective, OBJECTIVES.length - 1);
 	dom.doneToggle.hidden = !done;
@@ -1140,7 +1219,58 @@ function renderObjectives(dom, s) {
 		row.load.hidden = !snap || !toolsAllowed(s);
 		if (snap) row.load.onclick = () => snapshotDialog(s, snap, dom.game);
 	});
-	dom.objectiveRows.forEach((row, i) => row.classList.toggle("current", i === s.objective));
+	dom.objectiveRows.forEach((row, i) => {
+		row.classList.toggle("current", i === s.objective);
+		const o = OBJECTIVES[i];
+		const revised = o.revision && s.revised?.includes(i);
+		const last = i === OBJECTIVES.length - 1 && s.order;
+		const title = goalAt(s, i).title;
+		const after = revised ? o.revision.note
+			: last ? `Standing order: ${orderTitle(s.order.target)}. Met since the log closed: ${s.order.met}.` : "";
+		if (row.heading.textContent !== title) row.heading.textContent = title;
+		if (row.after.textContent !== after) row.after.textContent = after;
+		row.after.hidden = !after;
+	});
+	renderLetters(dom, s);
+	// The log book's silent entries, newest first, under the jobs.
+	const entries = s.entries ?? [];
+	const last = entries.at(-1);
+	const sig = `${entries.length}:${last?.tick}:${last?.text}`;
+	if (sig === dom.entrySig) return;
+	dom.entrySig = sig;
+	dom.entryHead.hidden = !entries.length;
+	dom.entryList.replaceChildren(...[...entries].reverse().map((e) => h("li", { textContent: e.text })));
+}
+
+const letterSig = (s) => `${(s.letters ?? []).join()}|${(s.lettersRead ?? []).join()}`;
+
+/** Letters, newest first: each a slip that opens in place, and is read once opened. */
+function renderLetters(dom, s) {
+	const got = s.letters ?? [];
+	const sig = letterSig(s);
+	if (sig === dom.letterSig) return;
+	dom.letterSig = sig;
+	dom.letterHead.hidden = !got.length;
+	dom.letterList.replaceChildren(...[...got].reverse().map((id) => {
+		const l = LETTER_BY_ID.get(id);
+		if (!l) return "";
+		const summary = h("summary", { textContent: l.from });
+		summary.classList.toggle("unread", !s.lettersRead.includes(id));
+		const slip = h("details", { className: "letter" }, summary,
+			l.found ? h("small", { textContent: l.found }) : "",
+			l.mark ? h("small", { textContent: l.mark }) : "",
+			...l.lines.map((line) => h("p", { textContent: line })));
+		slip.addEventListener("toggle", () => {
+			if (!slip.open) return;
+			// The live game, not the one this list was drawn from: a save may
+			// have been loaded since.
+			readLetter(dom.game.state, id);
+			summary.classList.remove("unread");
+			// Opening one is not a reason to redraw the list and close it again.
+			dom.letterSig = letterSig(dom.game.state);
+		});
+		return slip;
+	}));
 }
 
 function showGoals(dom) {
@@ -1169,18 +1299,12 @@ function renderLocks(dom, s) {
 		dom.tabsOpen = sig;
 		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.hidden = !tabs.includes(b.dataset.value);
 		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
-		if (fresh.length) {
-			play("unlock");
-			toast(`New in the dock: ${fresh.join(", ")}`, "reactor");
-		}
+		if (fresh.length) fileEntry(s, `Supplied: ${fresh.join(", ")}.`);
 	}
 	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
 	// Announced when it happens, not on every load of a game already past it.
-	if (open && dom.modulesOpen === false) {
-		play("unlock");
-		toast("Modules unlocked - design one on the Modules page", "modules");
-	}
+	if (open && dom.modulesOpen === false) fileEntry(s, "Casing design authorised. See Modules.");
 	dom.modulesOpen = open;
 	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
 	if (!open && dom.page === "modules") {
@@ -1285,6 +1409,9 @@ function renderRecords(dom, s) {
 		["Exotic Particles ever", fmt(s.totalExoticParticles + s.exoticParticles)],
 		["Field notes", `${s.notes.length} of ${Object.keys(NOTES).length}`],
 		...(s.restored ? [["This run", "Restored from a save"]] : []),
+		...(r.complete ? [["Log, parts, upgrades and board", "All complete"]] : []),
+		...(s.order ? [["Standing orders met", String(s.order.met)]] : []),
+		["Letters", `${(s.letters ?? []).length} of ${LETTERS.length}`],
 	];
 	// Fastest to each rung of power per tick, per kind of run, counted from its reboot.
 	for (const [run, times] of Object.entries(r.speed)) {
@@ -1298,21 +1425,20 @@ function renderRecords(dom, s) {
 	dom.records.replaceChildren(...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })]));
 }
 
-/** A field note or a trophy earned: said quietly, once. */
+/** A field note or a trophy earned: filed in the log book, without a word. */
 function renderNotes(dom, s) {
 	if (dom.trophiesSeen === undefined) dom.trophiesSeen = s.trophies.length;
 	if (s.trophies.length > dom.trophiesSeen) {
 		dom.trophiesSeen = s.trophies.length;
 		const id = s.trophies[s.trophies.length - 1];
-		play("goal");
-		toast(`Trophy: ${TROPHIES.find(([t]) => t === id)[1]}`, "goals");
+		fileEntry(s, `Entered in the record: ${TROPHIES.find(([t]) => t === id)[1]}.`);
 	}
 	if (s.notes.length === Object.keys(NOTES).length) award(s, "notes");
 	if (dom.notesSeen === undefined) dom.notesSeen = s.notes.length;
 	if (s.notes.length <= dom.notesSeen) return;
 	const id = s.notes[s.notes.length - 1];
 	dom.notesSeen = s.notes.length;
-	toast(`Field note: ${NOTES[id][0]}`, "options");
+	fileEntry(s, `Field note filed: ${NOTES[id][0]}.`);
 }
 
 /** Reboot, with the choice of a rule for the run it starts. */

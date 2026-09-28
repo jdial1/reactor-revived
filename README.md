@@ -1,14 +1,16 @@
 # Reactor Revived
 
-An Android port of [Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)
-by cwmonkey, the latest in a line that starts in Minecraft:
+A revival of [Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)
+for Android phones, by way of cwmonkey's
+[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff), the latest in
+a line that starts in Minecraft:
 
 | | |
 |---|---|
 | **IndustrialCraft 2** (2011) | The Minecraft mod whose nuclear reactor is the original puzzle: fuel rods heat their neighbours, vents and exchangers move that heat around, and a full grid melts down. |
 | **[IC2 Reactor Planner](https://forum.industrial-craft.net/thread/2147-new-reactor-planner-made-by-talonius/)** by Talonius | A desktop tool for laying a reactor out and simulating it before mining anything. The grid stops being a build and becomes a puzzle on its own. |
-| **[Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)** by Cael (2014) | The planner made into an idle game: sell the power, buy upgrades, reboot for Exotic Particles. Every number here starts there. |
-| **[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)** by cwmonkey | Incremental rebuilt in HTML5 with no engine and no build step. The direct parent of this rewrite, and what the balance is checked against. |
+| **[Reactor Incremental](http://www.kongregate.com/games/Cael/reactor-incremental)** by Cael (2014) | The planner made into an idle game: sell the power, buy upgrades, reboot for Exotic Particles. The game this one revives, and where every number here starts. |
+| **[Reactor Knockoff](https://github.com/cwmonkey/reactor-knockoff)** by cwmonkey | Incremental rebuilt in HTML5 with no engine and no build step. The route Incremental survived by, and what the balance is checked against. |
 | **Reactor Revival** | A later remake in the same line. Its part artwork is what ships here. |
 | **Reactor Revived** | This one: a clean-room rewrite for a phone. |
 
@@ -32,7 +34,8 @@ This is a clean-room rewrite of that game for a phone, keeping the constraint:
   all — no AndroidX, no Material, no Compose. AGP 9 supplies Kotlin.
 - **No image files but the art itself.** Every interface icon is inline SVG;
   the only bitmaps in the APK are the 90 part sprites and four UI frames,
-  37 KB together, and the only sounds are six impacts.
+  37 KB together, and four paintings of the valley outside, 144 KB; the only
+  sounds are six impacts.
 - **No network access.** Nothing is fetched, ever.
 
 The result is about 2,400 lines of game code, 750 of CSS, and a 105-line
@@ -160,10 +163,10 @@ the pack system.
 
 ## Tutorial
 
-`www/js/tutorial.js` is seven steps of data: a selector to spotlight, a title,
-the text, and for five of them a `waitFor` predicate on game state - place a
-cell, put a second cell touching it, sell power, vent the heat to zero, put a
-vent anywhere - where it goes is the player's to work out. Those steps will not advance until the player has really
+`www/js/tutorial.js` is eight steps of data: a selector to spotlight, a title,
+the text, and for six of them a `waitFor` predicate on game state - place a
+cell, turn the reactor on, put a second cell touching it, sell power, vent the
+heat to zero, put a vent anywhere - where it goes is the player's to work out. Those steps will not advance until the player has really
 done it, and they reuse the same board checks the goals do rather than
 restating them. It used to be seventeen cards; the rest is left to the
 operator's log, which opens each tab when it gets there, and to the parts, which
@@ -185,7 +188,9 @@ eleven years above a town that has been on candles since it closed. Each item is
 the job, what it pays, and a one-line note from whoever asked for it - the mill
 wanting a second shift, the clinic keeping its lights on overnight, the
 university that sends an accelerator and stops saying what the particles are
-for. The checks are unchanged; only the reason for them is new. IC2 players ran
+for. The notes change as the demand grows: the first ten are sections of an old
+start-up guide, the next ten are work orders, and the last ten are demands that
+no longer give a reason. The checks are unchanged; only the reason for them is new. IC2 players ran
 their reactors inside a base they had built, so the reactor had somewhere to
 be. This gives it one.
 
@@ -318,12 +323,12 @@ of this line loved, what broke, and what they asked for. What came of it:
   Incremental players asked for a way to test without losing income.
 - **Time Flux.** Knockoff's, with its issue #23 answered. Nothing ticks while the
   game is out of sight; the time is banked, up to eight hours, and coming back
-  says how long you were gone. The bank sits in the header and, when tapped,
+  lights the bank, which sits in the header and, when tapped,
   runs at ten times speed, counting down, until it is empty or tapped again.
 - **The verdict line**, in the planner: what the board makes, whether it
   holds - or the tick it fails and what goes first - and profit after fuel.
   `www/js/forecast.js` copies the board and runs it 600 ticks under the floor's
-  own rules - the power cap, auto-sell, and only the rebuys you have bought -
+  own rules - the power cap, auto-sell, and only the rebuys you have bought and switched on -
   changing nothing but money, then follows any heat still climbing (the
   reactor's, or any part's) on to where it gives out. A lab that changed more
   would forecast one board and run another; a test runs every example both
@@ -350,9 +355,13 @@ of this line loved, what broke, and what they asked for. What came of it:
   behind a dot on the goal line, and one tap from the planner: direct cooling (goal 6), indirect
   cooling through outlets (10), exchangers spreading a hot block across many
   first-tier vents (14), an exchanger chain carrying heat away to a vent field
-  (16), a heat pipe of coolant, inlets and outlets (18), and feeding a particle
-  accelerator - warm, never full - for Exotic Particles (22). A test holds every
-  one to holding, paying, and venting exactly what its cells make.
+  (16) and a heat pipe of coolant, inlets and outlets (18). A test holds every
+  one to holding, paying, and venting exactly what its cells make. Goal 22 is
+  different on purpose: it shows the particle accelerator's numbers as they
+  stand - what it holds, where it makes the most, the feed that holds it there
+  and the feed that fills it - and puts one accelerator alone in the planner.
+  How to feed it is the player's to work out; it is the story players of the
+  line tell each other, and the game does not tell it for them.
 - **Heat is conserved.** A cell's heat is split exactly between the parts
   around it. Knockoff rounded each share up, so 4 heat over 3 vents put 6 into
   them and sent -2 to the reactor: heat from nothing, which Flow made visible.
@@ -376,7 +385,8 @@ of this line loved, what broke, and what they asked for. What came of it:
   pulling it out, so tearing a design down to improve it costs nothing else.
 - **Say it once.** The board, the bars and the hum carry the information, so
   nothing repeats them: a tap you cannot afford flashes without a sound, and
-  red is kept for losing a save, a run or a design.
+  red is kept for danger - heat near the limit, a design that will fail, and
+  losing a save, a run or a design. A price out of reach is grey, not red.
 - **Import asks first** and refuses a file it cannot read (Knockoff #36 - and
   here an unknown version used to load as a brand-new game). A save is a way
   back past a meltdown, so a Hardcore run cannot be restored from one, and any
@@ -407,7 +417,43 @@ it. If the board, the hum or a bar already says it, nothing else does: no pop on
 placement, no wash or floating number on a sell or vent, no flash on an upgrade,
 no toast for a goal (a tick appears on the goal line instead) or for a price the
 button already shows. What stays is what the board cannot say - a refused tap
-shakes, a tier unlocking is announced, and a meltdown stops everything.
+shakes, and a meltdown stops everything. A part coming into reach flashes on its
+own dock button; that it arrived, like a trophy or a field note, is filed in the
+operator's log book without a toast or a sound (house rule 3 of the soul
+instance, One Request, Waiting).
+
+## The valley outside
+
+Behind the board is the valley Harrow Station powers: one painting per season,
+chosen by the calendar, and darkened after seven in the evening, when the only
+light is the control room's own. It shows faintly through the empty slots - a
+slot not yet filled is a view of what it is not yet lighting - and fades as the
+reactor heats, so near the limit the room's red is all there is. It never moves,
+never changes while you watch, and is not shown in the planner.
+
+When everything is done - the log finished, every part on issue, every upgrade
+at its maximum, every tile filled - the game notices once, without a toast: the
+log book files *"All listed loads supplied. All parts on issue. All systems at
+full rating. Demand continues."*, Records gains *All complete*, and from then
+on the valley stays lit, day and night. The content ends there; the demand does
+not. `www/js/complete.js` says what counts, and a test holds it.
+
+The demand also grows after it is made. Three late jobs - 500 power a tick, a
+$10B reserve, 1,000 particles - are cancelled the first time they are met and
+asked again half as much higher, once each; the goal line flashes *Revised* and
+the log book says what was cancelled, so a target that moves always says it
+moved. Past the last job a **standing order** takes the goal line: *Increase
+output to 2B per tick*, always a round figure above what the reactor makes when
+it is issued, raised each time it is met, never lowered - not by a quiet
+reactor, a save or a reboot. It pays nothing; Records counts the orders met.
+`test/demand.test.js` holds both.
+
+The four paintings (`www/backdrops/`) were made by this game's author for
+Reactor Revival, in the manner of Simon Stålenhag, and are free to use; they are
+not his work. Revival carries thirty; these four are the ones that look like
+Harrow's valley - fog, flat grey light, green country, old plant standing in it -
+resized to 900 px and re-encoded as WebP once, by hand, since there is no build
+step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 
 ## Gauges
 
@@ -418,11 +464,14 @@ vents. The heat bar reddens past 60%; a full power bar brightens and dims,
 because output going nowhere is worth noticing. Money rolls on digit drums
 behind a single recessed slot, with Exotic Particles as plain text under it.
 
-Parts wear light masks from **Kenney's Light Masks** and **Particle Pack**
-(CC0), six white alpha PNGs in `www/fx/` (6.7 KB), tinted by CSS
-(`mask-image` over a `background-color`). A cell's glow matches its shape - one
-bar, two bars, or a 2x2 for a quad - in its fuel's own colour, and breathes while
-it has life left. An accelerator holding heat shows a violet orb, a working vent
+Parts wear light masks, six white alpha PNGs in `www/fx/` (5.7 KB), tinted by
+CSS (`mask-image` over a `background-color`). A cell's glow is the fuel inside
+its own glass: `docs/derive_glow.py` builds the single, dual and quad masks from
+the cell sprites themselves (the fuel-coloured pixels of all seven fuels, grown
+a pixel and softened), so the light sits on the rods, including the staggered
+four of a quad. It glows in the fuel's own colour, and breathes while it has
+life left. The orb, puff and spark are from **Kenney's Light Masks** and
+**Particle Pack** (CC0). An accelerator holding heat shows a violet orb, a working vent
 puffs steam while its fan turns, and an exploding part throws a spark.
 
 ## Sound
@@ -448,9 +497,9 @@ the bells and beeps score bright, and none of them are here. `impactWood_heavy`
 scored 0.95 deep at 77 crossings a second; `impactBell_heavy` scored 0.51 at
 874, which is the tinny sound this game is trying not to make.
 
-Nine cues come from six files: a lower playback rate is a bigger, longer version
-of the same impact, so a tier unlocking is a part being placed at 0.78, and a
-meltdown is a punch at 0.8. Nothing in `www/js/sim.js` knows any of this exists -
+Seven cues: the six impacts, each at its own playback rate - a lower rate is a
+bigger, longer version of the same impact, so a meltdown is a punch at 0.8 - and
+the hum. Nothing filed silently in the log book makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
 audio is dispatched from the renderer and from `main.js`, and a test still
 asserts the simulation touches no DOM.
 
@@ -501,9 +550,10 @@ falls back to an unsigned bundle without it. See `docs/play/checklist.md`.
 
 ## Balance parity
 
-The numbers are checked against the *running* original at
+The numbers are checked against Knockoff *running* at
 [cwmonkey.github.io/reactor-knockoff](https://cwmonkey.github.io/reactor-knockoff/),
-not against its source. Two adjacent uranium cells report 4 power and 8 heat
+not against its source: Reactor Incremental is the game being revived, and
+Knockoff is the version of it that runs in a browser today. Two adjacent uranium cells report 4 power and 8 heat
 there and here; part costs, containments, vent rates and tick counts match
 across tiers. Those observations are permanent tests, so the balance cannot
 quietly drift.
@@ -521,16 +571,21 @@ the one rule dropped on purpose: it deleted heat.
   reached it overfilled it in a tick and melted the reactor. Here each tier
   holds twice its particle heat (the sweet spot is half full), and making
   particles spends a hundredth of the heat it holds each tick - a named sink
-  that lets a steady feed settle it where the feed and the spending meet. The
-  example farm is one dual seaborgium cell between two accelerators.
+  that lets a steady feed settle it where the feed and the spending meet. A
+  test keeps a working farm (one dual seaborgium cell between two
+  accelerators) as a fixture; the game shows only the numbers.
 - Capacitors and plating speed only the vents and transfer parts they touch.
   Knockoff applied their bonus board-wide; here where a capacitor sits is a
   choice, as every other part's is.
 - The reactor keeps running on the Upgrades, Experiments, Modules and Options
-  pages. Only Pause, or leaving the app (which banks Time Flux), stops it.
+  pages. Only its on switch, or leaving the app (which banks Time Flux), stops
+  it. The switch sits in the header with a lamp, lit while the reactor runs,
+  and a new station starts with it off: turning the reactor on is the new
+  operator's first act, and the tutorial's third card.
 - Portrait, and 12x8 rather than 11x14. Fewer tiles, but the whole reactor is
   visible at once with tiles big enough to hit on a phone, which matters more
-  than matching a tile count. The expansion upgrades still grow it to 32x28.
+  than matching a tile count. The board never grows: Knockoff's two expansion
+  upgrades are gone, because a bigger board would no longer fit the screen.
 - Touch instead of a mouse. Tap to place, tap a placed part to inspect it,
   every action on a placed part in its sheet, drag to paint, pinch to zoom. The original's six
   modifier-key macros are gone; dragging covers what they were for.
@@ -538,7 +593,7 @@ the one rule dropped on purpose: it deleted heat.
   Vents, coolant and plating come with the goal that asks for a vent; capacitors
   and reflectors with the one that asks for a capacitor; exchangers, inlets and
   outlets with the first example layout that uses them; accelerators when
-  particles become the job. Each arrival is announced once.
+  particles become the job. Each arrival is filed once in the log book.
 - Every dock part shows its numbers in its corners, with the rate bar's icons:
   power in blue, heat in red, life in purple, price in green, and its art in
   the middle.
@@ -548,6 +603,11 @@ the one rule dropped on purpose: it deleted heat.
   affordable, dithered.
 - The Google Drive save integration is gone. Saves live in `localStorage`, with
   export and import through Android's document picker.
+- Two systems are this game's own, not the line's. **Doctrine sets**: every
+  upgrade the line had makes a number bigger, and a doctrine side changes the
+  shape of a good layout instead (see Doctrines above). **Modules**: nothing
+  earlier in the line sealed a design into one part; here a proven 3x3 takes a
+  single tile of a board smaller than Knockoff's, at the cut its casing takes.
 
 ## Where the design came from
 
@@ -567,6 +627,60 @@ own lineage kept by never asking for anything: no ads, no purchases, no
 accounts, no network. Nothing is sold, nothing can be skipped for money, and
 nothing runs on a timer that punishes being away - Time Flux banks the time
 instead. It stays that way.
+
+## The automation panel
+
+Every automated system the player owns has a switch and a lamp on the reactor
+screen, under the floor line, and nowhere else: **Sell** (the power lines
+selling on their own), **Rebuy** (spent cells, reflectors, condensator refills
+and capacitor buyouts replacing themselves) and **Operator** (Heat Control
+Operator). A lamp is lit while its system runs. The panel appears with the first
+system bought, and a switch with its own; in a Manual feed run there is no Rebuy
+to switch. Knockoff let its automation be toggled; here the toggles sit where a
+control room keeps them, in sight of the reactor. Selling and rebuying start on,
+the operator starts off.
+
+A switch changes how the machine runs, so flipping one starts the board's mark
+again, as a doctrine does, and the planner's forecast runs with the switches as
+they are set.
+
+## Letters
+
+The valley's story is told in letters, and only there and in the log (Soul
+Interview 6.3): optional, never required, never interrupting play. A letter is
+filed in the operator's log as the station climbs - fifteen of them, from the
+Regional Energy Authority, Harrow Supply, the town clerk, the clinic's night
+ward, the university, the works and, once, the courier - with one silent line
+in the log book (*Letter received: Harrow Supply.*). Nothing outside the log says
+it came. A slip opens in place and carries a dot until it has been opened;
+Records counts them.
+
+They hint before they answer, and by the end each of the world's open questions
+has an answer (why the plant closed, why nobody else could run it, what the
+demand and the particles are for, what came in the last crate). Like the log,
+they speak of the station and the power, never to the operator. The words, and
+the answers they give, are accepted by the designer: every letter has a row
+in `docs/soul-interview.md` (7.3), and `test/letters.test.js` fails for one
+that does not.
+
+## The plant computer
+
+Upgrades and research are not bought from a shop. They are authorised on the
+**plant computer**, a terminal in the control room: teal plating around a dark
+phosphor screen, a cream plate with its name (*Maintenance* on the Upgrades
+page, *Research* on Experiments), and a lamp lit while anything on the screen is
+within budget. The screen's first line stays in view as the list scrolls: the
+budget (*Maintenance. Budget: $60K.*), or for four seconds after a purchase,
+what was done (*Authorised: Forceful Fusion, level 1.*), which is also said to a
+screen reader once.
+
+The upgrades are lines on the screen, not cards. A tap is a key pressed
+through: the line goes to inverse video while it is held, and again when the
+computer takes it, and it is heard in two stages - a short click (the place
+impact, fast and quiet) and then the buy impact as the clack. One tap still buys
+one level; nothing takes longer than it did (Soul Interview 5.5: slow in feel,
+not in speed). The colours that carry a signal stay: a price within reach in
+cash, a raised figure in power, particles in violet.
 
 ## Records and runs
 
@@ -650,11 +764,17 @@ workbench. [docs/soul.md](docs/soul.md) is the soul as it applies here, in the
 library's instillation-report shape: the verbs, the economy's shape, the ideal
 player, each component and its conflicts, the pitfalls scanned, the litmus
 test, and every change traced from mechanic to feeling.
+[docs/soul-interview.md](docs/soul-interview.md) is the other half: the
+designer's answers about the world around the machine - why the plant runs, who
+the operator is, how the game speaks and looks - turned into rules. Its soul
+sentence: *"Paid to start a Soviet reactor nobody else could, in an English
+fog, you learn it alone until it holds. The valley asks for more."*
 
 ## Credits
 
 Original game by **cwmonkey**. Based on **Reactor Incremental** by **Cael**.
 
-The generated pack is original and drawn at runtime. The other packs are the
-artwork of the games they are named for and belong to their authors; they are
-included so this game can be played in the style of the ones it came from.
+The part artwork is Reactor Revival's, with fifteen sprites derived from it
+(see Part artwork). The four paintings of the valley are also Reactor Revival's,
+made by this game's author in the manner of Simon Stålenhag, and free to use. The sounds, light masks and interface frames are CC0, from
+Kenney and from Buch on OpenGameArt.

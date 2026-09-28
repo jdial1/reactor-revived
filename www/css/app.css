@@ -24,6 +24,13 @@
 	--dolorium: #b08cff;
 	--nefastium: #ff6f5a;
 	--protium: #f0f4ff;
+	/* The plant computer: teal plating, a cream plate, a dark phosphor screen. */
+	--plating: #2f4744;
+	--plating-hi: #4a6a66;
+	--plate: #d9d2bd;
+	--screen: #08110f;
+	--phosphor: #a9d6c6;
+	--phosphor-dim: #5f8479;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
@@ -116,6 +123,18 @@ a { color: var(--power); }
 	padding: 5px 8px;
 	font-size: 11px;
 }
+/* The reactor's on switch, lamp and all, like the automation panel's. */
+#goal .reactor-switch { min-width: 58px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+#goal .reactor-switch::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #23292f;
+	box-shadow: inset 0 0 0 1px #07090c;
+}
+#goal .reactor-switch.on { color: var(--ink); }
+#goal .reactor-switch.on::before { background: var(--power); box-shadow: inset 0 0 0 1px #07090c, 0 0 6px var(--power); }
 
 .purse {
 	display: grid;
@@ -159,7 +178,28 @@ main { overflow: hidden; position: relative; }
 	/* The room warms with the reactor. */
 	background: color-mix(in srgb, var(--bg), #3a1406 calc(var(--hot, 0) * 70%));
 	transition: background 600ms linear;
+	position: relative;
+	isolation: isolate;
 }
+/* The valley outside, seen through the fog and the empty slots. It fades as the
+   reactor heats, so near the limit the room's red is all there is. Still, and
+   never in the lab. */
+#board::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background: var(--backdrop, none) center / cover no-repeat;
+	opacity: calc(0.5 * (1 - var(--hot, 0)));
+	filter: saturate(0.75);
+	transition: opacity 600ms linear;
+}
+#board.night::before { filter: saturate(0.5) brightness(0.35); }
+/* Everything complete: the valley has power, and it shows - day and night. */
+#board.lit::before { filter: saturate(0.9) brightness(1.1); }
+#board.lit.night::before { filter: sepia(0.45) saturate(1.1) brightness(0.62); }
+body.planning #board::before { display: none; }
 /* Near the limit the grid shimmers like air over a hot plate. */
 body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 @keyframes haze {
@@ -195,6 +235,8 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 	box-shadow: inset 0 0 calc(var(--tile) * 0.35) rgb(255 110 40 / calc(var(--warm, 0) * 0.85));
 }
 .tile.queued { opacity: 0.45; border-style: dashed; }
+/* An empty slot shows a little of the valley it is not yet lighting. */
+.tile.vacant { background-color: rgb(15 19 24 / 0.72); }
 
 /* Light masks (Kenney, CC0), tinted: white alpha shapes coloured by CSS. */
 .tile .glow {
@@ -277,7 +319,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 .upgrade span { display: flex; justify-content: space-between; }
 .upgrade u { text-decoration: none; color: var(--cash); }
 .upgrade s { text-decoration: none; color: var(--dim); }
-.upgrade.poor u { color: #8c5b5b; }
+.upgrade.poor u { color: var(--dim); }
 
 .upgrade .delta { display: flex; align-items: center; gap: 5px; font-style: normal; font-size: 11px; }
 .upgrade .delta s { text-decoration: none; color: var(--dim); }
@@ -296,7 +338,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 	background-size: 4px 4px;
 }
 .upgrade.preview b { color: var(--dim); }
-.upgrade.preview u { color: #8c5b5b; }
+.upgrade.preview u { color: var(--dim); }
 
 .objective {
 	background: var(--panel);
@@ -326,6 +368,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 .objectives li.current b { color: var(--ink); }
 .objectives li.current::before { box-shadow: inset 0 0 0 1px var(--cash); }
 .objectives li.current small { display: block; color: var(--ink); }
+.objectives li small[hidden] { display: none; }
 
 .objectives:not(.open) li.done, .objectives li.current ~ li { display: none; }
 .done-toggle {
@@ -536,7 +579,7 @@ footer {
 	background: var(--face) var(--dither);
 	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
 }
-.part.poor u { color: #8c5b5b; }
+.part.poor u { color: var(--dim); }
 /* The part's own art at 166%, cropped by a box that is the same middle 60% of
    the tile - which keeps the rotor at the scale the rest of the art is drawn at.
    Filling the whole tile made a spinning vent half again the size of a still one. */
@@ -741,7 +784,7 @@ dialog .row button { flex: 1; padding: 10px; }
 
 /* --dim measured 3.1:1 on the faces the skin brought in. */
 .upgrade p, .part u { color: #97a3b1; }
-.part.poor u { color: #c08383; }
+.part.poor u { color: var(--dim); }
 
 /* Keyboard first: one way on to the board, and a way past it. */
 .skip {
@@ -893,6 +936,13 @@ body.melting { animation: melting 500ms ease-out; }
 	animation: met 1.6s ease-out forwards;
 }
 @keyframes met { 70% { opacity: 1; } to { opacity: 0; } }
+/* An order revised: said at the start of the goal line, in the colour of a
+   price, then gone. Not red: nothing was lost. */
+#goal .objective.revised::before {
+	content: "Revised\00a0";
+	color: var(--cash);
+	animation: met 1.6s ease-out forwards;
+}
 
 /* Modules. A casing is the icon its designer chose, framed in its colour. */
 .tile.module {
@@ -1026,7 +1076,7 @@ textarea.code {
 	user-select: text;
 	-webkit-user-select: text;
 }
-dialog .note { margin: 0 0 8px; color: #d87a7a; }
+dialog .note { margin: 0 0 8px; color: var(--ink); }
 dialog .note:empty { display: none; }
 
 /* Planning: the board wears a blueprint edge so it never passes for the real one. */
@@ -1064,6 +1114,35 @@ body.planning #goal { background: #0e2233; }
 #verdict.holds > span { color: var(--power); }
 #verdict.fails > span { color: #d87a7a; }
 .flow-toggle { flex: none; padding: 1px 8px; font-size: 10px; }
+
+/* The automation panel: a switch with a lamp for each system the player owns,
+   lit while it runs. Seen from the reactor, as in a control room. */
+#switches {
+	display: flex;
+	gap: 6px;
+	padding: 3px 8px;
+	border-bottom: 1px solid var(--edge);
+}
+#switches .switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 1px 8px 1px 6px;
+	font-size: 10px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--dim);
+}
+#switches .switch::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #23292f;
+	box-shadow: inset 0 0 0 1px #07090c;
+}
+#switches .switch.on { color: var(--ink); }
+#switches .switch.on::before { background: var(--power); box-shadow: inset 0 0 0 1px #07090c, 0 0 5px var(--power); }
 .flow-toggle[aria-pressed="true"] { color: #4aa8d8; border-color: #4aa8d8; }
 
 /* The heat-flow overlay: each tile's heat in, out and vented this tick. */
@@ -1306,7 +1385,144 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .shift-log { margin: 4px 0 0; padding: 0; list-style: none; font-size: 12px; }
 .shift-log li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
 .shift-log em { color: var(--dim); font-style: normal; white-space: nowrap; }
+.bench { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 8px 0; font-size: 12px; }
+.bench dt { color: var(--dim); }
+.bench dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.sheet.goals h3 { margin: 12px 0 0; font-size: 12px; font-weight: normal; color: var(--dim); }
+.sheet.goals .entries { margin: 4px 0 8px; padding: 0; list-style: none; font-size: 12px; color: var(--dim); }
+.sheet.goals .entries li { padding: 2px 0; }
+/* Time Flux banked while away: the gauge says so itself, not a toast. */
+.flux.banked { animation: earned 700ms ease-out; }
 
 /* Grey until abnormal: a tile's heat bar takes colour only past four-fifths. */
 .tile .heat { background: #6f7882; }
 .tile.hot .heat { background: var(--heat); }
+
+/* The plant computer (Soul Interview 4.3, 5.5). Upgrades and research are
+   authorised on a terminal in the control room: teal plating around a dark
+   screen, a cream plate with its name, a lamp lit while anything on the screen
+   is within budget. The rows are lines on the screen, not cards; a tap is a
+   key pressed through, answered in inverse video. Signal colours stay: a price
+   within reach in cash, a raised figure in power. */
+.computer {
+	padding: 8px 8px 10px;
+	background: var(--plating) var(--dither);
+	border: 2px solid var(--plating-hi);
+	border-bottom-color: #1b2927;
+	border-right-color: #1b2927;
+	box-shadow: inset 0 0 0 1px #0006;
+}
+.computer .plate {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 8px;
+	padding: 3px 8px;
+	color: #1a1a16;
+	background: var(--plate);
+	border-bottom: 3px solid var(--heat);
+	font-size: 10px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+.computer .plate span { color: #4b4a40; }
+.computer .lamp {
+	width: 10px;
+	height: 10px;
+	margin-left: auto;
+	border-radius: 50%;
+	background: #3a2a1a;
+	box-shadow: inset 0 0 0 1px #0008;
+}
+.computer .lamp.on { background: var(--cash); box-shadow: 0 0 6px var(--cash), inset 0 0 0 1px #0004; }
+.computer .screen {
+	position: relative;
+	padding: 0 8px 8px;
+	color: var(--phosphor);
+	background:
+		repeating-linear-gradient(#0000 0 2px, #00000038 2px 3px),
+		var(--screen);
+	border: 3px solid #050807;
+	box-shadow: inset 0 0 18px #000c;
+	text-shadow: 0 0 4px #a9d6c640;
+}
+.computer .prompt {
+	position: sticky;
+	top: -8px;
+	z-index: 1;
+	margin: 0 -8px 6px;
+	padding: 6px 8px;
+	background: var(--screen);
+	border-bottom: 1px dashed var(--phosphor-dim);
+}
+.computer .prompt::before { content: "> "; color: var(--phosphor-dim); }
+.computer .empty { color: var(--phosphor-dim); }
+.computer .upgrades { gap: 0; }
+.computer .section-head { color: var(--phosphor-dim); border-bottom-color: #1d302b; }
+.computer .section-head .count { color: var(--screen); background: var(--phosphor); }
+#page-experiments .computer .section-head .count { background: var(--ep); }
+.computer .upgrade,
+.computer .upgrade.poor {
+	padding: 6px 2px 7px;
+	color: var(--phosphor);
+	background: none;
+	border: 0;
+	border-bottom: 1px dashed #1d302b;
+	border-image: none;
+	border-radius: 0;
+}
+.computer .upgrade b { color: var(--phosphor); font-weight: normal; }
+.computer .upgrade i,
+.computer .upgrade s,
+.computer .upgrade .delta s,
+.computer .upgrade .delta s::after { color: var(--phosphor-dim); }
+.computer .upgrade .delta b { color: var(--power); background: none; border: 0; padding: 0; }
+.computer .upgrade .kind { opacity: 0.7; }
+.computer .upgrade.poor b { color: var(--phosphor-dim); }
+.computer .upgrade.preview { background-image: none; opacity: 0.6; }
+/* A key pressed through: the line in inverse video while it is held... */
+.computer .upgrade:active,
+.computer .upgrade.authorised {
+	color: var(--screen);
+	background: var(--phosphor);
+	text-shadow: none;
+	filter: none;
+}
+.computer .upgrade:active :is(b, i, s, u, em),
+.computer .upgrade.authorised :is(b, i, s, u, em) { color: var(--screen); }
+/* ...and held a moment longer when the computer takes it. */
+.computer .upgrade.authorised { animation: authorised 700ms steps(2, end); }
+@keyframes authorised { to { background: none; } }
+.computer .upgrade.denied { animation: shake 220ms; }
+#page-experiments .computer .lamp.on { background: var(--ep); box-shadow: 0 0 6px var(--ep), inset 0 0 0 1px #0004; }
+
+/* Letters: cream slips in the log, typed dark, opened in place. An unread one
+   carries a dot in the price colour; nothing outside the log says it came. */
+.letters { display: grid; gap: 4px; margin-bottom: 10px; }
+.letter {
+	color: #23221c;
+	background: var(--plate);
+	border-left: 3px solid #b8ae92;
+	padding: 5px 8px;
+}
+.letter summary {
+	cursor: pointer;
+	list-style: none;
+	font-size: 11px;
+	letter-spacing: 0.04em;
+}
+.letter summary::-webkit-details-marker { display: none; }
+.letter summary::before { content: "\25B8\00a0"; color: #6b6656; }
+.letter[open] summary::before { content: "\25BE\00a0"; }
+.letter summary.unread::after {
+	content: "";
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	margin-left: 6px;
+	vertical-align: middle;
+	border-radius: 50%;
+	background: #a8862a;
+}
+.letter p { margin: 6px 0 0; font-size: 12px; line-height: 1.45; }
+.letter small { display: block; margin-top: 6px; font-size: 10px; font-style: italic; color: #5b5747; }

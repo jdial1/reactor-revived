@@ -17,7 +17,7 @@ const CASH = [
 	{ id: "forceful_fusion", group: "other", title: "Forceful Fusion", cost: 10000, mul: 100,
 	  desc: "Cells produce more power the hotter the reactor runs." },
 	{ id: "heat_control_operator", group: "other", title: "Heat Control Operator", cost: 1e6, levels: 1,
-	  desc: "A switch, once bought. While it is on, outlets only draw heat out of the reactor above its maximum, so a hot reactor can be held for Forceful Fusion." },
+	  desc: "A switch on the reactor's panel, once bought. While it is on, outlets only draw heat out of the reactor above its maximum, so a hot reactor can be held for Forceful Fusion." },
 	{ id: "heat_outlet_control_operator", group: "other", title: "Better Heat Control Operator", cost: 1e7, levels: 1, requires: "heat_control_operator",
 	  desc: "Outlets never push more heat than the vents they feed can take." },
 	{ id: "improved_piping", group: "other", title: "Improved Piping", cost: 100, mul: 20,

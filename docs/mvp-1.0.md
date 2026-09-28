@@ -39,6 +39,15 @@ red means loss; mistakes are silent; the reactor runs on every page.
 | The listing describes an older game | It says the game "pauses while you are not" watching and is "about 150 KB"; it doesn't mention marks, the planner, codes or modules; the screenshots are from 11 September | *The Voice Must Not Lie*: the storefront is part of the voice |
 | Unheard audio | The hum's trend tremor has never been listened to on a phone | *The Hum of a Held Machine* is only as good as it sounds |
 
+**Drift audit, 27 September 2026.** The Game Souls library now holds this
+game's soul instance (`game-souls/instances/reactor_revived.txt`), and its
+Phase 8 audit re-ran this review on the build at `a7c0215`. It closed items 2, 4
+and 5, and found four things this plan had missed: a hand refill left the
+ledger and let a board earn Mark I, a 1.2 save lost its doctrines on load, the
+guide overstated the Improved accelerator, and prices out of reach were red.
+All four are fixed and the first two are tested. It also found doctrine sets and
+modules unnamed as the game's own inventions; the README now names them. Items 3, 6 and 7 stay open.
+
 ## Scope of 1.0
 
 **In:** everything on the board today, including the IC2 families brought in
@@ -59,10 +68,10 @@ screenshots (item 3) must show them. Nothing further is added before 1.0.
 | # | Item | Mechanic → Dynamic → Tone | Done when |
 |---|---|---|---|
 | 1 | **Done.** Part sheet shows the live vent and transfer rate, with the capacitor or plating bonus it gets from its neighbours | The sheet says what the part really does → players place capacitors deliberately → Geometry is the build | A test checks a boosted vent's sheet value |
-| 2 | Rewrite the listing without stating the square law; update counts, size and the "pauses" line; add marks, planner, codes and modules; write 1.0 release notes | The first discovery happens in the game, not the store → The law is theirs to find | `listing.md` passes the litmus: no rule the game should teach is stated |
+| 2 | **Done.** Rewrite the listing without stating the square law; update counts, size and the "pauses" line; add marks, planner, codes and modules; write 1.0 release notes | The first discovery happens in the game, not the store → The law is theirs to find | `listing.md` passes the litmus: no rule the game should teach is stated |
 | 3 | Recapture the five screenshots, plus one showing a Mark I board and one showing the planner | The store shows the game that ships → The voice must not lie | `capture_shots.py` rerun; graphics dated after this plan |
-| 4 | Decide `allowBackup`. Recommended: set it to `false` and point to Export save for moving phones | A restore can no longer rewind a meltdown → the receipt matters | The manifest and `checklist.md` agree, and the reason is written down |
-| 5 | Old-save test: a real 1.2 save (v3, before marks, incidents and the new records) loads, runs 600 ticks and earns a mark | Existing players keep their game → trust | A fixture save in `test/` |
+| 4 | **Done: `false`**, with the reason in `checklist.md`. Decide `allowBackup`. Recommended: set it to `false` and point to Export save for moving phones | A restore can no longer rewind a meltdown → the receipt matters | The manifest and `checklist.md` agree, and the reason is written down |
+| 5 | **Done**, and it found 1.2's doctrine upgrades being dropped on load (now migrated). Old-save test: a real 1.2 save (v3, before marks, incidents and the new records) loads, runs 600 ticks and earns a mark | Existing players keep their game → trust | A fixture save in `test/` |
 | 6 | On-device pass on a real phone (no emulator): tutorial, first ten goals, a meltdown receipt, the planner, a code round trip, and the hum with the sound on | → The hum of a held machine, heard | A written pass/fail list in this file |
 | 7 | Version: `versionCode 4`. `versionName "1.0"` if 1.2 never shipped publicly; otherwise `"2.0"`. Git tag `v1.0` | → A checkpoint anyone can return to | The tag exists and the build reports the version |
 
@@ -74,7 +83,7 @@ screenshots (item 3) must show them. Nothing further is added before 1.0.
 | 9 | Particle pacing: time goals 23-28 with the heat-handled rule | Particles now depend on shedding heat |
 | 10 | Direct vs indirect cooling payback (160 vs 370 ticks): tune it, or accept it and say why | A known gap players of the line complained about |
 | 11 | Performance at 10x Time Flux on a low-end phone (`stored()` and the board signature now run every tick) | Stamina is proven by running, so fast-forward must be smooth |
-| 12 | Quiet celebrations: check trophy and goal feedback against *Never Congratulate a Number* | Keep say-it-once whole |
+| 12 | **Checked:** no UI string celebrates; a goal is a fading tick with no sound; a trophy is one flat toast and the goal sound; a mark is one log line. Accepted as quiet. Quiet celebrations: check trophy and goal feedback against *Never Congratulate a Number* | Keep say-it-once whole |
 | 13 | Update the privacy policy's date; fix the listing contact if it should not be a work address | Store hygiene |
 
 ### P2: after 1.0

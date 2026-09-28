@@ -6,6 +6,12 @@ import { freshRecords } from "./records.js";
 
 const SAVE_KEY = "reactor-revived";
 const SAVE_VERSION = 3; // 1 indexed tiles against a grid that could grow; 2 had no modules
+// 1.2's doctrine upgrades, as the set and side each became.
+const OLD_DOCTRINES = {
+	cascade_vents: ["doctrine2", "left"], salvage_crews: ["doctrine2", "right"],
+	overclocked_cells: ["doctrine3", "left"], throttled_cells: ["doctrine3", "right"],
+	diagonal_pulse: ["doctrine4", "left"], isolated_cores: ["doctrine4", "right"],
+};
 
 const BASE = {
 	money: 10,
@@ -19,7 +25,9 @@ const BASE = {
 	hasMeltedDown: false,
 	soldPower: false,
 	soldHeat: false,
-	paused: false,
+	// The reactor's on switch. A new station starts off: turning it on is the
+	// operator's first act (Soul Interview 1.1).
+	paused: true,
 	muted: false,
 	tutorialDone: false,
 	// Time Flux: ms banked while away, whether it is being spent, and when the
@@ -32,8 +40,11 @@ const BASE = {
 	restored: false,
 	// Particles made but not yet whole, after the board's handling of heat.
 	epCarry: 0,
-	// Heat Control Operator, once bought, is a switch; it starts off.
+	// Automation, once bought, is switched on the reactor's panel: Heat Control
+	// Operator starts off, selling and rebuying start on.
 	operatorOn: false,
+	sellOn: true,
+	rebuyOn: true,
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -81,9 +92,18 @@ export function newState(random = Math.random) {
 		// The board's mark and the last parts it lost to heat (records.js).
 		mark: null,
 		incidents: [],
-		// The shift log (records.js), and whether this run has earned Mark I yet.
+		// The shift log and the log book's silent entries (records.js), and
+		// whether this run has earned Mark I yet.
 		log: [],
+		entries: [],
 		runMarked: false,
+		// Jobs whose order was cancelled and asked again higher, and the standing
+		// order past the last job (objectives.js). Both outlive a reboot.
+		revised: [],
+		order: null,
+		// Letters received and letters opened (letters.js). Both outlive a reboot.
+		letters: [],
+		lettersRead: [],
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -104,6 +124,8 @@ export function serialize(s) {
 		restored: s.restored || undefined,
 		epCarry: s.epCarry || undefined,
 		operatorOn: s.operatorOn || undefined,
+		sellOn: s.sellOn === false ? false : undefined,
+		rebuyOn: s.rebuyOn === false ? false : undefined,
 		hasMeltedDown: s.hasMeltedDown,
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
 		paused: s.paused,
@@ -126,7 +148,12 @@ export function serialize(s) {
 		mark: s.mark,
 		incidents: s.incidents,
 		log: s.log,
+		entries: s.entries,
 		runMarked: s.runMarked || undefined,
+		revised: s.revised.length ? s.revised : undefined,
+		order: s.order ?? undefined,
+		letters: s.letters.length ? s.letters : undefined,
+		lettersRead: s.lettersRead.length ? s.lettersRead : undefined,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -143,17 +170,23 @@ export function deserialize(saved, random = Math.random) {
 	const s = newState(random);
 	if (!saved || (saved.v !== SAVE_VERSION && saved.v !== 2)) return s;
 
-	for (const k of Object.keys(BASE)) if (k in saved) s[k] = saved[k];
+	for (const k of Object.keys(BASE)) if (saved[k] !== undefined) s[k] = saved[k];
 	// A save from before the tutorial existed belongs to someone who has already
 	// learned the game the hard way; do not start teaching them now.
 	if (!("tutorialDone" in saved)) s.tutorialDone = true;
 	for (const id of Object.keys(s.levels)) if (saved.levels?.[id]) s.levels[id] = saved.levels[id];
+	s.doctrines = { ...saved.doctrines };
+	// 1.2 sold each doctrine side as its own upgrade; they are sides of a set now.
+	for (const [id, [set, side]] of Object.entries(OLD_DOCTRINES)) {
+		if (!saved.levels?.[id]) continue;
+		s.levels[set] = 1;
+		s.doctrines[set] ??= side;
+	}
 	Object.assign(s.placed, saved.placed);
 	s.modules = saved.modules ?? [];
 	s.nextModuleId = saved.nextModuleId ?? s.modules.length + 1;
 	s.snapshots = saved.snapshots ?? [];
 	s.lessonsSeen = saved.lessonsSeen ?? [];
-	s.doctrines = saved.doctrines ?? {};
 	// JSON writes Infinity as null; a record that never happened reads as absent.
 	s.records = { ...freshRecords(), ...saved.records };
 	s.notes = saved.notes ?? [];
@@ -164,7 +197,12 @@ export function deserialize(saved, random = Math.random) {
 	s.mark = saved.mark ?? null;
 	s.incidents = saved.incidents ?? [];
 	s.log = saved.log ?? [];
+	s.entries = saved.entries ?? [];
 	s.runMarked = Boolean(saved.runMarked);
+	s.revised = saved.revised ?? [];
+	s.order = saved.order ?? null;
+	s.letters = saved.letters ?? [];
+	s.lettersRead = saved.lettersRead ?? [];
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

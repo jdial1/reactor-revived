@@ -12,11 +12,15 @@ const cell = (p) => p.category === "cell";
 // gets there, and by the parts, which say what they do when tapped.
 export const STEPS = [
 	{ target: null, title: "Harrow Station",
-	  text: "The reactor has sat cold for eleven years, and the town below wants its power back. Fuel cells make power, which sells for money, which buys better parts. They also make heat, and heat is what ends reactors. Five things to do, then the log takes over. Skip any time - it lives in Options." },
+	  text: "The reactor has sat cold for eleven years, and the town below wants its power back. Fuel cells make power, which sells for money, which buys better parts. They also make heat, and heat is what ends reactors. Six things to do, then the log takes over. Skip any time - it lives in Options." },
 	{ target: ".part.on", title: "A fuel cell",
 	  text: "Uranium is selected in the dock. It costs $10, which is exactly what you have. Tap an empty tile to place it, or drag to place a row. Tap a placed part for everything you can do with it.",
 	  doing: "Place a cell on the grid.",
 	  waitFor: (s) => some(s, cell) },
+	{ target: "#goal .reactor-switch", title: "Start-up",
+	  text: "The reactor is off, and nothing on the board runs until it is on. The switch in the corner turns it on and off; its lamp is lit while the reactor runs.",
+	  doing: "Turn the reactor on.",
+	  waitFor: (s) => !s.paused },
 	{ target: "#rates", title: "The line",
 	  text: "The line above the bars is what the reactor does every second: power made, heat made, heat vented and moved. It is the most honest thing on the screen. Put a second cell touching the first and watch what the line does.",
 	  doing: "Place a second cell touching the first.",

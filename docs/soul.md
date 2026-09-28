@@ -3,10 +3,20 @@
 > "A good design is one you can stop watching."
 
 Reactor Revived is the source game of **Containment**, a soul in the Game Souls
-library (`game_souls/souls/containment.txt`, with this game's field notes in
-`souls/field_notes/containment.txt`). This file is the soul as it applies here,
-kept in the shape of the library's Instillation Report (LLM_SOUL_GUIDE.txt,
-Step 8). New features are checked against it before they are built.
+library (`game-souls/souls/containment.txt`). This file is the soul as it
+applies here, kept in the shape of the library's Instillation Report
+(LLM_SOUL_GUIDE.txt, Step 8).
+
+The game's **soul instance** is in the library at
+`game-souls/instances/reactor_revived.txt`, built with its Soul Instance Guide:
+the Seed Card, the banned mechanics, the component bill, the seven-row Instance
+Litmus, the Feature Gate Log, the Soul Ledger and the pre-ship drift audit. New
+features go through its Feature Gate before they are built, and every bend from
+Containment is entered in its ledger.
+
+The machine is specified; the world around it is not. [soul-interview.md](soul-interview.md)
+is the question set for that: Harrow Station, the operator, the valley, the
+voice and the materials, each answer locked into a rule the build must follow.
 
 On the surface: a grid, a few bars, numbers that climb. Beneath: a
 conservation puzzle on a small fixed board, where the same parts in a
@@ -70,13 +80,14 @@ game to glance at and return to).
 | Social | Low | Designs travel as codes; play is solitary. |
 | Mastery | High | Ratios, geometry, conservation. |
 | Achievement | High | Marks, records, restriction-run times, trophies. |
-| Immersion | Low | The machine is the point. |
+| Immersion | Medium | The machine is the point, and the world gives it a why: letters and log entries, optional, never interrupting play (the Soul Interview, 6.3 and 6.5). |
 | Creativity | High | A layout that holds is the player's own. |
 
-**Ideal-player watch:** the operator's log has one line of Harrow Station per
-job. That is an Immersion feature. It stays because it is one deadpan line
-that never gates play. Anything larger in that direction would work against
-the soul.
+**Ideal-player watch:** Immersion rose from Low to Medium in the Soul
+Interview, because the build "lacks the why". It stays bounded: story lives
+only in letters and log entries, is never required, and never interrupts play.
+Anything past those bounds (a scene, a character on screen, a line that stops
+the reactor) works against the soul.
 
 ## Components
 
@@ -90,7 +101,7 @@ the soul.
 | difficulty_ladder | Supporting | Reboot, five restriction runs, time-to-output rungs | Pass |
 | trusting_the_player | Supporting | Numbers without advice; the parts guide states every part's rules and live numbers but never the square law, the experimental quirks or placement; field notes record observations | Pass |
 | shared_discovery | Supporting | Layout codes; "Mark I" builds the classic checkerboard | Pass |
-| workbench | Supporting | Planner, a forecast of the failure tick, codes with context, free teardown, no rewind | Pass |
+| workbench | Core (raised in the soul instance: it is the largest system in the build) | Planner, a forecast of the failure tick, codes with context, free teardown, no rewind | Pass |
 | automation | Supporting | Perpetual rebuys and auto-sell are bought early; there is no layout optimiser | Pass |
 | audio_information | Supporting | The hum rises with heat and its tremor with the trend; other sounds duck | Pass |
 
@@ -109,7 +120,7 @@ the soul.
 - *audio_information* conflicts with Total-information UIs and needs a visual
   twin. Here the hum's trend has one on screen: the held column and Mark II.
 - *trusting_the_player* conflicts with text-box tutorials. Here the tutorial is
-  seven cards, five of which wait for the player to act, and none says where a
+  eight cards, six of which wait for the player to act, and none says where a
   part goes.
 
 ## The pillars, in this game
@@ -148,11 +159,15 @@ listed.
 | The Cheerful Toast | "Replaced with X" repeated what the board already showed | Fixed: removed |
 | The Red Signal | Every confirmation was red, including "OK" and "Skip"; selling a part was styled as danger | Fixed: red only for a lost save, run or design |
 | Refactoring cost (workbench rule) | A hot part refunded less, on top of leaving its heat behind | Fixed: refund is the price less fuel used |
-| The Wordy Tutorial | Seventeen cards | Fixed: seven cards, five that wait for an action |
-| The Law Is Theirs to Find (listing) | The Play short description states the square law | Open: P0 in [mvp-1.0.md](mvp-1.0.md) |
+| The Wordy Tutorial | Seventeen cards | Fixed: eight cards, six that wait for an action |
+| The Law Is Theirs to Find (listing) | The Play short description stated the square law | Fixed: the listing is rewritten, and a test reads the listing, tutorial, field notes and log for it |
 | Hidden Math (part sheet) | A boosted vent's sheet showed its base rate once bonuses went local | Fixed: the sheet shows the rate where it sits |
-| The Backdoor Rewind (cloud) | `allowBackup` lets a reinstall restore past a meltdown | Open: P0 decision |
-| The Voice Must Not Lie (store) | The listing and screenshots describe an older game | Open: P0 |
+| The Backdoor Rewind (cloud) | `allowBackup` let a reinstall restore past a meltdown | Fixed: backup is off; device transfer and Export save still move a game |
+| The Voice Must Not Lie (store) | The listing and screenshots describe an older game | Half fixed: the text is rewritten; the screenshots are still from 11 September |
+| The Friendly Leak (hand refill) | A condensator emptied by hand lost its heat between ticks, off the line, and a board kept alive that way earned Mark I | Fixed: the next tick books it as shed by a paid sink, and the board is Mark II; tested |
+| The Dice (update) | A 1.2 save's doctrine upgrades were dropped on load, so a board built round Throttled Cells lost them and could fail for a reason it did not cause | Fixed: they become the same side of their set; a save written by the 1.2 build is a test fixture |
+| The Flavourful Lie (guide) | The guide said an Improved accelerator doubles its particle heat; it has been linear since the accelerators were rebuilt | Fixed |
+| The Red Signal (prices) | A price out of reach was red | Fixed: grey; red is kept for danger and loss |
 | Chores Forever / The Babysat Machine | Manual selling and venting early | Watched: perpetual rebuys arrive at goal 8, and the manual tax is lineage |
 
 ## Litmus
@@ -190,6 +205,16 @@ Then, closing the last open items:
 | 9 | The tutorial and the examples observe rather than advise; the vent step waits for any vent | Players find the first vent placement themselves | The square law stays their discovery |
 | 10 | A capacitor's buyout heat reaches the reactor in the same tick | The held column never dips | A ledger that always balances |
 
+Then, from the pre-ship drift audit in the soul instance (27 September 2026):
+
+| # | Mechanic | Dynamic | Tone |
+|---|---|---|---|
+| 11 | A hand refill is booked by the next tick as heat shed by a paid sink, and the board is Mark II | Players who keep a condensator alive by hand see it on the line and in the mark | Storage buys time, not safety |
+| 12 | 1.2's doctrine upgrades load as the same side of their set | A returning player's board runs as it did | The clock is the judge, and an update is not a cause |
+| 13 | The listing states no rule the game teaches, and a test reads it | The first pulse is found on the board, not in the store | The law is theirs to find |
+| 14 | Cloud backup is off | A reinstall cannot bring back a board that melted | A meltdown is a receipt |
+| 15 | Prices out of reach are grey | Red on the screen always means danger | Say it once |
+
 ## Open bends
 
 - Time away from the app is banked as Time Flux rather than run live. Kept by
@@ -197,8 +222,13 @@ Then, closing the last open items:
 - Early goals are manual (sell and vent by hand). Kept as lineage.
 - The module designer measures its casing cold and hot. That is the design's
   datasheet, like a cell's listed heat, not a forecast of the board.
-- The top exchanger reaches its whole row: the one named exception to
-  neighbours-only.
+- The experimental tier reaches past its neighbours: the extreme exchanger its
+  whole row and the tiles above and below it, the extreme inlet and outlet
+  every tile within two steps. These are the named exceptions to
+  neighbours-only; everything else reaches its neighbours and the pool.
+- Pause and the planner stop the real board, as leaving the app does; every
+  other page lets it run. Only leaving banks the time, so stopping the clock
+  never earns anything.
 
 ## Cost warning
 
@@ -208,13 +238,36 @@ Then, closing the last open items:
 - **Time as a test input:** stamina is proven by running. The 300-tick mark
   window, Time Flux and the forecast are what make that bearable.
 
+## The world
+
+The machine above is specified to the last point of heat. The world around it
+was settled in the Soul Interview ([soul-interview.md](soul-interview.md)),
+where every answer is kept in the designer's words:
+
+> "Paid to start a Soviet reactor nobody else could, in an English fog, you
+> learn it alone until it holds. The valley asks for more."
+
+- **The pillar:** One Request, Waiting. One request at a time, in a silent
+  room; nothing else speaks.
+- **The voice:** technical, concise, never emotional. The log drifts from
+  formal start-up guides to bare demands.
+- **The look:** 16x16 parts, dense and intentional; Soviet off-colour plastics,
+  teal and orange plating, a process diagram on a pale panel; fog outside.
+- **The Never List, the voice rewrites, the sensory palette and the world's
+  truths with their mechanics** are in the interview's Lock (section 7), and
+  are the reference for every string, asset and letter.
+
 ## Standing rules
 
 These sit on top of the soul:
 
-- Stay inside the lineage.
+- Stay inside the lineage. Reactor Incremental is the game being revived;
+  Knockoff is the route it survived by.
 - A meltdown is an absolute clean wipe (a receipt is words, not wreckage).
-- No story beats.
+- Story only in letters and log entries: optional, never required, never
+  interrupting play. No scene, no cutscene, no character on screen. (This was
+  "no story beats" until the Soul Interview.)
+- One request at a time, in a silent room (house rule 3, One Request, Waiting).
 - No roguelite generations, board variants or scars.
 - No network or monetisation.
 - Comedy is deadpan only.

@@ -1,19 +1,21 @@
 // Wiring: the loops, and the actions the UI can trigger.
 import { load, save, newState, place, exportSave as saveText, deserialize, serialize, isSave } from "./state.js";
-import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart } from "./sim.js";
+import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart, refillByHand } from "./sim.js";
 import { isPartVisible } from "./parts.js";
-import { buy as buyUpgrade, reboot as rebootState, applyUpgrades } from "./upgrades.js";
-import { checkObjectives, OBJECTIVES } from "./objectives.js";
-import { buildUI, render, ask, inspect, flash, toast, goalMet, rebootDialog, refillCost } from "./ui.js";
-import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell } from "./records.js";
+import { buy as buyUpgrade, reboot as rebootState, applyUpgrades, UPGRADE_BY_ID } from "./upgrades.js";
+import { checkObjectives, checkOrder, goalAt, orderTitle, OBJECTIVES } from "./objectives.js";
+import { buildUI, render, ask, inspect, flash, toast, goalMet, goalRevised, authorised, rebootDialog, refillCost } from "./ui.js";
+import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES, fileEntry } from "./records.js";
+import { isComplete, COMPLETE_ENTRY } from "./complete.js";
+import { checkLetters } from "./letters.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
 import { layoutCode, readLayout, applyLayout, describe, layoutOf, contextNote, gridOf } from "./layout.js";
-import { bankTime, spendFlux, span } from "./flux.js";
+import { bankTime, spendFlux } from "./flux.js";
 import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
 import { replaceAll } from "./layout.js";
-import { play, setMuted } from "./audio.js";
+import { play, press, setMuted } from "./audio.js";
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
 
@@ -81,8 +83,7 @@ const game = {
 		if (p?.category !== "condensator") return;
 		const price = refillCost(p, t);
 		if (s.money < price) return;
-		s.money -= price;
-		t.heatContained = 0;
+		refillByHand(s, t, price);
 		play("vent");
 	},
 
@@ -139,7 +140,8 @@ const game = {
 			return;
 		}
 		compile(s);
-		play("buy");
+		press("buy");
+		authorised(dom, s, UPGRADE_BY_ID.get(id));
 	},
 
 	// A reboot can take a rule for the run it starts: nothing carries over but
@@ -190,10 +192,11 @@ const game = {
 		play("place");
 	},
 
-	/** Heat Control Operator on or off: free, any time, once bought. */
-	toggleOperator() {
-		if (!(s.levels.heat_control_operator > 0)) return;
-		s.operatorOn = !s.operatorOn;
+	/** A panel switch on or off: free, any time, once its system is bought. */
+	toggleSwitch(field) {
+		const sw = SWITCHES.find(([f]) => f === field);
+		if (!sw || !sw[2](s)) return;
+		s[field] = field === "operatorOn" ? !s.operatorOn : s[field] === false;
 		applyUpgrades(s);
 		compile(s);
 		play("place");
@@ -203,8 +206,10 @@ const game = {
 		s.fluxOn = !s.fluxOn && s.flux >= s.loopWait;
 	},
 
+	/** The reactor's on switch. */
 	togglePause() {
 		s.paused = !s.paused;
+		play("place");
 	},
 
 
@@ -388,10 +393,12 @@ function gameLoop() {
 	setTimeout(gameLoop, s.loopWait);
 }
 
-/** Bank the time away, and say so if there was any. */
+/** Bank the time away; the Time Flux gauge shows it, with no toast. */
 function welcomeBack() {
 	const banked = bankTime(theGame(), Date.now());
-	if (banked) toast(`Away ${span(banked)} - banked as Time Flux`, "flux");
+	if (!banked) return;
+	render(dom, s, game);
+	flash(dom.flux, "banked");
 }
 
 boot();
@@ -403,7 +410,13 @@ setInterval(() => {
 }, UI_MS);
 setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
-	const done = OBJECTIVES[s.objective];
+	const done = goalAt(s);
+	const revised = s.revised.length;
+	// Everything done, noticed once: a line in the log book, and the valley lit.
+	if (!s.planner && !s.records.complete && isComplete(s)) {
+		s.records.complete = { ticks: s.runTicks };
+		fileEntry(s, COMPLETE_ENTRY);
+	}
 	if (!s.planner && checkObjectives(s)) {
 		goalMet(dom, done.title);
 		// A save state for the job just done, to come back to from the log.
@@ -413,12 +426,19 @@ setInterval(() => {
 			ask("The log is finished. Reboot, and pick a rule for the next run?", () => game.reboot(false), "Reboot", true);
 		}
 	}
+	// The job was met as first asked, and asked again higher.
+	if (s.revised.length > revised) goalRevised(dom, goalAt(s).title);
+	// Past the log, the standing order: met, and raised.
+	const standing = s.order?.target;
+	if (!s.planner && checkOrder(s)) goalMet(dom, orderTitle(standing));
+	// Letters come as the station climbs: filed, never announced.
+	checkLetters(s);
 }, OBJECTIVE_MS);
 setInterval(() => save(theGame()), SAVE_MS);
 
 // Android calls these back when the picker has actually done something, so the
 // confirmation is the file existing rather than the button being pressed.
-window.saved = () => toast("Save exported", "options");
+window.saved = () => toast("Station record written to file.", "options");
 
 // Called by the Android side once the player has picked a file to load. A file
 // that is not a save we can read is refused, and one that is still asks first:
@@ -431,12 +451,12 @@ window.importSave = (json) => {
 		// not JSON at all
 	}
 	if (!isSave(saved)) {
-		toast("That file is not a Reactor Revived save this version can read", "options");
+		toast("File rejected. Not a station record this build can read.", "options");
 		return;
 	}
 	// A save is a way back past a meltdown. Hardcore has no way back.
 	if (theGame().restriction === "hardcore" || saved.restriction === "hardcore") {
-		toast("A Hardcore run cannot be restored from a save", "options");
+		toast("Restore refused. A Hardcore run cannot be restored from a save.", "options");
 		return;
 	}
 	ask(`Replace your current game with this save ($${fmt(saved.money ?? 0)})?`, () => {
@@ -446,7 +466,7 @@ window.importSave = (json) => {
 		real = null;
 		save(s);
 		boot();
-		toast("Save imported", "options");
+		toast("Station record loaded.", "options");
 	}, "Replace", true);
 };
 

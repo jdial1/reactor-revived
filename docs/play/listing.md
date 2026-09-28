@@ -20,51 +20,63 @@ limits are in brackets; the text below is inside them.
 ## Short description (80)
 
 ```
-Build a reactor. Power grows with neighbours; heat grows with their square.
+A reactor on a 12x8 grid. Build one that holds, then put your phone away.
 ```
 
-76 characters.
+73 characters. It says what the player does and never how the heat
+works: the square law is the first thing the game lets them find, and the store
+must not spend it.
 
 ## Full description (4000)
 
 ```
-A reactor is a grid, and every part you put on it makes the next decision
-harder.
+A reactor is a grid of 96 tiles, and every part you put on it makes the next
+decision harder.
 
-Fuel cells make power. Put two next to each other and they pulse into one
-another: the power adds up, but the heat multiplies. That single asymmetry is
-the whole game. Packing cells together is the only way to get rich and the only
-way to melt down.
+Fuel cells make power and heat. Cells that touch pulse into one another. What
+that is worth, and what it costs, is yours to find out: put two together and
+watch the numbers.
 
-Everything else exists to buy you room. Vents bleed heat away. Exchangers even
-it out across their neighbours. Inlets pull it out of parts that are struggling
-and outlets push it into parts that can take it. Plating raises the ceiling.
-Capacitors raise the other one. Reflectors squeeze more out of the cells you
-already have.
+Everything else exists to handle the heat. Vents shed it. Exchangers spread it
+across their neighbours. Inlets pull it out of parts and outlets push it in.
+Coolant holds it for a while. Plating raises the reactor's limit; capacitors
+raise how much power it can store. Reflectors make the cells beside them work
+harder. Heat never vanishes on its own: every point the board makes is shed,
+turned into power or held somewhere, and one line says which.
 
-Sell the power. Buy an upgrade. Fit one more cell in. Watch the heat.
+A design is not finished when it is placed. It is finished when it has run.
+Three hundred ticks unchanged and the board earns a mark: Mark I if it holds,
+Mark II if heat is still building somewhere, Mark III if a part was lost.
+Records lead with the most power from a Mark I board.
 
 WHAT IS IN IT
-- A 12x8 reactor, 75 parts across ten kinds and six tiers, seven fuels
-- 63 upgrades, each one measured against the simulation rather than described
-- 30 goals that teach the game without a tutorial
-- Exotic Particles: reboot the reactor, keep what it taught you, start harder
-- Meltdown, if you earn it
+- A 12x8 reactor: 90 parts in 13 kinds, seven fuels
+- 72 upgrades, six of them doctrine sets that change what a good reactor looks
+  like
+- The operator's log: 30 jobs at Harrow Station, after a seven-card tutorial
+- A planner beside the reactor: try a design for free and see the tick it
+  would fail, then build it
+- Layout codes: copy a whole board as text, with its mark and the upgrades it
+  ran under, and paste in someone else's
+- Modules: design a sealed 3x3 and place it as a single part
+- Exotic Particles and reboots, five restriction rules, records and trophies
+- Meltdown, if you earn it, and a receipt of what went first
 
 HOW IT PLAYS
-Tap to place. Drag to paint a row. Tap a placed part to sell, move or replace it. Pinch to zoom, double
-tap to put it back. Tap a placed part to see exactly what it is doing right now,
-and to sell one, all of that kind, or everything.
+Tap to place. Drag to paint a row. Tap a placed part to see exactly what it is
+doing, and to sell, move or replace it. Pinch to zoom; tap twice to put the
+board back.
 
-The reactor runs while you are watching it and pauses while you are not, so
-nothing happens behind your back.
+The reactor runs while you are watching it. When you leave, nothing happens
+behind your back: the time away is banked, up to eight hours, and spent at ten
+times speed when you choose.
 
 BUILT SMALL, ON PURPOSE
 No ads. No in-app purchases. No accounts. No analytics. No network access at
 all - the app has no internet permission, so it could not phone home if it
 wanted to. Your save lives on your phone and can be exported to a file you keep.
 
-The whole game is about 150 KB.
+The whole game is under a megabyte.
 
 WHERE IT CAME FROM
 This is the sixth game in a line that starts in a Minecraft mod. IndustrialCraft
@@ -73,6 +85,23 @@ into something you solve on paper; Cael's Reactor Incremental made it an idle
 game; cwmonkey's Reactor Knockoff rebuilt it in HTML5. Reactor Revived is a
 clean-room rewrite of that for a phone, with Reactor Revival's artwork and
 sounds from Kenney. The full lineage is in the game, under Options.
+```
+
+## Release notes (500) — the next version
+
+The version number waits on item 7 of [mvp-1.0.md](../mvp-1.0.md): 1.0 if 1.2
+never shipped publicly, otherwise 2.0.
+
+```
+- Marks: a board left unchanged for 300 ticks earns Mark I, II or III
+- The planner: try a design for free and see the tick it would fail
+- Layout codes carry the mark and upgrades they ran under
+- Condensators, component vents and hull vents, from IC2
+- A parts guide, a shift log and a heat ledger
+- Heat is conserved: nothing vanishes for free any more
+- Capacitors and plating boost only the parts they touch, so older boards may
+  run slower
+- Six doctrine sets; switch sides any time
 ```
 
 ## Release notes (500) — version 1.2

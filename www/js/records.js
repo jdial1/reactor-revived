@@ -32,6 +32,8 @@ export const freshRecords = () => ({
 	speed: {},
 	// Ticks from a reboot to the run's first Mark I board, per kind of run.
 	markRun: {},
+	// When everything was first complete: the run's ticks then. Kept for good.
+	complete: null,
 });
 
 // Parts a restriction takes off the dock.
@@ -52,6 +54,17 @@ export function allowedBy(s, p, seen = 0) {
 
 /** Manual feed switches off every automatic rebuy for the run. */
 export const autoFeed = (s) => s.restriction !== "manual";
+
+/**
+ * The automated systems the player owns, as panel switches: [field, label, owned].
+ * Knockoff's automation could be toggled; here each switch sits on the reactor,
+ * with a lamp, and only once its system is bought.
+ */
+export const SWITCHES = [
+	["sellOn", "Sell", (s) => s.autoSellMul > 0],
+	["rebuyOn", "Rebuy", (s) => autoFeed(s) && (s.perpetual.size > 0 || s.perpetualCapacitors)],
+	["operatorOn", "Operator", (s) => s.levels.heat_control_operator > 0],
+];
 
 /** Hardcore keeps the player on the real board. */
 export const toolsAllowed = (s) => s.restriction !== "hardcore";
@@ -130,7 +143,9 @@ export const MARK_MEANS = [
 function boardSig(s) {
 	let sig = "";
 	for (const t of s.tiles) sig += `${t.activated && t.id ? t.id : ""},`;
-	return sig + JSON.stringify(s.levels) + JSON.stringify(s.doctrines);
+	// A switch on the panel changes how the machine runs, as a doctrine does.
+	return sig + JSON.stringify(s.levels) + JSON.stringify(s.doctrines)
+		+ [s.sellOn !== false, s.rebuyOn !== false, Boolean(s.operatorOn)];
 }
 
 const heatOf = (s) => s.tiles.map((t) => (t.id ? t.heatContained : 0));
@@ -235,6 +250,18 @@ export function logEvent(s, text) {
 	s.log.push(e);
 	if (s.log.length > 12) s.log.shift();
 	return e;
+}
+
+/**
+ * Filed in the operator's log book without a word: parts supplied, casings
+ * authorised, trophies and field notes. One request waits in the room; nothing
+ * else speaks (house rule 3, One Request, Waiting). The real game only.
+ */
+export function fileEntry(s, text) {
+	if (s.planner || s.sealed) return;
+	s.entries ??= [];
+	s.entries.push({ tick: s.runTicks, text });
+	if (s.entries.length > 40) s.entries.shift();
 }
 
 // ---- incidents and the receipt ----------------------------------------------

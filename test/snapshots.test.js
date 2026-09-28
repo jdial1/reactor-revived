@@ -6,7 +6,7 @@ import { forecast } from "../www/js/forecast.js";
 import * as snapshots from "../www/js/snapshots.js";
 const { takeSnapshot, snapshotFor, layoutOfSnapshot } = snapshots;
 import { applyLayout } from "../www/js/layout.js";
-import { LESSONS, LESSON_AT } from "../www/js/lessons.js";
+import { LESSONS, LESSON_AT, BENCHES } from "../www/js/lessons.js";
 import { OBJECTIVES } from "../www/js/objectives.js";
 
 test("finishing a goal files a save state with what the reactor was doing", () => {
@@ -60,8 +60,23 @@ test("every example layout holds, makes power, and opens at a real goal", () => 
 	}
 	for (const [at, name] of Object.entries(LESSON_AT)) {
 		assert.ok(OBJECTIVES[at], at);
-		assert.ok(LESSONS[name], name);
+		assert.ok(LESSONS[name] || BENCHES[name], name);
 	}
+});
+
+test("goal 22 teaches the accelerator's numbers, not its layout", async () => {
+	const { benchNumbers } = await import("../www/js/lessons.js");
+	assert.equal(LESSON_AT[22], "accelerator");
+	assert.ok(!LESSONS.accelerator, "no layout to hand over");
+	const s = newState(() => 1);
+	const rows = Object.fromEntries(benchNumbers(s.stats.get(BENCHES.accelerator.part)));
+	assert.equal(rows.Holds, 1e9);
+	assert.equal(rows["Most particles once it holds"], 5e8);
+	assert.equal(rows["Settles at"], "100 × its feed");
+	assert.equal(rows["Feed that holds it there"], 5e6);
+	assert.equal(rows["Feed that fills it"], 1e7);
+	// No example on the goal line hands over a layout with an accelerator in it.
+	for (const l of Object.values(LESSONS)) assert.ok(!l.tiles.some(([, , id]) => id.startsWith("particle_accelerator")), l.title);
 });
 
 // The balance of the example builds, pinned: what each makes, what it costs,

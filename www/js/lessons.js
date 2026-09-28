@@ -10,15 +10,13 @@ const X = "heat_exchanger1";
 const O = "heat_outlet1";
 const I = "heat_inlet1";
 const C = "coolant_cell1";
-const A = "particle_accelerator1";
-const D = "seaborgium2";
 
 /**
  * Draw a layout from rows of letters: U cell, V vent, X exchanger, O outlet,
- * I inlet, C coolant cell, A particle accelerator, D dual seaborgium cell.
+ * I inlet, C coolant cell.
  */
 function draw(rows) {
-	const key = { U, V, X, O, I, C, A, D };
+	const key = { U, V, X, O, I, C };
 	const tiles = [];
 	rows.forEach((line, r) => [...line].forEach((ch, c) => {
 		if (key[ch]) tiles.push([r, c, key[ch]]);
@@ -101,15 +99,32 @@ export const LESSONS = {
 			"...V....",
 		]),
 	},
-	epfarm: {
+};
+
+// Some jobs teach a part's numbers and leave its arrangement to the player: the
+// story players tell is figuring it out (Soul Interview 1.4, 6.3). A bench shows
+// the part's figures as they stand in this game, and opens the planner with one
+// part on an empty board.
+export const BENCHES = {
+	accelerator: {
 		title: "Feeding an accelerator",
-		text: "An accelerator turns the heat it holds into Exotic Particles - the fuller it runs, the more it makes, up to half full - and spends a hundredth of that heat every tick doing it, so a steady feed settles it where the feed and the spending meet. Here one dual seaborgium cell splits its heat between two accelerators, and each settles a little past half full. One that overflows melts the whole reactor down.",
-		tiles: draw([
-			"",
-			"..ADA...",
-		]),
+		text: "An accelerator turns the heat it holds into Exotic Particles: the more it holds, the more it makes, up to half full. Every tick it spends a hundredth of what it holds, so a steady feed settles it at a hundred times the feed. One that overflows melts the whole reactor down. The numbers are below. The arrangement that feeds it is not.",
+		part: "particle_accelerator1",
 	},
 };
+
+/** A bench's figures for its part as it stands (upgrades included): [label, value]. */
+export function benchNumbers(p) {
+	const settle = 1 / p.consume;
+	return [
+		["Holds", p.containment],
+		["Most particles once it holds", p.epHeat],
+		["Spends of what it holds, each tick", `${Math.round(p.consume * 100)}%`],
+		["Settles at", `${settle} × its feed`],
+		["Feed that holds it there", p.epHeat * p.consume],
+		["Feed that fills it", p.containment * p.consume],
+	];
+}
 
 /** The lesson each goal opens, by goal index: shown once, when it becomes the next job. */
 // The idea of each example, drawn over it: a few marks, never every flow.
@@ -147,11 +162,6 @@ export const MARKS = {
 		{ from: [3, 4], to: [7, 5], dashed: true },
 		{ ring: [[6, 0], [11, 6]], kind: "sink" },
 	],
-	epfarm: [
-		{ ring: [[1, 3], [1, 3]], kind: "source" },
-		{ from: [1, 3], to: [1, 2] },
-		{ from: [1, 3], to: [1, 4] },
-	],
 };
 
 // Each example's broken twin: the tiles taken out of it. Opened in the planner,
@@ -163,11 +173,10 @@ export const BROKEN = {
 	exchangers: [[0, 3], [0, 4], [1, 2], [1, 5], [2, 1], [2, 6]],
 	chain: [[4, 2]],
 	heatpipe: [[0, 1], [0, 4], [3, 1], [3, 4]],
-	epfarm: [[1, 4]],
 };
 
 /** An example with its broken tiles taken out. */
 export const brokenTiles = (name) => LESSONS[name].tiles
 	.filter(([r, c]) => !BROKEN[name]?.some(([br, bc]) => br === r && bc === c));
 
-export const LESSON_AT = { 6: "direct", 10: "indirect", 14: "exchangers", 16: "chain", 18: "heatpipe", 22: "epfarm" };
+export const LESSON_AT = { 6: "direct", 10: "indirect", 14: "exchangers", 16: "chain", 18: "heatpipe", 22: "accelerator" };

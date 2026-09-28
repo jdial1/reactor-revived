@@ -176,7 +176,15 @@ export function tick(s) {
 	const rate = { power: 0, heat: 0, vent: 0, inlet: 0, outlet: 0, held: 0 };
 	let powerAdd = 0;
 	// The ledger: what is stored now, so the tick can say how much more it holds.
-	const storedBefore = stored(s);
+	// A condensator emptied by hand since the last tick is booked here, as shed
+	// by a sink the player paid for, or its heat would leave between the lines.
+	const storedBefore = stored(s) + (s.refilled ?? 0);
+	if (s.refilled) {
+		rate.vent += s.refilled;
+		rate.paid = s.refilled;
+		rate.paidCost = s.refilledCost;
+		s.refilled = s.refilledCost = 0;
+	}
 	// Throttling halves a cell's output everywhere its heat goes - into the parts
 	// beside it as well as the reactor - or the line and the board disagree.
 	const throttled = s.throttle && s.heat > s.maxHeat * 0.8 ? 0.5 : 1;
@@ -491,7 +499,7 @@ function wear(s, t) {
 }
 
 /** Whether auto-buy owns this part and will replace it when it runs out. */
-export const replaces = (s, p) => autoFeed(s) && (p.category === "module"
+export const replaces = (s, p) => autoFeed(s) && s.rebuyOn !== false && (p.category === "module"
 	? p.consumables.length > 0 && p.consumables.every((k) => s.perpetual.has(k))
 	: s.perpetual.has(p.category === "cell" ? p.type : p.category));
 
@@ -636,7 +644,7 @@ function explode(s, t, p) {
 	// A perpetual capacitor buys itself out of trouble, dumping its heat into
 	// the reactor instead of blowing up - this tick, so the ledger never dips.
 	if (t.heat <= 0 && p.category === "capacitor"
-		&& s.perpetualCapacitors && s.money >= p.cost * 10) {
+		&& s.perpetualCapacitors && s.rebuyOn !== false && s.money >= p.cost * 10) {
 		s.money -= p.cost * 10;
 		s.heat += t.heatContained;
 		t.heatContained = 0;
@@ -666,6 +674,7 @@ function explode(s, t, p) {
 }
 
 function sell(s, extremeCapacitors) {
+	if (s.sellOn === false) return;
 	let amount = Math.ceil(s.maxPower * s.autoSellMul);
 	if (!amount) return;
 
@@ -728,6 +737,14 @@ export function heldBy(s, t) {
 		for (const [, h] of t.saved) held += h ?? 0;
 	}
 	return held;
+}
+
+/** Empty a condensator by hand, for `price`; the next tick books its heat as paid. */
+export function refillByHand(s, t, price) {
+	s.money -= price;
+	s.refilled = (s.refilled ?? 0) + t.heatContained;
+	s.refilledCost = (s.refilledCost ?? 0) + price;
+	t.heatContained = 0;
 }
 
 /** Heat in the pool and in every part on the board: what the reactor stores. */

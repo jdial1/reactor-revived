@@ -2,7 +2,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState } from "../www/js/state.js";
 import { compile, tick, tileAt } from "../www/js/sim.js";
-import { LESSONS } from "../www/js/lessons.js";
 
 function board(tiles) {
 	const s = newState(() => 0);
@@ -14,9 +13,10 @@ function board(tiles) {
 }
 
 test("particles count as far as the board handles its heat", () => {
-	// The example accelerator farm sheds what it makes once warm, and keeps
-	// nearly every particle it rolls.
-	const farm = board(LESSONS.epfarm.tiles);
+	// An accelerator farm - one dual seaborgium cell between two accelerators -
+	// sheds what it makes once warm, and keeps nearly every particle it rolls.
+	// (It was the example at goal 22; the game now teaches only its numbers.)
+	const farm = board([[1, 2, "particle_accelerator1"], [1, 3, "seaborgium2"], [1, 4, "particle_accelerator1"]]);
 	for (let i = 0; i < 2000; i++) tick(farm);
 	assert.ok(farm.exoticParticles > 0, "a holding farm makes particles");
 
