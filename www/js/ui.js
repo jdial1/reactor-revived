@@ -744,17 +744,27 @@ function buildUpgrades(dom, game) {
 		const kind = kindOf(u);
 		const badge = h("i", { className: `kind ${kind}`, title: kind },
 			icon(kind === "utility" ? "options" : kind));
-		const button = h("button", { className: "upgrade", onclick: () => game.buy(u.id) },
-			badge,
-			h("b", { textContent: u.title }),
-			h("i", { textContent: u.desc }),
-			delta,
-			h("span", {}, cost, level));
-		const row = { u, button, cost, level, delta, was, now };
+		// A fuel's three (Power, Time, Autobuy) share one row as condensed tiles:
+		// the heading names the fuel, so a tile says only what it moves. Its full
+		// name and description stay in its label and tooltip.
+		const tile = Boolean(u.short);
+		const button = tile
+			? h("button", { className: "upgrade tile", title: u.desc, ariaLabel: `${u.title}. ${u.desc}`, onclick: () => game.buy(u.id) },
+				h("b", { textContent: u.short }), delta, h("span", {}, cost, level))
+			: h("button", { className: "upgrade", onclick: () => game.buy(u.id) },
+				badge,
+				h("b", { textContent: u.title }),
+				h("i", { textContent: u.desc }),
+				delta,
+				h("span", {}, cost, level));
+		const row = { u, button, cost, level, delta, was, now, tile };
 		dom.upgradeRows.push(row);
 		const section = sectionFor.get(`${Boolean(u.ecost)}:${sectionOf(u)}`);
 		section.rows.push(row);
-		section.list.append(button);
+		if (tile) {
+			if (!section.tiles) section.list.append(section.tiles = h("div", { className: "tiles" }));
+			section.tiles.append(button);
+		} else section.list.append(button);
 		// A doctrine set's two sides, beside the row that buys it: readable
 		// before buying, switchable after.
 		if (u.set) {
@@ -1134,10 +1144,17 @@ function renderUpgrades(dom, s) {
 
 		cost.textContent = lv >= maxLevel(u) ? "MAX" : u.ecost ? `${fmt(price)} EP` : `$${fmt(price)}`;
 		level.textContent = maxLevel(u) > 1 ? `lv ${lv}` : lv ? "owned" : "";
+		// A switch tile (Autobuy) has no level: owned, it says On where the price
+		// was; not yet, its "off -> on" already says what it does.
+		if (row.tile && maxLevel(u) === 1) {
+			if (lv) cost.textContent = "On";
+			level.textContent = "";
+		}
 
 		// Measured, not declared. A switch has nothing to show and says so.
 		// A doctrine set's two sides say what it does; a single delta cannot.
-		const step = u.set ? null : nextLevel(s, u);
+		// A switch tile has no measured change; it says what buying it turns on.
+		const step = u.set ? null : nextLevel(s, u) ?? (row.tile && !lv ? { from: "off", to: "on" } : null);
 		delta.hidden = !step;
 		if (step) {
 			was.textContent = step.from;
@@ -1181,6 +1198,17 @@ function renderUpgrades(dom, s) {
 	for (const { row } of outOfReach.slice(0, PREVIEW_COUNT)) {
 		row.button.hidden = false;
 		row.button.classList.add("preview");
+	}
+
+	// A fuel's row of three shows whole once any of it shows: the rest as
+	// previews, so Power, Time and Autobuy always keep their places.
+	for (const section of dom.upgradeSections) {
+		if (!section.tiles || section.rows.every((r) => r.button.hidden)) continue;
+		for (const r of section.rows) {
+			if (!r.button.hidden || !isUnlocked(s, r.u)) continue;
+			r.button.hidden = false;
+			r.button.classList.add("preview");
+		}
 	}
 
 	// A section with nothing showing is not a heading over nothing.

@@ -1526,3 +1526,28 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 }
 .letter p { margin: 6px 0 0; font-size: 12px; line-height: 1.45; }
 .letter small { display: block; margin-top: 6px; font-size: 10px; font-style: italic; color: #5b5747; }
+
+/* A fuel's three upgrades - Power, Time, Autobuy - as one row of condensed
+   tiles: label, what the next level moves, then price and level. */
+.upgrades .tiles {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 6px;
+	padding: 6px 0 8px;
+	border-bottom: 1px dashed #1d302b;
+}
+.computer .tiles .upgrade.tile,
+.computer .tiles .upgrade.tile.poor {
+	display: grid;
+	gap: 3px;
+	align-content: start;
+	min-width: 0;
+	padding: 6px 6px 5px;
+	border: 1px solid #1d302b;
+	border-radius: 0;
+}
+.computer .tiles .upgrade.tile > b { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.computer .tiles .upgrade.tile .delta { font-size: 11px; white-space: nowrap; overflow: hidden; }
+.computer .tiles .upgrade.tile span { font-size: 11px; gap: 4px; }
+.computer .tiles .upgrade.tile span u { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.computer .tiles .upgrade.tile span s { white-space: nowrap; }

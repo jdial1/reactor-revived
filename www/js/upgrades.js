@@ -154,17 +154,19 @@ const PA_UPGRADES = [1, 2, 3, 4, 5, 6].map((i) => ({
 }));
 
 // cell_power / cell_tick / cell_perpetual for every cell type that has a price.
+// `short` is what a fuel's row of three calls each, side by side on the page.
 const CELL_KINDS = [
-	{ kind: "power", title: "Potent", desc: "cells produce 100% more power per level.", mul: 10 },
-	{ kind: "tick", title: "Enriched", desc: "cells last twice as long per level.", mul: 10 },
-	{ kind: "perpetual", title: "Perpetual", desc: "cells replace themselves when depleted, at 1.5x cost.", levels: 1 },
+	{ kind: "power", title: "Potent", short: "Power", desc: "cells produce 100% more power per level.", mul: 10 },
+	{ kind: "tick", title: "Enriched", short: "Time", desc: "cells last twice as long per level.", mul: 10 },
+	{ kind: "perpetual", title: "Perpetual", short: "Autobuy", desc: "cells replace themselves when depleted, at 1.5x cost.", levels: 1 },
 ];
 
-const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, desc, mul, levels }) =>
+const CELL_UPGRADES = CELL_KINDS.flatMap(({ kind, title, short, desc, mul, levels }) =>
 	CELLS_WITH_UPGRADES.map((c) => ({
 		id: `cell_${kind}_${c.type}`,
 		group: `cell_${kind}_upgrades`,
 		title: `${title} ${c.title}`,
+		short,
 		desc: `${c.title} ${desc}`,
 		cost: c.upgradeCosts[kind],
 		mul,
