@@ -553,6 +553,10 @@ A debug APK for installing by hand is built by GitHub Actions
 tests pass, and can be run on demand from the Actions tab. Download it from the
 run's *Artifacts*, then `adb install -r app-debug.apk`. It is signed with the
 runner's debug key, so uninstall a build signed by another machine first.
+Pushing a tag (`v*` or `debug-*`, e.g. `git tag debug-2026-09-28 && git push
+origin debug-2026-09-28`), or *Run workflow* on the Actions tab with a release
+tag filled in, also publishes a GitHub Release, marked pre-release, with the
+tested APK attached as `reactor-revived-<tag>.apk`.
 
 ## Balance parity
 

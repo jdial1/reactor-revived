@@ -1,5 +1,7 @@
 # Builds a debug APK on every push and pull request, and on demand from the
-# Actions tab. The runner's image already carries the Android SDK; the tests run
+# Actions tab. A pushed tag (v* or debug-*), or a run from the Actions tab
+# given a release tag, also publishes a GitHub Release, as a pre-release, with
+# the APK attached. The runner's image already carries the Android SDK; the tests run
 # first, so an APK is never built from a tree that fails them. The APK is signed
 # with the runner's debug key: for installing by hand, not for the store.
 name: Android debug APK
@@ -7,8 +9,14 @@ name: Android debug APK
 on:
   push:
     branches: [main, "claude/**"]
+    tags: ["v*", "debug-*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      release:
+        description: "Also publish a GitHub Release under this new tag (e.g. debug-2026-09-28). Leave empty to only build."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -41,3 +49,29 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
+
+  # Only for a tag, and the only job that can write: it publishes the APK the
+  # build job just made and tested, rather than building its own. From the
+  # Actions tab the tag is new, and is made at the commit that was built.
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.release != '')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: reactor-revived-debug-${{ github.sha }}
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release || github.ref_name }}
+        run: |
+          apk="reactor-revived-$TAG.apk"
+          mv app-debug.apk "$apk"
+          gh release create "$TAG" "$apk" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "Reactor Revived $TAG (debug build)" \
+            --notes "A debug build of ${GITHUB_SHA::7}, for installing by hand: \`adb install -r $apk\`.
+          It is signed with the build runner's debug key, not the upload key, so it is not the Play release; uninstall a build signed elsewhere first.
+          Built after the tests passed, by .github/workflows/android.yml."
