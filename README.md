@@ -548,6 +548,12 @@ real save through the game's own loader - not mock-ups. Signing is the one part
 this repo does not do for you: `keystore.properties` is gitignored and the build
 falls back to an unsigned bundle without it. See `docs/play/checklist.md`.
 
+A debug APK for installing by hand is built by GitHub Actions
+(`.github/workflows/android.yml`) on every push and pull request, after the
+tests pass, and can be run on demand from the Actions tab. Download it from the
+run's *Artifacts*, then `adb install -r app-debug.apk`. It is signed with the
+runner's debug key, so uninstall a build signed by another machine first.
+
 ## Balance parity
 
 The numbers are checked against Knockoff *running* at
