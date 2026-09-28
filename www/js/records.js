@@ -264,6 +264,40 @@ export function fileEntry(s, text) {
 	if (s.entries.length > 40) s.entries.shift();
 }
 
+// Kinds of entry that a run of folds into one line, and what the folded line
+// is headed. A letter's arrival is not shown here at all: the letter is in the
+// log's own Letters list, which says how many are unread.
+const FOLDS = {
+	"Supplied": "Supplied",
+	"Field note filed": "Field notes filed",
+	"Entered in the record": "Entered in the record",
+};
+const LETTER_LINE = /^Letter (received|found): /;
+
+/**
+ * The log book as the log shows it, newest first: letter arrivals left to the
+ * Letters list, and each run of one kind of entry folded into one line
+ * ("Supplied: Heat Vent, Capacitor.").
+ */
+export function tidyEntries(entries) {
+	const lines = [];
+	let run = null;
+	for (const { text } of [...entries].reverse()) {
+		if (LETTER_LINE.test(text)) continue;
+		const kind = Object.keys(FOLDS).find((k) => text.startsWith(`${k}: `));
+		const names = kind && text.slice(kind.length + 2).replace(/\.$/, "");
+		if (kind && run?.kind === kind) {
+			run.names.push(names);
+			run.count++;
+			continue;
+		}
+		run = kind ? { kind, names: [names], count: 1 } : null;
+		lines.push(run ?? text);
+	}
+	return lines.map((line) => typeof line === "string" ? line
+		: `${line.count > 1 ? FOLDS[line.kind] : line.kind}: ${line.names.join(", ")}.`);
+}
+
 // ---- incidents and the receipt ----------------------------------------------
 
 /** A part lost to heat on the real board: kept, the last few, as a receipt. */

@@ -165,8 +165,8 @@ the pack system.
 
 `www/js/tutorial.js` is eight steps of data: a selector to spotlight, a title,
 the text, and for six of them a `waitFor` predicate on game state - place a
-cell, turn the reactor on, put a second cell touching it, sell power, vent the
-heat to zero, put a vent anywhere - where it goes is the player's to work out. Those steps will not advance until the player has really
+cell, turn the reactor on, put a second cell touching it, sell power, vent by
+hand ten times, put a vent anywhere - where it goes is the player's to work out. Those steps will not advance until the player has really
 done it, and they reuse the same board checks the goals do rather than
 restating them. It used to be seventeen cards; the rest is left to the
 operator's log, which opens each tab when it gets there, and to the parts, which
@@ -175,7 +175,13 @@ say what they do when tapped.
 It starts on a new game, ends for good once finished or skipped, and replays from
 Options. A save from before the tutorial existed loads with `tutorialDone` set,
 so nobody mid-game gets taught what they already know. The overlay takes no taps
-except on its own card, and the game keeps running underneath it.
+except on its own card, and the game keeps running underneath it. A card that
+waits for the player dims nothing - the board and the dock are what they have to
+reach - and only rings its target; the two cards that are only read dim the room.
+
+Venting by hand is ten taps that take heat off, counted on the card and the goal
+line. It used to be "down to 0", which grew harder the longer a new player spent
+reading, since the cells kept adding heat.
 
 It teaches how to do things and never states the rule. The step that used to
 explain why packed cells run hot now asks the player to put two cells together
@@ -662,8 +668,15 @@ filed in the operator's log as the station climbs - fifteen of them, from the
 Regional Energy Authority, Harrow Supply, the town clerk, the clinic's night
 ward, the university, the works and, once, the courier - with one silent line
 in the log book (*Letter received: Harrow Supply.*). Nothing outside the log says
-it came. A slip opens in place and carries a dot until it has been opened;
+it came. In the log the letters fold into one line until opened (*4 letters,
+3 unread*); a slip opens in place and carries a dot until it has been opened;
 Records counts them.
+
+The log book folds the same way (*12 log book entries*). Opened, it is tidied
+for reading: a run of one kind of entry becomes one line (*Supplied: Capacitor,
+Plating, Heat Vent.*), and letter arrivals are left to the Letters list rather
+than said twice. The book itself keeps every line; `tidyEntries` in
+`www/js/records.js` is only how it is shown.
 
 They hint before they answer, and by the end each of the world's open questions
 has an answer (why the plant closed, why nobody else could run it, what the

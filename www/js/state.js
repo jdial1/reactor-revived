@@ -25,6 +25,8 @@ const BASE = {
 	hasMeltedDown: false,
 	soldPower: false,
 	soldHeat: false,
+	// Taps on the heat bar that took heat off: goal 2 asks for ten.
+	handVents: 0,
 	// The reactor's on switch. A new station starts off: turning it on is the
 	// operator's first act (Soul Interview 1.1).
 	paused: true,
@@ -128,6 +130,7 @@ export function serialize(s) {
 		rebuyOn: s.rebuyOn === false ? false : undefined,
 		hasMeltedDown: s.hasMeltedDown,
 		soldPower: s.soldPower, soldHeat: s.soldHeat,
+		handVents: s.handVents || undefined,
 		paused: s.paused,
 		muted: s.muted,
 		tutorialDone: s.tutorialDone,

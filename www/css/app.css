@@ -904,6 +904,10 @@ body.melting { animation: melting 500ms ease-out; }
 	transition: left 200ms ease, top 200ms ease, width 200ms ease, height 200ms ease;
 }
 .tut-ring.empty { border-color: transparent; }
+/* A step that waits for the player: no dim, so the board and dock stay bright
+   and plain to tap. The ring alone, with a glow, points the way. */
+.tut-ring.act { box-shadow: 0 0 0 2px #000c, 0 0 14px var(--cash); }
+.tut-ring.act.empty { box-shadow: none; }
 .tut-card {
 	position: fixed;
 	left: 50%;

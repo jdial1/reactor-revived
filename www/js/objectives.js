@@ -53,6 +53,9 @@ const atLeast = (n, match) => ({
 	progress: (s) => [Math.min(count(s, match), n), n],
 });
 
+/** Goal 2 and the tutorial's heat card: how many hand vents it takes. */
+export const HAND_VENTS = 10;
+
 const anyUpgrade = (s, match) => Object.entries(s.levels).some(([id, lv]) => lv > 0 && match(id));
 
 export const OBJECTIVES = [
@@ -62,9 +65,12 @@ export const OBJECTIVES = [
 	{ title: "Sell power: tap the power bar",
 	  note: "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power bar.", reward: 10,
 	  check: (s) => s.soldPower },
-	{ title: "Vent by hand: tap the heat bar down to 0",
+	// Ten taps that take heat off, not "down to 0": heat builds while a new
+	// player reads, so a zero got harder the longer they waited.
+	{ title: `Vent by hand: tap the heat bar ${HAND_VENTS} times`,
 	  note: "Section 1.3. Heat gauge. The gauge is known to stick. Vent by hand and confirm the reading falls.", reward: 10,
-	  check: (s) => s.soldHeat },
+	  check: (s) => (s.handVents ?? 0) >= HAND_VENTS,
+	  progress: (s) => [Math.min(s.handVents ?? 0, HAND_VENTS), HAND_VENTS] },
 	{ title: "Cool a cell with a Heat Vent",
 	  note: "Section 2.4. Excess heat should be vented before the reactor is left unattended. Operators are advised not to remain at the valve overnight.", reward: 50,
 	  check: (s) => adjacentToCell(s, (p) => p.category === "vent") },
