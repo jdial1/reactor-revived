@@ -1408,7 +1408,9 @@ A hard spec for anyone making art or sound, human or tool. Filled from Phase 5,
 beside what already ships. The left column is the build as it stands; every row
 now meets its spec except **part art**, which is still Reactor Revival's
 sprites. Redrawing the parts at 16x16 is art direction for the designer or an
-artist, not something to generate.
+artist, not something to generate. The briefs and prompts for that pack, and
+for the icons, sounds, effects and night backdrops, are in
+[asset-packs.md](asset-packs.md).
 
 | | On record (the build today) | From the interview (the spec) |
 | --- | --- | --- |

@@ -126,6 +126,11 @@ picker for save export and import.
 
 ## Part artwork
 
+The parts are still Reactor Revival's sprites; the Sensory Palette asks for
+16x16 art drawn for this reactor. The brief, the prompts and the drop-in steps
+for it, and for the icons, sounds, effects and night backdrops, are in
+`docs/asset-packs.md`.
+
 The parts are drawn with **Reactor Revival's** art, in `www/parts/revival/` —
 90 PNGs, one per part, committed and shipped. Fifteen of them - condensators,
 component vents and hull vents, three families Revival never drew - are made
