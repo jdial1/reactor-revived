@@ -141,10 +141,11 @@ function roller(className) {
 
 /** A row of buttons where exactly one is lit: the page tabs and the dock's. */
 function tabStrip(id, items, onPick) {
-	const el = h("div", { id });
+	// A bank of selector keys: the chosen one latches (see Components, app.css).
+	const el = h("div", { id, className: "selector" });
 	for (const [value, label, glyph] of items) {
 		// A selector key: a quiet click, and no clack - nothing on the board moves.
-		const button = h("button", { dataset: { value }, onclick: () => { play("click"); onPick(value); } });
+		const button = h("button", { className: "key", dataset: { value }, onclick: () => { play("click"); onPick(value); } });
 		if (glyph) button.append(icon(glyph));
 		button.append(h("span", { textContent: label }));
 		el.append(button);
@@ -244,7 +245,7 @@ export function buildUI(game) {
 
 	// The reactor's on switch: a lamp lit while it runs, and the word for its state.
 	dom.pauseLabel = h("span", {});
-	dom.pause = h("button", { className: "pause reactor-switch", onclick: game.togglePause }, dom.pauseLabel);
+	dom.pause = h("button", { className: "key switch pause reactor-switch", onclick: game.togglePause }, dom.pauseLabel);
 
 	dom.goalText = h("span", {});
 	dom.runTag = h("b", { className: "run-tag", hidden: true });
@@ -259,12 +260,12 @@ export function buildUI(game) {
 	dom.objective.append(dom.runTag, dom.goalText, dom.goalBar);
 	// The planner: a free copy of the board to try things on, as the IC2
 	// planners let you. Build puts it onto the real board; Discard forgets it.
-	dom.plan = h("button", { className: "tool", ariaLabel: "Plan", title: "Try a layout for free", onclick: game.startPlanner }, icon("plan"), h("span", { className: "label", textContent: "Plan" }));
-	dom.planBuild = h("button", { className: "tool", onclick: game.buildPlan }, "Build");
-	dom.planDiscard = h("button", { className: "tool", onclick: game.discardPlan }, "Discard");
+	dom.plan = h("button", { className: "key small tool", ariaLabel: "Plan", title: "Try a layout for free", onclick: game.startPlanner }, icon("plan"), h("span", { className: "label", textContent: "Plan" }));
+	dom.planBuild = h("button", { className: "key small tool", onclick: game.buildPlan }, "Build");
+	dom.planDiscard = h("button", { className: "key small tool", onclick: game.discardPlan }, "Discard");
 	// Banked time, counting down while it is spent; the same tap stops it.
 	dom.fluxText = h("span", {});
-	dom.flux = h("button", { className: "pause flux", title: "Time Flux: run banked time at ten times speed", onclick: game.toggleFlux },
+	dom.flux = h("button", { className: "key pause flux", title: "Time Flux: run banked time at ten times speed", onclick: game.toggleFlux },
 		icon("flux"), dom.fluxText);
 	// The header is the goal and the clock: time banked, and time stopped.
 	root.append(h("header", { id: "goal" }, dom.objective, dom.flux, dom.pause));
@@ -327,20 +328,20 @@ export function buildUI(game) {
 	dom.pages.upgrades.append(dom.terminals.upgrades.el);
 
 	// Controls grouped on a labelled plate, as a control room groups them.
-	const plate = (label, ...keys) => h("section", { className: "plate-group" },
-		h("h4", { className: "plate-label", textContent: label }), h("div", { className: "keys" }, ...keys));
+	const plate = (label, ...keys) => h("section", { className: "panel plate-group" },
+		h("h4", { className: "nameplate plate-label", textContent: label }), h("div", { className: "keys" }, ...keys));
 
 	dom.pages.experiments.append(
 		// The core reboot: the heaviest control in the plant, on its own plate.
 		plate("Core reboot",
-			h("button", { className: "wide", textContent: "Reboot reactor", onclick: () => game.reboot(false) }),
-			h("button", { className: "wide", textContent: "Reboot, refund all EP", onclick: () => game.reboot(true) })),
+			h("button", { className: "key wide", textContent: "Reboot reactor", onclick: () => game.reboot(false) }),
+			h("button", { className: "key wide", textContent: "Reboot, refund all EP", onclick: () => game.reboot(true) })),
 		dom.terminals.experiments.el,
 	);
 
 	// The station office: its controls grouped on plates, a switch with a lamp
 	// for the sound, and the record kept on a card.
-	const sound = h("button", { className: "switch sound-switch", onclick: () => {
+	const sound = h("button", { className: "key switch sound-switch", onclick: () => {
 		game.toggleSound();
 		lampSound();
 	} }, "Sound");
@@ -355,22 +356,22 @@ export function buildUI(game) {
 				// Only Android can open a file picker, so in a browser these would
 				// be two buttons that do nothing.
 				...(game.canTransfer ? [
-					h("button", { className: "wide", textContent: "Export save to a file", onclick: game.exportSave }),
-					h("button", { className: "wide", textContent: "Import save from a file", onclick: game.importSave }),
+					h("button", { className: "key wide", textContent: "Export save to a file", onclick: game.exportSave }),
+					h("button", { className: "key wide", textContent: "Import save from a file", onclick: game.importSave }),
 				] : []),
-				h("button", { className: "wide", textContent: "Copy records as text", onclick: () => showCode(game.summary(), "Records") })),
+				h("button", { className: "key wide", textContent: "Copy records as text", onclick: () => showCode(game.summary(), "Records") })),
 			dom.layoutTools = plate("Layout codes",
-				h("button", { className: "wide", textContent: "Copy layout code", onclick: () => showCode(game.layoutCode()) }),
-				h("button", { className: "wide", textContent: "Build from a code", onclick: () => askCode(game.buildLayout) })),
+				h("button", { className: "key wide", textContent: "Copy layout code", onclick: () => showCode(game.layoutCode()) }),
+				h("button", { className: "key wide", textContent: "Build from a code", onclick: () => askCode(game.buildLayout) })),
 			plate("Manuals",
-				h("button", { className: "wide", textContent: "Parts guide", onclick: () => guideDialog(game.state) }),
-				h("button", { className: "wide", textContent: "How to play", onclick: () => {
+				h("button", { className: "key wide", textContent: "Parts guide", onclick: () => guideDialog(game.state) }),
+				h("button", { className: "key wide", textContent: "How to play", onclick: () => {
 					showPage(dom, "reactor");
 					game.startTutorial();
 				} })),
 			plate("Control room", sound,
-				h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe })),
-			h("section", { className: "record-card" },
+				h("button", { className: "key wide danger", textContent: "Wipe save and restart", onclick: game.wipe })),
+			h("section", { className: "card record-card" },
 				h("h3", { className: "credit-head", textContent: "Records" }),
 				dom.records = h("dl", { className: "records" }),
 				h("h3", { className: "credit-head", textContent: "Trophies" }),
@@ -426,13 +427,13 @@ export function buildUI(game) {
 	dom.pips = {};
 	for (const id of ["upgrades", "experiments"]) {
 		const button = [...dom.tabs.children].find((b) => b.dataset.value === id);
-		dom.pips[id] = button.appendChild(h("span", { className: `pip ${id}`, hidden: true }));
+		dom.pips[id] = button.appendChild(h("span", { className: `lamp on pip ${id}`, hidden: true }));
 	}
 	// The board's tools sit on the strip that says what the board does.
 	const verdict = buildVerdict(dom, game);
 	verdict.append(dom.plan, dom.planBuild, dom.planDiscard);
 	// The panel: a lamp and a switch for each automated system the player owns.
-	dom.switches = SWITCHES.map(([field, label]) => h("button", { className: "switch", hidden: true,
+	dom.switches = SWITCHES.map(([field, label]) => h("button", { className: "key small switch", hidden: true,
 		ariaPressed: "false", onclick: () => game.toggleSwitch(field) }, label));
 	dom.panel = h("div", { id: "switches", hidden: true, ariaLabel: "Automation" }, ...dom.switches);
 	// One strip, not two: the switches sit on the verdict line, between what the
@@ -479,7 +480,7 @@ function buildDock(dom, game) {
 			const label = h("em", { textContent: part.short });
 			const info = h("span", { className: "info" });
 			const button = h("button", {
-				className: "part numbers",
+				className: "bin part numbers",
 				title: part.title,
 				onclick: () => {
 					game.select(part.id);
@@ -568,7 +569,7 @@ function meltdownNotice(lines, onAcknowledge) {
 		// The receipt: read off the ledger as the reactor fell. Words, not wreckage.
 		lines?.length ? h("ul", { className: "receipt" }, ...lines.map((l) => h("li", { textContent: l }))) : "",
 		h("div", { className: "row" },
-			h("button", { className: "wide", textContent: "Begin start-up", onclick: () => dialog.close() })));
+			h("button", { className: "key wide", textContent: "Begin start-up", onclick: () => dialog.close() })));
 	dialog.addEventListener("close", () => { dialog.remove(); onAcknowledge(); });
 	document.body.append(dialog);
 	dialog.showModal();
@@ -716,7 +717,7 @@ function terminal(title, ...contents) {
 	// Not a live region: the budget changes every tick. A purchase is said once.
 	const prompt = h("p", { className: "prompt" });
 	const el = h("div", { className: "computer" },
-		h("div", { className: "plate" },
+		h("div", { className: "nameplate plate" },
 			h("b", { textContent: "Plant computer" }), h("span", { textContent: title }), lamp),
 		h("div", { className: "screen" }, prompt, ...contents));
 	return { el, lamp, prompt };
@@ -1337,7 +1338,7 @@ function renderLetters(dom, s) {
 		if (!l) return "";
 		const summary = h("summary", { textContent: l.from });
 		summary.classList.toggle("unread", !s.lettersRead.includes(id));
-		const slip = h("details", { className: "letter" }, summary,
+		const slip = h("details", { className: "card letter" }, summary,
 			l.found ? h("small", { textContent: l.found }) : "",
 			l.mark ? h("small", { textContent: l.mark }) : "",
 			...l.lines.map((line) => h("p", { textContent: line })));
@@ -1403,7 +1404,7 @@ function renderDockModules(dom, s, game) {
 		dom.dockModSig = sig;
 		dom.moduleButtons = [...s.modules].reverse().filter((m) => isPartVisible(s, s.stats.get(modId(m)))).map((m) => {
 			const p = s.stats.get(modId(m));
-			const button = h("button", { className: "part", title: p.title, onclick: () => {
+			const button = h("button", { className: "bin part", title: p.title, onclick: () => {
 				game.select(p.id);
 				if (button.classList.contains("poor")) flash(button, "denied");
 			} }, face(p, "mod-face"), h("em", { textContent: p.short }), h("u", { textContent: fmt(p.cost) }));
