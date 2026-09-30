@@ -1,6 +1,7 @@
 // The reactor's working tools, on screen: the verdict line, the heat-flow
 // overlay, replace-all, save states and the example layouts.
 import { h, ask } from "./ui.js";
+import { icon } from "./icons.js";
 import { fmt } from "./fmt.js";
 import { artFor } from "./art.js";
 import { COLS, stored } from "./sim.js";
@@ -90,10 +91,10 @@ const holds = (f) => (!f.failTick ? MARKS[f.mark] ?? "Holds"
 export function buildVerdict(dom, game) {
 	// On the real board the line is a record, and tapping it explains the mark.
 	dom.verdictText = h("span", { onclick: () => { if (!game.state.planner) markSheet(game.state); } });
-	dom.flowToggle = h("button", { className: "tool flow-toggle", ariaPressed: "false", title: "Show each part's heat in, out and vented", onclick: () => {
+	dom.flowToggle = h("button", { className: "tool flow-toggle", ariaPressed: "false", ariaLabel: "Flow", title: "Show each part's heat in, out and vented", onclick: () => {
 		const on = document.body.classList.toggle("flow");
 		dom.flowToggle.setAttribute("aria-pressed", String(on));
-	} }, "Flow");
+	} }, icon("outlet"), h("span", { className: "label", textContent: "Flow" }));
 	dom.verdictBar = h("div", { id: "verdict" }, dom.verdictText, dom.flowToggle);
 	dom.verdictSig = "";
 	return dom.verdictBar;

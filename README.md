@@ -557,6 +557,13 @@ money shows through its own dark slot. The automation switches are black keys on
 a strip of the same plating, and sink when pressed. The board stays the reactor;
 nothing on the desk is decoration without a job.
 
+The strip above the desk is one row, not two: the floor line, the automation
+switches and the Flow and Plan tools share one strip of plating, the floor
+line taking the room left and wrapping to two lines before it pushes anything.
+On a phone narrower than 380 px, Flow and Plan are their icons alone and the
+money's drums shrink a size, so the floor line and the gauges keep their
+numbers.
+
 Below the desk, the parts are a tray of darker plating with each part in a
 recessed bin, the chosen one ringed. The part families (Cells, Power, Cooling,
 Transfer, Modules) and the pages (Reactor, Upgrades, Experiments, Modules,
@@ -676,7 +683,8 @@ instead. It stays that way.
 ## The automation panel
 
 Every automated system the player owns has a switch and a lamp on the reactor
-screen, under the floor line, and nowhere else: **Sell** (the power lines
+screen, on the floor line's strip between the verdict and the Flow and Plan
+tools, and nowhere else: **Sell** (the power lines
 selling on their own), **Rebuy** (spent cells, reflectors, condensator refills
 and capacitor buyouts replacing themselves) and **Operator** (Heat Control
 Operator). A lamp is lit while its system runs. The panel appears with the first

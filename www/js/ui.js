@@ -259,7 +259,7 @@ export function buildUI(game) {
 	dom.objective.append(dom.runTag, dom.goalText, dom.goalBar);
 	// The planner: a free copy of the board to try things on, as the IC2
 	// planners let you. Build puts it onto the real board; Discard forgets it.
-	dom.plan = h("button", { className: "tool", title: "Try a layout for free", onclick: game.startPlanner }, icon("plan"), "Plan");
+	dom.plan = h("button", { className: "tool", ariaLabel: "Plan", title: "Try a layout for free", onclick: game.startPlanner }, icon("plan"), h("span", { className: "label", textContent: "Plan" }));
 	dom.planBuild = h("button", { className: "tool", onclick: game.buildPlan }, "Build");
 	dom.planDiscard = h("button", { className: "tool", onclick: game.discardPlan }, "Discard");
 	// Banked time, counting down while it is spent; the same tap stops it.
@@ -425,7 +425,10 @@ export function buildUI(game) {
 	dom.switches = SWITCHES.map(([field, label]) => h("button", { className: "switch", hidden: true,
 		ariaPressed: "false", onclick: () => game.toggleSwitch(field) }, label));
 	dom.panel = h("div", { id: "switches", hidden: true, ariaLabel: "Automation" }, ...dom.switches);
-	root.append(h("footer", {}, verdict, dom.panel, dom.rateBar, dom.actions, dom.dock, dom.tabs));
+	// One strip, not two: the switches sit on the verdict line, between what the
+	// board does and the tools that change it.
+	dom.verdictText.after(dom.panel);
+	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	dom.game = game;
 	buildDock(dom, game);

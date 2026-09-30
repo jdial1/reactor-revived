@@ -1703,3 +1703,51 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 /* Room under the family keys, so a latched one never sits on the bins. */
 #dock { gap: 5px; }
 #dock-tabs button.on, #dock-tabs button:active { transform: translateY(1px); }
+
+/* The verdict line and the automation switches, merged into one strip of
+   plating: what the board does, the switches that run it, then the tools.
+   The verdict takes the room left and wraps to two lines before it pushes. */
+#verdict {
+	gap: 6px;
+	padding: 4px 6px;
+	color: #a9bdb9;
+	background: var(--plating) var(--dither);
+	border-bottom: 1px solid #1b2927;
+	box-shadow: inset 0 1px 0 var(--plating-hi);
+}
+#verdict.holds > span { color: #7ee08f; }
+#verdict.fails > span { color: #f09a9a; }
+#verdict #switches {
+	flex: none;
+	gap: 4px;
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+#verdict #switches .switch { gap: 4px; padding: 2px 6px 2px 5px; font-size: 9px; letter-spacing: 0.04em; }
+#verdict #switches .switch::before { width: 6px; height: 6px; }
+#verdict .tool,
+#verdict .flow-toggle {
+	color: #9fb0ad;
+	background: #101417;
+	border: 1px solid #07090c;
+	border-image: none;
+	border-radius: 2px;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 1px 0 #0009;
+	padding: 2px 6px;
+	font-size: 9px;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+#verdict .tool:active, #verdict .flow-toggle:active { transform: translateY(1px); box-shadow: inset 0 1px 2px #000; filter: none; }
+#verdict .flow-toggle[aria-pressed="true"] { color: #6fc0ea; border-color: #07090c; box-shadow: inset 0 1px 2px #000; }
+/* On a narrow phone the tools are their icons alone, so the verdict keeps its
+   words; their names stay in their labels. The money's drums shrink a size so
+   the gauges beside them keep their numbers. */
+@media (max-width: 380px) {
+	#verdict .tool .label { display: none; }
+	#verdict .tool { padding: 3px 6px; }
+	#verdict .tool .icon { width: 12px; height: 12px; }
+	.purse .cash { font-size: 14px; min-width: calc(10ch + 30px); }
+}
