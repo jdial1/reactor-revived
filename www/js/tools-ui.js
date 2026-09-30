@@ -91,11 +91,11 @@ const holds = (f) => (!f.failTick ? MARKS[f.mark] ?? "Holds"
 export function buildVerdict(dom, game) {
 	// On the real board the line is a record, and tapping it explains the mark.
 	dom.verdictText = h("span", { onclick: () => { if (!game.state.planner) markSheet(game.state); } });
-	dom.flowToggle = h("button", { className: "tool flow-toggle", ariaPressed: "false", ariaLabel: "Flow", title: "Show each part's heat in, out and vented", onclick: () => {
+	dom.flowToggle = h("button", { className: "key small tool flow-toggle", ariaPressed: "false", ariaLabel: "Flow", title: "Show each part's heat in, out and vented", onclick: () => {
 		const on = document.body.classList.toggle("flow");
 		dom.flowToggle.setAttribute("aria-pressed", String(on));
 	} }, icon("outlet"), h("span", { className: "label", textContent: "Flow" }));
-	dom.verdictBar = h("div", { id: "verdict" }, dom.verdictText, dom.flowToggle);
+	dom.verdictBar = h("div", { id: "verdict", className: "panel" }, dom.verdictText, dom.flowToggle);
 	dom.verdictSig = "";
 	return dom.verdictBar;
 }
@@ -306,7 +306,7 @@ export function replaceDialog(s, from, game) {
 
 	const picker = h("div", { className: "mod-strip" });
 	const body = h("div", {});
-	const go = h("button", { className: "wide" });
+	const go = h("button", { className: "key wide" });
 	const dialog = modal(`Replace every ${from.title}`,
 		h("h2", { textContent: `Replace every ${from.title}` }),
 		h("small", { className: "tool-label", textContent: "With" }), picker,
@@ -316,7 +316,7 @@ export function replaceDialog(s, from, game) {
 
 	const show = () => {
 		picker.replaceChildren(...options.map((p) => h("button", {
-			className: `part${p === to ? " on" : ""}`, title: p.title,
+			className: `bin part${p === to ? " on" : ""}`, title: p.title,
 			onclick: () => { to = p; show(); },
 		}, h("i", { style: `background-image:url(${p.art ?? artFor(p)})` }), h("em", { textContent: p.short }), h("u", { textContent: fmt(p.cost) }))));
 
@@ -395,12 +395,12 @@ export function lessonDialog(s, name, game) {
 		h("p", { className: "mark-key", textContent: "Yellow rings: where the heat comes from. Blue: where it ends up. Solid arrows: heat moving part to part. Dashed: through the reactor's pool." }),
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dialog.close() }),
-			h("button", { className: "wide", textContent: "Try it in the planner", onclick: () => {
+			h("button", { className: "key wide", textContent: "Try it in the planner", onclick: () => {
 				dialog.close();
 				game.startPlanner({ tiles: lessonTiles(name), modules: [] });
 			} })),
 		// The broken twin: a few tiles missing, and the planner says what that does.
-		BROKEN[name] ? h("button", { className: "wide", textContent: "Mend a broken copy in the planner", onclick: () => {
+		BROKEN[name] ? h("button", { className: "key wide", textContent: "Mend a broken copy in the planner", onclick: () => {
 			dialog.close();
 			game.startPlanner({ tiles: brokenTiles(name).map(([r, c, id]) => [r * COLS + c, id]), modules: [] });
 		} }) : "");
@@ -418,7 +418,7 @@ function benchDialog(s, name, game) {
 		h("dl", { className: "bench" }, ...benchNumbers(p).flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: show(v) })])),
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dialog.close() }),
-			h("button", { className: "wide", textContent: "Try one in the planner", onclick: () => {
+			h("button", { className: "key wide", textContent: "Try one in the planner", onclick: () => {
 				dialog.close();
 				game.startPlanner({ tiles: [[5 * COLS + 3, b.part]], modules: [] });
 			} })));

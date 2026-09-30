@@ -19,8 +19,8 @@ const heatRange = (cold, hot) => (num(cold) === num(hot) ? signed(cold) : `${sig
 
 export function buildModulesPage(dom, game) {
 	dom.modList = h("div", { className: "modules" });
-	dom.modSummary = h("p", { className: "ep-status" });
-	dom.modNew = h("button", { className: "wide", textContent: "New module", onclick: () => openEditor(dom, game) });
+	dom.modSummary = h("p", { className: "card page-note" });
+	dom.modNew = h("button", { className: "key wide", textContent: "New module", onclick: () => openEditor(dom, game) });
 	dom.modBrowse = h("div", {}, dom.modSummary, dom.modNew, dom.modList);
 	dom.modEditor = h("div", { className: "mod-editor", hidden: true });
 	dom.pages.modules.append(dom.modBrowse, dom.modEditor);
@@ -70,7 +70,7 @@ export function renderModules(dom, s, game) {
 		const used = inUse(s, m);
 		// Closed, a design is its face, its name and its headline; open, the
 		// numbers and what can be done with it.
-		return h("details", { className: "module-row" },
+		return h("details", { className: "bin module-row" },
 			h("summary", {},
 				face(p),
 				h("span", {},
@@ -145,7 +145,7 @@ function buildEditor(dom, game) {
 		h("small", { textContent: "Place - tap a slot; tap it again, or use Empty, to clear" }), e.picker,
 		h("div", { className: "row" },
 			h("button", { textContent: "Cancel", onclick: () => closeEditor(dom) }),
-			h("button", { className: "wide", textContent: "Save module", onclick: () => {
+			h("button", { className: "key wide", textContent: "Save module", onclick: () => {
 				if (!d.layout.some(Boolean)) return;
 				game.saveModule({ name: d.name, icon: d.icon, tint: d.tint, layout: d.layout });
 				closeEditor(dom);
@@ -174,17 +174,17 @@ function renderEditor(dom, s) {
 	if (offerSig !== e.pickSig) {
 		e.pickSig = offerSig;
 		const pickButton = (p, ok = true) => {
-			const b = h("button", { className: `part${d.pick === p.id ? " on" : ""}`, title: p.title, disabled: !ok,
+			const b = h("button", { className: `bin part${d.pick === p.id ? " on" : ""}`, title: p.title, disabled: !ok,
 				onclick: () => { d.pick = p.id; e.pickSig = ""; } },
 			h("i", { style: `background-image:${art(p.id)}` }), h("em", { textContent: p.short }));
 			return b;
 		};
 		e.picker.replaceChildren(
-			h("button", { className: `part${d.pick === "empty" ? " on" : ""}`, onclick: () => { d.pick = "empty"; e.pickSig = ""; } },
+			h("button", { className: `bin part${d.pick === "empty" ? " on" : ""}`, onclick: () => { d.pick = "empty"; e.pickSig = ""; } },
 				h("i", {}), h("em", { textContent: "Empty" })),
 			...offer.map((o) => (o.p ? pickButton(o.p, o.ok) : pickButton(o))));
 		e.icons.replaceChildren(...offer.filter((o) => !o.p).map((p) => h("button", {
-			className: `part${d.icon === p.id ? " on" : ""}`, title: p.title,
+			className: `bin part${d.icon === p.id ? " on" : ""}`, title: p.title,
 			onclick: () => { d.icon = p.id; d.sig = ""; e.pickSig = ""; },
 		}, h("i", { style: `background-image:${art(p.id)}` }))));
 	}

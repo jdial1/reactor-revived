@@ -31,6 +31,25 @@
 	--screen: #08110f;
 	--phosphor: #a9d6c6;
 	--phosphor-dim: #5f8479;
+	/* The components' look, defined once (see Components, below). */
+	--key-face: #101417;
+	--key-face-in: #0b0e10;
+	--key-edge: #07090c;
+	--key-ink: #c5d2cf;
+	--key-ink-off: #9fb0ad;
+	--key-ink-lit: #d6e2df;
+	--key-sunk: inset 0 2px 3px #000;
+	--lamp-off: #23292f;
+	--plating-lo: #1b2927;
+	--tray: #1c2b29;
+	--plate-ink: #1a1a16;
+	--plate-ink-dim: #4b4a40;
+	--card-ink: #23221c;
+	--card-rule: #b8ae92;
+	--bin-face: #0b1012;
+	--frame-face: #141b1c;
+	--flux-ink: #6fc0ea;
+	--danger-ink: #e58a8a;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
@@ -73,18 +92,6 @@ button {
 }
 button:active { filter: brightness(1.4); }
 
-/* Skinned from Buch's CC0 sheet by docs/build_ui_skin.py; border-image uses only
-   the outer ring, so the files' middles are blank. Opt-in per selector: a dock
-   part has no 8px to spare, and the page tabs mark themselves with a border. */
-#goal .pause, #dock-tabs button, .upgrade,
-button.wide, .sheet-actions button, dialog .row button {
-	border: 8px solid var(--edge);
-	background: var(--face) var(--dither);
-	border-image: url(../ui/button.png) 8 repeat;
-	border-radius: 0;
-	padding: 0 2px;
-	image-rendering: pixelated;
-}
 a { color: var(--power); }
 
 /* stat bar */
@@ -114,27 +121,17 @@ a { color: var(--power); }
 	-webkit-line-clamp: 2;
 	overflow: hidden;
 }
+/* The header's keys: the reactor's switch (a switch, lamp and all) and Time Flux. */
 #goal .pause {
 	align-self: center;
 	display: flex;
 	align-items: center;
 	gap: 5px;
 	flex: none;
-	padding: 5px 8px;
-	font-size: 11px;
+	padding: 0 10px;
+	letter-spacing: 0.06em;
 }
-/* The reactor's on switch, lamp and all, like the automation panel's. */
-#goal .reactor-switch { min-width: 58px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
-#goal .reactor-switch::before {
-	content: "";
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: #23292f;
-	box-shadow: inset 0 0 0 1px #07090c;
-}
-#goal .reactor-switch.on { color: var(--ink); }
-#goal .reactor-switch.on::before { background: var(--power); box-shadow: inset 0 0 0 1px #07090c, 0 0 6px var(--power); }
+#goal .reactor-switch { --lamp-size: 8px; min-width: 58px; letter-spacing: 0.08em; }
 
 .purse {
 	display: grid;
@@ -306,14 +303,6 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 }
 .upgrade .kind { position: absolute; top: 6px; right: 7px; line-height: 0; }
 .upgrade .kind .icon { width: 15px; height: 15px; }
-/* Out of reach: the flat frame, not the raised one. The narrower border is paid
-   back in padding, or rows shift as prices come into reach. */
-.upgrade.poor {
-	border-width: 6px;
-	border-image-source: url(../ui/panel.png);
-	border-image-slice: 6;
-	padding: 2px 4px;
-}
 .upgrade .kind.utility { color: var(--dim); }
 .upgrade > b { padding-right: 22px; }
 .upgrade b { color: var(--ink); }
@@ -393,13 +382,6 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 	margin-bottom: 10px;
 }
 
-.ep-status {
-	background: var(--panel);
-	border: 1px solid var(--edge);
-	border-left: 3px solid var(--ep);
-	padding: 8px;
-	margin: 0 0 8px;
-}
 
 .options, .reboot { display: grid; gap: 6px; margin-bottom: 10px; }
 .field { display: grid; gap: 3px; }
@@ -483,10 +465,16 @@ footer {
 	grid-template-columns: 1fr auto 1fr;
 	align-items: center;
 	margin: 4px;
-	background: var(--face) var(--dither);
-	border: 6px solid var(--edge);
-	border-image: url(../ui/panel.png) 6 repeat;
-	image-rendering: pixelated;
+	/* The desk's pale painted panel (Soul Interview 5.6), framed in plating, with
+	   its process line under the gauges: blue on the power side, orange on the heat
+	   side, over a black rule. */
+	padding-bottom: 7px;
+	border: 3px solid var(--plating);
+	background:
+		linear-gradient(to right, #2f5f8a 0 50%, #b8602e 50% 100%) left calc(100% - 3px) / 100% 2px no-repeat,
+		linear-gradient(var(--card-ink), var(--card-ink)) left calc(100% - 5px) / 100% 1px no-repeat,
+		var(--plate) var(--dither);
+	box-shadow: inset 0 0 0 1px #fff6, 0 0 0 1px #0009;
 }
 .gauge {
 	display: grid;
@@ -501,9 +489,9 @@ footer {
 	border-radius: 0;
 }
 .gauge > span:first-child { display: flex; justify-content: space-between; gap: 6px; white-space: nowrap; }
-.gauge small { color: var(--dim); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
-.gauge b { font-weight: normal; font-size: 11px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
-.gauge .track { display: block; height: 6px; background: #07090c; box-shadow: inset 0 0 0 1px var(--edge); }
+.gauge small { color: var(--plate-ink-dim); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.gauge b { color: var(--card-ink); font-weight: normal; font-size: 11px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+.gauge .track { display: block; height: 6px; background: #15191c; box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
 .gauge .track i { display: block; height: 100%; width: 0; transition: width 120ms linear; }
 .gauge.power .track i { background: var(--power); }
 /* Heat reddens as it nears the limit; the board says the rest. */
@@ -511,21 +499,23 @@ footer {
 /* Power is capped: what the reactor makes now goes nowhere until it is sold. */
 .gauge.full .track i { animation: brim 1.4s ease-in-out infinite; }
 @keyframes brim { 50% { filter: brightness(1.6); } }
-.purse { padding: 0 8px; border-inline: 1px solid var(--edge); }
-#dock-tabs { display: flex; gap: 3px; }
-#dock-tabs button {
+.purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
+/* Violet on cream: a darker particle ink, the same signal. */
+#actions .ep { color: #6f3a99; }
+/* The part families: a bank of selector keys over the tray. */
+#dock-tabs { display: flex; gap: 4px; }
+#dock-tabs > .key {
+	--travel: 1px;
+	--lamp-size: 5px;
+	--lamp: var(--cash);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 5px;
 	flex: 1;
-	padding: 4px 0;
-	font-size: 11px;
-	color: var(--dim);
-}
-#dock-tabs button.on {
-	color: var(--ink);
-	border-image-source: url(../ui/button-on.png);
+	padding: 5px 0 4px;
+	font-size: 10px;
+	letter-spacing: 0.06em;
 }
 #dock-body { overflow: hidden; }
 
@@ -576,10 +566,10 @@ footer {
 }
 .part em { font-style: normal; font-size: 9px; white-space: nowrap; }
 .part u { text-decoration: none; font-size: 9px; color: var(--dim); }
+/* The chosen part: its bin lit from inside. */
 .part.on {
-	border-color: #07090c;
-	background: var(--face) var(--dither);
-	box-shadow: inset 1px 1px 0 #07090c, inset -1px -1px 0 #7b8794;
+	background: #121a1c;
+	box-shadow: inset 1px 1px 0 var(--key-edge), inset -1px -1px 0 #7b8794;
 }
 .part.poor u { color: var(--dim); }
 /* The part's own art at 166%, cropped by a box that is the same middle 60% of
@@ -616,67 +606,51 @@ footer {
 .part.next em { color: var(--ink); }
 .part.next u { color: var(--dim); }
 
-#tabs { display: flex; }
-#tabs button {
+/* The pages: a bank of selector keys on the tray. What a page has waiting is a
+   lamp on its key, not a counted badge; the count is in its label. */
+#tabs {
+	display: flex;
+	gap: 4px;
+	padding: 5px 4px 6px;
+	background: var(--tray) var(--dither);
+	border-top: 1px solid var(--key-edge);
+}
+#tabs > .key {
+	position: relative;
 	display: grid;
 	justify-items: center;
 	gap: 1px;
 	flex: 1;
-	border: 0;
-	border-top: 2px solid transparent;
-	border-radius: 0;
-	padding: 4px 2px 3px;
-	font-size: 10px;
-	color: var(--dim);
-	background: none;
+	padding: 5px 2px 4px;
+	font-size: 9px;
+	letter-spacing: 0.06em;
 }
-#tabs button.on { color: var(--ink); border-top-color: var(--ink); }
-
-#tabs button { position: relative; }
-.pip {
-	position: absolute;
-	top: 3px;
-	left: 50%;
-	margin-left: 5px;
-	width: 8px;
-	height: 8px;
-	border-radius: 999px;
-	background: var(--cash);
-	animation: pop 220ms ease-out;
-}
-.pip.experiments { background: var(--ep); }
-.pip.many {
-	width: auto;
-	min-width: 14px;
-	height: 14px;
-	padding: 0 3px;
-	font: 700 9px/14px ui-monospace, monospace;
-	text-align: center;
-	color: var(--bg);
-}
+#tabs .icon { opacity: 0.75; }
+#tabs > .key.on .icon { opacity: 1; }
+.pip { --lamp-size: 6px; position: absolute; top: 4px; right: 5px; font-size: 0; }
+.pip.upgrades { --lamp: var(--cash); }
+.pip.experiments { --lamp: var(--ep); }
 
 /* dialogs */
 dialog {
 	color: var(--ink);
-	background: var(--face) var(--dither);
-	border: 6px solid var(--edge);
-	border-image: url(../ui/panel.png) 6 repeat;
-	border-radius: 0;
-	padding: 8px;
+	padding: 0 10px 10px;
 	max-width: min(90vw, 340px);
-	image-rendering: pixelated;
 }
 dialog::backdrop { background: #000a; }
-dialog h2 { margin: 0 0 2px; font-size: 15px; }
+dialog h2 { margin: 0 -10px 10px; padding: 6px 10px 5px; font-size: 13px; letter-spacing: 0.06em; }
 dialog i { color: var(--dim); font-style: normal; font-size: 11px; }
 dialog p { margin: 0 0 12px; }
-.sheet.meltdown h2 { color: var(--heat); }
+.sheet.meltdown h2 { color: #8a2a14; }
 .sheet.meltdown i { display: block; margin-bottom: 10px; font-style: normal; color: var(--dim); }
 
-.sheet-actions { display: grid; gap: 6px; margin-bottom: 8px; }
-.sheet-actions button { padding: 10px; }
-dialog .row { display: flex; gap: 8px; }
-dialog .row button { flex: 1; padding: 10px; }
+/* A sheet's actions: two to a row, so a part's sheet fits a phone; a lone last
+   action takes the whole row. */
+.sheet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+.sheet-actions > button { padding: 8px 6px; }
+.sheet-actions > button:last-child:nth-child(odd) { grid-column: 1 / -1; }
+dialog .row { display: flex; gap: 6px; }
+dialog .row > button { flex: 1; }
 
 .sheet dl {
 	display: grid;
@@ -823,19 +797,10 @@ body.melting { animation: melting 500ms ease-out; }
 	100% { background: var(--bg); }
 }
 
-/* Paused because you walked away, said on the tab that undoes it. */
-#tabs button.paused .icon { opacity: 0.45; }
-#tabs button.paused::after {
-	content: "";
-	position: absolute;
-	top: 3px;
-	right: 50%;
-	margin-right: 5px;
-	width: 8px;
-	height: 8px;
-	border-radius: 999px;
-	background: var(--heat);
-}
+/* Paused because you walked away, said by a lamp on the key that undoes it. */
+#tabs > .key.paused { --lamp: var(--heat); }
+#tabs > .key.paused:not(.on) .icon { opacity: 0.45; }
+#tabs > .key.paused::after { position: absolute; top: 4px; left: 5px; --lamp-size: 6px; }
 
 /* Some people turn contrast up because they need it. */
 @media (prefers-contrast: more) {
@@ -910,30 +875,24 @@ body.melting { animation: melting 500ms ease-out; }
    and plain to tap. The ring alone, with a glow, points the way. */
 .tut-ring.act { box-shadow: 0 0 0 2px #000c, 0 0 14px var(--cash); }
 .tut-ring.act.empty { box-shadow: none; }
+/* The tutorial's card is a sheet: framed, and named on a nameplate. */
 .tut-card {
 	position: fixed;
 	left: 50%;
 	transform: translateX(-50%);
 	width: min(92vw, 360px);
 	pointer-events: auto;
-	padding: 10px 12px;
+	padding: 0 12px 10px;
 	color: var(--ink);
-	background: var(--face) var(--dither);
-	border: 6px solid var(--edge);
-	border-image: url(../ui/panel.png) 6 repeat;
-	image-rendering: pixelated;
-	box-shadow: 0 6px 24px #000c;
 }
 .tut-card.centred { top: 50%; transform: translate(-50%, -50%); }
-.tut-card small { color: var(--dim); font-size: 10px; }
-.tut-card h2 { margin: 2px 0 6px; font-size: 15px; color: var(--cash); }
+.tut-card small { display: block; margin: 0 -12px; padding: 3px 12px 0; font-size: 10px; color: var(--plate-ink-dim); background: var(--plate); }
+.tut-card h2 { margin: 0 -12px 8px; padding: 0 12px 5px; font-size: 15px; }
 .tut-card p { margin: 0 0 8px; font-size: 12px; line-height: 1.45; }
 .tut-doing { color: var(--heat); }
 .tut-doing.done { color: var(--power); }
 .tut-row { display: flex; gap: 6px; }
-.tut-row button { flex: 1; padding: 8px 4px; }
-.tut-row .tut-skip { color: var(--dim); }
-.tut-row button:disabled { opacity: 0.55; }
+.tut-row > button { flex: 1; padding: 8px 4px; }
 
 /* A goal met: a tick at the start of the goal line, then gone. */
 #goal .objective.met::before {
@@ -973,12 +932,10 @@ body.melting { animation: melting 500ms ease-out; }
 	gap: 4px 10px;
 	align-items: center;
 	padding: 8px;
-	background: var(--panel);
-	border: 1px solid var(--edge);
 }
 .module-row small { display: block; color: var(--dim); font-size: 11px; }
 .module-row .row { grid-column: 1 / -1; display: flex; gap: 6px; }
-.module-row .row button { flex: 1; }
+.module-row .row > button { flex: 1; }
 .unstable, .module-row small.unstable { color: #d87a7a; }
 
 .mod-editor { display: grid; gap: 6px; }
@@ -1023,8 +980,7 @@ body.melting { animation: melting 500ms ease-out; }
 .mod-grid.mini { grid-template-columns: repeat(3, 28px); margin: 6px 0; }
 .mod-grid.mini .slot { width: 28px; height: 28px; }
 .mod-editor > .row { display: flex; gap: 6px; }
-.mod-editor > .row button { flex: 1; padding: 10px; }
-.module-row button:disabled { opacity: 0.35; }
+.mod-editor > .row > button { flex: 1; }
 
 /* Upgrade sections: what an upgrade acts on, as Incremental and Knockoff grouped them. */
 .upgrade-section { margin-bottom: 10px; }
@@ -1088,24 +1044,23 @@ dialog .note:empty { display: none; }
 /* Planning: the board wears a blueprint edge so it never passes for the real one. */
 body.planning #board { box-shadow: inset 0 0 0 2px #4aa8d8; background: #0a1a26; }
 body.planning #goal { background: #0e2233; }
-#tabs button:disabled { opacity: 0.35; }
 
-/* Time Flux: lit while it runs. */
-#goal .flux.on { color: #4aa8d8; border-image-source: url(../ui/button-on.png); }
 /* A phone has room for the goal or for labels, not both: icons say Plan and Pause. */
 @media (max-width: 480px) {
 	#goal .squeeze > span:not(.swap) { display: none; }
 }
 
-/* The verdict: what this layout does, measured. */
+/* One strip of plating under the board: the verdict (what the board does), the
+   automation's switches, then the tools that change it. The verdict takes the
+   room left and wraps to two lines before it pushes. */
 #verdict {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	padding: 3px 8px;
+	gap: 6px;
+	padding: 4px 6px;
 	font-size: 10px;
-	color: var(--dim);
-	border-bottom: 1px solid var(--edge);
+	color: #a9bdb9;
+	border-bottom: 1px solid var(--plating-lo);
 }
 /* Up to two lines, then cut: the verdict wraps rather than widening the footer. */
 #verdict > span {
@@ -1117,39 +1072,12 @@ body.planning #goal { background: #0e2233; }
 	overflow: hidden;
 	line-height: 1.3;
 }
-#verdict.holds > span { color: var(--power); }
-#verdict.fails > span { color: #d87a7a; }
-.flow-toggle { flex: none; padding: 1px 8px; font-size: 10px; }
-
-/* The automation panel: a switch with a lamp for each system the player owns,
-   lit while it runs. Seen from the reactor, as in a control room. */
-#switches {
-	display: flex;
-	gap: 6px;
-	padding: 3px 8px;
-	border-bottom: 1px solid var(--edge);
-}
-#switches .switch {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	padding: 1px 8px 1px 6px;
-	font-size: 10px;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: var(--dim);
-}
-#switches .switch::before {
-	content: "";
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: #23292f;
-	box-shadow: inset 0 0 0 1px #07090c;
-}
-#switches .switch.on { color: var(--ink); }
-#switches .switch.on::before { background: var(--power); box-shadow: inset 0 0 0 1px #07090c, 0 0 5px var(--power); }
-.flow-toggle[aria-pressed="true"] { color: #4aa8d8; border-color: #4aa8d8; }
+#verdict.holds > span { color: #7ee08f; }
+#verdict.fails > span { color: #f09a9a; }
+/* The automation: a switch with a lamp for each system the player owns, lit
+   while it runs, seen from the reactor as in a control room. */
+#switches { display: flex; flex: none; gap: 4px; }
+#switches > .switch { --lamp-size: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px 2px 5px; }
 
 /* The heat-flow overlay: each tile's heat in, out and vented this tick. */
 .tile .flow {
@@ -1256,19 +1184,18 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .sides .side.on b { color: var(--cash); }
 .sides .side:disabled { opacity: 0.6; }
 .part .mod-face { width: 36px; height: 36px; }
-/* A folded dock keeps its tabs and gives the board the rest. */
+/* A folded dock keeps its keys and gives the board the rest: none is latched. */
 #dock.folded #dock-body { display: none; }
-#dock.folded #dock-tabs button.on { border-image-source: url(../ui/button.png); color: var(--dim); }
-
-/* The board's tool strip: Flow, and planning. */
-#verdict .tool {
-	flex: none;
-	display: inline-flex;
-	align-items: center;
-	gap: 3px;
-	padding: 1px 7px;
-	font-size: 10px;
+#dock.folded #dock-tabs > .key.on {
+	color: var(--key-ink-off);
+	background: var(--key-face);
+	transform: none;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 var(--travel) 0 #000b;
 }
+#dock.folded #dock-tabs > .key.on::before { background: var(--lamp-off); box-shadow: none; }
+
+/* The board's tools on the strip: Flow, and planning. */
+#verdict .tool { flex: none; display: inline-flex; align-items: center; gap: 3px; }
 #verdict .tool .icon { width: 10px; height: 10px; }
 #verdict .tool[hidden] { display: none; }
 
@@ -1329,7 +1256,7 @@ details.module-row .row { margin-top: 8px; }
 }
 /* Records: the statistics page. */
 .records { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; margin: 6px 0 12px; font-size: 11px; }
-.records dt { color: var(--dim); }
+.records dt { color: var(--plate-ink-dim); }
 .records dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 /* A field note, earned by seeing it happen. */
 .field-note { margin: 6px 0 0; padding: 4px 6px; font-size: 11px; color: var(--ink); border-left: 2px solid #4aa8d8; background: #0a1a26; }
@@ -1346,11 +1273,11 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 
 /* The trophy case. */
 .trophies { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: 11px; }
-.trophies li { padding: 4px 6px; color: var(--dim); background: var(--panel); border-left: 2px solid var(--edge); }
-.trophies li.won { color: var(--ink); border-left-color: var(--cash); }
+.trophies li { padding: 4px 6px; color: #6b6656; background: #cfc7b0; border-left: 2px solid var(--card-rule); }
+.trophies li.won { color: var(--card-ink); border-left-color: #a8862a; }
 .trophies li b { font-weight: normal; }
-.trophies li.won b { color: var(--cash); }
-.trophies li small { display: block; color: var(--dim); }
+.trophies li.won b { color: #6e5412; }
+.trophies li small { display: block; color: #5b5747; }
 
 /* On the real board the verdict line is the board's record; it opens the mark. */
 #verdict > span[role="button"] { cursor: pointer; }
@@ -1414,33 +1341,12 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	padding: 8px 8px 10px;
 	background: var(--plating) var(--dither);
 	border: 2px solid var(--plating-hi);
-	border-bottom-color: #1b2927;
-	border-right-color: #1b2927;
+	border-bottom-color: var(--plating-lo);
+	border-right-color: var(--plating-lo);
 	box-shadow: inset 0 0 0 1px #0006;
 }
-.computer .plate {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin: 0 0 8px;
-	padding: 3px 8px;
-	color: #1a1a16;
-	background: var(--plate);
-	border-bottom: 3px solid var(--heat);
-	font-size: 10px;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-}
-.computer .plate span { color: #4b4a40; }
-.computer .lamp {
-	width: 10px;
-	height: 10px;
-	margin-left: auto;
-	border-radius: 50%;
-	background: #3a2a1a;
-	box-shadow: inset 0 0 0 1px #0008;
-}
-.computer .lamp.on { background: var(--cash); box-shadow: 0 0 6px var(--cash), inset 0 0 0 1px #0004; }
+.computer .plate { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.computer .lamp { --lamp-size: 10px; --lamp: var(--cash); margin-left: auto; }
 .computer .screen {
 	position: relative;
 	padding: 0 8px 8px;
@@ -1474,7 +1380,6 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	background: none;
 	border: 0;
 	border-bottom: 1px dashed #1d302b;
-	border-image: none;
 	border-radius: 0;
 }
 .computer .upgrade b { color: var(--phosphor); font-weight: normal; }
@@ -1500,17 +1405,12 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .computer .upgrade.authorised { animation: authorised 700ms steps(2, end); }
 @keyframes authorised { to { background: none; } }
 .computer .upgrade.denied { animation: shake 220ms; }
-#page-experiments .computer .lamp.on { background: var(--ep); box-shadow: 0 0 6px var(--ep), inset 0 0 0 1px #0004; }
+#page-experiments .computer .lamp { --lamp: var(--ep); }
 
 /* Letters: cream slips in the log, typed dark, opened in place. An unread one
    carries a dot in the price colour; nothing outside the log says it came. */
 .letters { display: grid; gap: 4px; margin-bottom: 10px; }
-.letter {
-	color: #23221c;
-	background: var(--plate);
-	border-left: 3px solid #b8ae92;
-	padding: 5px 8px;
-}
+.letter { padding: 5px 8px; }
 .letter summary {
 	cursor: pointer;
 	list-style: none;
@@ -1567,183 +1467,172 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	color: var(--phosphor-dim);
 }
 
-/* The control desk (Soul Interview 5.2, 5.6). The gauges sit on a pale painted
-   panel, as in the lead reference, framed in the plant computer's teal plating;
-   under them a painted process line, blue on the power side and orange on the
-   heat side. The money shows through its own dark slot. The automation switches
-   are black keys on a strip of the same plating. The board above stays the
-   reactor, and the dock below stays the parts tray. */
-#actions {
-	border: 3px solid var(--plating);
-	border-image: none;
-	background:
-		linear-gradient(to right, #2f5f8a 0 50%, #b8602e 50% 100%) left calc(100% - 3px) / 100% 2px no-repeat,
-		linear-gradient(#23221c, #23221c) left calc(100% - 5px) / 100% 1px no-repeat,
-		var(--plate) var(--dither);
-	box-shadow: inset 0 0 0 1px #fff6, 0 0 0 1px #0009;
-	padding-bottom: 7px;
-}
-#actions .gauge small { color: #4b4a40; }
-#actions .gauge b { color: #23221c; }
-#actions .gauge .track { background: #15191c; box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
-#actions .purse { border-inline-color: #b8ae92; }
-/* Violet on cream: a darker particle ink, the same signal. */
-#actions .ep { color: #6f3a99; }
+/* ==== Components (docs/ui-components.md) ======================================
+   The whole interface is built from these, and their look is set only here, from
+   the tokens in :root. A screen's own rules above say where a component sits and
+   how big it is, never what it is made of. (Soul Interview 5.2, 5.5, 5.6: teal
+   plating, cream plates, black keys, lamps, recessed bins, paper cards.)
 
-#switches {
-	background: var(--plating) var(--dither);
-	border-bottom: 1px solid #1b2927;
-	box-shadow: inset 0 1px 0 var(--plating-hi);
-}
-#switches .switch {
-	color: #9fb0ad;
-	background: #101417;
-	border: 1px solid #07090c;
-	border-radius: 2px;
-	box-shadow: inset 0 1px 0 #ffffff14, 0 1px 0 #0009;
-}
-/* Pressed through: the key sinks, and the light it throws goes. */
-#switches .switch:active { transform: translateY(1px); box-shadow: inset 0 1px 2px #000; filter: none; }
-#switches .switch.on { color: #d6e2df; }
+   key        a black key that sinks when pressed: .key, or any button in a
+              .row, .sheet-actions, .tut-row or .keys. Sizes: .key (selector),
+              .key.wide (an action), .key.small (on a strip). A latched key
+              (.on, aria-pressed, aria-current) stays down.
+   switch     a key with a lamp: .key.switch, lit by .on. It never latches.
+   lamp       a lamp: .lamp, lit by .on; its colour is --lamp, its size --lamp-size.
+   nameplate  a cream plate with an orange rule: .nameplate, and every sheet's h2.
+   panel      teal plating: .panel; .plate-group is a panel named on a nameplate.
+   card       paper: .card (a letter, the record card, a page's note).
+   bin        a recessed well in the tray: .bin (a part, a saved module).
+   frame      a sheet's housing: dialog, .tut-card. */
 
-/* The parts tray and the selector keys (Soul Interview 5.2, 5.5). The dock is a
-   tray of darker plating with the parts in recessed bins; the family tabs and
-   the page nav are banks of black keys, the chosen one latched down with its
-   lamp lit - never an underline or a segmented control. What the nav's keys
-   have waiting is a lamp, not a counted badge: the plant computer's own lamp
-   and its section counts say how many. */
-#dock {
-	--tray: #1c2b29;
-	padding-top: 4px;
-	background: var(--tray) var(--dither);
-	border-top: 1px solid var(--plating-hi);
-}
-.selector-key,
-#dock-tabs button,
-#tabs button {
-	position: relative;
-	color: #8fa09d;
-	background: #101417;
-	border: 1px solid #07090c;
-	border-image: none;
+/* ---- key ---- */
+.key,
+:where(.row, .sheet-actions, .tut-row, .keys) > button {
+	--travel: 2px;
+	color: var(--key-ink-off);
+	background: var(--key-face);
+	border: 1px solid var(--key-edge);
 	border-radius: 2px;
-	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
-	letter-spacing: 0.06em;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 var(--travel) 0 #000b;
+	padding: 9px 8px;
+	font-size: 11px;
+	letter-spacing: 0.05em;
 	text-transform: uppercase;
 	transition: transform 60ms ease-out, box-shadow 60ms ease-out;
 }
-/* Latched: pressed in, lit. */
-#dock-tabs button.on,
-#tabs button.on {
-	color: #d6e2df;
-	background: #0b0e10;
-	border-image: none;
-	transform: translateY(2px);
-	box-shadow: inset 0 2px 3px #000;
+/* An action says what it does in full ink. */
+.key.wide,
+:where(.row, .sheet-actions, .tut-row, .keys) > button:not(.key) { color: var(--key-ink); line-height: 1.3; }
+.key.small { --travel: 1px; padding: 2px 6px; font-size: 9px; letter-spacing: 0.04em; }
+/* Pressed through, or latched: the key sinks, and the light it throws goes. */
+.key:active,
+:where(.row, .sheet-actions, .tut-row, .keys) > button:active,
+.key.on:not(.switch),
+.key[aria-pressed="true"]:not(.switch),
+.key[aria-current="page"] {
+	transform: translateY(var(--travel));
+	box-shadow: var(--key-sunk);
+	filter: none;
 }
-#dock-tabs button:active,
-#tabs button:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; filter: none; }
-#dock-tabs { gap: 4px; }
-#dock-tabs button { padding: 5px 0 4px; font-size: 10px; }
-#dock-tabs button.on::before {
-	content: "";
-	width: 5px;
-	height: 5px;
+.key.on:not(.switch),
+.key[aria-pressed="true"]:not(.switch),
+.key[aria-current="page"] { color: var(--key-ink-lit); background: var(--key-face-in); }
+.key.flux.on,
+.key.flow-toggle[aria-pressed="true"] { color: var(--flux-ink); }
+.key:disabled,
+:where(.row, .sheet-actions, .tut-row, .keys) > button:disabled { opacity: 0.45; }
+.tut-row > .tut-skip { color: var(--key-ink-off); }
+.key.danger, .danger { color: var(--danger-ink); }
+
+/* ---- switch ---- */
+.key.switch { display: inline-flex; align-items: center; gap: 5px; }
+.key.switch.on { color: var(--key-ink-lit); }
+.keys > .switch { justify-content: center; gap: 6px; }
+
+/* ---- lamp ---- */
+.lamp,
+.switch::before,
+#dock-tabs > .key.on::before,
+#tabs > .key.paused::after {
+	display: inline-block;
+	flex: none;
+	width: var(--lamp-size, 7px);
+	height: var(--lamp-size, 7px);
 	border-radius: 50%;
-	background: var(--cash);
-	box-shadow: 0 0 5px var(--cash);
+	background: var(--lamp-off);
+	box-shadow: inset 0 0 0 1px var(--key-edge);
+}
+.switch::before,
+#dock-tabs > .key.on::before,
+#tabs > .key.paused::after { content: ""; }
+.lamp.on,
+.switch.on::before,
+#dock-tabs > .key.on::before,
+#tabs > .key.paused::after {
+	background: var(--lamp, var(--power));
+	box-shadow: 0 0 5px var(--lamp, var(--power));
 }
 
-/* A part in its bin: recessed into the tray. The chosen one keeps its ring. */
-.part {
-	background: #0b1012;
-	border: 1px solid #07090c;
+/* ---- nameplate ---- */
+.nameplate,
+dialog h2,
+.tut-card h2 {
+	color: var(--plate-ink);
+	background: var(--plate);
+	border-bottom: 3px solid var(--heat);
+}
+.nameplate {
+	padding: 3px 8px;
+	font-size: 10px;
+	font-weight: normal;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+.nameplate span { color: var(--plate-ink-dim); }
+
+/* ---- panel ---- */
+.panel {
+	background: var(--plating) var(--dither);
+	box-shadow: inset 0 1px 0 var(--plating-hi);
+}
+
+/* ---- card ---- */
+.card {
+	color: var(--card-ink);
+	background: var(--plate);
+	border: 0;
+	border-left: 3px solid var(--card-rule);
+}
+
+/* ---- bin ---- */
+.bin {
+	background: var(--bin-face);
+	border: 1px solid var(--key-edge);
 	border-radius: 2px;
 	box-shadow: inset 0 2px 4px #000c, 0 1px 0 #ffffff0d;
 }
-.part.on { background: #121a1c; }
-.part.next { background-color: #0b1012; }
+.bin.next { background-color: var(--bin-face); }
 
-#tabs {
-	gap: 4px;
-	padding: 5px 4px 6px;
-	background: var(--tray, #1c2b29) var(--dither);
-	border-top: 1px solid #07090c;
+/* ---- frame ---- */
+dialog,
+.tut-card {
+	background: var(--frame-face) var(--dither);
+	border: 3px solid var(--plating);
+	border-radius: 0;
+	box-shadow: 0 0 0 1px #000, inset 0 0 0 1px var(--plating-hi), 0 10px 30px #000c;
 }
-#tabs button { padding: 5px 2px 4px; font-size: 9px; }
-#tabs button.on { border-top: 1px solid #07090c; }
-#tabs .icon { opacity: 0.75; }
-#tabs button.on .icon { opacity: 1; }
 
-/* Lamps, not badges: lit while something on that page is within reach. */
-.pip,
-.pip.many {
-	top: 4px;
-	left: auto;
-	right: 5px;
-	margin: 0;
-	width: 6px;
-	height: 6px;
-	min-width: 0;
-	padding: 0;
-	font-size: 0;
-	color: transparent;
-	background: var(--cash);
-	box-shadow: 0 0 5px var(--cash);
-	animation: none;
-}
-.pip.experiments { background: var(--ep); box-shadow: 0 0 5px var(--ep); }
-#tabs button.paused::after {
-	top: 4px;
-	right: auto;
-	left: 5px;
-	margin: 0;
-	width: 6px;
-	height: 6px;
-	box-shadow: 0 0 5px var(--heat);
-}
-/* Room under the family keys, so a latched one never sits on the bins. */
-#dock { gap: 5px; }
-#dock-tabs button.on, #dock-tabs button:active { transform: translateY(1px); }
+/* ==== Templates: what the components make ======================================
+   sheet     a frame, named on a nameplate, its actions a bank of keys (.row,
+             .sheet-actions): every dialog, and the tutorial's card.
+   terminal  the plant computer: a nameplate with a lamp over a phosphor screen
+             (Upgrades, Experiments).
+   plates    panels named on nameplates, each holding a bank of keys (Options,
+             the core reboot), over a card of what is kept on paper.
+   strip     one panel under the board: the verdict, its switches, the tools.
+   tray      the dock and the pages: banks of selector keys over bins. */
 
-/* The verdict line and the automation switches, merged into one strip of
-   plating: what the board does, the switches that run it, then the tools.
-   The verdict takes the room left and wraps to two lines before it pushes. */
-#verdict {
-	gap: 6px;
-	padding: 4px 6px;
-	color: #a9bdb9;
-	background: var(--plating) var(--dither);
-	border-bottom: 1px solid #1b2927;
-	box-shadow: inset 0 1px 0 var(--plating-hi);
+/* The tray: darker plating under the board. */
+#dock {
+	padding-top: 4px;
+	gap: 5px;
+	background: var(--tray) var(--dither);
+	border-top: 1px solid var(--plating-hi);
 }
-#verdict.holds > span { color: #7ee08f; }
-#verdict.fails > span { color: #f09a9a; }
-#verdict #switches {
-	flex: none;
-	gap: 4px;
-	padding: 0;
-	background: none;
-	border: 0;
-	box-shadow: none;
-}
-#verdict #switches .switch { gap: 4px; padding: 2px 6px 2px 5px; font-size: 9px; letter-spacing: 0.04em; }
-#verdict #switches .switch::before { width: 6px; height: 6px; }
-#verdict .tool,
-#verdict .flow-toggle {
-	color: #9fb0ad;
-	background: #101417;
-	border: 1px solid #07090c;
-	border-image: none;
-	border-radius: 2px;
-	box-shadow: inset 0 1px 0 #ffffff14, 0 1px 0 #0009;
-	padding: 2px 6px;
-	font-size: 9px;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
-}
-#verdict .tool:active, #verdict .flow-toggle:active { transform: translateY(1px); box-shadow: inset 0 1px 2px #000; filter: none; }
-#verdict .flow-toggle[aria-pressed="true"] { color: #6fc0ea; border-color: #07090c; box-shadow: inset 0 1px 2px #000; }
+
+/* Plates: a panel of grouped keys, named on its nameplate. */
+.plate-group { padding: 0 6px 6px; border: 1px solid var(--key-edge); }
+.plate-label { margin: 0 -6px 6px; }
+.plate-group .keys { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.plate-group .keys > :only-child { grid-column: 1 / -1; }
+#page-experiments .plate-group { margin-bottom: 10px; }
+.options { gap: 10px; }
+
+/* Paper: the record card, and a page's note. */
+.record-card { padding: 4px 10px 8px; }
+.record-card .credit-head { margin: 8px 0 4px; color: var(--plate-ink-dim); letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+.page-note { padding: 8px; margin: 0 0 8px; font-size: 12px; }
+
 /* On a narrow phone the tools are their icons alone, so the verdict keeps its
    words; their names stay in their labels. The money's drums shrink a size so
    the gauges beside them keep their numbers. */
@@ -1753,169 +1642,3 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	#verdict .tool .icon { width: 12px; height: 12px; }
 	.purse .cash { font-size: 14px; min-width: calc(10ch + 30px); }
 }
-
-/* ---- The rest of the plant (Soul Interview 5.2, 5.5, 5.6) --------------------
-   Dialogs, Options, Modules and Experiments join the desk and the computer:
-   plating frames, cream plates for names, black keys for every control, cards
-   for what is kept on paper. Steel frames are gone from the game. */
-
-/* Keys. Every button that was a steel frame is now a black key; a press sinks. */
-button.wide,
-.sheet-actions button,
-dialog .row button {
-	color: #c5d2cf;
-	background: #101417;
-	border: 1px solid #07090c;
-	border-image: none;
-	border-radius: 2px;
-	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
-	padding: 9px 8px;
-	font-size: 11px;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-	line-height: 1.3;
-}
-button.wide:active,
-.sheet-actions button:active,
-dialog .row button:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; filter: none; }
-button.wide:disabled,
-dialog .row button:disabled { opacity: 0.45; }
-.danger, button.wide.danger { color: #e58a8a; }
-
-/* Dialogs: framed in plating, named on a cream plate. */
-dialog {
-	background: #141b1c var(--dither);
-	border: 3px solid var(--plating);
-	border-image: none;
-	box-shadow: 0 0 0 1px #000, inset 0 0 0 1px var(--plating-hi), 0 10px 30px #000c;
-	padding: 0 10px 10px;
-}
-dialog h2 {
-	margin: 0 -10px 10px;
-	padding: 6px 10px 5px;
-	font-size: 13px;
-	letter-spacing: 0.06em;
-	color: #1a1a16;
-	background: var(--plate);
-	border-bottom: 3px solid var(--heat);
-}
-.sheet.meltdown h2 { color: #8a2a14; }
-/* The part sheet's actions: two to a row, so the sheet fits a phone. */
-.sheet-actions { grid-template-columns: 1fr 1fr; gap: 6px; }
-.sheet-actions button { padding: 8px 6px; }
-dialog .row { gap: 6px; }
-
-/* Plates of grouped controls: Options, and the core reboot. */
-.plate-group {
-	padding: 0 6px 6px;
-	background: var(--plating) var(--dither);
-	border: 1px solid #07090c;
-	box-shadow: inset 0 1px 0 var(--plating-hi);
-}
-.plate-label {
-	margin: 0 -6px 6px;
-	padding: 3px 8px;
-	font-size: 10px;
-	font-weight: normal;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-	color: #1a1a16;
-	background: var(--plate);
-	border-bottom: 2px solid var(--heat);
-}
-.plate-group .keys { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.plate-group .keys > :only-child { grid-column: 1 / -1; }
-#page-experiments .plate-group { margin-bottom: 10px; }
-/* The sound: a switch with its lamp, like the automation's. */
-.plate-group .switch {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 6px;
-	padding: 9px 8px;
-	font-size: 11px;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-	color: #9fb0ad;
-	background: #101417;
-	border: 1px solid #07090c;
-	border-radius: 2px;
-	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
-}
-.plate-group .switch::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #23292f; box-shadow: inset 0 0 0 1px #07090c; }
-.plate-group .switch.on { color: #d6e2df; }
-.plate-group .switch.on::before { background: var(--power); box-shadow: inset 0 0 0 1px #07090c, 0 0 5px var(--power); }
-.plate-group .switch:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; }
-.options { gap: 10px; }
-
-/* What is kept on paper: the record card, and a page's note. */
-.record-card {
-	padding: 4px 10px 8px;
-	color: #23221c;
-	background: var(--plate);
-	border-left: 3px solid #b8ae92;
-}
-.record-card .credit-head { margin: 8px 0 4px; color: #4b4a40; letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
-.record-card .records dt { color: #4b4a40; }
-.record-card .records dd { color: #23221c; }
-.record-card .trophies li { color: #6b6656; background: #cfc7b0; border-left-color: #b8ae92; }
-.record-card .trophies li.won { color: #23221c; border-left-color: #a8862a; }
-.record-card .trophies li.won b { color: #6e5412; }
-.record-card .trophies li small { color: #5b5747; }
-.ep-status {
-	color: #23221c;
-	background: var(--plate);
-	border: 0;
-	border-left: 3px solid #b8ae92;
-	font-size: 12px;
-}
-
-/* Saved modules: each in a recessed bin, like the parts. */
-.module-row {
-	background: #0b1012;
-	border: 1px solid #07090c;
-	border-radius: 2px;
-	box-shadow: inset 0 2px 4px #000c;
-}
-
-/* The last of the steel: the reactor's switch and the Time Flux key in the
-   header are keys; the tutorial's card is framed and named like a dialog. */
-#goal .pause {
-	color: #9fb0ad;
-	background: #101417;
-	border: 1px solid #07090c;
-	border-image: none;
-	border-radius: 2px;
-	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
-	padding: 0 10px;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-}
-#goal .pause:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; filter: none; }
-#goal .reactor-switch.on { color: #d6e2df; }
-#goal .flux.on { color: #6fc0ea; border-image-source: none; box-shadow: inset 0 2px 3px #000; transform: translateY(2px); }
-/* A folded dock: no family key is latched. */
-#dock.folded #dock-tabs button.on { color: #8fa09d; background: #101417; transform: none; box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b; }
-#dock.folded #dock-tabs button.on::before { background: #23292f; box-shadow: none; }
-.tut-card {
-	background: #141b1c var(--dither);
-	border: 3px solid var(--plating);
-	border-image: none;
-	box-shadow: 0 0 0 1px #000, inset 0 0 0 1px var(--plating-hi), 0 6px 24px #000c;
-	padding: 0 12px 10px;
-}
-.tut-card small { display: block; margin: 0 -12px; padding: 3px 12px 0; color: #4b4a40; background: var(--plate); }
-.tut-card h2 { margin: 0 -12px 8px; padding: 0 12px 5px; color: #1a1a16; background: var(--plate); border-bottom: 3px solid var(--heat); }
-.tut-row button {
-	color: #c5d2cf;
-	background: #101417;
-	border: 1px solid #07090c;
-	border-radius: 2px;
-	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
-	font-size: 11px;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-}
-.tut-row button:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; }
-/* A lone last action on a part's sheet takes the whole row. */
-.sheet-actions button:last-child:nth-child(odd) { grid-column: 1 / -1; }

@@ -599,6 +599,16 @@ its key - amber on Upgrades, violet on Experiments, heat-coloured on Reactor whe
 it was paused while away - not a counted badge; the plant computer's own lamp and
 its section counts say how many, and a screen reader still hears the number.
 
+### Components
+
+All of the above is built from eight components - key, switch, lamp, nameplate,
+panel, card, bin, frame - and five templates made from them: sheet, terminal,
+plates, strip, tray. Each component's look is set once, from tokens in `:root`,
+in the *Components* section at the end of `www/css/app.css`; a screen's rules
+only place and size them. [docs/ui-components.md](docs/ui-components.md) lists
+them, their states and how to add a control, and `test/components.test.js`
+keeps the look from drifting back into per-screen rules.
+
 ## Shipping it
 
 `docs/play/` carries everything Google asks for: the listing copy, the data
