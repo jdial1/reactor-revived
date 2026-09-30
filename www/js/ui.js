@@ -143,7 +143,8 @@ function roller(className) {
 function tabStrip(id, items, onPick) {
 	const el = h("div", { id });
 	for (const [value, label, glyph] of items) {
-		const button = h("button", { dataset: { value }, onclick: () => onPick(value) });
+		// A selector key: a quiet click, and no clack - nothing on the board moves.
+		const button = h("button", { dataset: { value }, onclick: () => { play("click"); onPick(value); } });
 		if (glyph) button.append(icon(glyph));
 		button.append(h("span", { textContent: label }));
 		el.append(button);

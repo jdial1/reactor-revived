@@ -1603,3 +1603,103 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 /* Pressed through: the key sinks, and the light it throws goes. */
 #switches .switch:active { transform: translateY(1px); box-shadow: inset 0 1px 2px #000; filter: none; }
 #switches .switch.on { color: #d6e2df; }
+
+/* The parts tray and the selector keys (Soul Interview 5.2, 5.5). The dock is a
+   tray of darker plating with the parts in recessed bins; the family tabs and
+   the page nav are banks of black keys, the chosen one latched down with its
+   lamp lit - never an underline or a segmented control. What the nav's keys
+   have waiting is a lamp, not a counted badge: the plant computer's own lamp
+   and its section counts say how many. */
+#dock {
+	--tray: #1c2b29;
+	padding-top: 4px;
+	background: var(--tray) var(--dither);
+	border-top: 1px solid var(--plating-hi);
+}
+.selector-key,
+#dock-tabs button,
+#tabs button {
+	position: relative;
+	color: #8fa09d;
+	background: #101417;
+	border: 1px solid #07090c;
+	border-image: none;
+	border-radius: 2px;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	transition: transform 60ms ease-out, box-shadow 60ms ease-out;
+}
+/* Latched: pressed in, lit. */
+#dock-tabs button.on,
+#tabs button.on {
+	color: #d6e2df;
+	background: #0b0e10;
+	border-image: none;
+	transform: translateY(2px);
+	box-shadow: inset 0 2px 3px #000;
+}
+#dock-tabs button:active,
+#tabs button:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; filter: none; }
+#dock-tabs { gap: 4px; }
+#dock-tabs button { padding: 5px 0 4px; font-size: 10px; }
+#dock-tabs button.on::before {
+	content: "";
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: var(--cash);
+	box-shadow: 0 0 5px var(--cash);
+}
+
+/* A part in its bin: recessed into the tray. The chosen one keeps its ring. */
+.part {
+	background: #0b1012;
+	border: 1px solid #07090c;
+	border-radius: 2px;
+	box-shadow: inset 0 2px 4px #000c, 0 1px 0 #ffffff0d;
+}
+.part.on { background: #121a1c; }
+.part.next { background-color: #0b1012; }
+
+#tabs {
+	gap: 4px;
+	padding: 5px 4px 6px;
+	background: var(--tray, #1c2b29) var(--dither);
+	border-top: 1px solid #07090c;
+}
+#tabs button { padding: 5px 2px 4px; font-size: 9px; }
+#tabs button.on { border-top: 1px solid #07090c; }
+#tabs .icon { opacity: 0.75; }
+#tabs button.on .icon { opacity: 1; }
+
+/* Lamps, not badges: lit while something on that page is within reach. */
+.pip,
+.pip.many {
+	top: 4px;
+	left: auto;
+	right: 5px;
+	margin: 0;
+	width: 6px;
+	height: 6px;
+	min-width: 0;
+	padding: 0;
+	font-size: 0;
+	color: transparent;
+	background: var(--cash);
+	box-shadow: 0 0 5px var(--cash);
+	animation: none;
+}
+.pip.experiments { background: var(--ep); box-shadow: 0 0 5px var(--ep); }
+#tabs button.paused::after {
+	top: 4px;
+	right: auto;
+	left: 5px;
+	margin: 0;
+	width: 6px;
+	height: 6px;
+	box-shadow: 0 0 5px var(--heat);
+}
+/* Room under the family keys, so a latched one never sits on the bins. */
+#dock { gap: 5px; }
+#dock-tabs button.on, #dock-tabs button:active { transform: translateY(1px); }

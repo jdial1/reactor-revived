@@ -554,9 +554,18 @@ the Soul Interview (5.6): the gauges and the money on a pale painted panel,
 framed in the plant computer's teal plating, with a painted process line under
 them - blue on the power side, orange on the heat side, over a black rule. The
 money shows through its own dark slot. The automation switches are black keys on
-a strip of the same plating, and sink when pressed. The board stays the reactor
-and the dock stays the parts tray; nothing on the desk is decoration without a
-job.
+a strip of the same plating, and sink when pressed. The board stays the reactor;
+nothing on the desk is decoration without a job.
+
+Below the desk, the parts are a tray of darker plating with each part in a
+recessed bin, the chosen one ringed. The part families (Cells, Power, Cooling,
+Transfer, Modules) and the pages (Reactor, Upgrades, Experiments, Modules,
+Options) are banks of black selector keys: the chosen one latched down with its
+lamp lit, never an underline or a segmented control. A key is a quiet click, no
+clack, since nothing on the board moves. What a page has waiting is a lamp on
+its key - amber on Upgrades, violet on Experiments, heat-coloured on Reactor when
+it was paused while away - not a counted badge; the plant computer's own lamp and
+its section counts say how many, and a screen reader still hears the number.
 
 ## Shipping it
 
