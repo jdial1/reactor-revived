@@ -14,6 +14,8 @@ test("the valley follows the calendar and the clock", () => {
 	assert.equal(at("2026-04-14T11:00").night, false);
 	assert.equal(at("2026-04-14T19:00").night, true, "after seven, the room's own lamps");
 	assert.equal(at("2026-04-14T06:59").night, true);
+	assert.equal(at("2026-04-14T19:00").src, "backdrops/spring-night.webp", "by night, the night painting");
+	assert.equal(at("2026-12-01T23:30").src, "backdrops/winter-night.webp");
 });
 
 test("every season has its painting, and the four stay small", () => {
@@ -24,4 +26,11 @@ test("every season has its painting, and the four stay small", () => {
 		total += size;
 	}
 	assert.ok(total < 200_000, `the valley weighs ${total} bytes`);
+	let night = 0;
+	for (const season of ["spring", "summer", "autumn", "winter"]) {
+		const { size } = statSync(new URL(`../www/backdrops/${season}-night.webp`, import.meta.url));
+		assert.ok(size < 80_000, `${season} by night is ${size} bytes`);
+		night += size;
+	}
+	assert.ok(night < 200_000, `the valley by night weighs ${night} bytes`);
 });

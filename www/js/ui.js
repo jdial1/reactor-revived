@@ -198,9 +198,9 @@ const LINEAGE = [
 		"by cwmonkey. Incremental rebuilt in HTML5 - no engine, no build step. The direct parent "
 		+ "of this one, and the version the balance is checked against."],
 	["Reactor Revival", null,
-		"a later remake in the same line. Its part artwork, and the valley behind the board, are what you are looking at."],
+		"a later remake in the same line. Its part artwork, and the valley behind the board by day, are what you are looking at."],
 	["Reactor Revived", null,
-		"this one: a clean-room rewrite for a phone, no dependencies, no network."],
+		"this one: a clean-room rewrite for a phone, no dependencies, no network. Its icons, and the valley by night, were drawn for it."],
 ];
 
 // Fuels are their own families so uranium and plutonium never share a row.

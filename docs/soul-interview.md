@@ -1408,7 +1408,9 @@ A hard spec for anyone making art or sound, human or tool. Filled from Phase 5,
 beside what already ships. The left column is the build as it stands; every row
 now meets its spec except **part art**, which is still Reactor Revival's
 sprites. Redrawing the parts at 16x16 is art direction for the designer or an
-artist, not something to generate.
+artist, not something to generate. The briefs and prompts for that pack, and
+for the icons, sounds, effects and night backdrops, are in
+[asset-packs.md](asset-packs.md).
 
 | | On record (the build today) | From the interview (the spec) |
 | --- | --- | --- |
@@ -1416,9 +1418,9 @@ artist, not something to generate.
 | The room | The control desk: the gauges on a pale painted panel in teal plating, the automation switches as keys on the plating; the plant computer's terminal. Never a scene (6.3) | A control room left in clean order over a failing core (5.1). Cold, industrial, mildly musty |
 | Materials | Teal plating around the plant computer, the gauge panel and the switch strip; a parts tray of darker plating with recessed bins; black keys that sink when pressed, for the switches, the part families and the pages, the chosen one latched with its lamp lit; lamps, not counted badges; the money's drums in a recessed slot; dialogs framed in plating and named on cream plates; Options grouped on labelled plates with a record card; the core reboot on its own plate; no steel frames left | Soviet off-colour plastics; teal and orange metal plating; tactile switches, knobs, valves, mechanical controls, manual overrides (5.2) |
 | Colours | The gauge panel is the lead reference's pale panel, with a painted process line in blue and orange over a black rule; cream plates; signal colours unchanged (power, heat, cash, particles, each fuel's glow) | A pale panel with a process diagram in orange, blue and black (5.6, lead reference); teal and orange plating. Colour that carries a signal is allowed; bright, glossy decoration is not (6.1) |
-| Light | The player's real time: the valley's painting by season, darkened after seven in the evening when the room's own light is all there is; the board warms toward red with heat | The player's real time (5.3). By day, flat grey light through fog; by night, the room's own lamps. Any shading stays out of the heat colours |
+| Light | The player's real time: the valley's painting by season, and after seven the painted night set, the plant's own windows the only warm light; the board warms toward red with heat | The player's real time (5.3). By day, flat grey light through fog; by night, the room's own lamps. Any shading stays out of the heat colours |
 | Outside | Fog and overcast in four seasonal paintings behind the board (`www/backdrops/`) | Fog, overcast, dreary, a chill: "the dreary outside essence" (5.1, 5.6) |
-| The valley outside | four paintings behind the board, one per season (`www/backdrops/`) | The designer's own paintings for Reactor Revival, in the manner of Simon Stålenhag: fog, flat grey light, green country, old plant standing in it. Still; faint through the empty slots; gone near the limit |
+| The valley outside | four paintings behind the board by day, one per season, and the designer's night set of four after seven, the plant with only its windows lit (`www/backdrops/`) | The designer's own paintings for Reactor Revival, in the manner of Simon Stålenhag: fog, flat grey light, green country, old plant standing in it. Still; faint through the empty slots; gone near the limit |
 | Reference images | Used as reference for the desk's pale panel and plating; none is stored, traced or shipped | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Found by image search; sources unknown, so reference only: never stored, traced or shipped |
 | Signature sounds | One hum; six heavy, dull impacts. Every hand control is two-stage: placing or moving a part is a click, then the place impact as its clank | The click and clank of placing and moving parts: "the physical weight, the effort of your actions, the heaviness of the situation" (5.4) |
 | The quietest sound | The hum at Mark I; the click and clank of a part going into place | The click and clank of a part going into place (5.4) |
