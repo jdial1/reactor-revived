@@ -1405,22 +1405,25 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 ### 7.6 Sensory Palette
 
 A hard spec for anyone making art or sound, human or tool. Filled from Phase 5,
-beside what already ships.
+beside what already ships. The left column is the build as it stands; every row
+now meets its spec except **part art**, which is still Reactor Revival's
+sprites. Redrawing the parts at 16x16 is art direction for the designer or an
+artist, not something to generate.
 
 | | On record (the build today) | From the interview (the spec) |
 | --- | --- | --- |
 | Part art | Reactor Revival's 128x128 sprites, stored at 64px and 32 colours; a dock part drawn at 31px | 16x16 pixel art, "dense and intentional" (0.4). 2D, never 3D; never over-greebled; never generic factory parts, only the parts this reactor needs |
-| The room | none | A control room left in clean order over a failing core (5.1). Cold, industrial, mildly musty |
-| Materials | steel ramp, bevelled frames, checker grain, recessed slot | Soviet off-colour plastics; teal and orange metal plating; tactile switches, knobs, valves, mechanical controls, manual overrides (5.2) |
-| Colours | ink `#c8d3de`, dim `#7b8794`, power `#58c470`, heat `#d8703a`, cash `#d8c15a`, particles `#b06fd8`; each fuel its own glow | A pale panel with a process diagram in orange, blue and black (5.6, lead reference); teal and orange plating. Colour that carries a signal is allowed; bright, glossy decoration is not (6.1) |
-| Light | the board warms toward red with heat; grey until abnormal | The player's real time (5.3). By day, flat grey light through fog; by night, the room's own lamps. Any shading stays out of the heat colours |
-| Outside | none | Fog, overcast, dreary, a chill: "the dreary outside essence" (5.1, 5.6) |
+| The room | The control desk: the gauges on a pale painted panel in teal plating, the automation switches as keys on the plating; the plant computer's terminal. Never a scene (6.3) | A control room left in clean order over a failing core (5.1). Cold, industrial, mildly musty |
+| Materials | Teal plating around the plant computer, the gauge panel and the switch strip; a parts tray of darker plating with recessed bins; black keys that sink when pressed, for the switches, the part families and the pages, the chosen one latched with its lamp lit; lamps, not counted badges; the money's drums in a recessed slot; dialogs framed in plating and named on cream plates; Options grouped on labelled plates with a record card; the core reboot on its own plate; no steel frames left | Soviet off-colour plastics; teal and orange metal plating; tactile switches, knobs, valves, mechanical controls, manual overrides (5.2) |
+| Colours | The gauge panel is the lead reference's pale panel, with a painted process line in blue and orange over a black rule; cream plates; signal colours unchanged (power, heat, cash, particles, each fuel's glow) | A pale panel with a process diagram in orange, blue and black (5.6, lead reference); teal and orange plating. Colour that carries a signal is allowed; bright, glossy decoration is not (6.1) |
+| Light | The player's real time: the valley's painting by season, darkened after seven in the evening when the room's own light is all there is; the board warms toward red with heat | The player's real time (5.3). By day, flat grey light through fog; by night, the room's own lamps. Any shading stays out of the heat colours |
+| Outside | Fog and overcast in four seasonal paintings behind the board (`www/backdrops/`) | Fog, overcast, dreary, a chill: "the dreary outside essence" (5.1, 5.6) |
 | The valley outside | four paintings behind the board, one per season (`www/backdrops/`) | The designer's own paintings for Reactor Revival, in the manner of Simon Stålenhag: fog, flat grey light, green country, old plant standing in it. Still; faint through the empty slots; gone near the limit |
-| Reference images | none | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Found by image search; sources unknown, so reference only: never stored, traced or shipped |
-| Signature sounds | one hum; six heavy, dull impacts | The click and clank of placing and moving parts: "the physical weight, the effort of your actions, the heaviness of the situation" (5.4) |
-| The quietest sound | the hum at Mark I | The click and clank of a part going into place (5.4) |
-| Button feel | a heavy drop; a flash with no sound when refused | One tap, heard as a two-stage click-clack; slow in feel, never in speed (5.5). Built for the plant computer: an upgrade is a key pressed through, inverse video while held, a click then a clack (5.5). Other presses are still one sound |
-| Automated systems | Heat Control Operator switched on the Upgrades page; auto-sell and perpetual rebuys with no light or switch | Each has a light and a switch the operator can see from the reactor (5.2) |
+| Reference images | Used as reference for the desk's pale panel and plating; none is stored, traced or shipped | Four photographs (5.6); the lead is the white panel painted with its process in orange, blue and black, with round dials and a desk of black levers. Found by image search; sources unknown, so reference only: never stored, traced or shipped |
+| Signature sounds | One hum; six heavy, dull impacts. Every hand control is two-stage: placing or moving a part is a click, then the place impact as its clank | The click and clank of placing and moving parts: "the physical weight, the effort of your actions, the heaviness of the situation" (5.4) |
+| The quietest sound | The hum at Mark I; the click and clank of a part going into place | The click and clank of a part going into place (5.4) |
+| Button feel | One tap, heard as a click then its impact: placing and moving parts, the sell and vent bars, the reactor switch, the automation switches, a doctrine side and an upgrade. Bulk actions (a plan or a layout built) stay one sound; a selector key (a part family, a page) is the click alone. A refused tap flashes without a sound | One tap, heard as a two-stage click-clack; slow in feel, never in speed (5.5) |
+| Automated systems | A lamp and a switch for each on the reactor's switch strip (Sell, Rebuy, Operator) | Each has a light and a switch the operator can see from the reactor (5.2) |
 
 ### 7.7 Lore Bible
 
@@ -1538,7 +1541,9 @@ the interviewer; accepted by the designer:
    notes are filed silently in the operator's log book; the welcome-back toast
    is gone and the Time Flux gauge shows the bank; the "unlock" and "goal"
    sounds are retired. `test/voice.test.js` holds every accepted string to the
-   build and keeps exclamation marks out of what the player reads. The rows in
-   7.3 marked Mechanic or Letters are still to build.
+   build and keeps exclamation marks out of what the player reads. Every row in
+   7.3 marked Mechanic or Letters is now built: the voice arc, requests that
+   grow, the plant computer, the complete state, the switches, the on switch
+   and the letters, with every draft accepted by the designer.
 4. Re-run the Seed Card (Phase 0 of the soul instance) against 1.3 and 1.4. The
    inferred fortieth minute and next-day story are replaced by the designer's.

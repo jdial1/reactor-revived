@@ -23,14 +23,16 @@ const CUES = {
 
 export const FILES = [...new Set(Object.values(CUES).map(([file]) => file))];
 
-// Two elements per file, alternating: placing a row of parts quickly should
-// sound like a row of parts, not like one clipped thud. Built on first use, so
-// importing this module outside a browser - the tests do - costs nothing.
+// Two elements per cue, alternating: placing a row of parts quickly should
+// sound like a row of parts, not like one clipped thud. Per cue, not per file:
+// the click is the place impact played fast, and must not cut off the clack
+// that follows it. Built on first use, so importing this module outside a
+// browser - the tests do - costs nothing.
 const voices = {};
 let on = true;
 let hot = 0;
 
-const voiceFor = (file) => (voices[file] ??= {
+const voiceFor = (cue, file) => (voices[cue] ??= {
 	turn: 0,
 	els: [0, 1].map(() => new Audio(`audio/${file}.ogg`)),
 });
@@ -43,7 +45,7 @@ export function play(cue, pitch = 1) {
 	// A backgrounded tab should be silent even before Android pauses it.
 	if (!on || !found || typeof Audio === "undefined" || document.hidden) return;
 	const [file, rate, gain] = found;
-	const voice = voiceFor(file);
+	const voice = voiceFor(cue, file);
 	const el = voice.els[voice.turn];
 	voice.turn ^= 1;
 	el.currentTime = 0;

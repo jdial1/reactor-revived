@@ -483,8 +483,17 @@ puffs steam while its fan turns, and an exploding part throws a spark.
 ## Sound
 
 Six impacts in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One
-`<audio>` element per voice, two per file so a fast row of parts sounds like a
+`<audio>` element per voice, two per cue so a fast row of parts sounds like a
 row of parts.
+
+Every hand control is heard in two stages, a click and then its impact (Soul
+Interview 5.4, 5.5): placing or moving a part is the click and clank of it going
+into place, and the sell and vent bars, the reactor switch, the automation
+switches, a doctrine side and an upgrade are keys pressed through. The click is
+no new file - it is the place impact at 1.9x and a fifth of the loudness, 70 ms
+ahead of the clack - and it has its own voices, so it never cuts off the clack
+before it. Bulk actions (a plan or a layout built) stay one sound. Nothing takes
+longer to act: the second stage is heard, not waited for.
 
 And one hum: `hum.webm`, 6.7 KB, a 2.4 s slice of `spaceEngine_001` from
 **Kenney's Sci-fi Sounds** (CC0), cut with a crossfaded seam and re-encoded to
@@ -515,7 +524,13 @@ this game does not play.
 
 ## Interface skin
 
-The buttons, dialogs and the gauge panel are cut from **"Sci-fi User Interface
+*Superseded.* Every control is now a black key, every frame teal plating, every
+name a cream plate (see *The control desk* below and *The plant computer*); the
+steel frames described here no longer show anywhere. The files stay in
+`www/ui/` as the lineage record, and the in-game credit says the first interface
+was cut from them.
+
+The buttons, dialogs and the gauge panel were cut from **"Sci-fi User Interface
 Elements" by Buch** on OpenGameArt, which is **CC0** — the same pack Reactor
 Knockoff drew its buttons from, so this is a lineage inheritance rather than a
 new dependency. Three files in `www/ui/`, 1.4 KB together, applied with CSS
@@ -537,6 +552,44 @@ box with no eight pixels to give to a frame, and the page tabs mark the current
 page by colouring one border, which an image border would paint over. Each
 skinned rule keeps a plain steel `border-color` underneath, so a build without
 `www/ui/` still has visible edges.
+
+### The control desk
+
+Under the board sits the desk the operator works at, from the lead reference in
+the Soul Interview (5.6): the gauges and the money on a pale painted panel,
+framed in the plant computer's teal plating, with a painted process line under
+them - blue on the power side, orange on the heat side, over a black rule. The
+money shows through its own dark slot. The automation switches are black keys on
+a strip of the same plating, and sink when pressed. The board stays the reactor;
+nothing on the desk is decoration without a job.
+
+The rest of the plant follows. Dialogs are framed in plating and named on a
+cream plate, their actions keys two to a row, so a part's sheet fits a phone.
+Options is the station office: its controls grouped on labelled plates
+(Station record, Layout codes, Manuals, Control room), the sound a switch with a
+lamp, the records and trophies on a cream record card. On Experiments the two
+reboots sit on their own plate, *Core reboot*, and what the old status box said
+is the plant computer's prompt (*170 EP available. 20 pending: reboot to bank
+them.*). On Modules the note is a cream plate and each saved design sits in a
+recessed bin like the parts. The tutorial's card is framed and named like a
+dialog.
+
+The strip above the desk is one row, not two: the floor line, the automation
+switches and the Flow and Plan tools share one strip of plating, the floor
+line taking the room left and wrapping to two lines before it pushes anything.
+On a phone narrower than 380 px, Flow and Plan are their icons alone and the
+money's drums shrink a size, so the floor line and the gauges keep their
+numbers.
+
+Below the desk, the parts are a tray of darker plating with each part in a
+recessed bin, the chosen one ringed. The part families (Cells, Power, Cooling,
+Transfer, Modules) and the pages (Reactor, Upgrades, Experiments, Modules,
+Options) are banks of black selector keys: the chosen one latched down with its
+lamp lit, never an underline or a segmented control. A key is a quiet click, no
+clack, since nothing on the board moves. What a page has waiting is a lamp on
+its key - amber on Upgrades, violet on Experiments, heat-coloured on Reactor when
+it was paused while away - not a counted badge; the plant computer's own lamp and
+its section counts say how many, and a screen reader still hears the number.
 
 ## Shipping it
 
@@ -647,7 +700,8 @@ instead. It stays that way.
 ## The automation panel
 
 Every automated system the player owns has a switch and a lamp on the reactor
-screen, under the floor line, and nowhere else: **Sell** (the power lines
+screen, on the floor line's strip between the verdict and the Flow and Plan
+tools, and nowhere else: **Sell** (the power lines
 selling on their own), **Rebuy** (spent cells, reflectors, condensator refills
 and capacitor buyouts replacing themselves) and **Operator** (Heat Control
 Operator). A lamp is lit while its system runs. The panel appears with the first
