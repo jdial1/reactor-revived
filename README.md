@@ -436,8 +436,11 @@ instance, One Request, Waiting).
 ## The valley outside
 
 Behind the board is the valley Harrow Station powers: one painting per season,
-chosen by the calendar, and darkened after seven in the evening, when the only
-light is the control room's own. It shows faintly through the empty slots - a
+chosen by the calendar. After seven in the evening it is the night set instead -
+the same four seasons painted at night, the plant with only its windows lit - so
+the only warm light is the station's own. The night paintings are the
+designer's (docs/asset-packs.md, pack 5): 1100x600 WebP, about 130 KB for the
+four, shown uncrushed rather than darkened in CSS. It shows faintly through the empty slots - a
 slot not yet filled is a view of what it is not yet lighting - and fades as the
 reactor heats, so near the limit the room's red is all there is. It never moves,
 never changes while you watch, and is not shown in the planner.
@@ -868,5 +871,7 @@ Original game by **cwmonkey**. Based on **Reactor Incremental** by **Cael**.
 
 The part artwork is Reactor Revival's, with fifteen sprites derived from it
 (see Part artwork). The four paintings of the valley are also Reactor Revival's,
-made by this game's author in the manner of Simon Stålenhag, and free to use. The sounds, light masks and interface frames are CC0, from
+made by this game's author in the manner of Simon Stålenhag, and free to use. The
+interface icons and the four night paintings of the valley were made for this
+game by its author (docs/asset-packs.md). The sounds, light masks and interface frames are CC0, from
 Kenney and from Buch on OpenGameArt.

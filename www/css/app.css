@@ -195,10 +195,12 @@ main { overflow: hidden; position: relative; }
 	filter: saturate(0.75);
 	transition: opacity 600ms linear;
 }
-#board.night::before { filter: saturate(0.5) brightness(0.35); }
+/* By night the painting is already dark: the night set shows the plant with only
+   its windows lit, so it is not darkened again, only a little desaturated. */
+#board.night::before { filter: saturate(0.8); }
 /* Everything complete: the valley has power, and it shows - day and night. */
 #board.lit::before { filter: saturate(0.9) brightness(1.1); }
-#board.lit.night::before { filter: sepia(0.45) saturate(1.1) brightness(0.62); }
+#board.lit.night::before { filter: sepia(0.35) saturate(1.1) brightness(1.1); }
 body.planning #board::before { display: none; }
 /* Near the limit the grid shimmers like air over a hot plate. */
 body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }

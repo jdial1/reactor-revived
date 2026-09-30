@@ -5,13 +5,26 @@ everywhere except the part art, which is still Reactor Revival's sprites. This
 file holds the prompts and briefs for every asset pack still to make, in the
 order they matter:
 
-| # | Pack | Count | Replaces | Priority |
+| # | Pack | Count | Replaces | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Part sprites | 90 | `www/parts/revival/*.png` | The one open row in 7.6 |
-| 2 | Interface icons | 17 | the pixel grids in `www/js/icons.js` | Matches the new parts |
-| 3 | Sounds | 8 cues | `www/audio/*` (Kenney impacts, reused) | The click and clank of 5.4 |
-| 4 | Effect sprites | 3 | `www/fx/spark.png`, `puff.png`, `orb.png` | Small |
-| 5 | Night backdrops | 4 | the CSS darkening after seven | Optional |
+| 1 | Part sprites | 90 | `www/parts/revival/*.png` | To make: the one open row in 7.6 |
+| 2 | Interface icons | 17 | the pixel grids in `www/js/icons.js` | **In** (15 used): `www/js/icon-art.js` |
+| 3 | Sounds | 8 cues | `www/audio/*` (Kenney impacts, reused) | To make |
+| 4 | Effect sprites | 3 | `www/fx/spark.png`, `puff.png`, `orb.png` | To make |
+| 5 | Night backdrops | 4 | the CSS darkening after seven | **In**: `www/backdrops/*-night.webp` |
+
+**What came back.**
+- **Icons** came as one sheet of twenty on tiles (a JPEG). They were rebuilt
+  at their native pixel size by sampling the centre of each pixel (a pitch of
+  4.267), the tiles removed, and each icon reduced to its own two to four
+  colours with the game's outline.
+  - Options' tracks were lightened to steel so they read on a dark key.
+  - The two rockers (play, pause) are not used by the game and stay as they were.
+  - The spare canister and hourglass variants were not used.
+- **The night set** is one view in four seasons: green for summer, snow on the
+  hills over a greening field for spring, falling snow for winter, red and
+  gold for autumn. It is not the day paintings' view, so the valley changes at
+  seven; painting a day set from this view would make the two one place.
 
 Each pack has a **brief** (for a pixel artist or a sound designer) and
 **prompts** (for a generator). Generators do not hold a pixel grid or a palette

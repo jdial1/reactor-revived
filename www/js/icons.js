@@ -1,6 +1,8 @@
 // Interface icons as inline SVG - markup, not image files. Blocky shapes on
 // whole-pixel coordinates with a hard dark outline, as the original's were.
 
+import { ICON_ART } from "./icon-art.js";
+
 const OUTLINE = "#07090c";
 
 /**
@@ -132,12 +134,40 @@ const ICONS = {
 		["M4 0 h2 v6 h-2 z M10 5 h2 v6 h-2 z M5 10 h2 v6 h-2 z", null]],
 };
 
+/** A drawn icon's pixels, as one path per colour: [d, fill] pairs. */
+function drawn(art) {
+	return Object.entries(art.palette).map(([ch, fill]) => [art.rows.flatMap((row, y) => {
+		const runs = [];
+		for (let x = 0; x < row.length;) {
+			if (row[x] !== ch) { x++; continue; }
+			let w = 0;
+			while (row[x + w] === ch) w++;
+			runs.push(`M${x} ${y} h${w} v1 h-${w} z`);
+			x += w;
+		}
+		return runs;
+	}).join(" "), fill]);
+}
+
 /** One icon, as an <svg>. Monochrome ones inherit the text colour. */
 export function icon(name, className = "icon") {
 	const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-	svg.setAttribute("viewBox", "0 0 16 16");
 	svg.setAttribute("class", className);
 	svg.setAttribute("aria-hidden", "true");
+	// The drawn icons carry their own outline and colours; nothing is stroked.
+	const art = ICON_ART[name];
+	if (art) {
+		const n = art.rows.length;
+		svg.setAttribute("viewBox", `0 0 ${n} ${n}`);
+		for (const [d, fill] of drawn(art)) {
+			const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+			path.setAttribute("d", d);
+			path.setAttribute("fill", fill);
+			svg.append(path);
+		}
+		return svg;
+	}
+	svg.setAttribute("viewBox", "0 0 16 16");
 
 	// An icon that draws its own outline pixels must not also be stroked, or the
 	// stroke swallows the shape.
