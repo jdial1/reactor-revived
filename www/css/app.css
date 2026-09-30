@@ -1751,3 +1751,169 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	#verdict .tool .icon { width: 12px; height: 12px; }
 	.purse .cash { font-size: 14px; min-width: calc(10ch + 30px); }
 }
+
+/* ---- The rest of the plant (Soul Interview 5.2, 5.5, 5.6) --------------------
+   Dialogs, Options, Modules and Experiments join the desk and the computer:
+   plating frames, cream plates for names, black keys for every control, cards
+   for what is kept on paper. Steel frames are gone from the game. */
+
+/* Keys. Every button that was a steel frame is now a black key; a press sinks. */
+button.wide,
+.sheet-actions button,
+dialog .row button {
+	color: #c5d2cf;
+	background: #101417;
+	border: 1px solid #07090c;
+	border-image: none;
+	border-radius: 2px;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
+	padding: 9px 8px;
+	font-size: 11px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	line-height: 1.3;
+}
+button.wide:active,
+.sheet-actions button:active,
+dialog .row button:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; filter: none; }
+button.wide:disabled,
+dialog .row button:disabled { opacity: 0.45; }
+.danger, button.wide.danger { color: #e58a8a; }
+
+/* Dialogs: framed in plating, named on a cream plate. */
+dialog {
+	background: #141b1c var(--dither);
+	border: 3px solid var(--plating);
+	border-image: none;
+	box-shadow: 0 0 0 1px #000, inset 0 0 0 1px var(--plating-hi), 0 10px 30px #000c;
+	padding: 0 10px 10px;
+}
+dialog h2 {
+	margin: 0 -10px 10px;
+	padding: 6px 10px 5px;
+	font-size: 13px;
+	letter-spacing: 0.06em;
+	color: #1a1a16;
+	background: var(--plate);
+	border-bottom: 3px solid var(--heat);
+}
+.sheet.meltdown h2 { color: #8a2a14; }
+/* The part sheet's actions: two to a row, so the sheet fits a phone. */
+.sheet-actions { grid-template-columns: 1fr 1fr; gap: 6px; }
+.sheet-actions button { padding: 8px 6px; }
+dialog .row { gap: 6px; }
+
+/* Plates of grouped controls: Options, and the core reboot. */
+.plate-group {
+	padding: 0 6px 6px;
+	background: var(--plating) var(--dither);
+	border: 1px solid #07090c;
+	box-shadow: inset 0 1px 0 var(--plating-hi);
+}
+.plate-label {
+	margin: 0 -6px 6px;
+	padding: 3px 8px;
+	font-size: 10px;
+	font-weight: normal;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #1a1a16;
+	background: var(--plate);
+	border-bottom: 2px solid var(--heat);
+}
+.plate-group .keys { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.plate-group .keys > :only-child { grid-column: 1 / -1; }
+#page-experiments .plate-group { margin-bottom: 10px; }
+/* The sound: a switch with its lamp, like the automation's. */
+.plate-group .switch {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 9px 8px;
+	font-size: 11px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #9fb0ad;
+	background: #101417;
+	border: 1px solid #07090c;
+	border-radius: 2px;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
+}
+.plate-group .switch::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #23292f; box-shadow: inset 0 0 0 1px #07090c; }
+.plate-group .switch.on { color: #d6e2df; }
+.plate-group .switch.on::before { background: var(--power); box-shadow: inset 0 0 0 1px #07090c, 0 0 5px var(--power); }
+.plate-group .switch:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; }
+.options { gap: 10px; }
+
+/* What is kept on paper: the record card, and a page's note. */
+.record-card {
+	padding: 4px 10px 8px;
+	color: #23221c;
+	background: var(--plate);
+	border-left: 3px solid #b8ae92;
+}
+.record-card .credit-head { margin: 8px 0 4px; color: #4b4a40; letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+.record-card .records dt { color: #4b4a40; }
+.record-card .records dd { color: #23221c; }
+.record-card .trophies li { color: #6b6656; background: #cfc7b0; border-left-color: #b8ae92; }
+.record-card .trophies li.won { color: #23221c; border-left-color: #a8862a; }
+.record-card .trophies li.won b { color: #6e5412; }
+.record-card .trophies li small { color: #5b5747; }
+.ep-status {
+	color: #23221c;
+	background: var(--plate);
+	border: 0;
+	border-left: 3px solid #b8ae92;
+	font-size: 12px;
+}
+
+/* Saved modules: each in a recessed bin, like the parts. */
+.module-row {
+	background: #0b1012;
+	border: 1px solid #07090c;
+	border-radius: 2px;
+	box-shadow: inset 0 2px 4px #000c;
+}
+
+/* The last of the steel: the reactor's switch and the Time Flux key in the
+   header are keys; the tutorial's card is framed and named like a dialog. */
+#goal .pause {
+	color: #9fb0ad;
+	background: #101417;
+	border: 1px solid #07090c;
+	border-image: none;
+	border-radius: 2px;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
+	padding: 0 10px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+#goal .pause:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; filter: none; }
+#goal .reactor-switch.on { color: #d6e2df; }
+#goal .flux.on { color: #6fc0ea; border-image-source: none; box-shadow: inset 0 2px 3px #000; transform: translateY(2px); }
+/* A folded dock: no family key is latched. */
+#dock.folded #dock-tabs button.on { color: #8fa09d; background: #101417; transform: none; box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b; }
+#dock.folded #dock-tabs button.on::before { background: #23292f; box-shadow: none; }
+.tut-card {
+	background: #141b1c var(--dither);
+	border: 3px solid var(--plating);
+	border-image: none;
+	box-shadow: 0 0 0 1px #000, inset 0 0 0 1px var(--plating-hi), 0 6px 24px #000c;
+	padding: 0 12px 10px;
+}
+.tut-card small { display: block; margin: 0 -12px; padding: 3px 12px 0; color: #4b4a40; background: var(--plate); }
+.tut-card h2 { margin: 0 -12px 8px; padding: 0 12px 5px; color: #1a1a16; background: var(--plate); border-bottom: 3px solid var(--heat); }
+.tut-row button {
+	color: #c5d2cf;
+	background: #101417;
+	border: 1px solid #07090c;
+	border-radius: 2px;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000b;
+	font-size: 11px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+.tut-row button:active { transform: translateY(2px); box-shadow: inset 0 2px 3px #000; }
+/* A lone last action on a part's sheet takes the whole row. */
+.sheet-actions button:last-child:nth-child(odd) { grid-column: 1 / -1; }

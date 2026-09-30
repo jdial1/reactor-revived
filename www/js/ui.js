@@ -326,55 +326,65 @@ export function buildUI(game) {
 	};
 	dom.pages.upgrades.append(dom.terminals.upgrades.el);
 
-	dom.epStatus = h("p", { className: "ep-status" });
+	// Controls grouped on a labelled plate, as a control room groups them.
+	const plate = (label, ...keys) => h("section", { className: "plate-group" },
+		h("h4", { className: "plate-label", textContent: label }), h("div", { className: "keys" }, ...keys));
+
 	dom.pages.experiments.append(
-		dom.epStatus,
-		h("div", { className: "reboot" },
+		// The core reboot: the heaviest control in the plant, on its own plate.
+		plate("Core reboot",
 			h("button", { className: "wide", textContent: "Reboot reactor", onclick: () => game.reboot(false) }),
-			h("button", { className: "wide", textContent: "Reboot & refund all EP", onclick: () => game.reboot(true) })),
+			h("button", { className: "wide", textContent: "Reboot, refund all EP", onclick: () => game.reboot(true) })),
 		dom.terminals.experiments.el,
 	);
 
+	// The station office: its controls grouped on plates, a switch with a lamp
+	// for the sound, and the record kept on a card.
+	const sound = h("button", { className: "switch sound-switch", onclick: () => {
+		game.toggleSound();
+		lampSound();
+	} }, "Sound");
+	const lampSound = () => {
+		sound.classList.toggle("on", !game.muted);
+		sound.setAttribute("aria-pressed", String(!game.muted));
+	};
+	lampSound();
 	dom.pages.options.append(
 		h("div", { className: "options" },
-			// Only Android can open a file picker, so in a browser these would
-			// be two buttons that do nothing.
-			...(game.canTransfer ? [
-				h("button", { className: "wide", textContent: "Export save to a file", onclick: game.exportSave }),
-				h("button", { className: "wide", textContent: "Import save from a file", onclick: game.importSave }),
-			] : []),
-			dom.layoutTools = h("div", { className: "options" },
+			plate("Station record",
+				// Only Android can open a file picker, so in a browser these would
+				// be two buttons that do nothing.
+				...(game.canTransfer ? [
+					h("button", { className: "wide", textContent: "Export save to a file", onclick: game.exportSave }),
+					h("button", { className: "wide", textContent: "Import save from a file", onclick: game.importSave }),
+				] : []),
+				h("button", { className: "wide", textContent: "Copy records as text", onclick: () => showCode(game.summary(), "Records") })),
+			dom.layoutTools = plate("Layout codes",
 				h("button", { className: "wide", textContent: "Copy layout code", onclick: () => showCode(game.layoutCode()) }),
-				h("button", { className: "wide", textContent: "Build from a layout code", onclick: () => askCode(game.buildLayout) })),
-			h("button", {
-				className: "wide",
-				textContent: game.muted ? "Sound: off" : "Sound: on",
-				onclick: (e) => {
-					game.toggleSound();
-					e.currentTarget.textContent = game.muted ? "Sound: off" : "Sound: on";
-				},
-			}),
-			h("button", { className: "wide", textContent: "Parts guide", onclick: () => guideDialog(game.state) }),
-			h("button", { className: "wide", textContent: "How to play", onclick: () => {
-				showPage(dom, "reactor");
-				game.startTutorial();
-			} }),
-			h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe }),
-			h("h3", { className: "credit-head", textContent: "Records" }),
-			dom.records = h("dl", { className: "records" }),
-			h("h3", { className: "credit-head", textContent: "Trophies" }),
-			dom.trophyCase = h("ul", { className: "trophies" }),
-			h("button", { className: "wide", textContent: "Copy records as text", onclick: () => showCode(game.summary(), "Records") }),
+				h("button", { className: "wide", textContent: "Build from a code", onclick: () => askCode(game.buildLayout) })),
+			plate("Manuals",
+				h("button", { className: "wide", textContent: "Parts guide", onclick: () => guideDialog(game.state) }),
+				h("button", { className: "wide", textContent: "How to play", onclick: () => {
+					showPage(dom, "reactor");
+					game.startTutorial();
+				} })),
+			plate("Control room", sound,
+				h("button", { className: "wide danger", textContent: "Wipe save and restart", onclick: game.wipe })),
+			h("section", { className: "record-card" },
+				h("h3", { className: "credit-head", textContent: "Records" }),
+				dom.records = h("dl", { className: "records" }),
+				h("h3", { className: "credit-head", textContent: "Trophies" }),
+				dom.trophyCase = h("ul", { className: "trophies" })),
 			h("h3", { className: "credit-head", textContent: "Where this came from" }),
 			h("ol", { className: "lineage" }, LINEAGE.map(([name, url, what], i) =>
 				h("li", { className: i === LINEAGE.length - 1 ? "here" : "" },
 					h("b", {}, url ? h("a", { href: url, textContent: name }) : name),
 					h("i", { textContent: what })))),
 			h("p", { className: "credit" },
-				"Interface skinned from ",
+				"The first interface was cut from ",
 				h("a", { href: "https://opengameart.org/content/sci-fi-user-interface-elements",
 					textContent: "Sci-fi User Interface Elements" }),
-				" by Buch (CC0) - the same pack Knockoff used. Sounds from ",
+				" by Buch (CC0), the same pack Knockoff used; the plating, keys and plates are this game's own. Sounds from ",
 				h("a", { href: "https://kenney.nl/assets/impact-sounds", textContent: "Kenney's Impact Sounds" }),
 				" and ",
 				h("a", { href: "https://kenney.nl/assets/sci-fi-sounds", textContent: "Sci-fi Sounds" }),
@@ -1149,11 +1159,6 @@ function renderPage(dom, s) {
 		renderRecords(dom, s);
 		renderTrophies(dom, s);
 	}
-	if (dom.page === "experiments") {
-		dom.epStatus.textContent = s.exoticParticles
-			? `${fmt(s.currentExoticParticles)} EP to spend, ${fmt(s.exoticParticles)} pending - reboot to bank them.`
-			: `${fmt(s.currentExoticParticles)} EP to spend. Particle accelerators earn more.`;
-	}
 }
 
 /** How many out-of-reach upgrades to leave visible as a preview. */
@@ -1222,7 +1227,7 @@ function renderUpgrades(dom, s) {
 	term.lamp.ariaLabel = buyable.length ? "Ready: within budget" : "Nothing within budget";
 	const last = dom.authorised?.page === dom.page && dom.authorised.until > Date.now() && dom.authorised.text;
 	const line = last || (dom.page === "experiments"
-		? `Research. ${fmt(s.currentExoticParticles)} EP available.`
+		? `Research. ${fmt(s.currentExoticParticles)} EP available.${s.exoticParticles ? ` ${fmt(s.exoticParticles)} pending: reboot to bank them.` : ""}`
 		: `Maintenance. Budget: $${fmt(s.money)}.`);
 	if (term.prompt.textContent !== line) term.prompt.textContent = line;
 

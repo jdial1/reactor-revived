@@ -524,7 +524,13 @@ this game does not play.
 
 ## Interface skin
 
-The buttons, dialogs and the gauge panel are cut from **"Sci-fi User Interface
+*Superseded.* Every control is now a black key, every frame teal plating, every
+name a cream plate (see *The control desk* below and *The plant computer*); the
+steel frames described here no longer show anywhere. The files stay in
+`www/ui/` as the lineage record, and the in-game credit says the first interface
+was cut from them.
+
+The buttons, dialogs and the gauge panel were cut from **"Sci-fi User Interface
 Elements" by Buch** on OpenGameArt, which is **CC0** — the same pack Reactor
 Knockoff drew its buttons from, so this is a lineage inheritance rather than a
 new dependency. Three files in `www/ui/`, 1.4 KB together, applied with CSS
@@ -556,6 +562,17 @@ them - blue on the power side, orange on the heat side, over a black rule. The
 money shows through its own dark slot. The automation switches are black keys on
 a strip of the same plating, and sink when pressed. The board stays the reactor;
 nothing on the desk is decoration without a job.
+
+The rest of the plant follows. Dialogs are framed in plating and named on a
+cream plate, their actions keys two to a row, so a part's sheet fits a phone.
+Options is the station office: its controls grouped on labelled plates
+(Station record, Layout codes, Manuals, Control room), the sound a switch with a
+lamp, the records and trophies on a cream record card. On Experiments the two
+reboots sit on their own plate, *Core reboot*, and what the old status box said
+is the plant computer's prompt (*170 EP available. 20 pending: reboot to bank
+them.*). On Modules the note is a cream plate and each saved design sits in a
+recessed bin like the parts. The tutorial's card is framed and named like a
+dialog.
 
 The strip above the desk is one row, not two: the floor line, the automation
 switches and the Flow and Plan tools share one strip of plating, the floor
