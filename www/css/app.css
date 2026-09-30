@@ -1564,3 +1564,42 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	text-transform: uppercase;
 	color: var(--phosphor-dim);
 }
+
+/* The control desk (Soul Interview 5.2, 5.6). The gauges sit on a pale painted
+   panel, as in the lead reference, framed in the plant computer's teal plating;
+   under them a painted process line, blue on the power side and orange on the
+   heat side. The money shows through its own dark slot. The automation switches
+   are black keys on a strip of the same plating. The board above stays the
+   reactor, and the dock below stays the parts tray. */
+#actions {
+	border: 3px solid var(--plating);
+	border-image: none;
+	background:
+		linear-gradient(to right, #2f5f8a 0 50%, #b8602e 50% 100%) left calc(100% - 3px) / 100% 2px no-repeat,
+		linear-gradient(#23221c, #23221c) left calc(100% - 5px) / 100% 1px no-repeat,
+		var(--plate) var(--dither);
+	box-shadow: inset 0 0 0 1px #fff6, 0 0 0 1px #0009;
+	padding-bottom: 7px;
+}
+#actions .gauge small { color: #4b4a40; }
+#actions .gauge b { color: #23221c; }
+#actions .gauge .track { background: #15191c; box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
+#actions .purse { border-inline-color: #b8ae92; }
+/* Violet on cream: a darker particle ink, the same signal. */
+#actions .ep { color: #6f3a99; }
+
+#switches {
+	background: var(--plating) var(--dither);
+	border-bottom: 1px solid #1b2927;
+	box-shadow: inset 0 1px 0 var(--plating-hi);
+}
+#switches .switch {
+	color: #9fb0ad;
+	background: #101417;
+	border: 1px solid #07090c;
+	border-radius: 2px;
+	box-shadow: inset 0 1px 0 #ffffff14, 0 1px 0 #0009;
+}
+/* Pressed through: the key sinks, and the light it throws goes. */
+#switches .switch:active { transform: translateY(1px); box-shadow: inset 0 1px 2px #000; filter: none; }
+#switches .switch.on { color: #d6e2df; }

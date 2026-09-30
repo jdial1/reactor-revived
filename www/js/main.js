@@ -16,6 +16,9 @@ import { bankTime, spendFlux } from "./flux.js";
 import { takeSnapshot, layoutOfSnapshot } from "./snapshots.js";
 import { replaceAll } from "./layout.js";
 import { play, press, setMuted } from "./audio.js";
+// Every hand control is heard in two stages, a click and then its impact: the
+// click and clank of parts going into place, and switches pressed through
+// (Soul Interview 5.4, 5.5). Bulk actions - a plan or a layout built - stay one.
 import { startTutorial, renderTutorial } from "./tutorial.js";
 
 
@@ -36,7 +39,7 @@ function placeAt(r, c) {
 	if (t.id) return;
 	if (!isPartVisible(s, s.stats.get(game.selected))) return;
 	place(s, r, c, game.selected);
-	play("place");
+	press("place");
 }
 
 /**
@@ -109,7 +112,7 @@ const game = {
 		if (moving) {
 			const from = tileAt(s, moving.r, moving.c);
 			endMove();
-			if (!t.id && movePart(s, from, t)) play("place");
+			if (!t.id && movePart(s, from, t)) press("place");
 			return;
 		}
 		if (!t.id) return placeAt(r, c);
@@ -158,7 +161,7 @@ const game = {
 		s.money += s.power * s.sellMul;
 		s.power = 0;
 		s.soldPower = true;
-		play("coin");
+		press("coin");
 	},
 
 	ventHeat() {
@@ -174,7 +177,7 @@ const game = {
 		if (s.heat === 0) s.soldHeat = true;
 		// Only a tap that took heat off counts as venting by hand (goal 2).
 		s.handVents = (s.handVents ?? 0) + 1;
-		play("vent");
+		press("vent");
 	},
 
 	// The board is empty, so there is nothing left making heat to watch cool.
@@ -191,7 +194,7 @@ const game = {
 		s.doctrines[id] = side;
 		applyUpgrades(s);
 		compile(s);
-		play("place");
+		press("place");
 	},
 
 	/** A panel switch on or off: free, any time, once its system is bought. */
@@ -201,7 +204,7 @@ const game = {
 		s[field] = field === "operatorOn" ? !s.operatorOn : s[field] === false;
 		applyUpgrades(s);
 		compile(s);
-		play("place");
+		press("place");
 	},
 
 	toggleFlux() {
@@ -211,7 +214,7 @@ const game = {
 	/** The reactor's on switch. */
 	togglePause() {
 		s.paused = !s.paused;
-		play("place");
+		press("place");
 	},
 
 

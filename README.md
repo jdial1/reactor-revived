@@ -483,8 +483,17 @@ puffs steam while its fan turns, and an exploding part throws a spark.
 ## Sound
 
 Six impacts in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One
-`<audio>` element per voice, two per file so a fast row of parts sounds like a
+`<audio>` element per voice, two per cue so a fast row of parts sounds like a
 row of parts.
+
+Every hand control is heard in two stages, a click and then its impact (Soul
+Interview 5.4, 5.5): placing or moving a part is the click and clank of it going
+into place, and the sell and vent bars, the reactor switch, the automation
+switches, a doctrine side and an upgrade are keys pressed through. The click is
+no new file - it is the place impact at 1.9x and a fifth of the loudness, 70 ms
+ahead of the clack - and it has its own voices, so it never cuts off the clack
+before it. Bulk actions (a plan or a layout built) stay one sound. Nothing takes
+longer to act: the second stage is heard, not waited for.
 
 And one hum: `hum.webm`, 6.7 KB, a 2.4 s slice of `spaceEngine_001` from
 **Kenney's Sci-fi Sounds** (CC0), cut with a crossfaded seam and re-encoded to
@@ -537,6 +546,17 @@ box with no eight pixels to give to a frame, and the page tabs mark the current
 page by colouring one border, which an image border would paint over. Each
 skinned rule keeps a plain steel `border-color` underneath, so a build without
 `www/ui/` still has visible edges.
+
+### The control desk
+
+Under the board sits the desk the operator works at, from the lead reference in
+the Soul Interview (5.6): the gauges and the money on a pale painted panel,
+framed in the plant computer's teal plating, with a painted process line under
+them - blue on the power side, orange on the heat side, over a black rule. The
+money shows through its own dark slot. The automation switches are black keys on
+a strip of the same plating, and sink when pressed. The board stays the reactor
+and the dock stays the parts tray; nothing on the desk is decoration without a
+job.
 
 ## Shipping it
 
