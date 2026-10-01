@@ -72,7 +72,8 @@
 	--feed: 20px;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
-	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
+	--peek-h: 22px;   /* the strip over it: the next tier, not yet earned */
+	--part-w: 78px;   /* every column of the tray, so the bins line up */
 }
 
 * { box-sizing: border-box; }
@@ -513,10 +514,13 @@ footer {
 #dock-body { overflow: hidden; }
 
 .dock-page { display: none; }
+/* The columns sit centred under the family keys, each the same width, and
+   scroll sideways only when there are more than fit. */
 .dock-page.showing {
 	display: flex;
 	align-items: flex-start;
-	gap: 3px;
+	justify-content: safe center;
+	gap: 4px;
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
@@ -524,6 +528,7 @@ footer {
 
 .dock-col {
 	flex: none;
+	width: var(--part-w);
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -539,6 +544,14 @@ footer {
 	padding-bottom: calc(var(--peek-h) + 4px);
 }
 .dock-col > * { scroll-snap-align: start; scroll-snap-stop: always; }
+/* A column's bins fill it, whatever their numbers say. */
+.dock-col > .part { width: 100%; min-width: 0; }
+/* A series with every tier earned has no strip over it; it keeps the strip's
+   room, so its bins sit level with the next column's. */
+.dock-page:has(.part.next) .dock-col:not(:has(> .part.next)) {
+	padding-top: calc(var(--peek-h) + 4px);
+	scroll-padding-top: calc(var(--peek-h) + 4px);
+}
 .dock-page::-webkit-scrollbar, .dock-col::-webkit-scrollbar { display: none; }
 
 .part {
@@ -595,9 +608,12 @@ footer {
 		repeating-conic-gradient(#0000 0% 25%, #ffffff0d 0% 50%);
 	background-size: auto, 4px 4px;
 }
-.part.next i { width: 17px; height: 17px; filter: brightness(0) invert(1) brightness(0.42); }
-.part.next em { color: var(--ink); }
-.part.next u { color: var(--dim); }
+/* The bin right under it shows the part; the strip says only how far, and what
+   it costs, small enough to fit the column. */
+.part.next i { display: none; }
+.part.next { gap: 4px; padding: 0 3px; }
+.part.next em { color: var(--ink); font-size: 8.5px; }
+.part.next u { color: var(--dim); font-size: 8.5px; }
 
 /* The pages: a bank of selector keys on the tray. What a page has waiting is a
    lamp on its key, not a counted badge; the count is in its label. */
