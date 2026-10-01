@@ -24,6 +24,28 @@ import { buildPrinter, tickPrinter } from "./printer-ui.js";
 import { claimNote } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
+// The tap that opens a sheet is followed, on a phone, by the browser's own
+// click at the same spot - which lands on whatever button the sheet has just
+// put under the finger: Sell this one, Move, Sell all. So a sheet takes no
+// clicks for its first moments. Every sheet in the game opens with showModal,
+// so this is done once, for all of them.
+const SETTLE_MS = 350;
+const openedAt = new WeakMap();
+if (typeof HTMLDialogElement !== "undefined") {
+	const showModal = HTMLDialogElement.prototype.showModal;
+	HTMLDialogElement.prototype.showModal = function () {
+		openedAt.set(this, performance.now());
+		return showModal.call(this);
+	};
+	document.addEventListener("click", (e) => {
+		const sheet = e.target instanceof Element && e.target.closest("dialog");
+		if (sheet && performance.now() - (openedAt.get(sheet) ?? -Infinity) < SETTLE_MS) {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		}
+	}, true);
+}
+
 export function h(tag, { dataset, ...props } = {}, ...kids) {
 	// `dataset` is getter-only, so it cannot ride along with Object.assign.
 	const node = Object.assign(document.createElement(tag), props);

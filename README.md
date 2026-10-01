@@ -713,7 +713,13 @@ the one rule dropped on purpose: it deleted heat.
   upgrades are gone, because a bigger board would no longer fit the screen.
 - Touch instead of a mouse. Tap to place, tap a placed part to inspect it,
   every action on a placed part in its sheet, drag to paint, pinch to zoom. The original's six
-  modifier-key macros are gone; dragging covers what they were for.
+  modifier-key macros are gone; dragging covers what they were for. A press on
+  a placed part - a tap, a long press, one that slips - always opens its sheet
+  and nothing else; a stroke paints only when it starts on empty ground, and
+  while a part is being moved nothing paints, so the next press is where it
+  goes (and a press on another part opens that part's sheet). A sheet ignores
+  taps for its first 350 ms, so the click a phone sends after the tap that
+  opened it cannot land on Sell or Move.
 - Families arrive with the log: a new game opens on one cell and one dock tab.
   Vents, coolant and plating come with the goal that asks for a vent; capacitors
   and reflectors with the one that asks for a capacitor; exchangers, inlets and

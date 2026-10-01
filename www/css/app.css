@@ -226,6 +226,8 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 		72px
 	));
 	touch-action: none;
+	/* A long press is a press, not the browser's callout. */
+	-webkit-touch-callout: none;
 	display: grid;
 	grid-template-columns: repeat(var(--cols), var(--tile));
 	gap: var(--gap);

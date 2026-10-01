@@ -6,7 +6,12 @@
 //   drag  paints a row of the selected part onto empty tiles only
 //   two fingers  pinch to zoom, drag to pan
 //
-// There is no long press. It used to sell, and a slow tap sold parts.
+// A press on a placed part is always its sheet: a tap, a slow press, a long
+// press, or one that slips a few pixels. It used to turn into a paint stroke
+// once a finger moved 8px, so a long press - which always wobbles - opened
+// nothing. There is no long press of its own; it once sold, and a slow tap
+// sold parts. While a part is being carried, nothing paints: the next press
+// is where it goes.
 
 const DRAG_SLOP = 8;
 const ZOOM_RANGE = [0.6, 2.5];
@@ -16,8 +21,9 @@ const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 const clamp = (n, [lo, hi]) => Math.min(hi, Math.max(lo, n));
 
 /**
- * Wire the grid up. `handlers` gets {onTap, onPaint}, each called with
- * (row, col); the caller decides what those mean.
+ * Wire the grid up. `handlers` gets {onTap, onPaint, canPaint}, each called
+ * with (row, col); the caller decides what those mean. `canPaint` says whether
+ * a stroke may start on that tile: an empty one, and nothing being carried.
  */
 export function attachInput(board, grid, handlers) {
 	const pointers = new Map();
@@ -80,6 +86,8 @@ export function attachInput(board, grid, handlers) {
 			return;
 		}
 		if (!start || !held) return;
+		// A press on a placed part, or while carrying one, stays a press.
+		if (mode !== "paint" && !handlers.canPaint(...held)) return;
 
 		if (mode !== "paint" && Math.hypot(e.clientX - start.x, e.clientY - start.y) < DRAG_SLOP) return;
 
@@ -103,10 +111,10 @@ export function attachInput(board, grid, handlers) {
 		pointers.delete(e.pointerId);
 		if (pointers.size > 0) return; // still gesturing with another finger
 		if (mode === null && held) {
-			// Two taps in a row put the board back where it started; a pinch had
-			// no way home.
+			// Two taps in a row on empty ground put the board back where it
+			// started; a pinch had no way home. Never on a part: that is its sheet.
 			const now = e.timeStamp;
-			if (zoom !== 1 && now - lastTap < 300) {
+			if (zoom !== 1 && now - lastTap < 300 && handlers.canPaint(...held)) {
 				zoom = 1;
 				grid.style.setProperty("--zoom", 1);
 			} else {
@@ -119,4 +127,6 @@ export function attachInput(board, grid, handlers) {
 
 	addEventListener("pointerup", end);
 	addEventListener("pointercancel", end);
+	// A long press is a press, not the browser's menu or a text selection.
+	grid.addEventListener("contextmenu", (e) => e.preventDefault());
 }

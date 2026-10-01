@@ -124,13 +124,15 @@ const game = {
 	// A tap places on empty ground and inspects what is already there.
 	onTap(r, c) {
 		const t = tileAt(s, r, c);
-		// Carrying a part: an empty tile takes it, anything else puts it back.
-		// Every other action on a placed part is on its sheet, one tap away.
+		// Carrying a part: an empty tile takes it. A placed part puts it back
+		// and opens that part's sheet, as a press on a part always does.
 		if (moving) {
 			const from = tileAt(s, moving.r, moving.c);
 			endMove();
-			if (!t.id && movePart(s, from, t)) press("place");
-			return;
+			if (!t.id) {
+				if (movePart(s, from, t)) press("place");
+				return;
+			}
 		}
 		if (!t.id) return placeAt(r, c);
 		// Hold the id, not the tile: selling clears t.id mid-scan.
@@ -143,6 +145,13 @@ const game = {
 			sellKind: () => sellEvery((x) => x.id === kind),
 			sellAll: () => sellEvery(() => true),
 		});
+	},
+
+	// A stroke may start only on empty ground, and never while a part is
+	// being carried: a press on a part is its sheet, and a carried part goes
+	// where the next press is.
+	canPaint(r, c) {
+		return !moving && !tileAt(s, r, c).id;
 	},
 
 	// Dragging paints the selected part along the stroke, onto empty tiles
