@@ -498,7 +498,9 @@ per file so a fast row of parts sounds like a row of parts.
 Every hand control is heard in two stages, a click and then its impact (Soul
 Interview 5.4, 5.5): placing or moving a part is the click and clank of it going
 into place, and the sell and vent bars, the reactor switch, the automation
-switches, a doctrine side and an upgrade are keys pressed through. The click is
+switches, a doctrine side and an upgrade are keys pressed through. The sell bar
+is the exception: the most-pressed control in the game, it is one light note
+with no click ahead of it (below, Graded on a phone). The click is
 no new file - it is the place impact at 1.9x and a fifth of the loudness, 70 ms
 ahead of the clack - and it has its own voices, so it never cuts off the clack
 before it. Bulk actions (a plan or a layout built) stay one sound. Nothing takes
@@ -532,17 +534,19 @@ after the hit, the peak, and the length. A soft, warm, short tok scores 100.
 
 | Cue | Heard on | Was | Grade | Now | Grade |
 | --- | --- | --- | --- | --- | --- |
-| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: 1.1 kHz, 16% over 2 kHz, 12 dB louder through a phone than anything else | F (37) | `tally-1` to `-6`: 400-560 Hz, nothing over 2 kHz, level with the rest | A (88-98) |
+| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: clunky - 90% of its weight under 250 Hz, five hits with the click ahead of it - and on a phone 1.1 kHz, 16% over 2 kHz, 12 dB louder than anything else | F (37) | `tally-1` to `-6`: one light mallet note, 330-660 Hz, one hit, nothing under 250 Hz or over 2 kHz, level with the rest | A/B (84-100) |
 | `buy` | an upgrade or research authorised, a doctrine | Kenney `buy`: 1 kHz, 15% over 2 kHz, the longest ring | F (34) | `key-1` to `-4`: lower and drier, about 300 Hz | A (100) |
 | `place`, `sell`, `vent`, `boom`, `click`, `print` | | deep impacts: soft on a phone | A (86-100) | unchanged | |
 
-The sell bar is the most-pressed control in the game, and the coin was its
-loudest, brightest sound, identical every time. The tally that replaced it is the
-money drums turning over: a small wooden tok and a softer one settling 40-50 ms
-after it, a step down a pentatonic scale, each with three inharmonic wood modes,
-a two-millisecond attack, a breath of low-passed noise for the knock, and a low
-thump under it for a desk speaker. Six of them on the scale, so any two in a row
-agree.
+The sell bar is the most-pressed control in the game, and the coin was clunky:
+heavy, and with the key's click 70 ms ahead of it, heard as four or five hits
+every tap. The tally that replaced it is one light mallet note on a wooden bar -
+a marimba's three modes (1 : 3.93 : 9.2), the upper two gone in a few tens of
+milliseconds, a three-millisecond attack, no low thump and no second hit - and
+the sell bar plays it alone, without the click ahead of it. Six notes on a
+pentatonic scale (E4 to E5), written quieter as they climb so a phone plays them
+level, so any two in a row agree. Measured as heard: one hit, not five; nothing
+under 250 Hz, against nine-tenths.
 
 **Variance.** A family is cycled - every variant once, in a shuffled order, and
 never the same one twice running, even across rounds - and every play of every

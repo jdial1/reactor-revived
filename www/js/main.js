@@ -178,7 +178,9 @@ const game = {
 		s.money += s.power * s.sellMul;
 		s.power = 0;
 		s.soldPower = true;
-		press("coin");
+		// One light note, no click ahead of it: the most-pressed control in the
+		// game should not be heard as two or three hits.
+		play("coin");
 	},
 
 	ventHeat() {

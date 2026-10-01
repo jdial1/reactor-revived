@@ -4,12 +4,13 @@
 // The impacts from Kenney's pack were picked for depth - how much of their
 // energy survives a 220Hz low-pass - and on a desk speaker they are deep. A
 // phone plays next to nothing under 300 Hz, so on a phone what is left of an
-// impact is its edge, and the old coin and buy were all edge: bright, loud, and
-// the same every time on the most-pressed controls. Those two are now
-// synthesised (tools/synth_sounds.py): a small wooden tok whose body sits where
-// a phone speaker plays, soft at the attack, with nothing much over 2.5 kHz.
-// Graded through a model of a phone's speaker, the coin was an F and the tally
-// that replaced it an A (README, Sound).
+// impact is its edge. The old coin, on the sell bar - the most-pressed control
+// in the game - was clunky: nine-tenths of its weight under 250 Hz, four or five
+// hits in a row with the key's click ahead of it, and bright and loud on a phone.
+// It is now one light mallet note (tools/synth_sounds.py), a single round hit
+// where a phone speaker plays, and the buy clack a drier wooden tok. Graded
+// through a model of a phone's speaker, both were an F and are an A (README,
+// Sound).
 //
 // A cue is one file or a family. A family is cycled - every variant once, in a
 // shuffled order, never the same one twice running - and every play is nudged
@@ -22,9 +23,9 @@ const family = (name, n) => Array.from({ length: n }, (_, i) => `${name}-${i + 1
 const CUES = {
 	place: ["place.ogg", 1, 0.55],
 	sell: ["sell.ogg", 1, 0.5],
-	// The sell bar, and an order signed off: the money drums turning over, a tok
-	// and a softer one settling after it, six of them on a pentatonic scale.
-	coin: [family("tally", 6), 1, 0.28],
+	// The sell bar, and an order signed off: one light mallet note on a wooden
+	// bar, six of them on a pentatonic scale.
+	coin: [family("tally", 6), 1, 0.3],
 	vent: ["vent.ogg", 0.92, 0.5],
 	// The plant computer's clack: a heavier key going home, four of them.
 	buy: [family("key", 4), 1, 0.5],

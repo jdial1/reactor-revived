@@ -1,14 +1,15 @@
 """Synthesise the sell bar's and the plant computer's sounds.
 
-The impacts from Kenney's pack were chosen for depth, and on a desk speaker
-they are; but a phone plays next to nothing under 300 Hz, so on a phone what is
-left of a deep impact is its edge, and the coin was all edge - bright, loud and
-the same every time, on the most-pressed control in the game. These are made
-for where the game is played: a small wooden tok, its body between 400 and 1500
-Hz where a phone speaker lives, a soft two-millisecond attack, nothing much over
-2.5 kHz, and a low thump under it for a desk speaker. Each family is a set of
-variants on a pentatonic scale, cycled at play time (www/js/audio.js), so a run
-of taps is a run of different, consonant toks rather than one clink repeated.
+The old sell sound was clunky: nine-tenths of its weight under 250 Hz, and with
+the key's click ahead of it, four or five hits in a row on the most-pressed
+control in the game - and on a phone, which plays next to nothing under 300 Hz,
+all that was left of it was its edge. The sell bar's tally is one soft mallet
+note on a wooden bar instead: its body between 390 and 800 Hz, where a phone
+speaker lives, a three-millisecond attack, no low thump and no second hit. The
+plant computer's key is a heavier wooden tok, a clack on purpose. Each family is
+a set of variants on a pentatonic scale, cycled at play time (www/js/audio.js),
+so a run of taps is a run of different notes that agree rather than one sound
+repeated.
 
     python3 tools/synth_sounds.py    # writes www/audio/tally-*.wav and key-*.wav
 
@@ -22,7 +23,7 @@ rng = np.random.default_rng(1983)
 
 # Pentatonic, so any two in a row agree with each other.
 NOTE = {"G3": 196.0, "A3": 220.0, "C4": 261.6, "D4": 293.7, "E4": 329.6,
-        "G4": 392.0, "A4": 440.0, "C5": 523.3, "D5": 587.3, "E5": 659.3}
+        "G4": 392.0, "A4": 440.0, "C5": 523.3, "D5": 587.3, "E5": 659.3, "G5": 784.0}
 
 
 def lowpass(x, fc):
@@ -53,13 +54,27 @@ def tok(f0, length=0.28, decay=0.05, bright=1.0, thump=0.45, grit=0.12):
     return lowpass(y, 3200)
 
 
-def place(into, at, sound, gain=1.0):
-    i = int(SR * at)
-    into[i:i + len(sound)] += gain * sound[: len(into) - i]
+def mallet(f0, length=0.26, decay=0.085):
+    """One soft mallet on a wooden bar: light and round, a single hit.
+
+    A marimba bar's modes sit at 1 : 3.93 : 9.2; the upper two die within a
+    few tens of milliseconds, so what stays is a short, warm note.
+    """
+    t = np.arange(int(SR * length)) / SR
+    y = np.zeros_like(t)
+    for ratio, amp, d in ((1.0, 1.0, decay), (3.93, 0.22, decay * 0.28), (9.2, 0.05, decay * 0.09)):
+        if f0 * ratio < SR / 2.2:
+            y += amp * np.sin(2 * np.pi * f0 * ratio * t) * np.exp(-t / d)
+    # The mallet touching the bar: a breath of noise, gone in two milliseconds.
+    y += 0.05 * lowpass(rng.standard_normal(len(t)), 3000) * np.exp(-t / 0.002)
+    attack = int(SR * 0.003)
+    y[:attack] *= 0.5 - 0.5 * np.cos(np.linspace(0, np.pi, attack))
+    return lowpass(y, 4000)
 
 
-def write(name, y):
-    y = y / (np.max(np.abs(y)) + 1e-9) * 0.7  # -3 dBFS: the game sets the level
+def write(name, y, level=1.0):
+    # -3 dBFS, less `level`: the game sets the overall loudness.
+    y = y / (np.max(np.abs(y)) + 1e-9) * 0.7 * level
     tail = int(SR * 0.012)
     y[-tail:] *= np.linspace(1, 0, tail)
     pcm = (y * 32767).astype("<i2")
@@ -70,14 +85,11 @@ def write(name, y):
         w.writeframes(pcm.tobytes())
 
 
-# The sell bar: the money drums turning over, a tok and a softer one settling
-# just after it, a step down the scale.
-TALLY = [("C5", "A4"), ("D5", "C5"), ("A4", "G4"), ("D5", "A4"), ("C5", "G4"), ("G4", "E4")]
-for k, (a, b) in enumerate(TALLY, 1):
-    y = np.zeros(int(SR * 0.3))
-    place(y, 0.0, tok(NOTE[a], decay=0.045))
-    place(y, rng.uniform(0.038, 0.052), tok(NOTE[b], decay=0.04, thump=0.2), gain=0.5)
-    write(f"tally-{k}", y)
+# The sell bar: one light mallet note, six of them on a pentatonic scale. A
+# phone is louder the higher the note, about 4.5 dB an octave here, so the
+# higher notes are written quieter to come out level.
+for k, n in enumerate(["E4", "G4", "A4", "C5", "D5", "E5"], 1):
+    write(f"tally-{k}", mallet(NOTE[n]), level=(NOTE["E4"] / NOTE[n]) ** 0.75)
 
 # The plant computer's clack: one heavier key going home, lower and drier.
 for k, n in enumerate(["C4", "D4", "E4", "A3"], 1):
