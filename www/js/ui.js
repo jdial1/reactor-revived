@@ -172,6 +172,9 @@ function tabStrip(id, items, onPick) {
 	// cannot yet. The chosen one latches (see Components, app.css). Every key
 	// is always there, as on a finished desk; what is not open yet is unlit.
 	const el = h("div", { id, className: "selector" });
+	// One size of lettering for the bank, set by its longest name, so every
+	// name fits its glass at any width (Components, app.css).
+	el.style.setProperty("--chars", Math.max(...items.map(([, label]) => label.length)));
 	for (const [value, label, glyph, art] of items) {
 		// A selector key: a quiet click, and no clack - nothing on the board moves.
 		const behind = art ? h("i", { className: "art", style: `background-image:url(${art})` }) : icon(glyph);

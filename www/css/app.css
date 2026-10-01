@@ -73,7 +73,10 @@
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip over it: the next tier, not yet earned */
-	--part-w: 78px;   /* every column of the tray, so the bins line up */
+	/* Every column of the tray shares the width equally, between these, so the
+	   bins line up and fill a phone; past the floor, the tray scrolls. */
+	--part-min: 58px;
+	--part-max: 104px;
 }
 
 * { box-sizing: border-box; }
@@ -509,8 +512,8 @@ footer {
 /* Violet on cream: a darker particle ink, the same signal. */
 #actions .ep { color: #6f3a99; }
 /* The part families: a bank of lit keys over the tray, square and centred. */
-#dock-tabs { display: flex; justify-content: center; gap: 6px; }
-#dock-tabs > .key.lit { --size: 46px; --travel: 1px; }
+#dock-tabs { display: flex; justify-content: center; gap: clamp(4px, 1.4vw, 6px); }
+#dock-tabs > .key.lit { --size: clamp(40px, 13vw, 62px); --travel: 1px; }
 #dock-body { overflow: hidden; }
 
 .dock-page { display: none; }
@@ -527,8 +530,9 @@ footer {
 }
 
 .dock-col {
-	flex: none;
-	width: var(--part-w);
+	flex: 1 1 0;
+	min-width: var(--part-min);
+	max-width: var(--part-max);
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -612,20 +616,20 @@ footer {
    it costs, small enough to fit the column. */
 .part.next i { display: none; }
 .part.next { gap: 4px; padding: 0 3px; }
-.part.next em { color: var(--ink); font-size: 8.5px; }
-.part.next u { color: var(--dim); font-size: 8.5px; }
+.part.next em { color: var(--ink); font-size: clamp(7.5px, 2.2vw, 8.5px); }
+.part.next u { color: var(--dim); font-size: clamp(7.5px, 2.2vw, 8.5px); }
 
 /* The pages: a bank of selector keys on the tray. What a page has waiting is a
    lamp on its key, not a counted badge; the count is in its label. */
 #tabs {
 	display: flex;
 	justify-content: center;
-	gap: 8px;
+	gap: clamp(4px, 1.6vw, 8px);
 	padding: 5px 4px 6px;
 	background: var(--tray) var(--dither);
 	border-top: 1px solid var(--key-edge);
 }
-#tabs > .key.lit { --size: 58px; }
+#tabs > .key.lit { --size: clamp(52px, 15vw, 74px); }
 /* A page's waiting lamp sits on the bezel's corner, over the glass. */
 .pip { --lamp-size: 6px; position: absolute; z-index: 2; top: 2px; right: 2px; font-size: 0; }
 .pip.upgrades { --lamp: var(--cash); }
@@ -668,7 +672,7 @@ dialog .row > button { flex: 1; }
 	flex: none;
 	shape-rendering: crispEdges;
 }
-#tabs .lens .icon { width: 20px; height: 20px; }
+#tabs .lens .icon { width: 40%; height: auto; max-height: 100%; aspect-ratio: 1; }
 .swap { display: inline-flex; width: 16px; justify-content: center; }
 
 /* feedback */
@@ -1163,7 +1167,8 @@ body.flow .tile .flow { display: flex; background: #0009; }
 	display: flex;
 	align-items: center;
 	gap: 1px;
-	font-size: 9px;
+	/* Smaller on a narrow phone, so a corner's figure is not cut off. */
+	font-size: clamp(7px, 2.2vw, 9px);
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
 	text-shadow: 0 1px 1px #000;
@@ -1172,7 +1177,7 @@ body.flow .tile .flow { display: flex; background: #0009; }
 	overflow: hidden;
 	white-space: nowrap;
 }
-.part .info .icon { width: 9px; height: 9px; }
+.part .info .icon { width: 1em; height: 1em; }
 .part .info .tl { top: 0; left: 0; }
 .part .info .tr { top: 0; right: 0; }
 .part .info .bl { bottom: 0; left: 0; }
@@ -1563,7 +1568,7 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .lit .lens {
 	position: relative;
 	display: grid;
-	grid-template-rows: 1fr auto;
+	grid-template-rows: minmax(0, 1fr) auto;
 	justify-items: center;
 	align-items: center;
 	width: 100%;
@@ -1576,15 +1581,19 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 }
 .lit .lens .icon,
 .lit .lens .art { grid-row: 1; opacity: 0.2; filter: grayscale(1) brightness(0.7); transition: opacity 120ms linear, filter 120ms linear; }
-.lit .lens .art { width: 58%; aspect-ratio: 1; background: center / contain no-repeat; image-rendering: pixelated; }
+.lit .lens .art { width: 58%; max-height: 100%; aspect-ratio: 1; background: center / contain no-repeat; image-rendering: pixelated; }
 .lit .legend {
 	grid-row: 2;
 	max-width: 100%;
-	padding: 0 1px 2px;
-	overflow: hidden;
-	font-size: 7px;
-	line-height: 1;
-	letter-spacing: 0.01em;
+	padding: 0 1px 1px;
+	/* Clipped only sideways: tiny type is drawn taller than its line. */
+	overflow-x: clip;
+	overflow-y: visible;
+	/* The bank's longest name (--chars, set by tabStrip) just fits the glass:
+	   a monospaced letter is 0.6em wide. Never under 6.5px or over 9px. */
+	font-size: clamp(6.5px, calc((var(--size) - 10px) / var(--chars, 8) / 0.6), 9px);
+	line-height: 1.2;
+	letter-spacing: 0;
 	text-transform: uppercase;
 	white-space: nowrap;
 	color: var(--legend-off);

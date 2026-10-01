@@ -49,7 +49,7 @@ down both edges, drawn by the card's `::before`). Signal colours stay what they 
 | **terminal** | a panel housing, a nameplate with a lamp, a phosphor screen whose rows are lines, not cards | Upgrades, Experiments (the plant computer, `terminal()` in `ui.js`) |
 | **plates** | panels (`.panel.plate-group`), each named on a nameplate over a `.keys` bank, then a card of what is kept on paper | Options; the core reboot on Experiments (`plate()` in `ui.js`) |
 | **strip** | one panel under the board: text, then switches, then small keys | the verdict line, the automation switches, Flow and Plan |
-| **tray** | darker plating; banks of lit keys (`.selector`, from `tabStrip()`), square and centred, every key always there and lit only when it can be pressed, over bins | the parts dock, the page keys |
+| **tray** | darker plating; banks of lit keys (`.selector`, from `tabStrip()`), square and centred, every key always there and lit only when it can be pressed, over bins. Everything scales with the screen: a key's `--size` follows the width (`clamp()` on `vw`), its name is set by the bank's longest one (`--chars`) to fit the glass, and the tray's columns share the width equally between `--part-min` and `--part-max`, scrolling only past the floor | the parts dock, the page keys |
 
 ## Adding a control
 
