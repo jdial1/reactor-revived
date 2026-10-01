@@ -14,7 +14,8 @@ const js = readdirSync(new URL("../www/js/", import.meta.url)).filter((f) => f.e
 test("the components' colours are tokens, named once in :root", () => {
 	const tokens = ["key-face", "key-face-in", "key-edge", "key-ink", "key-ink-off", "key-ink-lit", "lamp-off",
 		"plating", "plating-hi", "plating-lo", "tray", "plate", "plate-ink", "plate-ink-dim", "card-ink", "card-rule",
-		"bin-face", "frame-face", "flux-ink", "danger-ink", "manila", "slip", "envelope", "stamp-ink", "cash-ink", "seal"];
+		"bin-face", "frame-face", "flux-ink", "danger-ink", "manila", "slip", "envelope", "stamp-ink", "cash-ink", "seal",
+		"bulb-hot", "bulb", "bulb-dim", "lens-off", "legend-off", "legend-lit"];
 	for (const t of tokens) {
 		const m = root.match(new RegExp(`--${t}:\\s*(#[0-9a-f]+)`, "i"));
 		assert.ok(m, `--${t} is not in :root`);

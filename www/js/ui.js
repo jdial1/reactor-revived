@@ -24,6 +24,28 @@ import { buildPrinter, tickPrinter } from "./printer-ui.js";
 import { claimNote } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
+// The tap that opens a sheet is followed, on a phone, by the browser's own
+// click at the same spot - which lands on whatever button the sheet has just
+// put under the finger: Sell this one, Move, Sell all. So a sheet takes no
+// clicks for its first moments. Every sheet in the game opens with showModal,
+// so this is done once, for all of them.
+const SETTLE_MS = 350;
+const openedAt = new WeakMap();
+if (typeof HTMLDialogElement !== "undefined") {
+	const showModal = HTMLDialogElement.prototype.showModal;
+	HTMLDialogElement.prototype.showModal = function () {
+		openedAt.set(this, performance.now());
+		return showModal.call(this);
+	};
+	document.addEventListener("click", (e) => {
+		const sheet = e.target instanceof Element && e.target.closest("dialog");
+		if (sheet && performance.now() - (openedAt.get(sheet) ?? -Infinity) < SETTLE_MS) {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		}
+	}, true);
+}
+
 export function h(tag, { dataset, ...props } = {}, ...kids) {
 	// `dataset` is getter-only, so it cannot ride along with Object.assign.
 	const node = Object.assign(document.createElement(tag), props);
@@ -145,13 +167,19 @@ function roller(className) {
 
 /** A row of buttons where exactly one is lit: the page tabs and the dock's. */
 function tabStrip(id, items, onPick) {
-	// A bank of selector keys: the chosen one latches (see Components, app.css).
+	// A bank of lit keys, square, centred: each a lens with its icon behind the
+	// glass and its name printed on it. Backlit, it can be pressed; dark, it
+	// cannot yet. The chosen one latches (see Components, app.css). Every key
+	// is always there, as on a finished desk; what is not open yet is unlit.
 	const el = h("div", { id, className: "selector" });
-	for (const [value, label, glyph] of items) {
+	// One size of lettering for the bank, set by its longest name, so every
+	// name fits its glass at any width (Components, app.css).
+	el.style.setProperty("--chars", Math.max(...items.map(([, label]) => label.length)));
+	for (const [value, label, glyph, art] of items) {
 		// A selector key: a quiet click, and no clack - nothing on the board moves.
-		const button = h("button", { className: "key", dataset: { value }, onclick: () => { play("click"); onPick(value); } });
-		if (glyph) button.append(icon(glyph));
-		button.append(h("span", { textContent: label }));
+		const behind = art ? h("i", { className: "art", style: `background-image:url(${art})` }) : icon(glyph);
+		const button = h("button", { className: "key lit", ariaLabel: label, dataset: { value }, onclick: () => { play("click"); onPick(value); } },
+			h("span", { className: "lens" }, behind, h("span", { className: "legend", textContent: label })));
 		el.append(button);
 	}
 	el.select = (value, pages) => {
@@ -453,7 +481,10 @@ function buildDock(dom, game) {
 	dom.partButtons = [];
 	dom.dockCols = [];
 	dom.dockPages = {};
-	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label, true));
+	// Behind each family's glass, the first part of the family; Modules, its icon.
+	const behind = { Cells: "uranium1", Power: "capacitor1", Cooling: "vent1", Transfer: "heat_exchanger1", Exotic: "particle_accelerator1" };
+	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label, "modules",
+		behind[label] && artFor(PART_BY_ID.get(behind[label]))]), (label) => showDock(dom, label, true));
 	const body = h("div", { id: "dock-body" });
 
 	for (const [tab, categories] of DOCK_TABS) {
@@ -1026,7 +1057,8 @@ export function render(dom, s, game) {
 	dom.flux.setAttribute("aria-pressed", String(Boolean(s.fluxOn)));
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
-	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);
+	// Dark in the planner, and Modules dark until casings are authorised.
+	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner) || b.dataset.locked === "true";
 	dom.goalBar.style.setProperty("--p", awaiting ? 0 : met ? 1 : order ? orderProgress(s) : step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
@@ -1447,18 +1479,38 @@ function renderLocks(dom, s) {
 		&& !(label === "Transfer" && s.restriction === "direct"));
 	const sig = tabs.join();
 	if (sig !== dom.tabsOpen) {
+		// The first look at a station sets the keys as they are; after that, a
+		// key coming on is a bulb catching.
+		const first = dom.tabsOpen === undefined;
 		dom.tabsOpen = sig;
-		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.hidden = !tabs.includes(b.dataset.value);
+		// Not open yet: there, but dark.
+		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) {
+			const was = b.disabled;
+			b.disabled = !tabs.includes(b.dataset.value);
+			if (!first && was && !b.disabled) warmUp(b);
+		}
 		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
 	}
 	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
+	const first = dom.modulesOpen === undefined;
 	dom.modulesOpen = open;
-	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
+	const key = dom.tabs.querySelector('[data-value="modules"]');
+	key.dataset.locked = String(!open);
+	key.disabled = !open || Boolean(s.planner);
+	if (!first && open && !key.disabled) warmUp(key);
 	if (!open && dom.page === "modules") {
 		showPage(dom, "reactor");
 	}
 	if (!open && dom.dockTab === "Modules") showDock(dom, DOCK_TABS[0][0]);
+}
+
+/**
+ * A key unlocked: its bulb catches - a few flickers, then it holds. Not on
+ * loading a station, and not for the planner's keys coming back on.
+ */
+function warmUp(key) {
+	flash(key, "warming");
 }
 
 /** The dock's Modules tab: one button per saved design, newest first. */

@@ -1,6 +1,6 @@
 # UI components and templates
 
-The interface is built from nine components and seven templates. A component's
+The interface is built from ten components and seven templates. A component's
 look (colour, edge, shadow, how it moves when pressed) is set **once**, in the
 *Components* section at the end of `www/css/app.css`, from tokens in `:root`. A
 screen's own rules above that section only say where a component sits and how
@@ -18,6 +18,7 @@ recessed bins, paper, and a phosphor screen. Red only for danger.
 |---|---|---|---|
 | **key** | `.key`, or any `button` in `.row`, `.sheet-actions`, `.tut-row`, `.keys` | A black key. Sinks by `--travel` when pressed. | `.on`, `aria-pressed="true"` or `aria-current="page"`: latched down, lit ink. `:disabled`: faded. `.danger`: red ink. |
 | key sizes | `.key` / `.key.wide` / `.key.small` | A selector (page and family keys) / an action (full ink, full width) / a key on a strip (the verdict's tools, the switches). | |
+| **lit key** | `.key.lit`, holding a `.lens` with an icon (or `.art`) and a `.legend` | An 80s illuminated pushbutton: a square bezel (`--size`) round a lens of smoked glass, the icon behind the glass and the name printed on it. The bulb is the state. | Enabled: backlit (`--bulb`). `:disabled`: dark glass, the icon a ghost. `.on` / `aria-current`: latched in, burning full; others a little lower. `.warming`: just unlocked, the bulb catching - a few uneven flickers over a second, then it holds (not on load, not with reduced motion). |
 | **switch** | `.key.switch` | A key with a lamp. It never latches; the lamp says its state. | `.on`: lamp lit. |
 | **lamp** | `.lamp` (or a switch's `::before`) | A round lamp. `--lamp` sets its colour (power green by default), `--lamp-size` its size (7px). | `.on`: lit, with a glow. |
 | **nameplate** | `.nameplate`, and every `dialog h2` / `.tut-card h2` | A cream plate with an orange rule under it. A `span` in it is the dim second word. | |
@@ -34,7 +35,7 @@ Every colour a component uses is a token: `--key-face`, `--key-face-in`,
 `--plate-ink`, `--plate-ink-dim`, `--card-ink`, `--card-rule`, `--bin-face`,
 `--frame-face`, `--flux-ink`, `--danger-ink`, and for the station file's papers
 `--manila`, `--slip`, `--envelope`, `--stamp-ink`, `--cash-ink`, `--seal`,
-`--greenbar`, and `--feed` (the punched margin every paper has: sprocket holes
+`--greenbar`, the lit keys' `--bulb-hot`, `--bulb`, `--bulb-dim`, `--lens-off`, `--legend-off`, `--legend-lit`, and `--feed` (the punched margin every paper has: sprocket holes
 down both edges, drawn by the card's `::before`). Signal colours stay what they were:
 `--power`, `--heat`, `--cash`, `--ep`.
 
@@ -48,7 +49,7 @@ down both edges, drawn by the card's `::before`). Signal colours stay what they 
 | **terminal** | a panel housing, a nameplate with a lamp, a phosphor screen whose rows are lines, not cards | Upgrades, Experiments (the plant computer, `terminal()` in `ui.js`) |
 | **plates** | panels (`.panel.plate-group`), each named on a nameplate over a `.keys` bank, then a card of what is kept on paper | Options; the core reboot on Experiments (`plate()` in `ui.js`) |
 | **strip** | one panel under the board: text, then switches, then small keys | the verdict line, the automation switches, Flow and Plan |
-| **tray** | darker plating; banks of selector keys (`.selector`, from `tabStrip()`) over bins | the parts dock, the page keys |
+| **tray** | darker plating; banks of lit keys (`.selector`, from `tabStrip()`), square and centred, every key always there and lit only when it can be pressed, over bins. Everything scales with the screen: a key's `--size` follows the width (`clamp()` on `vw`), its name is set by the bank's longest one (`--chars`) to fit the glass, and the tray's columns share the width equally between `--part-min` and `--part-max`, scrolling only past the floor | the parts dock, the page keys |
 
 ## Adding a control
 

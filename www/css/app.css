@@ -61,11 +61,22 @@
 	--seal: #9a7424;
 	/* The printer's paper: pale, with the green bars of a line printer. */
 	--greenbar: #d8e2cc;
+	/* The lit keys: a warm bulb behind smoked glass, and the glass unlit. */
+	--bulb-hot: #fff4d8;
+	--bulb: #f0cf84;
+	--bulb-dim: #9c7a36;
+	--lens-off: #141816;
+	--legend-off: #46504c;
+	--legend-lit: #2b2410;
 	/* Tractor-feed paper: the width of the punched margin each side. */
 	--feed: 20px;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
-	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
+	--peek-h: 22px;   /* the strip over it: the next tier, not yet earned */
+	/* Every column of the tray shares the width equally, between these, so the
+	   bins line up and fill a phone; past the floor, the tray scrolls. */
+	--part-min: 58px;
+	--part-max: 104px;
 }
 
 * { box-sizing: border-box; }
@@ -226,6 +237,8 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 		72px
 	));
 	touch-action: none;
+	/* A long press is a press, not the browser's callout. */
+	-webkit-touch-callout: none;
 	display: grid;
 	grid-template-columns: repeat(var(--cols), var(--tile));
 	gap: var(--gap);
@@ -498,35 +511,28 @@ footer {
 .purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
 /* Violet on cream: a darker particle ink, the same signal. */
 #actions .ep { color: #6f3a99; }
-/* The part families: a bank of selector keys over the tray. */
-#dock-tabs { display: flex; gap: 4px; }
-#dock-tabs > .key {
-	--travel: 1px;
-	--lamp-size: 5px;
-	--lamp: var(--cash);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 5px;
-	flex: 1;
-	padding: 5px 0 4px;
-	font-size: 10px;
-	letter-spacing: 0.06em;
-}
+/* The part families: a bank of lit keys over the tray, square and centred. */
+#dock-tabs { display: flex; justify-content: center; gap: clamp(4px, 1.4vw, 6px); }
+#dock-tabs > .key.lit { --size: clamp(40px, 13vw, 62px); --travel: 1px; }
 #dock-body { overflow: hidden; }
 
 .dock-page { display: none; }
+/* The columns sit centred under the family keys, each the same width, and
+   scroll sideways only when there are more than fit. */
 .dock-page.showing {
 	display: flex;
 	align-items: flex-start;
-	gap: 3px;
+	justify-content: safe center;
+	gap: 4px;
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
 }
 
 .dock-col {
-	flex: none;
+	flex: 1 1 0;
+	min-width: var(--part-min);
+	max-width: var(--part-max);
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -542,6 +548,14 @@ footer {
 	padding-bottom: calc(var(--peek-h) + 4px);
 }
 .dock-col > * { scroll-snap-align: start; scroll-snap-stop: always; }
+/* A column's bins fill it, whatever their numbers say. */
+.dock-col > .part { width: 100%; min-width: 0; }
+/* A series with every tier earned has no strip over it; it keeps the strip's
+   room, so its bins sit level with the next column's. */
+.dock-page:has(.part.next) .dock-col:not(:has(> .part.next)) {
+	padding-top: calc(var(--peek-h) + 4px);
+	scroll-padding-top: calc(var(--peek-h) + 4px);
+}
 .dock-page::-webkit-scrollbar, .dock-col::-webkit-scrollbar { display: none; }
 
 .part {
@@ -598,32 +612,26 @@ footer {
 		repeating-conic-gradient(#0000 0% 25%, #ffffff0d 0% 50%);
 	background-size: auto, 4px 4px;
 }
-.part.next i { width: 17px; height: 17px; filter: brightness(0) invert(1) brightness(0.42); }
-.part.next em { color: var(--ink); }
-.part.next u { color: var(--dim); }
+/* The bin right under it shows the part; the strip says only how far, and what
+   it costs, small enough to fit the column. */
+.part.next i { display: none; }
+.part.next { gap: 4px; padding: 0 3px; }
+.part.next em { color: var(--ink); font-size: clamp(7.5px, 2.2vw, 8.5px); }
+.part.next u { color: var(--dim); font-size: clamp(7.5px, 2.2vw, 8.5px); }
 
 /* The pages: a bank of selector keys on the tray. What a page has waiting is a
    lamp on its key, not a counted badge; the count is in its label. */
 #tabs {
 	display: flex;
-	gap: 4px;
+	justify-content: center;
+	gap: clamp(4px, 1.6vw, 8px);
 	padding: 5px 4px 6px;
 	background: var(--tray) var(--dither);
 	border-top: 1px solid var(--key-edge);
 }
-#tabs > .key {
-	position: relative;
-	display: grid;
-	justify-items: center;
-	gap: 1px;
-	flex: 1;
-	padding: 5px 2px 4px;
-	font-size: 9px;
-	letter-spacing: 0.06em;
-}
-#tabs .icon { opacity: 0.75; }
-#tabs > .key.on .icon { opacity: 1; }
-.pip { --lamp-size: 6px; position: absolute; top: 4px; right: 5px; font-size: 0; }
+#tabs > .key.lit { --size: clamp(52px, 15vw, 74px); }
+/* A page's waiting lamp sits on the bezel's corner, over the glass. */
+.pip { --lamp-size: 6px; position: absolute; z-index: 2; top: 2px; right: 2px; font-size: 0; }
 .pip.upgrades { --lamp: var(--cash); }
 .pip.experiments { --lamp: var(--ep); }
 
@@ -664,7 +672,7 @@ dialog .row > button { flex: 1; }
 	flex: none;
 	shape-rendering: crispEdges;
 }
-#tabs .icon { width: 18px; height: 18px; }
+#tabs .lens .icon { width: 40%; height: auto; max-height: 100%; aspect-ratio: 1; }
 .swap { display: inline-flex; width: 16px; justify-content: center; }
 
 /* feedback */
@@ -795,8 +803,7 @@ body.melting { animation: melting 500ms ease-out; }
 
 /* Paused because you walked away, said by a lamp on the key that undoes it. */
 #tabs > .key.paused { --lamp: var(--heat); }
-#tabs > .key.paused:not(.on) .icon { opacity: 0.45; }
-#tabs > .key.paused::after { position: absolute; top: 4px; left: 5px; --lamp-size: 6px; }
+#tabs > .key.paused::after { position: absolute; z-index: 2; top: 2px; left: 2px; --lamp-size: 6px; }
 
 /* Some people turn contrast up because they need it. */
 @media (prefers-contrast: more) {
@@ -1160,7 +1167,8 @@ body.flow .tile .flow { display: flex; background: #0009; }
 	display: flex;
 	align-items: center;
 	gap: 1px;
-	font-size: 9px;
+	/* Smaller on a narrow phone, so a corner's figure is not cut off. */
+	font-size: clamp(7px, 2.2vw, 9px);
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
 	text-shadow: 0 1px 1px #000;
@@ -1169,7 +1177,7 @@ body.flow .tile .flow { display: flex; background: #0009; }
 	overflow: hidden;
 	white-space: nowrap;
 }
-.part .info .icon { width: 9px; height: 9px; }
+.part .info .icon { width: 1em; height: 1em; }
 .part .info .tl { top: 0; left: 0; }
 .part .info .tr { top: 0; right: 0; }
 .part .info .bl { bottom: 0; left: 0; }
@@ -1199,15 +1207,15 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .sides .side.on b { color: var(--cash); }
 .sides .side:disabled { opacity: 0.6; }
 .part .mod-face { width: 36px; height: 36px; }
-/* A folded dock keeps its keys and gives the board the rest: none is latched. */
+/* A folded dock keeps its keys and gives the board the rest: none is latched,
+   and the chosen one burns no brighter than the rest. */
 #dock.folded #dock-body { display: none; }
 #dock.folded #dock-tabs > .key.on {
-	color: var(--key-ink-off);
 	background: var(--key-face);
 	transform: none;
 	box-shadow: inset 0 1px 0 #ffffff14, 0 var(--travel) 0 #000b;
 }
-#dock.folded #dock-tabs > .key.on::before { background: var(--lamp-off); box-shadow: none; }
+#dock.folded #dock-tabs > .key.on .lens { filter: brightness(0.82) saturate(0.9); }
 
 /* The board's tools on the strip: Flow, and planning. */
 #verdict .tool { flex: none; display: inline-flex; align-items: center; gap: 3px; }
@@ -1522,7 +1530,6 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 /* ---- lamp ---- */
 .lamp,
 .switch::before,
-#dock-tabs > .key.on::before,
 #tabs > .key.paused::after {
 	display: inline-block;
 	flex: none;
@@ -1533,15 +1540,105 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	box-shadow: inset 0 0 0 1px var(--key-edge);
 }
 .switch::before,
-#dock-tabs > .key.on::before,
 #tabs > .key.paused::after { content: ""; }
 .lamp.on,
 .switch.on::before,
-#dock-tabs > .key.on::before,
 #tabs > .key.paused::after {
 	background: var(--lamp, var(--power));
 	box-shadow: 0 0 5px var(--lamp, var(--power));
 }
+
+/* ---- lit key ----
+   An illuminated pushbutton, as on an 80s desk: a square bezel round a lens of
+   smoked glass, the icon behind the glass and the name printed on it. The bulb
+   behind is the key's state: lit, it can be pressed; dark, it cannot yet, and
+   the icon is only a ghost through the glass. The chosen key latches in and
+   burns full; the others glow a little lower. */
+.key.lit {
+	--size: 44px;
+	position: relative;
+	width: var(--size);
+	height: var(--size);
+	flex: none;
+	padding: 3px;
+	display: grid;
+	text-transform: none;
+	letter-spacing: 0;
+}
+.lit .lens {
+	position: relative;
+	display: grid;
+	grid-template-rows: minmax(0, 1fr) auto;
+	justify-items: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	border-radius: 1px;
+	background: var(--lens-off);
+	box-shadow: inset 0 0 0 1px #000, inset 0 2px 5px #000d;
+	transition: filter 120ms linear, background 120ms linear;
+}
+.lit .lens .icon,
+.lit .lens .art { grid-row: 1; opacity: 0.2; filter: grayscale(1) brightness(0.7); transition: opacity 120ms linear, filter 120ms linear; }
+.lit .lens .art { width: 58%; max-height: 100%; aspect-ratio: 1; background: center / contain no-repeat; image-rendering: pixelated; }
+.lit .legend {
+	grid-row: 2;
+	max-width: 100%;
+	padding: 0 1px 1px;
+	/* Clipped only sideways: tiny type is drawn taller than its line. */
+	overflow-x: clip;
+	overflow-y: visible;
+	/* The bank's longest name (--chars, set by tabStrip) just fits the glass:
+	   a monospaced letter is 0.6em wide. Never under 6.5px or over 9px. */
+	font-size: clamp(6.5px, calc((var(--size) - 10px) / var(--chars, 8) / 0.6), 9px);
+	line-height: 1.2;
+	letter-spacing: 0;
+	text-transform: uppercase;
+	white-space: nowrap;
+	color: var(--legend-off);
+}
+/* The glass itself: a sheen across its top, over the icon and the name. */
+.lit .lens::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background:
+		linear-gradient(160deg, #ffffff2e 0 28%, #ffffff00 29%),
+		linear-gradient(#ffffff12, #ffffff00 45%);
+}
+/* Backlit: it can be pressed. */
+.lit:not(:disabled) .lens {
+	background: radial-gradient(circle at 50% 40%, var(--bulb-hot) 0, var(--bulb) 40%, var(--bulb-dim) 100%);
+	box-shadow: inset 0 0 0 1px #000, inset 0 0 6px #0007, 0 0 7px color-mix(in srgb, var(--bulb) 19%, transparent);
+	filter: brightness(0.82) saturate(0.9);
+}
+.lit:not(:disabled) .lens .icon,
+.lit:not(:disabled) .lens .art { opacity: 1; filter: none; }
+.lit:not(:disabled) .legend { color: var(--legend-lit); }
+/* Chosen: latched in, burning full. */
+.lit.on:not(:disabled) .lens,
+.lit[aria-current="page"]:not(:disabled) .lens { filter: none; box-shadow: inset 0 0 0 1px #000, inset 0 0 6px #0005, 0 0 10px color-mix(in srgb, var(--bulb) 33%, transparent); }
+/* Dark glass says it cannot be pressed; the key itself does not fade. */
+.key.lit:disabled { opacity: 1; cursor: default; }
+/* Unlocked: the bulb catches. A few uneven flickers, as a filament does, then
+   it holds at its resting glow. */
+.lit.warming .lens { animation: bulb-catch 1000ms steps(1, end) both; }
+@keyframes bulb-catch {
+	0% { filter: brightness(0.12); }
+	9% { filter: brightness(0.9); }
+	14% { filter: brightness(0.15); }
+	24% { filter: brightness(0.75); }
+	29% { filter: brightness(0.2); }
+	33% { filter: brightness(0.95); }
+	45% { filter: brightness(0.35); }
+	52% { filter: brightness(1.1); }
+	70% { filter: brightness(0.7); }
+	78% { filter: brightness(1); }
+	100% { filter: brightness(0.82) saturate(0.9); }
+}
+@media (prefers-reduced-motion: reduce) { .lit.warming .lens { animation: none; } }
 
 /* ---- nameplate ---- */
 .nameplate,
