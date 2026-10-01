@@ -103,7 +103,7 @@ is what they teach, in words, so it can be built from.
   alarm (4).
 - The board: a square grid of identical tiles is the mosaic desk itself (2).
 
-**Not yet true**
+**Not yet true** (before the nine proposals below were built)
 - **Mosaic surfaces (2):** the desk, the tray and the strips are smooth plating.
   They have no tile module, no seams, no clips and no blank tiles.
 - **Mimic lines (1):** nothing is drawn between parts. The Flow overlay shows
@@ -123,16 +123,18 @@ is what they teach, in words, so it can be built from.
 
 ## Proposals, smallest first
 
-Each needs the designer's yes before it is built.
+The designer said yes to all nine ("build all nine"); all nine are built. What
+was built is in the last column, and the README's *Gauges* and *The control
+desk* say how each looks in play.
 
-| # | Proposal | From | Size |
-| --- | --- | --- | --- |
-| 1 | **Lamp test** key in Options: every lamp and lit key burns for two seconds | 4 | Small |
-| 2 | **Hanging tags** on keys that cannot be used: an enamel tag hung over the glass saying why (*Planner*, *Direct run*, *Not yet issued*) | 2, 8 | Small |
-| 3 | **Counters** beside the automation switches and under the sell bar: six-digit drums of operations, never reset | 6 | Small |
-| 4 | **Panel brightness** (*Day / Night*): a rotary switch on the desk; at night the lamps and lit keys run lower, matching the night backdrop | 9 | Small |
-| 5 | **Mosaic surfaces**: the desk, tray and strips laid out in a square tile module, with seams, corner clips and blank tiles, and a key or bin is a tile in it | 2 | Medium |
-| 6 | **Inserted label strips** with a plant code beside each name (*COOLING · HV-1*), and inverse zone plates over the tray and the page bank | 5 | Medium |
-| 7 | **Needle meter** for heat: a square moving-coil meter (0 to 200% of rated) beside the heat bar, the needle easing, red past 100 | 7 | Medium |
-| 8 | **Wear**: dust in the seams, chipped edges and a strip of tape, faint and fixed, never on the board | 8 | Small, risky to taste |
-| 9 | **Mimic Flow**: the Flow overlay as lit track segments between parts, warm where heat moves and brighter as it moves more | 1 | Large |
+| # | Proposal | From | Size | Built as |
+| --- | --- | --- | --- | --- |
+| 1 | **Lamp test** key in Options: every lamp and lit key burns for two seconds | 4 | Small | *Lamp test* key on the Control room plate (`lampTest()` in `desk-ui.js`) |
+| 2 | **Hanging tags** on keys that cannot be used: an enamel tag hung over the glass saying why (*Planner*, *Direct run*, *Not yet issued*) | 2, 8 | Small | `.key.lit[data-tag]`: *Unissued*, *Direct run*, *Planner* |
+| 3 | **Counters** beside the automation switches and under the sell bar: six-digit drums of operations, never reset | 6 | Small | A row of counters under the gauges: Sold, Vented, Auto-sell, Rebuy, Operator (`s.counts`, kept through reboots) |
+| 4 | **Panel brightness** (*Day / Night*): a rotary switch on the desk; at night the lamps and lit keys run lower, matching the night backdrop | 9 | Small | Rotary switch Auto / Day / Night (`s.panelLight`, `deskNight()`) |
+| 5 | **Mosaic surfaces**: the desk, tray and strips laid out in a square tile module, with seams, corner clips and blank tiles, and a key or bin is a tile in it | 2 | Medium | Seams and clips on the desk, tray and page bank (`--mosaic-pale`, `--mosaic-dark`, `--mod`). No blank tiles yet: the keys and bins do not snap to the module |
+| 6 | **Inserted label strips** with a plant code beside each name (*COOLING · HV-1*), and inverse zone plates over the tray and the page bank | 5 | Medium | Strips on the gauges, meter and counters; codes on every part's sheet (`codes.js`); *Parts issue Z2* and *Station Z3* plates |
+| 7 | **Needle meter** for heat: a square moving-coil meter (0 to 200% of rated) beside the heat bar, the needle easing, red past 100 | 7 | Medium | A meter in the counter row, under the gauges rather than beside the bar, so the readings keep their room on a phone |
+| 8 | **Wear**: dust in the seams, chipped edges and a strip of tape, faint and fixed, never on the board | 8 | Small, risky to taste | Three chips in the desk's enamel and a strip of tape in its corner |
+| 9 | **Mimic Flow**: the Flow overlay as lit track segments between parts, warm where heat moves and brighter as it moves more | 1 | Large | An SVG over the board: dark track along every join, lit where `s.edges` says heat moved this tick. Replaces Flow's numbers |

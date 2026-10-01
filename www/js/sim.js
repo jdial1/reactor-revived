@@ -198,6 +198,8 @@ export function tick(s) {
 	// Tiles that blew up this tick, for the UI to animate. The renderer empties
 	// it; the sim only ever appends.
 	s.exploded = [];
+	// The Flow overlay's track, rebuilt each tick while it is on.
+	s.edges = s.traceFlow && !s.sealed ? new Map() : null;
 
 	const inlets = [];
 	const exchangers = [];
@@ -258,6 +260,10 @@ export function tick(s) {
 			// the leftover can round below zero, and "heat made: -2" is a lie.
 			t.made = t.heatMade * throttled;
 			rate.heat += t.made;
+			if (s.edges && t.containments.length) {
+				const share = t.made / t.containments.length;
+				for (const n of t.containments) edge(s, t, n, share);
+			}
 			t.ticks--;
 			for (const n of t.reflectors) wear(s, n);
 			if (t.ticks === 0) expire(s, t, p);
@@ -300,6 +306,7 @@ export function tick(s) {
 			t.heatOut += moved;
 			heatAdd += moved;
 			rate.inlet += moved;
+			edge(s, n, t, moved);
 		}
 	}
 	s.heat += heatAdd;
@@ -309,6 +316,8 @@ export function tick(s) {
 	const maxShared = s.heatControlOperator
 		? (s.heat > s.maxHeat ? (s.heat - s.maxHeat) / s.statOutlet : 0)
 		: s.heat / s.statOutlet;
+	// The operator at work: a tick it held the outlets back.
+	if (s.heatControlOperator && outlets.length && s.heat <= s.maxHeat) count(s, "operator");
 
 	for (const t of exchangers) powerAdd += balance(s, t);
 
@@ -333,6 +342,7 @@ export function tick(s) {
 			n.heatIn += share;
 			heatRemove += share;
 			rate.outlet += share;
+			edge(s, t, n, share);
 		}
 	}
 	s.heat -= heatRemove;
@@ -379,6 +389,7 @@ export function tick(s) {
 			n.heatOut += shed;
 			t.vented += shed;
 			rate.vent += shed;
+			edge(s, n, t, shed);
 		}
 	}
 
@@ -507,10 +518,28 @@ export const replaces = (s, p) => autoFeed(s) && s.rebuyOn !== false && (p.categ
 export const rebuyPrice = (p) =>
 	p.category === "module" ? p.rebuy : p.cost * (p.category === "cell" ? 1.5 : 1);
 
+/** Count an operation on its counter: the drums beside each system (records). */
+function count(s, key) {
+	if (!s.counts || s.planner || s.sealed) return;
+	s.counts[key] = (s.counts[key] ?? 0) + 1;
+}
+
+/**
+ * Heat moved from one tile to the one beside it this tick, kept only while the
+ * Flow overlay asks for it (s.edges is a Map then, null otherwise): the overlay
+ * draws each as a lit length of track.
+ */
+function edge(s, from, to, amount) {
+	if (!s.edges || !(amount > 0)) return;
+	const key = `${from.r * s.cols + from.c}>${to.r * s.cols + to.c}`;
+	s.edges.set(key, (s.edges.get(key) ?? 0) + amount);
+}
+
 function refill(s, t, p) {
 	const price = rebuyPrice(p);
 	if (!replaces(s, p) || s.money < price) return false;
 	s.money -= price;
+	count(s, "rebuy");
 	t.ticks = p.ticks;
 	t.age = 0;
 	t.inner = null; // a rebuilt casing starts cold and full
@@ -591,6 +620,7 @@ function balance(s, t) {
 			n.heatOut += moved;
 			t.heatContained += moved;
 			t.heatIn += moved;
+			edge(s, n, t, moved);
 		}
 	}
 
@@ -618,6 +648,7 @@ function balance(s, t) {
 		powerMade += absorb(n, s.stats.get(n.id), moved);
 		n.heatIn += moved;
 		t.heatOut += moved;
+		edge(s, t, n, moved);
 		t.heatContained = Math.max(0, t.heatContained - moved);
 	});
 	return powerMade;
@@ -677,6 +708,7 @@ function sell(s, extremeCapacitors) {
 	if (s.sellOn === false) return;
 	let amount = Math.ceil(s.maxPower * s.autoSellMul);
 	if (!amount) return;
+	if (s.power > 0) count(s, "autoSell");
 
 	const pct = amount > s.power ? s.power / amount : 1;
 	if (amount > s.power) amount = s.power;

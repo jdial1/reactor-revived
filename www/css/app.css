@@ -70,6 +70,24 @@
 	--legend-lit: #2b2410;
 	/* Tractor-feed paper: the width of the punched margin each side. */
 	--feed: 20px;
+	/* The panels' module (docs/reference-control-panels.md): every surface of the
+	   desk is square tiles of one size, their seams and corner clips showing,
+	   dust settled in the seams. */
+	--mod: 22px;
+	--mosaic-pale: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Cpath d='M21.5 0V22M0 21.5H22' stroke='rgba%2864%2C52%2C34%2C0.24%29'/%3E%3Cpath d='M21.5 8.5v5M8.5 21.5h5' stroke='rgba%2824%2C20%2C12%2C0.5%29' stroke-width='1.6'/%3E%3C/svg%3E");
+	--mosaic-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Cpath d='M21.5 0V22M0 21.5H22' stroke='rgba%28255%2C255%2C255%2C0.06%29'/%3E%3Cpath d='M21.5 8.5v5M8.5 21.5h5' stroke='rgba%280%2C0%2C0%2C0.55%29' stroke-width='1.6'/%3E%3C/svg%3E");
+	/* Label strips slid into the panel; counters' drums; the heat meter's face;
+	   the enamel tag hung on a key; the inverse zone plates. */
+	--strip-face: #f2efe6;
+	--drum-face: #121417;
+	--drum-ink: #e9e6de;
+	--meter-face: #f5f2e8;
+	--meter-red: #a8322a;
+	--tag-face: #f3f1ea;
+	--tag-rule: #b23a2c;
+	--zone-face: #0b0d0e;
+	--zone-ink: #e8e5da;
+	--zone-ink-dim: #8d918d;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip over it: the next tier, not yet earned */
@@ -230,6 +248,7 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 	to { filter: brightness(1.1) saturate(1.2); transform: skewX(0.35deg) scaleY(1.004); }
 }
 #grid {
+	position: relative;
 	/* Fit whichever direction runs out first and never scroll; pinch zooms up. */
 	--tile: calc(var(--zoom, 1) * min(
 		calc((100cqw - 2px) / var(--cols) - var(--gap)),
@@ -479,9 +498,15 @@ footer {
 	   side, over a black rule. */
 	padding-bottom: 7px;
 	border: 3px solid var(--plating);
+	position: relative;
 	background:
 		linear-gradient(to right, var(--stamp-ink) 0 50%, #b8602e 50% 100%) left calc(100% - 3px) / 100% 2px no-repeat,
 		linear-gradient(var(--card-ink), var(--card-ink)) left calc(100% - 5px) / 100% 1px no-repeat,
+		/* Wear: chipped enamel, a few spots, never on the board. */
+		radial-gradient(circle at 97% 14%, #4a3a2244 0 1.5px, #0000 2.2px),
+		radial-gradient(circle at 2.5% 38%, #4a3a2233 0 1.2px, #0000 1.8px),
+		radial-gradient(circle at 61% 92%, #4a3a2238 0 1px, #0000 1.6px),
+		var(--mosaic-pale) 0 0 / var(--mod) var(--mod),
 		var(--plate) var(--dither);
 	box-shadow: inset 0 0 0 1px #fff6, 0 0 0 1px #0009;
 }
@@ -497,8 +522,11 @@ footer {
 	border: 0;
 	border-radius: 0;
 }
-.gauge > span:first-child { display: flex; justify-content: space-between; gap: 6px; white-space: nowrap; }
-.gauge small { color: var(--plate-ink-dim); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.gauge > span:first-child { display: flex; justify-content: space-between; align-items: center; gap: 6px; white-space: nowrap; }
+/* The gauge's strip is short and tall: its name over its code, so the
+   reading beside it keeps its room. */
+.gauge .strip { flex-direction: column; align-items: flex-start; gap: 0; font-size: 8.5px; line-height: 1.2; }
+.gauge .strip .code { font-size: 7px; }
 .gauge b { color: var(--card-ink); font-weight: normal; font-size: 11px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
 .gauge .track { display: block; height: 6px; background: #15191c; box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
 .gauge .track i { display: block; height: 100%; width: 0; transition: width 120ms linear; }
@@ -511,10 +539,55 @@ footer {
 .purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
 /* Violet on cream: a darker particle ink, the same signal. */
 #actions .ep { color: #6f3a99; }
+/* Under the gauges, the desk's counters, its heat meter and its Day / Night
+   switch. */
+#actions .counters {
+	grid-column: 1 / -1;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: flex-end;
+	gap: 3px 10px;
+	padding: 3px 6px 2px;
+	border-top: 1px solid var(--card-rule);
+}
+
+/* Wear: a strip of aluminium tape over a split in the desk's corner. */
+#actions::after {
+	content: "";
+	position: absolute;
+	left: 5px;
+	bottom: 9px;
+	width: 28px;
+	height: 7px;
+	pointer-events: none;
+	opacity: 0.5;
+	transform: rotate(-3deg);
+	background:
+		repeating-linear-gradient(90deg, #ffffff30 0 1px, #0000001a 1px 3px),
+		linear-gradient(#d4d8db, #9aa1a6);
+	box-shadow: 0 0 0 0.5px #0003;
+}
 /* The part families: a bank of lit keys over the tray, square and centred. */
 #dock-tabs { display: flex; justify-content: center; gap: clamp(4px, 1.4vw, 6px); }
 #dock-tabs > .key.lit { --size: clamp(40px, 13vw, 62px); --travel: 1px; }
 #dock-body { overflow: hidden; }
+/* A zone of the desk, named white on black across its width. */
+.zone-plate {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1px 8px;
+	font-size: 7.5px;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--zone-ink);
+	background: var(--zone-face);
+	box-shadow: inset 0 1px 0 #ffffff14, inset 0 -1px 0 #000;
+}
+.zone-plate b { font-weight: normal; }
+.zone-plate span { color: var(--zone-ink-dim); letter-spacing: 0.1em; }
+#dock > .zone-plate { margin: -4px -4px 1px; }
 
 .dock-page { display: none; }
 /* The columns sit centred under the family keys, each the same width, and
@@ -626,8 +699,7 @@ footer {
 	justify-content: center;
 	gap: clamp(4px, 1.6vw, 8px);
 	padding: 5px 4px 6px;
-	background: var(--tray) var(--dither);
-	border-top: 1px solid var(--key-edge);
+	background: var(--mosaic-dark) 0 0 / var(--mod) var(--mod), var(--tray) var(--dither);
 }
 #tabs > .key.lit { --size: clamp(52px, 15vw, 74px); }
 /* A page's waiting lamp sits on the bezel's corner, over the glass. */
@@ -1102,28 +1174,6 @@ body.planning #goal { background: #0e2233; }
 #switches { display: flex; flex: none; gap: 4px; }
 #switches > .switch { --lamp-size: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px 2px 5px; }
 
-/* The heat-flow overlay: each tile's heat in, out and vented this tick. */
-.tile .flow {
-	position: absolute;
-	inset: 0;
-	display: none;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	gap: 1px;
-	white-space: nowrap;
-	font: bold 8px/1 inherit;
-	font-family: inherit;
-	font-style: normal;
-	color: #fff;
-	text-align: center;
-	text-shadow: 0 0 2px #000, 0 0 2px #000;
-	pointer-events: none;
-}
-body.flow .tile .flow { display: flex; background: #0009; }
-/* One row per flow: the rate line's icon, then a compact number. */
-.tile .flow span { display: flex; align-items: center; gap: 1px; max-width: 100%; overflow: hidden; }
-.tile .flow .icon { width: 8px; height: 8px; flex: none; }
 
 /* Tool dialogs: replace-all, save states, examples. */
 .sheet.tool .tool-label { display: block; margin: 8px 0 4px; font-size: 10px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
@@ -1640,6 +1690,135 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 }
 @media (prefers-reduced-motion: reduce) { .lit.warming .lens { animation: none; } }
 
+/* A tag hung on a key that cannot be pressed, saying why: enamel, a red rule,
+   hooked over the glass and a little crooked, as a lockout tag hangs. */
+.key.lit[data-tag]::after {
+	content: attr(data-tag);
+	position: absolute;
+	z-index: 3;
+	left: 50%;
+	top: 30%;
+	transform: translateX(-50%) rotate(-5deg);
+	padding: 1px 3px;
+	font-size: 6.5px;
+	font-weight: bold;
+	line-height: 1.15;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+	color: var(--plate-ink);
+	background: var(--tag-face);
+	border: 1px solid var(--tag-rule);
+	outline: 1px solid var(--tag-face);
+	box-shadow: 0 1px 2px #000a;
+	pointer-events: none;
+}
+.key.lit[data-tag]::before {
+	content: "";
+	position: absolute;
+	z-index: 3;
+	left: 50%;
+	top: calc(30% - 5px);
+	width: 4px;
+	height: 4px;
+	margin-left: -2px;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px var(--tag-face), 0 1px 1px #000a;
+	pointer-events: none;
+}
+
+/* ---- strip ----
+   A label strip slid into the panel: the plain name, and its plant code. */
+.strip {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 4px;
+	padding: 0 3px;
+	font-size: 7.5px;
+	font-weight: normal;
+	line-height: 1.5;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	color: var(--plate-ink);
+	background: var(--strip-face);
+	border-radius: 1px;
+	box-shadow: inset 0 1px 0 #00000026, 0 0 0 1px #0000001f;
+}
+.strip .code { color: var(--plate-ink-dim); letter-spacing: 0.04em; }
+.nameplate .code, dialog h2 .code { margin-left: 8px; font-size: 0.7em; letter-spacing: 0.06em; color: var(--plate-ink-dim); }
+
+/* ---- counter ----
+   Operations on six drums in a black window, never reset; the drum that
+   turned rolls into place. */
+.counter { display: inline-grid; justify-items: center; gap: 2px; }
+.drums {
+	display: inline-flex;
+	gap: 1px;
+	padding: 1px;
+	background: var(--key-edge);
+	border-radius: 1px;
+	box-shadow: inset 0 1px 2px #000, 0 1px 0 #ffffff80;
+}
+.drums i {
+	width: 7px;
+	height: 11px;
+	overflow: hidden;
+	font-size: 9px;
+	font-style: normal;
+	line-height: 11px;
+	text-align: center;
+	color: var(--drum-ink);
+	background: linear-gradient(#000a, #0000 30% 70%, #000a), var(--drum-face);
+}
+.drums i.roll-in { animation: drum-roll 240ms ease-out; }
+@keyframes drum-roll { from { transform: translateY(-70%); opacity: 0.3; } }
+
+/* ---- meter ----
+   A square moving-coil meter: a cream face, a scale with its red past 100, and
+   a needle that eases and overshoots a little, as a needle does. */
+.meter { display: inline-grid; justify-items: center; gap: 2px; }
+.meter .face {
+	display: block;
+	width: 44px;
+	height: 33px;
+	background: var(--meter-face);
+	border: 2px solid var(--key-face);
+	border-radius: 2px;
+	box-shadow: inset 0 1px 3px #0007, 0 1px 0 #ffffff80;
+}
+.meter svg { display: block; width: 100%; height: 100%; }
+.meter .arc { fill: none; stroke: var(--plate-ink); stroke-width: 0.6; }
+.meter .red { fill: none; stroke: var(--meter-red); stroke-width: 1.6; }
+.meter line { stroke: var(--plate-ink); stroke-width: 0.5; }
+.meter text { font-size: 3.6px; fill: var(--plate-ink-dim); }
+.meter .needle { transform-box: view-box; transform-origin: 20px 24px; transform: rotate(-50deg); transition: transform 700ms cubic-bezier(0.3, 1.45, 0.5, 1); }
+.meter .needle line { stroke: var(--card-ink); stroke-width: 0.8; }
+.meter .pivot { fill: var(--key-face); }
+.meter.over .needle line { stroke: var(--meter-red); }
+
+/* ---- rotary ----
+   A rotary switch on a yellow plate, as the day and night switch on the
+   Polish desk: Day, Auto, Night. */
+.rotary { display: inline-grid; justify-items: center; gap: 2px; padding: 0; background: none; border: 0; color: inherit; }
+.rotary .dial {
+	position: relative;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: var(--bulb);
+	box-shadow: inset 0 0 0 2px var(--key-face), inset 0 1px 3px #0008, 0 1px 0 #ffffff80;
+}
+.rotary .knob {
+	position: absolute;
+	inset: 3px 8px;
+	border-radius: 3px;
+	background: linear-gradient(90deg, #2b2f33, var(--key-face) 60%);
+	box-shadow: 0 1px 2px #000a;
+	transition: transform 160ms ease-out;
+}
+.rotary[data-mode="day"] .knob { transform: rotate(-45deg); }
+.rotary[data-mode="night"] .knob { transform: rotate(45deg); }
+
 /* ---- nameplate ---- */
 .nameplate,
 dialog h2,
@@ -1659,7 +1838,7 @@ dialog h2,
 
 /* ---- panel ---- */
 .panel {
-	background: var(--plating) var(--dither);
+	background: var(--mosaic-dark) 0 0 / var(--mod) var(--mod), var(--plating) var(--dither);
 	box-shadow: inset 0 1px 0 var(--plating-hi);
 }
 
@@ -1835,6 +2014,35 @@ dialog h2,
 .printout .rule { height: 0; margin: 2px 0 8px; border-bottom: 2px dashed var(--plate-ink-dim); }
 .print-head { display: inline-block; width: 8px; height: 13px; margin-left: 1px; vertical-align: -2px; background: var(--card-ink); }
 
+/* The lamp test: every lamp and lit key burns at once, dark ones too. */
+.lamp-test .lamp,
+.lamp-test .switch::before,
+.lamp-test #tabs > .key.paused::after { background: var(--lamp, var(--power)) !important; box-shadow: 0 0 5px var(--lamp, var(--power)) !important; }
+.lamp-test .lit .lens {
+	background: radial-gradient(circle at 50% 40%, var(--bulb-hot) 0, var(--bulb) 40%, var(--bulb-dim) 100%) !important;
+	filter: none !important;
+}
+.lamp-test .lit .lens .icon,
+.lamp-test .lit .lens .art { opacity: 1 !important; filter: none !important; }
+.lamp-test .lit .legend { color: var(--legend-lit) !important; }
+
+/* Night on the desk's switch: the lamps and the lit keys run lower. */
+.desk-night .lit:not(:disabled) .lens { filter: brightness(0.6) saturate(0.85); }
+.desk-night .lit.on:not(:disabled) .lens,
+.desk-night .lit[aria-current="page"]:not(:disabled) .lens { filter: brightness(0.78); }
+.desk-night .lamp.on,
+.desk-night .switch.on::before,
+.desk-night #tabs > .key.paused::after { filter: brightness(0.7); }
+.desk-night #actions { filter: brightness(0.88); }
+
+/* Flow as lit track: dark track joins each part to the parts it moves heat to;
+   where heat moved this tick, the track's lamps run the way it went. */
+.mimic { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.mimic .track line { stroke: var(--key-edge); stroke-width: 0.16; stroke-linecap: square; opacity: 0.8; }
+.mimic .lit line { stroke-width: 0.09; stroke-linecap: round; stroke-dasharray: 0.14 0.1; animation: route-run 600ms linear infinite; }
+@keyframes route-run { to { stroke-dashoffset: -0.24; } }
+@media (prefers-reduced-motion: reduce) { .mimic .lit line { animation: none; } }
+
 /* ---- bin ---- */
 .bin {
 	background: var(--bin-face);
@@ -1869,7 +2077,7 @@ dialog,
 #dock {
 	padding-top: 4px;
 	gap: 5px;
-	background: var(--tray) var(--dither);
+	background: var(--mosaic-dark) 0 0 / var(--mod) var(--mod), var(--tray) var(--dither);
 	border-top: 1px solid var(--plating-hi);
 }
 
@@ -1894,4 +2102,12 @@ dialog,
 	#verdict .tool { padding: 3px 6px; }
 	#verdict .tool .icon { width: 12px; height: 12px; }
 	.purse .cash { font-size: 14px; min-width: calc(10ch + 30px); }
+	/* The desk's strips stack their codes under their names, so the counters,
+	   the meter and the switch keep to one row. */
+	#actions .counters { gap: 3px 6px; padding-inline: 2px; }
+	#actions .counters .strip { flex-direction: column; align-items: center; gap: 0; line-height: 1.2; }
+	#actions .counters .strip .code { font-size: 6.5px; }
+	/* A reading that will not fit beside its strip goes under it. */
+	.gauge > span:first-child { flex-wrap: wrap; row-gap: 1px; }
+	.gauge b { margin-left: auto; }
 }

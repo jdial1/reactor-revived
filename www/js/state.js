@@ -47,6 +47,9 @@ const BASE = {
 	operatorOn: false,
 	sellOn: true,
 	rebuyOn: true,
+	// The desk's Day / Night switch: "auto" follows the clock, as the valley
+	// behind the board does; at night the lamps run lower.
+	panelLight: "auto",
 };
 
 // Every tile exists for the life of the game; the grid never changes size.
@@ -112,6 +115,9 @@ export function newState(random = Math.random) {
 		met: false,
 		notesDue: [],
 		fieldNotes: [],
+		// The desk's counters (records): operations, on drums, never reset - not by
+		// a reboot, a meltdown or a new run.
+		counts: { sell: 0, vent: 0, autoSell: 0, rebuy: 0, operator: 0 },
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -166,6 +172,8 @@ export function serialize(s) {
 		met: s.met || undefined,
 		notesDue: s.notesDue.length ? s.notesDue : undefined,
 		fieldNotes: s.fieldNotes.length ? s.fieldNotes : undefined,
+		counts: s.counts,
+		panelLight: s.panelLight,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -219,6 +227,7 @@ export function deserialize(saved, random = Math.random) {
 	s.met = Boolean(saved.met);
 	s.notesDue = saved.notesDue ?? [];
 	s.fieldNotes = saved.fieldNotes ?? [];
+	s.counts = { ...s.counts, ...saved.counts };
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {
