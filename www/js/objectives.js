@@ -6,7 +6,6 @@
 import { ROWS, COLS, activeTiles, tileAt } from "./sim.js";
 import { fmt } from "./fmt.js";
 import { UPGRADE_BY_ID } from "./upgrades.js";
-import { fileEntry } from "./records.js";
 
 /** Placed parts, optionally filtered. `live` cells are ones with ticks left. */
 function* placed(s) {
@@ -175,26 +174,36 @@ export function goalAt(s, i = s.objective) {
 }
 
 /**
- * Pay out every objective the state now satisfies, in order. A job with a
- * revision is not paid the first time it is met: it is cancelled and asked
- * again higher, once, with a line in the log book.
+ * Notice the current order met. Nothing is paid here: a met order waits on the
+ * goal line, held, until the operator signs it off (claimObjective), and an
+ * order not yet off the printer cannot be met at all. A job with a revision is
+ * not held the first time it is met: it is cancelled and asked again higher,
+ * once. True when the order has just been met.
  */
 export function checkObjectives(s) {
-	let paid = false;
-	while (s.objective < OBJECTIVES.length && goalAt(s).check(s)) {
-		const first = OBJECTIVES[s.objective];
-		if (first.revision && !s.revised.includes(s.objective)) {
-			s.revised.push(s.objective);
-			fileEntry(s, first.revision.note);
-			break;
-		}
-		const o = goalAt(s);
-		if (o.reward) s.money += o.reward;
-		if (o.epReward) s.currentExoticParticles += o.epReward;
-		s.objective++;
-		paid = true;
+	if (s.met || s.shown < s.objective || s.objective >= OBJECTIVES.length) return false;
+	if (!goalAt(s).check(s)) return false;
+	const first = OBJECTIVES[s.objective];
+	if (first.revision && !s.revised.includes(s.objective)) {
+		s.revised.push(s.objective);
+		return false;
 	}
-	return paid;
+	s.met = true;
+	return true;
+}
+
+/**
+ * Sign off the met order: pay it, and move the log on. The next order is not
+ * in hand until the printer has printed it. Returns the order signed off.
+ */
+export function claimObjective(s) {
+	if (!s.met) return null;
+	const o = goalAt(s);
+	if (o.reward) s.money += o.reward;
+	if (o.epReward) s.currentExoticParticles += o.epReward;
+	s.met = false;
+	s.objective++;
+	return o;
 }
 
 // ---- the standing order ------------------------------------------------------
@@ -211,7 +220,7 @@ function roundUp(x) {
 
 const nextOrder = (s) => roundUp(Math.max(s.order?.target ?? 0, statsPower(s), 1000) * 1.5);
 
-/** The order's line, in the goal line's words and the log book's. */
+/** The order's line, in the goal line's words and the standing order's. */
 export const orderTitle = (target) => `Increase output to ${fmt(target)} per tick`;
 export const orderEntry = (target) => `Increase output: ${fmt(target)} per tick. Reason: not required.`;
 
@@ -220,15 +229,13 @@ export const orderEntry = (target) => `Increase output: ${fmt(target)} per tick.
  * reactor, running, meets it. True when an order was met.
  */
 export function checkOrder(s) {
-	if (s.objective < OBJECTIVES.length - 1) return false;
+	if (s.objective < OBJECTIVES.length - 1 || s.shown < s.objective) return false;
 	if (!s.order) {
 		s.order = { target: nextOrder(s), met: 0 };
-		fileEntry(s, orderEntry(s.order.target));
 		return false;
 	}
 	if (s.paused || statsPower(s) < s.order.target) return false;
 	s.order = { target: nextOrder(s), met: s.order.met + 1 };
-	fileEntry(s, orderEntry(s.order.target));
 	return true;
 }
 

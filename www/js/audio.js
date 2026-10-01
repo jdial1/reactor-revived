@@ -1,29 +1,53 @@
-// Sound. Six impacts on <audio> elements, and one hum on Web Audio, because
-// only Web Audio loops without a gap and bends pitch smoothly.
+// Sound. Impacts on <audio> elements, and one hum on Web Audio, because only
+// Web Audio loops without a gap and bends pitch smoothly.
 //
-// Everything here is a dull, low impact rather than a click or a chime: the
-// sounds were picked by measuring, not by name. Each candidate was decoded and
-// scored on how much of its energy survives a 220Hz low-pass and how often it
-// crosses zero, and the ones that won are heavy and dull - Kenney's bells and
-// beeps score bright and are not here.
+// The impacts from Kenney's pack were picked for depth - how much of their
+// energy survives a 220Hz low-pass - and on a desk speaker they are deep. A
+// phone plays next to nothing under 300 Hz, so on a phone what is left of an
+// impact is its edge. The old coin, on the sell bar - the most-pressed control
+// in the game - was clunky: it rattled into four or five uneven, boomy hits
+// after the key's click, and on a phone it was bright and loud. The Soul
+// Interview asks for presses that are "tactile mechanical double click
+// industrial slow": a click, then one clack, in metal. Both the sell bar's and
+// the plant computer's clack are now a lever latching home, chosen by the
+// designer from four candidates (tools/synth_sounds.py): one clean, damped hit,
+// with weight, nothing left ringing, its metal where a phone speaker plays
+// (README, Sound).
 //
-// A cue can play its file slower: a lower rate is a bigger, longer version of
-// the same impact. Nothing that is only filed in the log book makes a sound.
+// A cue is one file or a family. A family is cycled - every variant once, in a
+// shuffled order, never the same one twice running - and every play is nudged
+// a little in pitch and level, the way no two presses of one switch are quite
+// alike, so a run of taps is not one sound repeated. A cue can play slower: a lower rate is a
+// bigger, longer version of the same impact. Nothing that is only filed in the
+// log makes a sound.
+const family = (name, n) => Array.from({ length: n }, (_, i) => `${name}-${i + 1}.wav`);
+
 const CUES = {
-	place: ["place", 1, 0.55],
-	sell: ["sell", 1, 0.5],
-	coin: ["coin", 1, 0.5],
-	vent: ["vent", 0.92, 0.5],
-	buy: ["buy", 1, 0.55],
-	boom: ["boom", 0.8, 0.9],
+	place: ["place.ogg", 1, 0.55],
+	sell: ["sell.ogg", 1, 0.5],
+	// The sell bar, and an order signed off: a lever latching home, after the
+	// key's click. Five presses of it, each a little different.
+	coin: [family("latch", 5), 1, 0.42],
+	vent: ["vent.ogg", 0.92, 0.5],
+	// The plant computer's clack: the same latch, cycled on its own.
+	buy: [family("latch", 5), 1, 0.42],
+	boom: ["boom.ogg", 0.8, 0.9],
 	// The first stage of a key on the plant computer: the place impact, played
 	// fast and quiet, is a short click before the clack (Soul Interview 5.5).
-	click: ["place", 1.9, 0.22],
+	click: ["place.ogg", 1.9, 0.22],
+	// The printer's head: the same impact, very fast and very quiet, over and
+	// over, is a dot-matrix chatter.
+	print: ["place.ogg", 3.4, 0.07],
 };
 
-export const FILES = [...new Set(Object.values(CUES).map(([file]) => file))];
+// How far a play may drift: three percent in pitch, and up to 1.5 dB quieter.
+const DRIFT = 0.03;
+const SOFTEN = 0.84;
 
-// Two elements per cue, alternating: placing a row of parts quickly should
+const filesOf = ([file]) => (Array.isArray(file) ? file : [file]);
+export const FILES = [...new Set(Object.values(CUES).flatMap(filesOf))];
+
+// Two elements per file, alternating: placing a row of parts quickly should
 // sound like a row of parts, not like one clipped thud. Per cue, not per file:
 // the click is the place impact played fast, and must not cut off the clack
 // that follows it. Built on first use, so importing this module outside a
@@ -32,10 +56,28 @@ const voices = {};
 let on = true;
 let hot = 0;
 
-const voiceFor = (cue, file) => (voices[cue] ??= {
+const voiceFor = (cue, file) => (voices[`${cue}:${file}`] ??= {
 	turn: 0,
-	els: [0, 1].map(() => new Audio(`audio/${file}.ogg`)),
+	els: [0, 1].map(() => new Audio(`audio/${file}`)),
 });
+
+// Each family's place in its cycle: a shuffled order, and how far through it.
+const cycles = {};
+
+/** The next variant of a cue: every one once per round, never one twice running. */
+export function nextVariant(cue, random = Math.random) {
+	const files = filesOf(CUES[cue]);
+	if (files.length === 1) return files[0];
+	const c = (cycles[cue] ??= { order: [], at: 0, last: null });
+	if (c.at >= c.order.length) {
+		c.order = files.map((f) => [random(), f]).sort((a, b) => a[0] - b[0]).map(([, f]) => f);
+		// A new round never opens with the sound that closed the last one.
+		if (c.order[0] === c.last) c.order.push(c.order.shift());
+		c.at = 0;
+	}
+	c.last = c.order[c.at++];
+	return c.last;
+}
 
 /** Called by the renderer; the sim never knows about any of this. */
 export const setMuted = (muted) => { on = !muted; };
@@ -44,14 +86,14 @@ export function play(cue, pitch = 1) {
 	const found = CUES[cue];
 	// A backgrounded tab should be silent even before Android pauses it.
 	if (!on || !found || typeof Audio === "undefined" || document.hidden) return;
-	const [file, rate, gain] = found;
-	const voice = voiceFor(cue, file);
+	const [, rate, gain] = found;
+	const voice = voiceFor(cue, nextVariant(cue));
 	const el = voice.els[voice.turn];
 	voice.turn ^= 1;
 	el.currentTime = 0;
-	el.playbackRate = rate * pitch;
+	el.playbackRate = rate * pitch * (1 + (Math.random() * 2 - 1) * DRIFT);
 	// Heat takes the room: the hotter the reactor, the less the rest is heard.
-	el.volume = gain * (1 - 0.6 * hot);
+	el.volume = gain * (SOFTEN + Math.random() * (1 - SOFTEN)) * (1 - 0.6 * hot);
 	// Before the first tap a browser refuses to play at all; there is nothing
 	// to do about it and nothing worth saying.
 	el.play().catch(() => {});

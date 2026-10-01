@@ -4,7 +4,8 @@ import { newState, serialize, deserialize, place, exportSave } from "../www/js/s
 import { compile, tick, tileAt, activeTiles, sellValue, ROWS, COLS } from "../www/js/sim.js";
 import { PART_BY_ID, PARTS, isPartVisible, UNLOCK_AFTER } from "../www/js/parts.js";
 import { UPGRADES, buy, applyUpgrades, reboot, costOf, UPGRADE_BY_ID } from "../www/js/upgrades.js";
-import { checkObjectives, OBJECTIVES } from "../www/js/objectives.js";
+import { checkObjectives, claimObjective, OBJECTIVES } from "../www/js/objectives.js";
+import { fileItem } from "../www/js/story.js";
 import { fmt } from "../www/js/fmt.js";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
@@ -461,21 +462,24 @@ test("a corrupt or missing save yields a fresh game", () => {
 	}
 });
 
-test("objectives pay out in order and only once", () => {
+test("a met order is held until it is signed off, and paid once", () => {
 	const s = fresh();
 	assert.equal(s.objective, 0);
 
 	put(s, 5, 5, "uranium1");
 	compile(s);
 	assert.ok(checkObjectives(s));
+	assert.equal(s.objective, 0, "met, and held on the goal line");
+	assert.equal(s.money, 10, "not paid until signed off");
+	assert.equal(checkObjectives(s), false, "met once");
+	assert.ok(claimObjective(s));
 	assert.equal(s.objective, 1, "first objective cleared");
 	assert.equal(s.money, 20); // 10 starting + 10 reward
-
-	assert.equal(checkObjectives(s), false, "no double payout");
+	assert.equal(claimObjective(s), null, "no double payout");
 	assert.equal(s.money, 20);
 });
 
-test("objectives chain when several are satisfied at once", () => {
+test("one order at a time: the next cannot be met until it is off the printer", () => {
 	const s = fresh();
 	s.soldPower = true;
 	s.handVents = 10;
@@ -483,24 +487,30 @@ test("objectives chain when several are satisfied at once", () => {
 	put(s, 5, 6, "vent1");
 	compile(s);
 	checkObjectives(s);
-	assert.equal(s.objective, 4, "placed, sold power, vented by hand, vent beside a cell");
+	claimObjective(s);
+	assert.equal(checkObjectives(s), false, "job 1 is still on the printer, though power was sold");
+	assert.equal(s.objective, 1);
+	fileItem(s, { channel: "order", id: 1 });
+	assert.ok(checkObjectives(s), "in hand, and already met");
+	assert.equal(s.objective, 1, "still one at a time: placed, then sold, each signed off");
 });
 
 test("venting by hand is ten taps that take heat off, however hot it gets", () => {
 	const s = fresh();
-	s.objective = 2;
+	s.objective = s.shown = 2;
 	s.handVents = 9;
 	s.heat = 1e6;
 	assert.equal(checkObjectives(s), false, "nine is not ten");
 	assert.deepEqual(OBJECTIVES[2].progress(s), [9, 10]);
 	s.handVents = 10;
 	assert.ok(checkObjectives(s), "ten, with the reactor still hot: the heat left does not matter");
+	claimObjective(s);
 	assert.equal(s.objective, 3);
 });
 
 test("the objective list terminates", () => {
 	const s = fresh();
-	s.objective = OBJECTIVES.length - 1;
+	s.objective = s.shown = OBJECTIVES.length - 1;
 	assert.equal(checkObjectives(s), false);
 	assert.equal(s.objective, OBJECTIVES.length - 1);
 });
@@ -942,7 +952,7 @@ test("every sound a cue names is on disk", async () => {
 	const { FILES } = await import("../www/js/audio.js");
 	assert.ok(FILES.length, "there are cues");
 	for (const f of FILES) {
-		assert.ok(existsSync(`www/audio/${f}.ogg`), `${f} has no file`);
+		assert.ok(existsSync(`www/audio/${f}`), `${f} has no file`);
 	}
 });
 

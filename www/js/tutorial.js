@@ -39,7 +39,7 @@ export const STEPS = [
 	  doing: "Place a Vent.",
 	  waitFor: (s) => some(s, (p) => p.category === "vent") },
 	{ target: "#goal .objective", title: "The log",
-	  text: "The rest is on the operator's log, one job at a time, and it opens each tab when it gets there. Tap any placed part to see exactly what it is doing. Good luck - and watch the heat bar." },
+	  text: "The rest is on the operator's log, one job at a time, and it opens each tab when it gets there. When a job is done the line says Sign off: tap it to be paid. The next order comes off the printer a few seconds later, and the lamp on the line says something new is in the log. Tap any placed part to see exactly what it is doing. Good luck - and watch the heat bar." },
 ];
 
 let step = -1;

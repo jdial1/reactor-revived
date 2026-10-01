@@ -50,6 +50,19 @@
 	--frame-face: #141b1c;
 	--flux-ink: #6fc0ea;
 	--danger-ink: #e58a8a;
+	/* The station file's papers: manual pages, work orders on manila, bare
+	   demand slips, envelopes; the stamp's ink (the desk's blue process line
+	   is the same ink), and a price in ink on paper. */
+	--manila: #d3c59c;
+	--slip: #e6e1d2;
+	--envelope: #c9bb93;
+	--stamp-ink: #2f5f8a;
+	--cash-ink: #6e5412;
+	--seal: #9a7424;
+	/* The printer's paper: pale, with the green bars of a line printer. */
+	--greenbar: #d8e2cc;
+	/* Tractor-feed paper: the width of the punched margin each side. */
+	--feed: 20px;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
@@ -338,30 +351,18 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 	padding: 8px;
 	margin: 0 0 8px;
 }
-/* A checklist: a box, the job, what it pays, and the note that asked for it. */
-.objectives { margin: 0; padding: 0; list-style: none; color: var(--dim); }
-.objectives li { position: relative; padding: 0 0 8px 20px; }
-.objectives li::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	top: 3px;
-	width: 10px;
-	height: 10px;
-	box-shadow: inset 0 0 0 1px var(--dim);
+/* The operator's log is the station file: the orders and the letters, oldest
+   first, the current order last. What came before it folds into one line. */
+.file {
+	display: grid;
+	gap: 8px;
+	margin: 0 0 10px;
+	padding: 2px 4px 4px 2px;
+	list-style: none;
+	max-height: min(62vh, 460px);
+	overflow-y: auto;
 }
-.objectives li.done::before { background: var(--power); box-shadow: inset 0 0 0 2px var(--panel); }
-.objectives li b { font-weight: normal; }
-.objectives li i { color: var(--cash); font-style: normal; margin-left: 6px; }
-.objectives li small { display: none; font-style: italic; font-size: 11px; opacity: 0.8; }
-.objectives li.done { opacity: 0.45; }
-.objectives li.done :is(b, i) { text-decoration: line-through; }
-.objectives li.current b { color: var(--ink); }
-.objectives li.current::before { box-shadow: inset 0 0 0 1px var(--cash); }
-.objectives li.current small { display: block; color: var(--ink); }
-.objectives li small[hidden] { display: none; }
-
-.objectives:not(.open) li.done, .objectives li.current ~ li { display: none; }
+.file:not(.open) > .past { display: none; }
 .done-toggle {
 	display: block;
 	width: 100%;
@@ -376,11 +377,6 @@ body.near #grid { animation: haze 1.3s ease-in-out infinite alternate; }
 }
 .done-toggle::after { content: " \25B8"; }
 .done-toggle[aria-expanded="true"]::after { content: " \25BE"; }
-.sheet.goals .objectives {
-	max-height: min(60vh, 420px);
-	overflow-y: auto;
-	margin-bottom: 10px;
-}
 
 
 .options, .reboot { display: grid; gap: 6px; margin-bottom: 10px; }
@@ -471,7 +467,7 @@ footer {
 	padding-bottom: 7px;
 	border: 3px solid var(--plating);
 	background:
-		linear-gradient(to right, #2f5f8a 0 50%, #b8602e 50% 100%) left calc(100% - 3px) / 100% 2px no-repeat,
+		linear-gradient(to right, var(--stamp-ink) 0 50%, #b8602e 50% 100%) left calc(100% - 3px) / 100% 2px no-repeat,
 		linear-gradient(var(--card-ink), var(--card-ink)) left calc(100% - 5px) / 100% 1px no-repeat,
 		var(--plate) var(--dither);
 	box-shadow: inset 0 0 0 1px #fff6, 0 0 0 1px #0009;
@@ -908,6 +904,26 @@ body.melting { animation: melting 500ms ease-out; }
 	color: var(--cash);
 	animation: met 1.6s ease-out forwards;
 }
+/* Signed off: said at the start of the goal line, then gone. */
+#goal .objective.signed::before {
+	content: "Signed\00a0";
+	color: var(--power);
+	animation: met 1.6s ease-out forwards;
+}
+/* Met, and held until it is signed off: the line in the price's colour, on a
+   faint wash of it. Steady, never blinking: it waits. */
+#goal .objective.claim { color: var(--cash); background-color: #d8c15a14; }
+/* Signed off, and the next order not yet off the printer. */
+#goal .objective.awaiting { color: var(--dim); font-style: italic; }
+/* Something new filed in the log and not yet seen: a lamp lit on the goal
+   line, until the log is opened. */
+#goal .objective.alert {
+	padding-right: 24px;
+	background-image: radial-gradient(circle, var(--cash) 0 3.5px, #d8c15a66 4.5px, #0000 7.5px);
+	background-position: right 8px center;
+	background-size: 16px 16px;
+	background-repeat: no-repeat;
+}
 
 /* Modules. A casing is the icon its designer chose, framed in its colour. */
 .tile.module {
@@ -1127,8 +1143,7 @@ body.flow .tile .flow { display: flex; background: #0009; }
 .mark-ring.source { stroke: #ffd84a; }
 .mark-ring.sink { stroke: #6fd0e8; }
 .mark-key { margin: 2px 0 6px; font-size: 11px; color: var(--dim); text-align: center; }
-.objectives li .snap { display: block; margin-top: 3px; padding: 2px 8px; font-size: 10px; }
-.objectives li:not(.current) .snap:not([hidden]) { display: inline-block; }
+.docket .snap { margin: 6px 6px 0 0; }
 .sheet.tool dd .same { color: var(--ink); font-weight: normal; }
 
 /* Each dock part shows what it does, one number per corner in the rate bar's
@@ -1276,7 +1291,7 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .trophies li { padding: 4px 6px; color: #6b6656; background: #cfc7b0; border-left: 2px solid var(--card-rule); }
 .trophies li.won { color: var(--card-ink); border-left-color: #a8862a; }
 .trophies li b { font-weight: normal; }
-.trophies li.won b { color: #6e5412; }
+.trophies li.won b { color: var(--cash-ink); }
 .trophies li small { display: block; color: #5b5747; }
 
 /* On the real board the verdict line is the board's record; it opens the mark. */
@@ -1321,9 +1336,6 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .bench { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 8px 0; font-size: 12px; }
 .bench dt { color: var(--dim); }
 .bench dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-.sheet.goals h3 { margin: 12px 0 0; font-size: 12px; font-weight: normal; color: var(--dim); }
-.sheet.goals .entries { margin: 4px 0 8px; padding: 0; list-style: none; font-size: 12px; color: var(--dim); }
-.sheet.goals .entries li { padding: 2px 0; }
 /* Time Flux banked while away: the gauge says so itself, not a toast. */
 .flux.banked { animation: earned 700ms ease-out; }
 
@@ -1407,32 +1419,6 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .computer .upgrade.denied { animation: shake 220ms; }
 #page-experiments .computer .lamp { --lamp: var(--ep); }
 
-/* Letters: cream slips in the log, typed dark, opened in place. An unread one
-   carries a dot in the price colour; nothing outside the log says it came. */
-.letters { display: grid; gap: 4px; margin-bottom: 10px; }
-.letter { padding: 5px 8px; }
-.letter summary {
-	cursor: pointer;
-	list-style: none;
-	font-size: 11px;
-	letter-spacing: 0.04em;
-}
-.letter summary::-webkit-details-marker { display: none; }
-.letter summary::before { content: "\25B8\00a0"; color: #6b6656; }
-.letter[open] summary::before { content: "\25BE\00a0"; }
-.letter summary.unread::after {
-	content: "";
-	display: inline-block;
-	width: 6px;
-	height: 6px;
-	margin-left: 6px;
-	vertical-align: middle;
-	border-radius: 50%;
-	background: #a8862a;
-}
-.letter p { margin: 6px 0 0; font-size: 12px; line-height: 1.45; }
-.letter small { display: block; margin-top: 6px; font-size: 10px; font-style: italic; color: #5b5747; }
-
 /* A fuel's three upgrades - Power, Time, Autobuy - as one row of condensed
    tiles: label, what the next level moves, then price and level. */
 .upgrades .tiles {
@@ -1481,7 +1467,11 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
    lamp       a lamp: .lamp, lit by .on; its colour is --lamp, its size --lamp-size.
    nameplate  a cream plate with an orange rule: .nameplate, and every sheet's h2.
    panel      teal plating: .panel; .plate-group is a panel named on a nameplate.
-   card       paper: .card (a letter, the record card, a page's note).
+   card       paper: .card (the record card, a page's note). Two kinds of it
+              make the station file: .card.docket (an order: a manual page, a
+              work order, a demand slip, a notice) and .card.letter (an
+              envelope until opened, then a typed sheet).
+   stamp      a rubber stamp on paper: .stamp (Confirmed, Supplied, Revised).
    bin        a recessed well in the tray: .bin (a part, a saved module).
    frame      a sheet's housing: dialog, .tut-card. */
 
@@ -1584,6 +1574,170 @@ dialog h2,
 	border-left: 3px solid var(--card-rule);
 }
 
+/* A document in the station file: a card with a header (what it is, where it
+   came from), the order, what it pays, and a stamp once done. Its paper says
+   how far the log has drifted: a printed manual page, a work order on manila,
+   a bare slip nobody signed. */
+.card.docket { position: relative; padding: 5px var(--feed) 8px; border-left-width: 0; }
+.docket > header {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 0 8px;
+	margin: 0 calc(-1 * var(--feed)) 6px;
+	padding: 0 var(--feed) 4px;
+	font-size: 10px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--plate-ink);
+	border-bottom: 1px solid var(--card-rule);
+}
+.docket .byline { color: var(--plate-ink-dim); letter-spacing: 0.04em; text-transform: none; }
+.docket > b { display: block; font-size: 13px; font-weight: normal; color: var(--card-ink); }
+.docket > p { margin: 4px 0 0; font-size: 12px; line-height: 1.45; }
+.docket > .was { display: block; font-size: 11px; color: var(--plate-ink-dim); }
+.docket > .revision { font-style: italic; }
+.docket > .pay { display: block; margin-top: 6px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--plate-ink-dim); }
+.docket.current > .pay { color: var(--cash-ink); }
+.docket.manual { border-left: 3px solid var(--card-rule); }
+.docket.manual > header { border-bottom: 3px double var(--card-rule); }
+.docket.order { background: var(--manila); }
+.docket.order > header { border-bottom-style: dashed; }
+.docket.demand { background: var(--slip); padding-top: 3px; }
+.docket.demand > header { border-bottom: 0; margin-bottom: 2px; }
+.docket.notice { border-top: 3px solid var(--heat); }
+/* The order the room is waiting on: ringed in the price's colour. */
+.docket.current { outline: 2px solid var(--cash); outline-offset: 1px; }
+.docket.done > b { color: var(--plate-ink-dim); }
+
+/* A rubber stamp, inked once and a little crooked. */
+.stamp {
+	position: absolute;
+	right: 10px;
+	bottom: 8px;
+	padding: 1px 6px;
+	font-size: 10px;
+	font-weight: bold;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--stamp-ink);
+	border: 2px solid var(--stamp-ink);
+	border-radius: 3px;
+	opacity: 0.8;
+	transform: rotate(-7deg);
+	pointer-events: none;
+}
+
+/* A letter: an envelope with a flap until it is opened, then a typed sheet.
+   It says where it came from, a postmark how it came, and an unread one is
+   still under its seal. */
+.card.letter {
+	position: relative;
+	padding: 6px var(--feed);
+	border-left-width: 0;
+	background:
+		linear-gradient(to bottom right, transparent calc(50% - 1px), #0002 50%, transparent calc(50% + 1px)) left top / 50% 16px no-repeat,
+		linear-gradient(to bottom left, transparent calc(50% - 1px), #0002 50%, transparent calc(50% + 1px)) right top / 50% 16px no-repeat,
+		var(--envelope);
+}
+.card.letter[open] { padding-bottom: 10px; background: var(--plate); }
+.letter summary {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	list-style: none;
+	font-size: 11px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--plate-ink);
+}
+.letter summary::-webkit-details-marker { display: none; }
+.letter[open] summary { margin: 0 calc(-1 * var(--feed)) 8px; padding: 0 var(--feed) 5px; border-bottom: 3px double var(--card-rule); }
+.letter .from { flex: 1; }
+.postmark {
+	flex: none;
+	padding: 1px 7px;
+	font-size: 8px;
+	letter-spacing: 0.14em;
+	color: var(--stamp-ink);
+	border: 1px solid var(--stamp-ink);
+	border-radius: 999px;
+	opacity: 0.75;
+	transform: rotate(-6deg);
+}
+.letter .seal { display: none; flex: none; width: 11px; height: 11px; border-radius: 50%; }
+.letter.unread .seal {
+	display: block;
+	background: radial-gradient(circle at 35% 35%, var(--cash), var(--seal) 70%);
+	box-shadow: 0 1px 0 #0005;
+}
+.letter .sheet-body { font-family: "Courier New", Courier, ui-monospace, monospace; }
+.letter p { margin: 0 0 6px; font-size: 12.5px; line-height: 1.45; }
+.letter small { display: block; margin: 0 0 8px; font-size: 11px; font-style: italic; color: var(--plate-ink-dim); }
+.letter .mark { color: var(--stamp-ink); transform: rotate(-1deg); }
+
+/* Tractor-feed paper: every paper in the station file came off the printer,
+   so each has its punched margins, a row of sprocket holes down both edges
+   and the perforation that would tear them off. */
+.card.docket::before,
+.card.letter::before,
+.printout::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background:
+		radial-gradient(circle, var(--frame-face) 2.3px, #0000 2.8px) left 2px top 0 / 16px 12px repeat-y,
+		radial-gradient(circle, var(--frame-face) 2.3px, #0000 2.8px) right 2px top 0 / 16px 12px repeat-y,
+		linear-gradient(#0003 50%, #0000 50%) left calc(var(--feed) - 2px) top 0 / 1px 4px repeat-y,
+		linear-gradient(#0003 50%, #0000 50%) right calc(var(--feed) - 2px) top 0 / 1px 4px repeat-y;
+}
+.docket.fieldnote { background: var(--slip); }
+/* Room under the last line for the stamp, where nothing else sits there. */
+.docket.fieldnote:has(> .stamp:not([hidden])) { padding-bottom: 30px; }
+.docket .sign-off { display: block; width: 100%; margin-top: 8px; }
+
+/* The printer: a slot at the top of the screen, and what comes out of it,
+   printed in dots (a mask of 2px dots over the type) with the head running
+   along the line. */
+#printer {
+	position: fixed;
+	left: 0;
+	right: 0;
+	z-index: 40;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	pointer-events: none;
+}
+#printer .slot {
+	position: relative;
+	z-index: 1;
+	width: min(94vw, 360px);
+	height: 9px;
+	background: #050607;
+	border-radius: 0 0 3px 3px;
+	box-shadow: inset 0 3px 4px #000, 0 1px 0 var(--plating-hi);
+}
+#printer .feed { width: min(86vw, 330px); margin-top: -4px; }
+.printout {
+	position: relative;
+	padding: 10px var(--feed) 14px;
+	color: var(--card-ink);
+	background: repeating-linear-gradient(var(--greenbar) 0 22px, var(--slip) 22px 44px);
+	box-shadow: 0 10px 20px #000b;
+}
+.printout .type {
+	-webkit-mask: radial-gradient(circle, #000 0.85px, #0000 1.1px) 0 0 / 2px 2px;
+	mask: radial-gradient(circle, #000 0.85px, #0000 1.1px) 0 0 / 2px 2px;
+}
+.printout p { margin: 0 0 4px; font-size: 13px; font-weight: bold; line-height: 1.5; }
+.printout .head { letter-spacing: 0.12em; }
+.printout .by { font-weight: normal; color: var(--plate-ink-dim); }
+.printout .rule { height: 0; margin: 2px 0 8px; border-bottom: 2px dashed var(--plate-ink-dim); }
+.print-head { display: inline-block; width: 8px; height: 13px; margin-left: 1px; vertical-align: -2px; background: var(--card-ink); }
+
 /* ---- bin ---- */
 .bin {
 	background: var(--bin-face);
@@ -1605,6 +1759,8 @@ dialog,
 /* ==== Templates: what the components make ======================================
    sheet     a frame, named on a nameplate, its actions a bank of keys (.row,
              .sheet-actions): every dialog, and the tutorial's card.
+   file      a sheet holding papers, oldest first, the past folded: the
+             operator's log (orders and letters, story.js).
    terminal  the plant computer: a nameplate with a lamp over a phosphor screen
              (Upgrades, Experiments).
    plates    panels named on nameplates, each holding a bank of keys (Options,

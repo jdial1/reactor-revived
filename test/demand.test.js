@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize } from "../www/js/state.js";
 import { reboot } from "../www/js/upgrades.js";
-import { OBJECTIVES, checkObjectives, checkOrder, goalAt, orderTitle } from "../www/js/objectives.js";
+import { OBJECTIVES, checkObjectives, claimObjective, checkOrder, goalAt, orderTitle, orderEntry } from "../www/js/objectives.js";
 
 // A running board making `power` a tick, without building one.
 const running = (s, power) => {
@@ -13,7 +13,7 @@ const running = (s, power) => {
 
 test("a revised job is cancelled when first met, asked again higher, and paid once", () => {
 	const s = running(newState(() => 1), 600);
-	s.objective = 14;
+	s.objective = s.shown = 14;
 	assert.equal(goalAt(s).title, "Make 500 power per tick");
 	const money = s.money;
 	assert.equal(checkObjectives(s), false, "met as first asked: not paid");
@@ -21,13 +21,15 @@ test("a revised job is cancelled when first met, asked again higher, and paid on
 	assert.equal(s.money, money);
 	assert.deepEqual(s.revised, [14]);
 	assert.equal(goalAt(s).title, "Make 750 power per tick");
-	assert.equal(s.entries.at(-1).text, "Order revised. 500 cancelled. Output required: 750 per tick.");
+	assert.equal(goalAt(s).note, "Order revised. 500 cancelled. Output required: 750 per tick.");
 	assert.equal(OBJECTIVES[14].title, "Make 500 power per tick", "the list itself is not rewritten");
 
 	assert.equal(checkObjectives(s), false, "600 does not meet 750");
 	assert.equal(s.revised.length, 1, "revised once only");
 	running(s, 800);
-	assert.ok(checkObjectives(s));
+	assert.ok(checkObjectives(s), "met as raised");
+	assert.equal(s.money, money, "held, not paid, until it is signed off");
+	assert.ok(claimObjective(s));
 	assert.equal(s.objective, 15);
 	assert.equal(s.money, money + OBJECTIVES[14].reward);
 });
@@ -56,7 +58,7 @@ test("revisions come late in the log, only raise the order, and say what they ca
 
 test("a revision rides along in the save", () => {
 	const s = running(newState(() => 1), 600);
-	s.objective = 14;
+	s.objective = s.shown = 14;
 	checkObjectives(s);
 	const back = deserialize(JSON.parse(JSON.stringify(serialize(s))), () => 1);
 	assert.deepEqual(back.revised, [14]);
@@ -66,14 +68,17 @@ test("a revision rides along in the save", () => {
 
 test("past the last job a standing order is issued above the reactor, and raised when met", () => {
 	const s = running(newState(() => 1), 3e6);
-	s.objective = OBJECTIVES.length - 2;
+	s.objective = s.shown = OBJECTIVES.length - 2;
 	assert.equal(checkOrder(s), false);
 	assert.equal(s.order, null, "no order before the log is finished");
 
 	s.objective = OBJECTIVES.length - 1;
+	assert.equal(checkOrder(s), false, "nothing while the notice is on the printer");
+	assert.equal(s.order, null);
+	s.shown = s.objective;
 	assert.equal(checkOrder(s), false, "issued, not met");
 	assert.equal(s.order.target, 5e6, "a round figure above what the reactor makes");
-	assert.equal(s.entries.at(-1).text, "Increase output: 5M per tick. Reason: not required.");
+	assert.equal(orderEntry(s.order.target), "Increase output: 5M per tick. Reason: not required.");
 	assert.equal(orderTitle(s.order.target), "Increase output to 5M per tick");
 
 	running(s, 6e6);
@@ -94,7 +99,7 @@ test("past the last job a standing order is issued above the reactor, and raised
 
 test("the standing order never falls: not for a quiet reactor, a save, or a reboot", () => {
 	const s = running(newState(() => 1), 3e6);
-	s.objective = OBJECTIVES.length - 1;
+	s.objective = s.shown = OBJECTIVES.length - 1;
 	checkOrder(s);
 	running(s, 5e6);
 	checkOrder(s);
@@ -108,7 +113,7 @@ test("the standing order never falls: not for a quiet reactor, a save, or a rebo
 	assert.deepEqual(back.order, s.order, "a reboot keeps the order and its count");
 	// A quiet station's first order is still a demand, not zero.
 	const quiet = running(newState(() => 1), 0);
-	quiet.objective = OBJECTIVES.length - 1;
+	quiet.objective = quiet.shown = OBJECTIVES.length - 1;
 	checkOrder(quiet);
 	assert.equal(quiet.order.target, 2000);
 });

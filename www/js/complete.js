@@ -17,5 +17,5 @@ export function outstanding(s) {
 
 export const isComplete = (s) => outstanding(s).length === 0;
 
-/** Filed once, in the log book, when everything is first complete. */
+/** The notice filed in the log when everything is first complete (story.js). */
 export const COMPLETE_ENTRY = "All listed loads supplied. All parts on issue. All systems at full rating. Demand continues.";

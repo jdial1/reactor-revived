@@ -429,9 +429,9 @@ placement, no wash or floating number on a sell or vent, no flash on an upgrade,
 no toast for a goal (a tick appears on the goal line instead) or for a price the
 button already shows. What stays is what the board cannot say - a refused tap
 shakes, and a meltdown stops everything. A part coming into reach flashes on its
-own dock button; that it arrived, like a trophy or a field note, is filed in the
-operator's log book without a toast or a sound (house rule 3 of the soul
-instance, One Request, Waiting).
+own dock button and says nothing else; a trophy or a field note goes to Records
+without a toast or a sound (house rule 3 of the soul instance, One Request,
+Waiting).
 
 ## The valley outside
 
@@ -447,7 +447,7 @@ never changes while you watch, and is not shown in the planner.
 
 When everything is done - the log finished, every part on issue, every upgrade
 at its maximum, every tile filled - the game notices once, without a toast: the
-log book files *"All listed loads supplied. All parts on issue. All systems at
+log files a notice, *"All listed loads supplied. All parts on issue. All systems at
 full rating. Demand continues."*, Records gains *All complete*, and from then
 on the valley stays lit, day and night. The content ends there; the demand does
 not. `www/js/complete.js` says what counts, and a test holds it.
@@ -455,7 +455,7 @@ not. `www/js/complete.js` says what counts, and a test holds it.
 The demand also grows after it is made. Three late jobs - 500 power a tick, a
 $10B reserve, 1,000 particles - are cancelled the first time they are met and
 asked again half as much higher, once each; the goal line flashes *Revised* and
-the log book says what was cancelled, so a target that moves always says it
+the log keeps the first ask struck through, so a target that moves always says it
 moved. Past the last job a **standing order** takes the goal line: *Increase
 output to 2B per tick*, always a round figure above what the reactor makes when
 it is issued, raised each time it is met, never lowered - not by a quiet
@@ -490,9 +490,10 @@ puffs steam while its fan turns, and an exploding part throws a spark.
 
 ## Sound
 
-Six impacts in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One
-`<audio>` element per voice, two per cue so a fast row of parts sounds like a
-row of parts.
+Four impacts in `www/audio/` from **Kenney's Impact Sounds** (CC0), and two
+one synthesised clack - five presses of a lever latching home, for the sell bar
+and the plant computer both - made by `tools/synth_sounds.py`. One `<audio>` element per voice, two
+per file so a fast row of parts sounds like a row of parts.
 
 Every hand control is heard in two stages, a click and then its impact (Soul
 Interview 5.4, 5.5): placing or moving a part is the click and clank of it going
@@ -520,9 +521,46 @@ the bells and beeps score bright, and none of them are here. `impactWood_heavy`
 scored 0.95 deep at 77 crossings a second; `impactBell_heavy` scored 0.51 at
 874, which is the tinny sound this game is trying not to make.
 
-Seven cues: the six impacts, each at its own playback rate - a lower rate is a
+### Graded on a phone
+
+The impacts were picked for depth, and on a desk speaker they are deep. A phone
+plays next to nothing under 300 Hz, so on a phone what is left of a deep impact
+is its edge. Every cue was rendered as the game plays it and graded through a
+model of a phone speaker (`tools/render_cues.mjs`, `tools/grade_sounds.py`):
+sharpness on the Bark scale, energy over 2 kHz, the ring still sounding 60 ms
+after the hit, the peak, and the length. A soft, short, dark hit scores 100.
+
+| Cue | Heard on | Was | Grade | Now | Grade |
+| --- | --- | --- | --- | --- | --- |
+| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: clunky - rattling into five uneven hits with the click ahead of it - and on a phone 1.1 kHz, 16% over 2 kHz, 12 dB louder than anything else | F (37) | `latch-1` to `-5`: a lever latching home; with the click, two clean hits; nothing over 2 kHz or ringing, level with the rest | A (88) |
+| `buy` | an upgrade or research authorised, a doctrine | Kenney `buy`: 1 kHz, 15% over 2 kHz, the longest ring | F (34) | the same latch, cycled on its own | A (88) |
+| `place`, `sell`, `vent`, `boom`, `click`, `print` | | deep impacts: soft on a phone | A (86-100) | unchanged | |
+
+The sell bar is the most-pressed control in the game, and the coin was clunky:
+it rattled into four or five uneven, boomy hits every tap. The Soul Interview
+asks for presses that are "tactile mechanical double click industrial slow" - a
+click, then a clack, with weight, in metal (5.4, 5.5) - so its replacement keeps
+the click and is one clean clack after it: a lever latching home, synthesised
+as a short body for weight (120 Hz, 60 ms), three damped metal modes (520 to
+1,310 Hz), and the knock of the strike. Measured as heard: click then clack, two
+hits, not five, and nothing left ringing. The plant computer's authorise is the
+same latch. It was chosen by the designer from four candidates written by
+`tools/synth_sounds.py --candidates` - a contactor, a counter drum, a Bakelite
+toggle and the latch - after a first attempt, wooden mallet notes on a
+pentatonic scale, measured well and did not fit: musical where the plant is
+mechanical.
+
+**Variance.** A family is cycled - every variant once, in a shuffled order, and
+never the same one twice running, even across rounds - and every play of every
+cue drifts up to 3% in pitch and 1.5 dB in level - the way no two presses of
+one switch sound quite alike - so a run of taps is not one sound repeated.
+Each variant of a family is the same switch, written with a little jitter in its
+modes, not a different note. `test/audio.test.js` holds the cycle, and that the
+synthesised files stay dark (under 2% of their energy over 2 kHz) and unclipped.
+
+Eight cues: the impacts and the latch, each at its own playback rate - a lower rate is a
 bigger, longer version of the same impact, so a meltdown is a punch at 0.8 - and
-the hum. Nothing filed silently in the log book makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
+the hum. Nothing filed silently in the log makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
 audio is dispatched from the renderer and from `main.js`, and a test still
 asserts the simulation touches no DOM.
 
@@ -601,9 +639,9 @@ its section counts say how many, and a screen reader still hears the number.
 
 ### Components
 
-All of the above is built from eight components - key, switch, lamp, nameplate,
-panel, card, bin, frame - and five templates made from them: sheet, terminal,
-plates, strip, tray. Each component's look is set once, from tokens in `:root`,
+All of the above is built from nine components - key, switch, lamp, nameplate,
+panel, card, stamp, bin, frame - and seven templates made from them: printer, file,
+sheet, terminal, plates, strip, tray. Each component's look is set once, from tokens in `:root`,
 in the *Components* section at the end of `www/css/app.css`; a screen's rules
 only place and size them. [docs/ui-components.md](docs/ui-components.md) lists
 them, their states and how to add a control, and `test/components.test.js`
@@ -680,7 +718,7 @@ the one rule dropped on purpose: it deleted heat.
   Vents, coolant and plating come with the goal that asks for a vent; capacitors
   and reflectors with the one that asks for a capacitor; exchangers, inlets and
   outlets with the first example layout that uses them; accelerators when
-  particles become the job. Each arrival is filed once in the log book.
+  particles become the job.
 - Every dock part shows its numbers in its corners, with the rate bar's icons:
   power in blue, heat in red, life in purple, price in green, and its art in
   the middle.
@@ -738,17 +776,61 @@ The valley's story is told in letters, and only there and in the log (Soul
 Interview 6.3): optional, never required, never interrupting play. A letter is
 filed in the operator's log as the station climbs - fifteen of them, from the
 Regional Energy Authority, Harrow Supply, the town clerk, the clinic's night
-ward, the university, the works and, once, the courier - with one silent line
-in the log book (*Letter received: Harrow Supply.*). Nothing outside the log says
-it came. In the log the letters fold into one line until opened (*4 letters,
-3 unread*); a slip opens in place and carries a dot until it has been opened;
-Records counts them.
+ward, the university, the works and, once, the courier. Nothing outside the log says
+it came. Records counts them.
 
-The log book folds the same way (*12 log book entries*). Opened, it is tidied
-for reading: a run of one kind of entry becomes one line (*Supplied: Capacitor,
-Plating, Heat Vent.*), and letter arrivals are left to the Letters list rather
-than said twice. The book itself keeps every line; `tidyEntries` in
-`www/js/records.js` is only how it is shown.
+### The station file
+
+The operator's log is one file, not a checklist with lists folded under it: the
+orders and the letters, oldest first, as they came, each letter just above the
+order it came with (`www/js/story.js`). The orders are documents too, and their
+paper drifts with the log's voice:
+
+- **Jobs 1-10** are pages of the *Operating manual*, marked *Translated* - the
+  `drawings` letter says only sections 1 to 4 were, and these are sections 1.1
+  to 4.5.
+- **Jobs 11-20** are *Work orders* on manila, each from someone in the valley,
+  mostly the same institutions that write the letters: the clinic's overnight
+  load, the Authority's inspection, the town clerk's winter reserve, Harrow
+  Supply's thorium delivery.
+- **Jobs 21-30** are *Demands* on a bare slip, *From: not stated*.
+- Past the last job the **standing order** is unsigned too, until the works'
+  letter has said who it is for; then it is *From: Harrow Works*.
+
+A done order is stamped (*Confirmed*, *Supplied*); a revised one keeps its first
+ask struck through, stamped *Revised*. The order the room is waiting on is
+ringed. A letter is an envelope with a flap, a postmark (*Received* or *Found*)
+and a seal until it is opened, when it becomes a typed sheet in place.
+
+Everything before the current order folds into one line (*Filed: 14 orders, 3
+letters*), except a letter not yet read, which stays out of the fold until it
+is opened, and the log opens on it. The old silent log book is gone: what it
+said, the dock, the Modules key and Records already say.
+
+### The printer
+
+Nothing reaches the file on its own. A met order is held on the goal line -
+*Sign off: Buy an upgrade $100*, in the price's colour - until it is tapped,
+which pays it. The next order is then on the station's printer, and the goal line
+reads *Awaiting the next order.* Five to ten seconds later it comes out of a slot
+at the top of the screen on tractor-feed paper in green bars, printed in dots a
+character at a time with the head ticking across, is torn off, and goes into the
+log behind the goal line; a lamp on the goal line stays lit until the log is
+opened. It cannot be met until it has printed.
+
+Letters and field notes come the same way, one at a time each. The next letter
+prints once every letter filed has been opened - opening is the claim, and
+reading stays optional: an unopened letter only holds back the letters after it.
+A field note seen on the board is printed and filed under the current order,
+and only written into its parts' sheets once it is signed off; the next one
+waits on it. The printer takes no taps, prints one thing at a time with orders
+first, and prints nothing in the planner or while the game is in the background.
+`www/js/story.js` decides what is waiting and where it files;
+`www/js/printer-ui.js` is the waiting and the printing.
+
+Every paper in the log came off that printer, so every paper has its punched
+margins: sprocket holes down both edges and the perforation that would tear them
+off.
 
 They hint before they answer, and by the end each of the world's open questions
 has an answer (why the plant closed, why nobody else could run it, what the

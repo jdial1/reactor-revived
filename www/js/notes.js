@@ -23,10 +23,24 @@ export const NOTES = {
 		"Bought itself out of an overheat for ten times its price, and dumped the heat into the reactor."],
 };
 
-/** The player saw this happen. The planner, forecasts and casings do not count. */
+/**
+ * The player saw this happen. The planner, forecasts and casings do not count.
+ * Seen is not yet written: the note waits for the printer, then in the log for
+ * the operator to sign it off (story.js), and only then is it in the sheets.
+ */
 export function observe(s, id) {
-	if (!s.notes || s.planner || s.sealed || s.notes.includes(id)) return;
-	s.notes.push(id);
+	if (!s.notes || s.planner || s.sealed || s.notes.includes(id) || s.notesDue.includes(id)
+		|| s.fieldNotes.some((n) => n.id === id)) return;
+	s.notesDue.push(id);
+}
+
+/** Signed off in the log: written into its parts' sheets from now on. */
+export function claimNote(s, id) {
+	const n = s.fieldNotes.find((x) => x.id === id);
+	if (!n || n.claimed) return false;
+	n.claimed = true;
+	if (!s.notes.includes(id)) s.notes.push(id);
+	return true;
 }
 
 /** The notes the player has earned for a part. */

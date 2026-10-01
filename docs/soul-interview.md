@@ -1165,7 +1165,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | --- | --- | --- | --- | --- |
 | Progress and scale are infinite; resources are spent | 2.1 | Money, power and particles grow without limit; every upgrade has a ceiling | | Felt |
 | A meltdown is finite and leaves no mark on the world | 2.1 | A clean wipe that keeps money, research and records | | Felt |
-| Demand only ever grows | 2.1, 2.5 | Built: three late jobs (14, 20, 27) are cancelled when first met and asked again half as much higher, said on the goal line and in the log book; past job 30 a standing order is always above the reactor's output and never falls (7.5, requests that grow) | Requests that grow after they are made: 200, cancelled, now 300 (3.5) | Mechanic, built |
+| Demand only ever grows | 2.1, 2.5 | Built: three late jobs (14, 20, 27) are cancelled when first met and asked again half as much higher, said on the goal line and in the log, where the first ask stays struck through over the new one; past job 30 a standing order is always above the reactor's output and never falls (7.5, requests that grow) | Requests that grow after they are made: 200, cancelled, now 300 (3.5) | Mechanic, built |
 | The options grow more complex | 2.1 | A part appears once ten of the one before it are placed; families arrive with the log; a doctrine set every five goals | | Felt |
 | Power is the cost; complexity brings instability | 2.2 | Heat grows faster than power as cells crowd; meltdowns | | Felt |
 | Rebuilding is the cost | 2.2, 6.3 | The board is lost; rebuilt codes queue what cannot be afforded | | Felt |
@@ -1185,7 +1185,7 @@ crumbling plant Felt; the reactor computer Mechanic.
 | The verbs are the log book's asks; upgrades are made on the reactor computer | 4.3 | Built: Upgrades and Experiments are the plant computer's two screens; a purchase is a key pressed through, heard as click then clack, and the prompt line says what was authorised (7.5, the plant computer) | | Mechanic, built |
 | A meltdown returns the valley to its dark | 4.4 | Never said, by the designer's choice | | Flavour, on purpose |
 | What is lost: time, the board, the count, the pay for the dark hours | 4.5 | All four are true in the build | | Felt |
-| The content ends; the demand never does | 4.6, 6.3 | Built: when the log, every part, every upgrade and the board are complete, the log book files a robotic confirmation ("… Demand continues."), Records says All complete, and the valley stays lit. The demand goes on as the standing order (7.5) | Notice the finished state (1.3) | Mechanic, built |
+| The content ends; the demand never does | 4.6, 6.3 | Built: when the log, every part, every upgrade and the board are complete, the log files a robotic notice ("… Demand continues."), Records says All complete, and the valley stays lit. The demand goes on as the standing order (7.5) | Notice the finished state (1.3) | Mechanic, built |
 | Melancholy creeps in, unnamed | 4.6, 6.3 | Nothing | Carried by what the log stops saying (6.3) | Letters (the log's voice) |
 | Unpausing is the on switch | 1.1 | Built: the header's switch reads On or Off with a lamp; a new station starts off, and turning it on is the tutorial's third card | | Mechanic, built |
 | Every automated system has a light and a switch | 5.2 | Built: Sell, Rebuy and Operator switches with lamps on the reactor's panel | A light and a switch on the reactor for each | Mechanic, built |
@@ -1210,15 +1210,83 @@ crumbling plant Felt; the reactor computer Mechanic.
 rewrote them; each keeps its meaning and verdict.*
 
 **The letters** (6.3: story only in letters and log entries), built and accepted.
-A letter is filed in the operator's log as the station climbs, with one silent
-line in the log book ("Letter received: …"); it opens in place, and nothing
-outside the log says it came. Each hints before it answers; every mystery in
+A letter is filed in the operator's log as the station climbs, just above the
+order it came with (see *The station file*, below); it opens in place, and
+nothing outside the log says it came. Each hints before it answers; every mystery in
 7.7 is answered by the end (2.6). Like the log, they speak of the station and
 the power, never to the operator (4.1). The letters and the answers they give
 were drafted by the interviewer and accepted by the designer whole ("accept the
 letters"), with one answer placed by the designer: the operator is human (7.7). test/letters.test.js holds the rules: the order, a hint before
 each answer, every mystery answered, the voice, the university's letters
 getting shorter (3.1, the courier's worry), and a row here for every letter.
+
+**The station file** (6.3, 3.2, 3.4), built; the senders and the stamps are
+**drafted, awaiting the designer**. The operator's log is no longer a checklist
+with the letters and a log book folded under it: it is one file, oldest first,
+of the orders and the letters as they came, each letter just above the order it
+came with. The silent log book is gone, and its lines with it (parts supplied,
+casings authorised, trophies and field notes entered: the dock, the Modules key
+and Records already show each of these). Each order is a document whose paper
+follows the voice arc, and whose sender is one of the letters' own
+institutions, so the jobs and the story are one correspondence. What came
+before the current order folds into one line ("Filed: 14 orders, 3 letters"),
+except a letter not yet read, which stays out until it is opened. Letters are
+envelopes with a flap, a postmark ("Received" or "Found") and a seal while
+unread, and open to a typed sheet. `test/story.test.js` holds the order and the
+drift.
+
+| Orders | Document | Line under its heading | Stamp once done | Verdict |
+| --- | --- | --- | --- | --- |
+| Jobs 0-9 | "Operating manual", a printed page | "Translated" (the `drawings` letter: sections 1 to 4 were translated; the jobs are sections 1.1 to 4.5) | "Confirmed" | Drafted |
+| Jobs 10-19 | "Work order 11" to "Work order 20", on manila | "From: " Harrow Clinic (clinic load), Regional Energy Authority (station clock), Regional Energy Authority (inspection), Harrow Town Clerk (winter reserve), Harrow Rail Yard (diesel), Harrow Supply (uranium stock), Harrow Co-operative (co-op load), Regional Energy Authority (second valley), Harrow Town Clerk (houses on candles), Harrow Supply (thorium) | "Supplied" | Drafted |
+| Jobs 20-29 | "Demand 21" to "Demand 30", a bare slip | "From: not stated" | "Supplied" | Drafted |
+| Job 30 | "Notice" | "From: not stated" | none: it is never done | Drafted |
+| Past job 30 | "Standing order" | "From: not stated", then "From: Harrow Works" once the `works` letter has said what the demand is for (2.4: never explained before the climb reaches it) | none | Drafted |
+| Everything complete | "Notice", the complete state's line | "From: not stated" | none | Drafted |
+| A revised order | its first ask struck through over the new one | | "Revised" while open | Drafted |
+| A field note | "Field note", on a bare slip | the parts it is about ("Neutron reflectors") | "Entered" | Drafted |
+
+**The printer and signing off** (asked for by the designer: "require manually
+claiming objectives and notes … a delay before the next appears, 5-10 seconds,
+with a dot matrix printer slow print from top of screen before hiding in
+objective modal with alert"), built; its strings are **drafted, awaiting the
+designer**. Nothing reaches the file on its own any more:
+
+- **Orders.** A met order is held, not paid: the goal line reads *Sign off:
+  \<order\> \<payment\>* in the price's colour, and a tap on it (or the order's
+  *Sign off* key in the log) pays it. The next order is then on the printer:
+  the goal line reads *Awaiting the next order.*, and it cannot be met until it
+  is printed. A revision still cancels and re-asks at once, unsigned.
+- **Letters.** One waits at a time: the next is printed only once every letter
+  filed has been opened. Opening is the claim. Reading stays optional (6.3):
+  an unopened letter holds back only the letters after it, never an order.
+- **Field notes.** Seen on the board, a quirk is not yet written: it is printed,
+  filed in the log under the current order, and written into its parts'
+  sheets only when signed off (*Sign off: enter in the parts guide*). The next
+  note waits on the last.
+- **The printer.** What is waiting prints five to ten seconds after it comes
+  due, one thing at a time, orders first: a slot at the top of the screen,
+  tractor-feed paper in green bars, the type in dots a character at a time with
+  the head heard ticking. Torn off, it goes into the log behind the goal line,
+  with two quiet clicks and a lamp lit on the goal line until the log is opened.
+  It takes no taps, and prints nothing in the planner or a hidden tab.
+- **The paper.** Every paper in the file came off the printer, so each has its
+  punched margins: sprocket holes down both edges, and the perforation.
+
+The One Request pillar holds: the printer is the demand arriving, one line at a
+time, and the lamp sits on the one request's own line, like the example dot (the
+pillar's self-test, item 1). Nothing is timed against the player: the delay runs
+only while the game is open, and nothing is lost by leaving an order unsigned.
+
+| Where | Drafted |
+| --- | --- |
+| The goal line, met | "Sign off: \<order\> \<payment\>" |
+| The goal line, while the next prints | "Awaiting the next order." |
+| The goal line, signed | "Signed", then gone |
+| An order's key in the log | "Sign off: \<payment\>" |
+| A field note's key | "Sign off: enter in the parts guide" |
+| A letter on the printer | headed "Letter", "From: \<sender\>" |
+| The tutorial's last card | "When a job is done the line says Sign off: tap it to be paid. The next order comes off the printer a few seconds later, and the lamp on the line says something new is in the log." |
 
 | Letter | From | Arrives | Text | Hints and answers | Verdict |
 | --- | --- | --- | --- | --- | --- |
@@ -1358,9 +1426,9 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
   job 20 ($10B, then $15B) and job 27 (1,000 particles, then 1,500). One in the
   work orders, two in the demands: more often as the demand grows. The first
   order is not paid; the raised one pays what the first would have. A target
-  that moves says it moved (1.5): the goal line flashes *Revised*, the log book
-  files the line below, and the job's row keeps its first note with the
-  revision under it. Past job 30 a **standing order** stands: always a round
+  that moves says it moved (1.5): the goal line flashes *Revised*, and in the
+  log the order keeps its first ask struck through and its first note, with
+  the revision under it and a *Revised* stamp. Past job 30 a **standing order** stands: always a round
   figure above what the reactor makes when it is issued, never lower than the
   one before, kept through a reboot, and paid nothing (the output sells as it
   always has). Records counts the orders met. The lines:
@@ -1371,8 +1439,8 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 | Job 20, revised | Accepted: "Order revised. $10B cancelled. Reserve required: $15B." |
 | Job 27, revised | Accepted: "Order revised. 1,000 cancelled. Particles required: 1,500." |
 | Goal line, past job 30 | Accepted: "Increase output to \<figure\> per tick" |
-| Log book, each order issued | Accepted: "Increase output: \<figure\> per tick. Reason: not required." |
-| The last job's row | Accepted: "Standing order: \<order\>. Met since the log closed: \<n\>." (the order in the goal line's words) |
+| The standing order, each order issued | Accepted: "Increase output: \<figure\> per tick. Reason: not required." (was filed in the log book; now the standing order's own line) |
+| The standing order | In the build: the order's own document, headed Standing order, with the order in the goal line's words and the line: "Met since the log closed: \<n\>." |
 
 - **The plant computer** (4.3, 5.5), built and accepted: the Upgrades and
   Experiments pages are one terminal's two screens. Teal plating, a cream plate
@@ -1395,10 +1463,10 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 | --- | --- | --- |
 | "Save exported" / "Save imported" | `www/js/main.js` | Accepted: "Station record written to file." / "Station record loaded." |
 | "Copied" | `www/js/ui.js` (layout codes, records) | Accepted: plain on purpose; a button's state, one word |
-| "\<part\> unlocked" | `www/js/ui.js` | Accepted: "Supplied: \<part\>." (the supplier on record: "Supply sent Dual cells by mistake") |
-| "New in the dock: ..." | `www/js/ui.js` | Accepted: "Supplied: \<part\>, \<part\>." (the same form) |
-| "Modules unlocked - design one on the Modules page" | `www/js/ui.js` | Accepted: "Casing design authorised. See Modules." |
-| "Trophy: \<name\>" / "Field note: \<name\>" | `www/js/ui.js` | Accepted: "Entered in the record: \<name\>." / "Field note filed: \<name\>." |
+| "\<part\> unlocked" | `www/js/ui.js` | Was accepted as *Supplied: \<part\>.* in the log book; cut with the log book (the station file). The part flashes in the dock |
+| "New in the dock: ..." | `www/js/ui.js` | Was accepted as *Supplied: \<part\>, \<part\>.*; cut with the log book. The family's key appears in the dock |
+| "Modules unlocked - design one on the Modules page" | `www/js/ui.js` | Was accepted as *Casing design authorised. See Modules.*; cut with the log book. The Modules key appears, and job 9 asks for a casing |
+| "Trophy: \<name\>" / "Field note: \<name\>" | `www/js/ui.js` | Were accepted as *Entered in the record* and *Field note filed*; cut with the log book. Records lists both |
 | "That file is not a Reactor Revived save this version can read" | `www/js/main.js` | Accepted: "File rejected. Not a station record this build can read." |
 | "Restart the reactor" (the meltdown button) | `www/js/ui.js` | Accepted: "Begin start-up" |
 
@@ -1523,8 +1591,8 @@ the interviewer; accepted by the designer:
 | # | What | Verdict |
 | --- | --- | --- |
 | 1 | The dot on the goal line marking an example layout waiting in the log | Keep, with a ledger entry: it sits on the one request's own line and points at help inside the game (6.3) |
-| 2 | Unlock toasts: parts supplied, new dock parts, casing design authorised | Change: a silent entry in the log book; the part still appears in the dock |
-| 3 | Trophy and field note toasts | Change: filed silently in the log book and the record |
+| 2 | Unlock toasts: parts supplied, new dock parts, casing design authorised | Change: a silent entry in the log book; the part still appears in the dock. Later cut with the log book (the station file, 7.3) |
+| 3 | Trophy and field note toasts | Change: filed silently in the log book and the record. Later cut with the log book; the record keeps them |
 | 4 | The toast that closes a Time Flux run | Keep, with a ledger entry: a receipt of what happened while away (1.5) |
 | 5 | The welcome-back toast ("Away 3h - banked as Time Flux") | Change: shown on the Time Flux gauge in the header |
 
@@ -1540,7 +1608,8 @@ the interviewer; accepted by the designer:
    exclamation marks; the banned phrasings) over every string the player reads.
    **Strings done:** the thirteen accepted rewrites and the Soul Check's toast
    verdicts are in the build. Parts supplied, casing designs, trophies and field
-   notes are filed silently in the operator's log book; the welcome-back toast
+   notes were filed silently in a log book, since retired for the station file
+   (7.3), where only orders and letters are kept; the welcome-back toast
    is gone and the Time Flux gauge shows the bank; the "unlock" and "goal"
    sounds are retired. `test/voice.test.js` holds every accepted string to the
    build and keeps exclamation marks out of what the player reads. Every row in

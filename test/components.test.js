@@ -14,7 +14,7 @@ const js = readdirSync(new URL("../www/js/", import.meta.url)).filter((f) => f.e
 test("the components' colours are tokens, named once in :root", () => {
 	const tokens = ["key-face", "key-face-in", "key-edge", "key-ink", "key-ink-off", "key-ink-lit", "lamp-off",
 		"plating", "plating-hi", "plating-lo", "tray", "plate", "plate-ink", "plate-ink-dim", "card-ink", "card-rule",
-		"bin-face", "frame-face", "flux-ink", "danger-ink"];
+		"bin-face", "frame-face", "flux-ink", "danger-ink", "manila", "slip", "envelope", "stamp-ink", "cash-ink", "seal"];
 	for (const t of tokens) {
 		const m = root.match(new RegExp(`--${t}:\\s*(#[0-9a-f]+)`, "i"));
 		assert.ok(m, `--${t} is not in :root`);
@@ -31,7 +31,7 @@ test("no steel frame is left: nothing is drawn with border-image", () => {
 test("each component's look is set in one place, the Components section", () => {
 	assert.ok(marker > 0, "no Components section");
 	const full = readFileSync(new URL("../www/css/app.css", import.meta.url), "utf8");
-	for (const c of ["key", "lamp", "nameplate", "panel", "card", "bin"]) {
+	for (const c of ["key", "lamp", "nameplate", "panel", "card", "bin", "stamp"]) {
 		const starts = [...full.matchAll(new RegExp(`^\\.${c}\\s*[,{]`, "gm"))].map((m) => m.index);
 		assert.ok(starts.length > 0, `.${c} is never defined`);
 		assert.ok(starts.every((i) => i > marker), `.${c} is styled outside Components`);

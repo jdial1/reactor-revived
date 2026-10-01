@@ -2,7 +2,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { newState, serialize, deserialize } from "../www/js/state.js";
-import { fileEntry } from "../www/js/records.js";
 import { OBJECTIVES } from "../www/js/objectives.js";
 import { NOTES } from "../www/js/notes.js";
 import { TROPHIES } from "../www/js/records.js";
@@ -12,17 +11,11 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const source = readdirSync(new URL("../www/js/", import.meta.url))
 	.filter((f) => f.endsWith(".js")).map((f) => read(`../www/js/${f}`)).join("\n");
 
-test("the log book files entries without a word, on the real board only", () => {
-	const s = newState(() => 1);
-	fileEntry(s, "Supplied: Heat Vent.");
-	assert.deepEqual(s.entries.map((e) => e.text), ["Supplied: Heat Vent."]);
-	const back = deserialize(serialize(s), () => 1);
-	assert.equal(back.entries[0].text, "Supplied: Heat Vent.", "entries ride along in the save");
-	for (let i = 0; i < 50; i++) fileEntry(s, `Entry ${i}.`);
-	assert.equal(s.entries.length, 40, "the book keeps the last forty");
-	s.planner = true;
-	fileEntry(s, "From the planner.");
-	assert.notEqual(s.entries.at(-1).text, "From the planner.", "the planner files nothing");
+test("the log book is gone: an old save's entries are dropped, not carried", () => {
+	const old = { ...serialize(newState(() => 1)), entries: [{ tick: 1, text: "Supplied: Heat Vent." }] };
+	const s = deserialize(JSON.parse(JSON.stringify(old)), () => 1);
+	assert.equal(s.entries, undefined);
+	assert.equal(serialize(s).entries, undefined);
 });
 
 test("every string the Voice Guide accepted is in the build", () => {

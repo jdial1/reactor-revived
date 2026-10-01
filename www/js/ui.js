@@ -3,10 +3,10 @@
 import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
 import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel, TILE_ROW_LABEL } from "./upgrades.js";
-import { OBJECTIVES, goalAt, orderTitle, orderProgress } from "./objectives.js";
+import { OBJECTIVES, goalAt, orderTitle, orderEntry, orderProgress } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
-import { play, setHeat } from "./audio.js";
+import { play, press, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
 import { span } from "./flux.js";
@@ -14,10 +14,14 @@ import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, 
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT, BENCHES } from "./lessons.js";
-import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, fileEntry, tidyEntries, SWITCHES } from "./records.js";
+import { RUNGS, RESTRICTIONS, TROPHIES, restrictionLabel, toolsAllowed, award, perCell, SWITCHES } from "./records.js";
 import { backdropFor } from "./backdrop.js";
 import { NOTES, notesFor } from "./notes.js";
-import { LETTERS, LETTER_BY_ID, readLetter } from "./letters.js";
+import { LETTERS, readLetter } from "./letters.js";
+import { docket, standingByline, storyFile } from "./story.js";
+import { COMPLETE_ENTRY } from "./complete.js";
+import { buildPrinter, tickPrinter } from "./printer-ui.js";
+import { claimNote } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -250,10 +254,12 @@ export function buildUI(game) {
 	dom.goalText = h("span", {});
 	dom.runTag = h("b", { className: "run-tag", hidden: true });
 	dom.goalBar = h("i", { className: "goal-bar" });
+	// The goal line: tapped, it opens the log - or, when the order is met,
+	// signs it off and is paid.
 	dom.objective = h("button", {
 		className: "objective",
 		title: "Show every goal",
-		onclick: () => showGoals(dom),
+		onclick: () => (dom.game.state.met && !dom.game.state.planner ? dom.game.claim() : showGoals(dom)),
 	});
 	dom.objective.setAttribute("aria-haspopup", "dialog");
 	dom.objective.setAttribute("aria-expanded", "false");
@@ -285,33 +291,19 @@ export function buildUI(game) {
 	dom.board = h("div", { id: "board" }, dom.grid);
 	dom.pages.reactor.append(dom.board);
 
-	dom.objectiveList = h("ol", { className: "objectives" });
-	// A line that opens and closes the list under it; closed to start.
-	const fold = (list) => {
-		const b = h("button", { className: "done-toggle", ariaExpanded: "false", hidden: true, onclick: () => {
-			const el = list();
-			el.hidden = !el.hidden;
-			b.setAttribute("aria-expanded", String(!el.hidden));
-		} });
-		return b;
-	};
-	// Finished jobs fold into one line; what comes after the current one stays
-	// unwritten until it is the current one.
+	// The station file: the orders and the letters in one sequence, as they
+	// came (story.js). Everything before the current order folds into one line,
+	// except a letter not yet read; what comes after it stays unwritten until it
+	// is the current one.
+	dom.fileList = h("ol", { className: "file" });
 	dom.doneToggle = h("button", { className: "done-toggle", ariaExpanded: "false", onclick: () => {
-		const open = dom.objectiveList.classList.toggle("open");
+		const open = dom.fileList.classList.toggle("open");
 		dom.doneToggle.setAttribute("aria-expanded", String(open));
 	} });
 	dom.goalSheet = h("dialog", { className: "sheet goals", ariaLabel: "Operator's log" },
 		h("h2", { textContent: "Harrow Station - operator's log" }),
 		dom.doneToggle,
-		dom.objectiveList,
-		// Letters, and the log book's entries: each folded into one line until
-		// opened, as the finished jobs are. The letters' line says how many are
-		// unread, which is how a new one is noticed.
-		dom.letterToggle = fold(() => dom.letterList),
-		dom.letterList = h("div", { className: "letters", hidden: true }),
-		dom.entryToggle = fold(() => dom.entryList),
-		dom.entryList = h("ul", { className: "entries", hidden: true }),
+		dom.fileList,
 		h("div", { className: "row" },
 			h("button", { textContent: "Close", onclick: () => dom.goalSheet.close() })));
 	root.append(dom.goalSheet);
@@ -442,10 +434,11 @@ export function buildUI(game) {
 	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	dom.game = game;
+	buildPrinter(dom);
 	buildDock(dom, game);
 	buildUpgrades(dom, game);
 	buildModulesPage(dom, game);
-	buildObjectiveList(dom);
+	buildFile(dom);
 	showPage(dom, "reactor");
 	return dom;
 }
@@ -534,7 +527,13 @@ export function say(text) {
 /** A goal met is a tick on the goal line, not a toast. */
 export function goalMet(dom, title) {
 	flash(dom.objective, "met");
-	say(`Goal met - ${title}`);
+	say(`Met - ${title}. Sign off on the goal line.`);
+}
+
+/** Signed off and paid; the next order goes to the printer. */
+export function goalClaimed(dom, title) {
+	flash(dom.objective, "signed");
+	say(`Signed off - ${title}`);
 }
 
 /** The job was met as first asked, and has been asked again higher. */
@@ -824,28 +823,83 @@ function buildUpgrades(dom, game) {
 	}
 }
 
-function buildObjectiveList(dom) {
-	dom.objectiveRows = OBJECTIVES.map((o, i) => {
-		const load = h("button", { className: "snap", textContent: "Saved - load", hidden: true });
-		const lesson = LESSON_AT[i] && h("button", { className: "snap",
+/**
+ * A document in the file: a heading and where it came from, the order itself,
+ * what it pays, and a stamp once it is done. The kind (manual page, work
+ * order, demand, notice) is its class, and decides its paper.
+ */
+function paper(kind, head, byline, ...body) {
+	const by = h("span", { className: "byline", textContent: byline });
+	const stamp = h("span", { className: "stamp", hidden: true });
+	const el = h("li", { className: `card docket ${kind}` },
+		h("header", {}, h("span", { className: "head", textContent: head }), by), ...body, stamp);
+	return Object.assign(el, { by, stamp });
+}
+
+/** Every order, every letter, the standing order and the notice, built once. */
+function buildFile(dom) {
+	dom.file = new Map();
+	dom.keepOut = new Set();
+	dom.dockets = OBJECTIVES.map((o, i) => {
+		const load = h("button", { className: "key small snap", textContent: "Saved - load", hidden: true });
+		const lesson = LESSON_AT[i] && h("button", { className: "key small snap",
 			textContent: BENCHES[LESSON_AT[i]] ? "See its numbers" : "See an example layout",
 			onclick: () => {
 				const s = dom.game.state;
 				if (!s.lessonsSeen.includes(LESSON_AT[i])) s.lessonsSeen.push(LESSON_AT[i]);
 				lessonDialog(s, LESSON_AT[i], dom.game);
 			} });
+		const d = docket(i);
+		// A revised order keeps its first ask, struck through, over the new one.
+		const was = h("s", { className: "was", textContent: o.title, hidden: true });
 		const title = h("b", { textContent: o.title });
-		const note = h("small", { textContent: o.note });
-		// A revised order keeps the first line under it; the standing order sits
-		// under the last job.
-		const after = h("small", { className: "revision", hidden: true });
-		const row = h("li", {}, title,
-			h("i", { textContent: o.reward ? `$${fmt(o.reward)}` : o.epReward ? `${fmt(o.epReward)} EP` : "" }),
-			note, after, lesson || "", load);
-		Object.assign(row, { load, heading: title, after });
-		dom.objectiveList.append(row);
+		const after = h("p", { className: "revision", hidden: true });
+		const pay = o.reward ? `Payment: $${fmt(o.reward)}` : o.epReward ? `Payment: ${fmt(o.epReward)} EP` : "";
+		const row = paper(d.kind, d.head, d.byline, was, title, h("p", { textContent: o.note }), after,
+			pay ? h("small", { className: "pay", textContent: pay }) : "", lesson || "", load);
+		Object.assign(row, { load, heading: title, was, after, done: d.stamp });
+		dom.file.set(`job:${i}`, row);
 		return row;
 	});
+	dom.standing = paper("order standing", "Standing order", "");
+	dom.standing.append(dom.standing.heading = h("b", {}), dom.standing.note = h("p", {}), dom.standing.met = h("small", { className: "pay" }));
+	dom.file.set("standing", dom.standing);
+	dom.file.set("complete", paper("notice", "Notice", "From: not stated", h("p", { textContent: COMPLETE_ENTRY })));
+	// Signing off: one key, on whichever order is met.
+	dom.signOff = h("button", { className: "key wide sign-off", hidden: true, onclick: () => dom.game.claim() });
+	// A field note, printed: signed off, it is written into its parts' sheets.
+	for (const [id, [who, , text]] of Object.entries(NOTES)) {
+		const sign = h("button", { className: "key wide sign-off", textContent: "Sign off: enter in the parts guide",
+			onclick: () => { if (claimNote(dom.game.state, id)) press("click"); } });
+		const el = paper("fieldnote", "Field note", who, h("p", { textContent: text }), sign);
+		dom.file.set(`note:${id}`, Object.assign(el, { sign }));
+	}
+	for (const l of LETTERS) dom.file.set(`letter:${l.id}`, letterSlip(dom, l));
+}
+
+/**
+ * A letter: an envelope that says who it is from and how it came, opened in
+ * place to the typed sheet; read once opened.
+ */
+function letterSlip(dom, l) {
+	const seal = h("i", { className: "seal", title: "Unread" });
+	const summary = h("summary", {}, h("span", { className: "from", textContent: l.from }),
+		h("span", { className: "postmark", textContent: l.found ? "Found" : "Received" }), seal);
+	const slip = h("details", { className: "card letter" }, summary,
+		h("div", { className: "sheet-body" },
+			l.found ? h("small", { className: "found", textContent: l.found }) : "",
+			l.mark ? h("small", { className: "mark", textContent: l.mark }) : "",
+			...l.lines.map((line) => h("p", { textContent: line }))));
+	slip.addEventListener("toggle", () => {
+		if (!slip.open) return;
+		// The live game, not the one the file was drawn from: a save may have
+		// been loaded since.
+		readLetter(dom.game.state, l.id);
+		slip.classList.remove("unread");
+		// Read now, but not folded away while the log is open on it.
+		dom.keepOut.add(l.id);
+	});
+	return slip;
 }
 
 function buildGrid(dom, s) {
@@ -940,15 +994,26 @@ export function render(dom, s, game) {
 	const goal = goalAt(s);
 	// Past the last job, the goal line carries the standing order.
 	const order = s.order && s.objective === OBJECTIVES.length - 1 && !s.planner;
+	// Signed off, and the next order not yet off the printer.
+	const awaiting = !s.planner && s.shown < s.objective;
+	const met = !s.planner && s.met;
 	const step = goal?.progress?.(s);
 	const prize = goal && (goal.reward ? `  $${fmt(goal.reward)}` : goal.epReward ? `  ${fmt(goal.epReward)} EP` : "");
 	dom.goalText.textContent = s.planner
 		? "Planner: free, not real"
+		: awaiting
+			? "Awaiting the next order."
+		: met
+			? `Sign off: ${goal.title}${prize}`
 		: order
 			? orderTitle(s.order.target)
 		: goal
 			? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
 			: "Every goal met.";
+	dom.objective.classList.toggle("claim", met);
+	dom.objective.classList.toggle("awaiting", awaiting);
+	dom.objective.title = met ? "Sign off this order and be paid" : "Show the operator's log";
+	tickPrinter(dom, s);
 	document.body.classList.toggle("planning", Boolean(s.planner));
 	dom.plan.hidden = Boolean(s.planner) || !toolsAllowed(s);
 	dom.runTag.hidden = !(s.restriction || s.restored) || Boolean(s.planner);
@@ -962,7 +1027,7 @@ export function render(dom, s, game) {
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
 	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);
-	dom.goalBar.style.setProperty("--p", order ? orderProgress(s) : step ? step[0] / step[1] : 0);
+	dom.goalBar.style.setProperty("--p", awaiting ? 0 : met ? 1 : order ? orderProgress(s) : step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
 	// feedback goes quiet, and the hum climbs.
@@ -1098,10 +1163,7 @@ export function render(dom, s, game) {
 			if (!started.has(family)) nextFamilyShown.add(tab);
 		}
 
-		if (visible && row.wasLocked) {
-			flash(button, "unlocked");
-			fileEntry(s, `Supplied: ${part.title}.`);
-		}
+		if (visible && row.wasLocked) flash(button, "unlocked");
 		row.wasLocked = !visible;
 
 		button.disabled = !visible; // a placeholder is a signpost, not a part
@@ -1153,7 +1215,7 @@ function renderPips(dom, s) {
 
 function renderPage(dom, s) {
 	renderPips(dom, s);
-	renderObjectives(dom, s);
+	renderFile(dom, s);
 	if (dom.page === "modules") renderModules(dom, s, dom.game);
 	if (dom.page === "upgrades" || dom.page === "experiments") renderUpgrades(dom, s);
 	if (dom.page === "options") {
@@ -1281,87 +1343,95 @@ function renderSwitches(dom, s) {
 	dom.panel.hidden = !any;
 }
 
-function renderObjectives(dom, s) {
-	const done = Math.min(s.objective, OBJECTIVES.length - 1);
-	dom.doneToggle.hidden = !done;
-	dom.doneToggle.textContent = `${done} ${done === 1 ? "job" : "jobs"} done`;
-	dom.objectiveRows.forEach((row, i) => {
-		row.classList.toggle("done", i < s.objective);
-		const snap = i < s.objective && snapshotFor(s, i);
+function renderFile(dom, s) {
+	// The order in hand: while the next is on the printer, the one just signed.
+	const now = Math.min(s.objective, s.shown, OBJECTIVES.length - 1);
+	dom.dockets.forEach((row, i) => {
+		const o = OBJECTIVES[i];
+		const done = i < s.objective;
+		const revised = Boolean(o.revision && s.revised?.includes(i));
+		row.classList.toggle("done", done);
+		// Past the last job the standing order is what the room waits on.
+		row.classList.toggle("current", i === s.objective && !s.order);
+		const snap = done && snapshotFor(s, i);
 		row.load.hidden = !snap || !toolsAllowed(s);
 		if (snap) row.load.onclick = () => snapshotDialog(s, snap, dom.game);
-	});
-	dom.objectiveRows.forEach((row, i) => {
-		row.classList.toggle("current", i === s.objective);
-		const o = OBJECTIVES[i];
-		const revised = o.revision && s.revised?.includes(i);
-		const last = i === OBJECTIVES.length - 1 && s.order;
 		const title = goalAt(s, i).title;
-		const after = revised ? o.revision.note
-			: last ? `Standing order: ${orderTitle(s.order.target)}. Met since the log closed: ${s.order.met}.` : "";
 		if (row.heading.textContent !== title) row.heading.textContent = title;
-		if (row.after.textContent !== after) row.after.textContent = after;
-		row.after.hidden = !after;
+		row.was.hidden = !revised;
+		row.after.textContent = revised ? o.revision.note : "";
+		row.after.hidden = !revised;
+		const stamp = done ? row.done : revised ? "Revised" : "";
+		row.stamp.textContent = stamp;
+		row.stamp.hidden = !stamp;
 	});
-	renderLetters(dom, s);
-	// The log book's silent entries, newest first, under the jobs.
-	const entries = s.entries ?? [];
-	const last = entries.at(-1);
-	const sig = `${entries.length}:${last?.tick}:${last?.text}`;
-	if (sig === dom.entrySig) return;
-	dom.entrySig = sig;
-	const lines = tidyEntries(entries);
-	dom.entryToggle.hidden = !lines.length;
-	dom.entryToggle.textContent = `${lines.length} log book ${lines.length === 1 ? "entry" : "entries"}`;
-	dom.entryList.replaceChildren(...lines.map((text) => h("li", { textContent: text })));
-}
-
-/** The letters' folded line: how many, and how many are still unread. */
-function letterCount(dom, s) {
-	const got = s.letters ?? [];
-	const unread = got.filter((id) => !(s.lettersRead ?? []).includes(id)).length;
-	dom.letterToggle.hidden = !got.length;
-	dom.letterToggle.textContent = `${got.length} ${got.length === 1 ? "letter" : "letters"}${unread ? `, ${unread} unread` : ""}`;
-}
-
-const letterSig = (s) => `${(s.letters ?? []).join()}|${(s.lettersRead ?? []).join()}`;
-
-/** Letters, newest first: each a slip that opens in place, and is read once opened. */
-function renderLetters(dom, s) {
-	const got = s.letters ?? [];
-	const sig = letterSig(s);
-	if (sig === dom.letterSig) return;
-	dom.letterSig = sig;
-	letterCount(dom, s);
-	dom.letterList.replaceChildren(...[...got].reverse().map((id) => {
-		const l = LETTER_BY_ID.get(id);
-		if (!l) return "";
-		const summary = h("summary", { textContent: l.from });
-		summary.classList.toggle("unread", !s.lettersRead.includes(id));
-		const slip = h("details", { className: "card letter" }, summary,
-			l.found ? h("small", { textContent: l.found }) : "",
-			l.mark ? h("small", { textContent: l.mark }) : "",
-			...l.lines.map((line) => h("p", { textContent: line })));
-		slip.addEventListener("toggle", () => {
-			if (!slip.open) return;
-			// The live game, not the one this list was drawn from: a save may
-			// have been loaded since.
-			readLetter(dom.game.state, id);
-			summary.classList.remove("unread");
-			letterCount(dom, dom.game.state);
-			// Opening one is not a reason to redraw the list and close it again.
-			dom.letterSig = letterSig(dom.game.state);
-		});
-		return slip;
+	const met = s.met && !s.planner && dom.dockets[s.objective];
+	if (met) {
+		const o = goalAt(s);
+		dom.signOff.textContent = `Sign off${o.reward ? `: $${fmt(o.reward)}` : o.epReward ? `: ${fmt(o.epReward)} EP` : ""}`;
+		if (dom.signOff.parentElement !== met) met.append(dom.signOff);
+	}
+	dom.signOff.hidden = !met;
+	for (const n of s.fieldNotes ?? []) {
+		const el = dom.file.get(`note:${n.id}`);
+		if (!el) continue;
+		el.sign.hidden = Boolean(n.claimed);
+		el.stamp.textContent = n.claimed ? "Entered" : "";
+		el.stamp.hidden = !n.claimed;
+		el.classList.toggle("current", !n.claimed);
+	}
+	dom.standing.classList.toggle("current", Boolean(s.order));
+	if (s.order) {
+		dom.standing.by.textContent = standingByline(s);
+		dom.standing.heading.textContent = orderTitle(s.order.target);
+		dom.standing.note.textContent = orderEntry(s.order.target);
+		dom.standing.met.textContent = `Met since the log closed: ${s.order.met}.`;
+	}
+	// The sequence changes only when something is filed; a letter's state is
+	// kept on its slip, so redrawing never closes one the player has open.
+	const items = storyFile(s);
+	const read = s.lettersRead ?? [];
+	const claimed = (s.fieldNotes ?? []).filter((n) => n.claimed).map((n) => n.id);
+	const sig = `${items.map((it) => it.key).join()}|${read.join()}|${claimed.join()}|${now}`;
+	if (sig === dom.fileSig) return;
+	dom.fileSig = sig;
+	let past = 0;
+	let letters = 0;
+	let notes = 0;
+	const top = dom.fileList.scrollTop;
+	dom.fileList.replaceChildren(...items.map(({ key, at }) => {
+		const el = dom.file.get(key);
+		const id = key.startsWith("letter:") && key.slice(7);
+		// A letter not opened, or a field note not signed off, is still open.
+		const unread = (id && !read.includes(id)) || (key.startsWith("note:") && !claimed.includes(key.slice(5)));
+		el.classList.toggle("unread", Boolean(unread));
+		el.classList.toggle("now", at === now);
+		// A letter not yet read stays out of the fold, wherever it was filed.
+		const folded = at < now && !unread && !dom.keepOut.has(id || key);
+		el.classList.toggle("past", folded);
+		if (folded) key.startsWith("job:") ? past++ : key.startsWith("note:") ? notes++ : letters++;
+		return el;
 	}));
+	dom.fileList.scrollTop = top;
+	dom.doneToggle.hidden = !(past + letters + notes);
+	const count = (n, one, many) => (n ? `, ${n} ${n === 1 ? one : many}` : "");
+	dom.doneToggle.textContent = `Filed: ${past} ${past === 1 ? "order" : "orders"}${count(letters, "letter", "letters")}${count(notes, "field note", "field notes")}`;
 }
 
 function showGoals(dom) {
 	dom.goalSheet.showModal();
 	dom.objective.setAttribute("aria-expanded", "true");
-	dom.goalSheet.addEventListener("close",
-		() => dom.objective.setAttribute("aria-expanded", "false"), { once: true });
-	dom.objectiveList.querySelector(".current")?.scrollIntoView({ block: "center" });
+	// Seen: the goal line's lamp goes out.
+	dom.objective.classList.remove("alert");
+	dom.goalSheet.addEventListener("close", () => {
+		dom.objective.setAttribute("aria-expanded", "false");
+		// What was read while it was open folds away next time.
+		dom.keepOut.clear();
+		dom.fileSig = "";
+	}, { once: true });
+	// To the first letter not yet read, or else the first thing filed with the
+	// current order: its letters, then the order.
+	dom.fileList.querySelector(".unread, .now")?.scrollIntoView({ block: "start" });
 }
 
 // Which categories open each dock tab. A tab shows once any of them has.
@@ -1377,17 +1447,12 @@ function renderLocks(dom, s) {
 		&& !(label === "Transfer" && s.restriction === "direct"));
 	const sig = tabs.join();
 	if (sig !== dom.tabsOpen) {
-		const fresh = dom.tabsOpen !== undefined
-			? tabs.filter((label) => !dom.tabsOpen.split(",").includes(label) && label !== "Modules") : [];
 		dom.tabsOpen = sig;
 		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.hidden = !tabs.includes(b.dataset.value);
 		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
-		if (fresh.length) fileEntry(s, `Supplied: ${fresh.join(", ")}.`);
 	}
 	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
-	// Announced when it happens, not on every load of a game already past it.
-	if (open && dom.modulesOpen === false) fileEntry(s, "Casing design authorised. See Modules.");
 	dom.modulesOpen = open;
 	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
 	if (!open && dom.page === "modules") {
@@ -1508,20 +1573,9 @@ function renderRecords(dom, s) {
 	dom.records.replaceChildren(...rows.flatMap(([k, v]) => [h("dt", { textContent: k }), h("dd", { textContent: v })]));
 }
 
-/** A field note or a trophy earned: filed in the log book, without a word. */
+/** Every field note filed: a trophy of its own. */
 function renderNotes(dom, s) {
-	if (dom.trophiesSeen === undefined) dom.trophiesSeen = s.trophies.length;
-	if (s.trophies.length > dom.trophiesSeen) {
-		dom.trophiesSeen = s.trophies.length;
-		const id = s.trophies[s.trophies.length - 1];
-		fileEntry(s, `Entered in the record: ${TROPHIES.find(([t]) => t === id)[1]}.`);
-	}
 	if (s.notes.length === Object.keys(NOTES).length) award(s, "notes");
-	if (dom.notesSeen === undefined) dom.notesSeen = s.notes.length;
-	if (s.notes.length <= dom.notesSeen) return;
-	const id = s.notes[s.notes.length - 1];
-	dom.notesSeen = s.notes.length;
-	fileEntry(s, `Field note filed: ${NOTES[id][0]}.`);
 }
 
 /** Reboot, with the choice of a rule for the run it starts. */

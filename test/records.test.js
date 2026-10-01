@@ -7,7 +7,8 @@ import { isPartVisible } from "../www/js/parts.js";
 import { forecast } from "../www/js/forecast.js";
 import { saveModule, modId } from "../www/js/module.js";
 import { toolsAllowed } from "../www/js/records.js";
-import { notesFor } from "../www/js/notes.js";
+import { notesFor, claimNote } from "../www/js/notes.js";
+import { fileItem } from "../www/js/story.js";
 
 function game() {
 	const s = newState(() => 1);
@@ -97,6 +98,11 @@ test("a field note is earned by seeing the quirk, once, and only on the real boa
 	assert.deepEqual(s.notes, [], "a forecast sees nothing");
 	r.ticks = 1;
 	tick(s);
+	assert.deepEqual(s.notesDue, ["reflector"], "seen, and waiting for the printer");
+	assert.deepEqual(s.notes, [], "not in the sheets until it is signed off");
+	fileItem(s, { channel: "note", id: "reflector" });
+	assert.ok(claimNote(s, "reflector"));
+	assert.equal(claimNote(s, "reflector"), false, "signed off once");
 	assert.deepEqual(s.notes, ["reflector"]);
 	assert.equal(notesFor(s, s.stats.get("reflector2")).length, 1);
 	assert.equal(notesFor(s, s.stats.get("vent1")).length, 0);
