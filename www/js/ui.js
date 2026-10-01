@@ -167,13 +167,16 @@ function roller(className) {
 
 /** A row of buttons where exactly one is lit: the page tabs and the dock's. */
 function tabStrip(id, items, onPick) {
-	// A bank of selector keys: the chosen one latches (see Components, app.css).
+	// A bank of lit keys, square, centred: each a lens with its icon behind the
+	// glass and its name printed on it. Backlit, it can be pressed; dark, it
+	// cannot yet. The chosen one latches (see Components, app.css). Every key
+	// is always there, as on a finished desk; what is not open yet is unlit.
 	const el = h("div", { id, className: "selector" });
-	for (const [value, label, glyph] of items) {
+	for (const [value, label, glyph, art] of items) {
 		// A selector key: a quiet click, and no clack - nothing on the board moves.
-		const button = h("button", { className: "key", dataset: { value }, onclick: () => { play("click"); onPick(value); } });
-		if (glyph) button.append(icon(glyph));
-		button.append(h("span", { textContent: label }));
+		const behind = art ? h("i", { className: "art", style: `background-image:url(${art})` }) : icon(glyph);
+		const button = h("button", { className: "key lit", ariaLabel: label, dataset: { value }, onclick: () => { play("click"); onPick(value); } },
+			h("span", { className: "lens" }, behind, h("span", { className: "legend", textContent: label })));
 		el.append(button);
 	}
 	el.select = (value, pages) => {
@@ -475,7 +478,10 @@ function buildDock(dom, game) {
 	dom.partButtons = [];
 	dom.dockCols = [];
 	dom.dockPages = {};
-	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label]), (label) => showDock(dom, label, true));
+	// Behind each family's glass, the first part of the family; Modules, its icon.
+	const behind = { Cells: "uranium1", Power: "capacitor1", Cooling: "vent1", Transfer: "heat_exchanger1", Exotic: "particle_accelerator1" };
+	dom.dockTabs = tabStrip("dock-tabs", DOCK_TABS.map(([label]) => [label, label, "modules",
+		behind[label] && artFor(PART_BY_ID.get(behind[label]))]), (label) => showDock(dom, label, true));
 	const body = h("div", { id: "dock-body" });
 
 	for (const [tab, categories] of DOCK_TABS) {
@@ -1048,7 +1054,8 @@ export function render(dom, s, game) {
 	dom.flux.setAttribute("aria-pressed", String(Boolean(s.fluxOn)));
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
-	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);
+	// Dark in the planner, and Modules dark until casings are authorised.
+	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner) || b.dataset.locked === "true";
 	dom.goalBar.style.setProperty("--p", awaiting ? 0 : met ? 1 : order ? orderProgress(s) : step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
@@ -1470,13 +1477,14 @@ function renderLocks(dom, s) {
 	const sig = tabs.join();
 	if (sig !== dom.tabsOpen) {
 		dom.tabsOpen = sig;
-		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.hidden = !tabs.includes(b.dataset.value);
+		// Not open yet: there, but dark.
+		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.disabled = !tabs.includes(b.dataset.value);
 		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
 	}
 	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
 	dom.modulesOpen = open;
-	dom.tabs.querySelector('[data-value="modules"]').hidden = !open;
+	dom.tabs.querySelector('[data-value="modules"]').dataset.locked = String(!open);
 	if (!open && dom.page === "modules") {
 		showPage(dom, "reactor");
 	}

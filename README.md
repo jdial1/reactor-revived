@@ -629,9 +629,16 @@ numbers.
 
 Below the desk, the parts are a tray of darker plating with each part in a
 recessed bin, the chosen one ringed. The part families (Cells, Power, Cooling,
-Transfer, Modules) and the pages (Reactor, Upgrades, Experiments, Modules,
-Options) are banks of black selector keys: the chosen one latched down with its
-lamp lit, never an underline or a segmented control. A key is a quiet click, no
+Transfer, Exotic, Modules) and the pages (Reactor, Upgrades, Experiments,
+Modules, Options) are banks of lit keys, square and centred, like the
+illuminated pushbuttons of an 80s desk: a bezel round a lens of smoked glass,
+the family's first part (or the page's icon) behind the glass and its name
+printed on it. Every key is always there, as on a finished desk. The bulb behind
+the glass is the key's state: lit, it can be pressed; dark, it cannot yet - a
+family not reached, Modules before casings are authorised, every page but the
+reactor in the planner - and its icon is only a ghost through the glass. The
+chosen one latches in and burns full; the others glow a little lower. Never an
+underline or a segmented control. A key is a quiet click, no
 clack, since nothing on the board moves. What a page has waiting is a lamp on
 its key - amber on Upgrades, violet on Experiments, heat-coloured on Reactor when
 it was paused while away - not a counted badge; the plant computer's own lamp and
@@ -639,7 +646,7 @@ its section counts say how many, and a screen reader still hears the number.
 
 ### Components
 
-All of the above is built from nine components - key, switch, lamp, nameplate,
+All of the above is built from ten components - key, lit key, switch, lamp, nameplate,
 panel, card, stamp, bin, frame - and seven templates made from them: printer, file,
 sheet, terminal, plates, strip, tray. Each component's look is set once, from tokens in `:root`,
 in the *Components* section at the end of `www/css/app.css`; a screen's rules
