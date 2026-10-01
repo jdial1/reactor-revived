@@ -1220,8 +1220,9 @@ letters"), with one answer placed by the designer: the operator is human (7.7). 
 each answer, every mystery answered, the voice, the university's letters
 getting shorter (3.1, the courier's worry), and a row here for every letter.
 
-**The station file** (6.3, 3.2, 3.4), built; the senders and the stamps are
-**drafted, awaiting the designer**. The operator's log is no longer a checklist
+**The station file** (6.3, 3.2, 3.4), built and accepted: the senders, the
+headings and the stamps were drafted by the interviewer and accepted by the
+designer ("accept all the draft wording"). The operator's log is no longer a checklist
 with the letters and a log book folded under it: it is one file, oldest first,
 of the orders and the letters as they came, each letter just above the order it
 came with. The silent log book is gone, and its lines with it (parts supplied,
@@ -1237,20 +1238,20 @@ drift.
 
 | Orders | Document | Line under its heading | Stamp once done | Verdict |
 | --- | --- | --- | --- | --- |
-| Jobs 0-9 | "Operating manual", a printed page | "Translated" (the `drawings` letter: sections 1 to 4 were translated; the jobs are sections 1.1 to 4.5) | "Confirmed" | Drafted |
-| Jobs 10-19 | "Work order 11" to "Work order 20", on manila | "From: " Harrow Clinic (clinic load), Regional Energy Authority (station clock), Regional Energy Authority (inspection), Harrow Town Clerk (winter reserve), Harrow Rail Yard (diesel), Harrow Supply (uranium stock), Harrow Co-operative (co-op load), Regional Energy Authority (second valley), Harrow Town Clerk (houses on candles), Harrow Supply (thorium) | "Supplied" | Drafted |
-| Jobs 20-29 | "Demand 21" to "Demand 30", a bare slip | "From: not stated" | "Supplied" | Drafted |
-| Job 30 | "Notice" | "From: not stated" | none: it is never done | Drafted |
-| Past job 30 | "Standing order" | "From: not stated", then "From: Harrow Works" once the `works` letter has said what the demand is for (2.4: never explained before the climb reaches it) | none | Drafted |
-| Everything complete | "Notice", the complete state's line | "From: not stated" | none | Drafted |
-| A revised order | its first ask struck through over the new one | | "Revised" while open | Drafted |
-| A field note | "Field note", on a bare slip | the parts it is about ("Neutron reflectors") | "Entered" | Drafted |
+| Jobs 0-9 | "Operating manual", a printed page | "Translated" (the `drawings` letter: sections 1 to 4 were translated; the jobs are sections 1.1 to 4.5) | "Confirmed" | Accepted |
+| Jobs 10-19 | "Work order 11" to "Work order 20", on manila | "From: " Harrow Clinic (clinic load), Regional Energy Authority (station clock), Regional Energy Authority (inspection), Harrow Town Clerk (winter reserve), Harrow Rail Yard (diesel), Harrow Supply (uranium stock), Harrow Co-operative (co-op load), Regional Energy Authority (second valley), Harrow Town Clerk (houses on candles), Harrow Supply (thorium) | "Supplied" | Accepted |
+| Jobs 20-29 | "Demand 21" to "Demand 30", a bare slip | "From: not stated" | "Supplied" | Accepted |
+| Job 30 | "Notice" | "From: not stated" | none: it is never done | Accepted |
+| Past job 30 | "Standing order" | "From: not stated", then "From: Harrow Works" once the `works` letter has said what the demand is for (2.4: never explained before the climb reaches it) | none | Accepted |
+| Everything complete | "Notice", the complete state's line | "From: not stated" | none | Accepted |
+| A revised order | its first ask struck through over the new one | | "Revised" while open | Accepted |
+| A field note | "Field note", on a bare slip | the parts it is about ("Neutron reflectors") | "Entered" | Accepted |
 
 **The printer and signing off** (asked for by the designer: "require manually
 claiming objectives and notes … a delay before the next appears, 5-10 seconds,
 with a dot matrix printer slow print from top of screen before hiding in
-objective modal with alert"), built; its strings are **drafted, awaiting the
-designer**. Nothing reaches the file on its own any more:
+objective modal with alert"), built and accepted: its strings were drafted by
+the interviewer and accepted by the designer ("accept all the draft wording"). Nothing reaches the file on its own any more:
 
 - **Orders.** A met order is held, not paid: the goal line reads *Sign off:
   \<order\> \<payment\>* in the price's colour, and a tap on it (or the order's
@@ -1278,7 +1279,7 @@ time, and the lamp sits on the one request's own line, like the example dot (the
 pillar's self-test, item 1). Nothing is timed against the player: the delay runs
 only while the game is open, and nothing is lost by leaving an order unsigned.
 
-| Where | Drafted |
+| Where | Accepted |
 | --- | --- |
 | The goal line, met | "Sign off: \<order\> \<payment\>" |
 | The goal line, while the next prints | "Awaiting the next order." |
