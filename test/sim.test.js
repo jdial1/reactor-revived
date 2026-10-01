@@ -952,7 +952,7 @@ test("every sound a cue names is on disk", async () => {
 	const { FILES } = await import("../www/js/audio.js");
 	assert.ok(FILES.length, "there are cues");
 	for (const f of FILES) {
-		assert.ok(existsSync(`www/audio/${f}.ogg`), `${f} has no file`);
+		assert.ok(existsSync(`www/audio/${f}`), `${f} has no file`);
 	}
 });
 

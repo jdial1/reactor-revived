@@ -490,9 +490,10 @@ puffs steam while its fan turns, and an exploding part throws a spark.
 
 ## Sound
 
-Six impacts in `www/audio/`, 47 KB, from **Kenney's Impact Sounds** (CC0). One
-`<audio>` element per voice, two per cue so a fast row of parts sounds like a
-row of parts.
+Four impacts in `www/audio/` from **Kenney's Impact Sounds** (CC0), and two
+families of synthesised toks - six for the sell bar, four for the plant
+computer - made by `tools/synth_sounds.py`. One `<audio>` element per voice, two
+per file so a fast row of parts sounds like a row of parts.
 
 Every hand control is heard in two stages, a click and then its impact (Soul
 Interview 5.4, 5.5): placing or moving a part is the click and clank of it going
@@ -520,7 +521,37 @@ the bells and beeps score bright, and none of them are here. `impactWood_heavy`
 scored 0.95 deep at 77 crossings a second; `impactBell_heavy` scored 0.51 at
 874, which is the tinny sound this game is trying not to make.
 
-Seven cues: the six impacts, each at its own playback rate - a lower rate is a
+### Graded on a phone
+
+The impacts were picked for depth, and on a desk speaker they are deep. A phone
+plays next to nothing under 300 Hz, so on a phone what is left of a deep impact
+is its edge. Every cue was rendered as the game plays it and graded through a
+model of a phone speaker (`tools/render_cues.mjs`, `tools/grade_sounds.py`):
+sharpness on the Bark scale, energy over 2 kHz, the ring still sounding 60 ms
+after the hit, the peak, and the length. A soft, warm, short tok scores 100.
+
+| Cue | Heard on | Was | Grade | Now | Grade |
+| --- | --- | --- | --- | --- | --- |
+| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: 1.1 kHz, 16% over 2 kHz, 12 dB louder through a phone than anything else | F (37) | `tally-1` to `-6`: 400-560 Hz, nothing over 2 kHz, level with the rest | A (88-98) |
+| `buy` | an upgrade or research authorised, a doctrine | Kenney `buy`: 1 kHz, 15% over 2 kHz, the longest ring | F (34) | `key-1` to `-4`: lower and drier, about 300 Hz | A (100) |
+| `place`, `sell`, `vent`, `boom`, `click`, `print` | | deep impacts: soft on a phone | A (86-100) | unchanged | |
+
+The sell bar is the most-pressed control in the game, and the coin was its
+loudest, brightest sound, identical every time. The tally that replaced it is the
+money drums turning over: a small wooden tok and a softer one settling 40-50 ms
+after it, a step down a pentatonic scale, each with three inharmonic wood modes,
+a two-millisecond attack, a breath of low-passed noise for the knock, and a low
+thump under it for a desk speaker. Six of them on the scale, so any two in a row
+agree.
+
+**Variance.** A family is cycled - every variant once, in a shuffled order, and
+never the same one twice running, even across rounds - and every play of every
+cue drifts up to 3% in pitch and 1.5 dB in level, so a run of taps is a run of
+different sounds rather than one repeated. `test/audio.test.js` holds the cycle,
+and that the synthesised files stay warm (under 2% of their energy over 2 kHz)
+and unclipped.
+
+Eight cues: the impacts and the two families, each at its own playback rate - a lower rate is a
 bigger, longer version of the same impact, so a meltdown is a punch at 0.8 - and
 the hum. Nothing filed silently in the log makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
 audio is dispatched from the renderer and from `main.js`, and a test still
