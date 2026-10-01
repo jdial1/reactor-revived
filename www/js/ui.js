@@ -1479,19 +1479,38 @@ function renderLocks(dom, s) {
 		&& !(label === "Transfer" && s.restriction === "direct"));
 	const sig = tabs.join();
 	if (sig !== dom.tabsOpen) {
+		// The first look at a station sets the keys as they are; after that, a
+		// key coming on is a bulb catching.
+		const first = dom.tabsOpen === undefined;
 		dom.tabsOpen = sig;
 		// Not open yet: there, but dark.
-		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) b.disabled = !tabs.includes(b.dataset.value);
+		for (const b of dom.dockTabs.querySelectorAll("button[data-value]")) {
+			const was = b.disabled;
+			b.disabled = !tabs.includes(b.dataset.value);
+			if (!first && was && !b.disabled) warmUp(b);
+		}
 		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
 	}
 	const open = modulesOpen(s);
 	if (dom.modulesOpen === open) return;
+	const first = dom.modulesOpen === undefined;
 	dom.modulesOpen = open;
-	dom.tabs.querySelector('[data-value="modules"]').dataset.locked = String(!open);
+	const key = dom.tabs.querySelector('[data-value="modules"]');
+	key.dataset.locked = String(!open);
+	key.disabled = !open || Boolean(s.planner);
+	if (!first && open && !key.disabled) warmUp(key);
 	if (!open && dom.page === "modules") {
 		showPage(dom, "reactor");
 	}
 	if (!open && dom.dockTab === "Modules") showDock(dom, DOCK_TABS[0][0]);
+}
+
+/**
+ * A key unlocked: its bulb catches - a few flickers, then it holds. Not on
+ * loading a station, and not for the planner's keys coming back on.
+ */
+function warmUp(key) {
+	flash(key, "warming");
 }
 
 /** The dock's Modules tab: one button per saved design, newest first. */

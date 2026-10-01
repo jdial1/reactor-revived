@@ -637,8 +637,10 @@ printed on it. Every key is always there, as on a finished desk. The bulb behind
 the glass is the key's state: lit, it can be pressed; dark, it cannot yet - a
 family not reached, Modules before casings are authorised, every page but the
 reactor in the planner - and its icon is only a ghost through the glass. The
-chosen one latches in and burns full; the others glow a little lower. Never an
-underline or a segmented control. A key is a quiet click, no
+chosen one latches in and burns full; the others glow a little lower. When a key
+unlocks mid-game, its bulb catches the way a filament does - a few uneven
+flickers over a second - before it holds. Never an underline or a segmented
+control. A key is a quiet click, no
 clack, since nothing on the board moves. What a page has waiting is a lamp on
 its key - amber on Upgrades, violet on Experiments, heat-coloured on Reactor when
 it was paused while away - not a counted badge; the plant computer's own lamp and
