@@ -94,10 +94,8 @@ export function newState(random = Math.random) {
 		// The board's mark and the last parts it lost to heat (records.js).
 		mark: null,
 		incidents: [],
-		// The shift log and the log book's silent entries (records.js), and
-		// whether this run has earned Mark I yet.
+		// The shift log (records.js), and whether this run has earned Mark I yet.
 		log: [],
-		entries: [],
 		runMarked: false,
 		// Jobs whose order was cancelled and asked again higher, and the standing
 		// order past the last job (objectives.js). Both outlive a reboot.
@@ -151,7 +149,6 @@ export function serialize(s) {
 		mark: s.mark,
 		incidents: s.incidents,
 		log: s.log,
-		entries: s.entries,
 		runMarked: s.runMarked || undefined,
 		revised: s.revised.length ? s.revised : undefined,
 		order: s.order ?? undefined,
@@ -200,7 +197,6 @@ export function deserialize(saved, random = Math.random) {
 	s.mark = saved.mark ?? null;
 	s.incidents = saved.incidents ?? [];
 	s.log = saved.log ?? [];
-	s.entries = saved.entries ?? [];
 	s.runMarked = Boolean(saved.runMarked);
 	s.revised = saved.revised ?? [];
 	s.order = saved.order ?? null;

@@ -429,9 +429,9 @@ placement, no wash or floating number on a sell or vent, no flash on an upgrade,
 no toast for a goal (a tick appears on the goal line instead) or for a price the
 button already shows. What stays is what the board cannot say - a refused tap
 shakes, and a meltdown stops everything. A part coming into reach flashes on its
-own dock button; that it arrived, like a trophy or a field note, is filed in the
-operator's log book without a toast or a sound (house rule 3 of the soul
-instance, One Request, Waiting).
+own dock button and says nothing else; a trophy or a field note goes to Records
+without a toast or a sound (house rule 3 of the soul instance, One Request,
+Waiting).
 
 ## The valley outside
 
@@ -447,7 +447,7 @@ never changes while you watch, and is not shown in the planner.
 
 When everything is done - the log finished, every part on issue, every upgrade
 at its maximum, every tile filled - the game notices once, without a toast: the
-log book files *"All listed loads supplied. All parts on issue. All systems at
+log files a notice, *"All listed loads supplied. All parts on issue. All systems at
 full rating. Demand continues."*, Records gains *All complete*, and from then
 on the valley stays lit, day and night. The content ends there; the demand does
 not. `www/js/complete.js` says what counts, and a test holds it.
@@ -455,7 +455,7 @@ not. `www/js/complete.js` says what counts, and a test holds it.
 The demand also grows after it is made. Three late jobs - 500 power a tick, a
 $10B reserve, 1,000 particles - are cancelled the first time they are met and
 asked again half as much higher, once each; the goal line flashes *Revised* and
-the log book says what was cancelled, so a target that moves always says it
+the log keeps the first ask struck through, so a target that moves always says it
 moved. Past the last job a **standing order** takes the goal line: *Increase
 output to 2B per tick*, always a round figure above what the reactor makes when
 it is issued, raised each time it is met, never lowered - not by a quiet
@@ -522,7 +522,7 @@ scored 0.95 deep at 77 crossings a second; `impactBell_heavy` scored 0.51 at
 
 Seven cues: the six impacts, each at its own playback rate - a lower rate is a
 bigger, longer version of the same impact, so a meltdown is a punch at 0.8 - and
-the hum. Nothing filed silently in the log book makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
+the hum. Nothing filed silently in the log makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
 audio is dispatched from the renderer and from `main.js`, and a test still
 asserts the simulation touches no DOM.
 
@@ -601,9 +601,9 @@ its section counts say how many, and a screen reader still hears the number.
 
 ### Components
 
-All of the above is built from eight components - key, switch, lamp, nameplate,
-panel, card, bin, frame - and five templates made from them: sheet, terminal,
-plates, strip, tray. Each component's look is set once, from tokens in `:root`,
+All of the above is built from nine components - key, switch, lamp, nameplate,
+panel, card, stamp, bin, frame - and six templates made from them: file, sheet,
+terminal, plates, strip, tray. Each component's look is set once, from tokens in `:root`,
 in the *Components* section at the end of `www/css/app.css`; a screen's rules
 only place and size them. [docs/ui-components.md](docs/ui-components.md) lists
 them, their states and how to add a control, and `test/components.test.js`
@@ -680,7 +680,7 @@ the one rule dropped on purpose: it deleted heat.
   Vents, coolant and plating come with the goal that asks for a vent; capacitors
   and reflectors with the one that asks for a capacitor; exchangers, inlets and
   outlets with the first example layout that uses them; accelerators when
-  particles become the job. Each arrival is filed once in the log book.
+  particles become the job.
 - Every dock part shows its numbers in its corners, with the rate bar's icons:
   power in blue, heat in red, life in purple, price in green, and its art in
   the middle.
@@ -738,17 +738,36 @@ The valley's story is told in letters, and only there and in the log (Soul
 Interview 6.3): optional, never required, never interrupting play. A letter is
 filed in the operator's log as the station climbs - fifteen of them, from the
 Regional Energy Authority, Harrow Supply, the town clerk, the clinic's night
-ward, the university, the works and, once, the courier - with one silent line
-in the log book (*Letter received: Harrow Supply.*). Nothing outside the log says
-it came. In the log the letters fold into one line until opened (*4 letters,
-3 unread*); a slip opens in place and carries a dot until it has been opened;
-Records counts them.
+ward, the university, the works and, once, the courier. Nothing outside the log says
+it came. Records counts them.
 
-The log book folds the same way (*12 log book entries*). Opened, it is tidied
-for reading: a run of one kind of entry becomes one line (*Supplied: Capacitor,
-Plating, Heat Vent.*), and letter arrivals are left to the Letters list rather
-than said twice. The book itself keeps every line; `tidyEntries` in
-`www/js/records.js` is only how it is shown.
+### The station file
+
+The operator's log is one file, not a checklist with lists folded under it: the
+orders and the letters, oldest first, as they came, each letter just above the
+order it came with (`www/js/story.js`). The orders are documents too, and their
+paper drifts with the log's voice:
+
+- **Jobs 1-10** are pages of the *Operating manual*, marked *Translated* - the
+  `drawings` letter says only sections 1 to 4 were, and these are sections 1.1
+  to 4.5.
+- **Jobs 11-20** are *Work orders* on manila, each from someone in the valley,
+  mostly the same institutions that write the letters: the clinic's overnight
+  load, the Authority's inspection, the town clerk's winter reserve, Harrow
+  Supply's thorium delivery.
+- **Jobs 21-30** are *Demands* on a bare slip, *From: not stated*.
+- Past the last job the **standing order** is unsigned too, until the works'
+  letter has said who it is for; then it is *From: Harrow Works*.
+
+A done order is stamped (*Confirmed*, *Supplied*); a revised one keeps its first
+ask struck through, stamped *Revised*. The order the room is waiting on is
+ringed. A letter is an envelope with a flap, a postmark (*Received* or *Found*)
+and a seal until it is opened, when it becomes a typed sheet in place.
+
+Everything before the current order folds into one line (*Filed: 14 orders, 3
+letters*), except a letter not yet read, which stays out of the fold until it
+is opened, and the log opens on it. The old silent log book is gone: what it
+said, the dock, the Modules key and Records already say.
 
 They hint before they answer, and by the end each of the world's open questions
 has an answer (why the plant closed, why nobody else could run it, what the

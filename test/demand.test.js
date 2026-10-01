@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newState, serialize, deserialize } from "../www/js/state.js";
 import { reboot } from "../www/js/upgrades.js";
-import { OBJECTIVES, checkObjectives, checkOrder, goalAt, orderTitle } from "../www/js/objectives.js";
+import { OBJECTIVES, checkObjectives, checkOrder, goalAt, orderTitle, orderEntry } from "../www/js/objectives.js";
 
 // A running board making `power` a tick, without building one.
 const running = (s, power) => {
@@ -21,7 +21,7 @@ test("a revised job is cancelled when first met, asked again higher, and paid on
 	assert.equal(s.money, money);
 	assert.deepEqual(s.revised, [14]);
 	assert.equal(goalAt(s).title, "Make 750 power per tick");
-	assert.equal(s.entries.at(-1).text, "Order revised. 500 cancelled. Output required: 750 per tick.");
+	assert.equal(goalAt(s).note, "Order revised. 500 cancelled. Output required: 750 per tick.");
 	assert.equal(OBJECTIVES[14].title, "Make 500 power per tick", "the list itself is not rewritten");
 
 	assert.equal(checkObjectives(s), false, "600 does not meet 750");
@@ -73,7 +73,7 @@ test("past the last job a standing order is issued above the reactor, and raised
 	s.objective = OBJECTIVES.length - 1;
 	assert.equal(checkOrder(s), false, "issued, not met");
 	assert.equal(s.order.target, 5e6, "a round figure above what the reactor makes");
-	assert.equal(s.entries.at(-1).text, "Increase output: 5M per tick. Reason: not required.");
+	assert.equal(orderEntry(s.order.target), "Increase output: 5M per tick. Reason: not required.");
 	assert.equal(orderTitle(s.order.target), "Increase output to 5M per tick");
 
 	running(s, 6e6);

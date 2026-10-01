@@ -1,6 +1,6 @@
 # UI components and templates
 
-The interface is built from eight components and five templates. A component's
+The interface is built from nine components and six templates. A component's
 look (colour, edge, shadow, how it moves when pressed) is set **once**, in the
 *Components* section at the end of `www/css/app.css`, from tokens in `:root`. A
 screen's own rules above that section only say where a component sits and how
@@ -23,6 +23,8 @@ recessed bins, paper, and a phosphor screen. Red only for danger.
 | **nameplate** | `.nameplate`, and every `dialog h2` / `.tut-card h2` | A cream plate with an orange rule under it. A `span` in it is the dim second word. | |
 | **panel** | `.panel` | Teal plating with a highlight along its top edge. | |
 | **card** | `.card` | Paper: cream, with a tan rule down its left edge. | |
+| card kinds | `.card.docket` / `.card.letter` | An order in the station file: a header (what it is, where it came from), the order, its payment. Its paper is its kind: `.manual` (a printed page), `.order` (manila), `.demand` (a bare slip), `.notice`, `.standing`. / A letter: an envelope with a flap, a postmark and a seal until opened, then a typed sheet. | Docket: `.current` ringed in the price's colour, `.done` dimmed. Letter: `.unread` sealed; `[open]` the sheet. |
+| **stamp** | `.stamp` | A rubber stamp on paper, inked a little crooked: *Confirmed*, *Supplied*, *Revised*. | |
 | **bin** | `.bin` | A recessed well in the tray, for a part or a saved module. | `.on` (on `.part`): lit from inside. |
 | **frame** | `dialog`, `.tut-card` | A sheet's housing: dark face, plating border. | |
 
@@ -30,13 +32,15 @@ Every colour a component uses is a token: `--key-face`, `--key-face-in`,
 `--key-edge`, `--key-ink`, `--key-ink-off`, `--key-ink-lit`, `--key-sunk`,
 `--lamp-off`, `--plating`, `--plating-hi`, `--plating-lo`, `--tray`, `--plate`,
 `--plate-ink`, `--plate-ink-dim`, `--card-ink`, `--card-rule`, `--bin-face`,
-`--frame-face`, `--flux-ink`, `--danger-ink`. Signal colours stay what they were:
+`--frame-face`, `--flux-ink`, `--danger-ink`, and for the station file's papers
+`--manila`, `--slip`, `--envelope`, `--stamp-ink`, `--cash-ink`, `--seal`. Signal colours stay what they were:
 `--power`, `--heat`, `--cash`, `--ep`.
 
 ## Templates
 
 | Template | Made of | Used by |
 |---|---|---|
+| **file** | a sheet holding papers (`.file`): dockets and letters oldest first, the past folded into one line | the operator's log (`renderFile()` in `ui.js`, ordered by `storyFile()` in `story.js`) |
 | **sheet** | a frame, named on a nameplate, its actions a bank of keys (`.row`, or `.sheet-actions` two to a row with a lone last action spanning) | every dialog; the tutorial's card |
 | **terminal** | a panel housing, a nameplate with a lamp, a phosphor screen whose rows are lines, not cards | Upgrades, Experiments (the plant computer, `terminal()` in `ui.js`) |
 | **plates** | panels (`.panel.plate-group`), each named on a nameplate over a `.keys` bank, then a card of what is kept on paper | Options; the core reboot on Experiments (`plate()` in `ui.js`) |

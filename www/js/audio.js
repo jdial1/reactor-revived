@@ -8,7 +8,7 @@
 // beeps score bright and are not here.
 //
 // A cue can play its file slower: a lower rate is a bigger, longer version of
-// the same impact. Nothing that is only filed in the log book makes a sound.
+// the same impact. Nothing that is only filed in the log makes a sound.
 const CUES = {
 	place: ["place", 1, 0.55],
 	sell: ["sell", 1, 0.5],

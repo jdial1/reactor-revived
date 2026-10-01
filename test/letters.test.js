@@ -5,16 +5,14 @@ import { newState, serialize, deserialize } from "../www/js/state.js";
 import { OBJECTIVES } from "../www/js/objectives.js";
 import { LETTERS, MYSTERIES, checkLetters, readLetter } from "../www/js/letters.js";
 
-test("letters come as the log climbs, in order, each once, with a line in the log book", () => {
+test("letters come as the log climbs, in order, each once", () => {
 	const s = newState(() => 1);
 	assert.deepEqual(checkLetters(s), [], "nothing on day one");
 	s.objective = 2;
 	assert.deepEqual(checkLetters(s).map((l) => l.id), ["suspension"]);
-	assert.equal(s.entries.at(-1).text, "Letter found: Regional Energy Authority.");
 	assert.deepEqual(checkLetters(s), [], "each once");
 	s.objective = 13;
 	assert.deepEqual(checkLetters(s).map((l) => l.id), ["vacancy", "drawings", "queue", "clock"]);
-	assert.equal(s.entries.at(-1).text, "Letter received: Harrow Town Clerk.");
 
 	s.objective = OBJECTIVES.length - 1;
 	s.order = { target: 1e9, met: 3 };

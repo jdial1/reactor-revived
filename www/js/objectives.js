@@ -6,7 +6,6 @@
 import { ROWS, COLS, activeTiles, tileAt } from "./sim.js";
 import { fmt } from "./fmt.js";
 import { UPGRADE_BY_ID } from "./upgrades.js";
-import { fileEntry } from "./records.js";
 
 /** Placed parts, optionally filtered. `live` cells are ones with ticks left. */
 function* placed(s) {
@@ -177,7 +176,7 @@ export function goalAt(s, i = s.objective) {
 /**
  * Pay out every objective the state now satisfies, in order. A job with a
  * revision is not paid the first time it is met: it is cancelled and asked
- * again higher, once, with a line in the log book.
+ * again higher, once; the log shows the first ask struck through.
  */
 export function checkObjectives(s) {
 	let paid = false;
@@ -185,7 +184,6 @@ export function checkObjectives(s) {
 		const first = OBJECTIVES[s.objective];
 		if (first.revision && !s.revised.includes(s.objective)) {
 			s.revised.push(s.objective);
-			fileEntry(s, first.revision.note);
 			break;
 		}
 		const o = goalAt(s);
@@ -211,7 +209,7 @@ function roundUp(x) {
 
 const nextOrder = (s) => roundUp(Math.max(s.order?.target ?? 0, statsPower(s), 1000) * 1.5);
 
-/** The order's line, in the goal line's words and the log book's. */
+/** The order's line, in the goal line's words and the standing order's. */
 export const orderTitle = (target) => `Increase output to ${fmt(target)} per tick`;
 export const orderEntry = (target) => `Increase output: ${fmt(target)} per tick. Reason: not required.`;
 
@@ -223,12 +221,10 @@ export function checkOrder(s) {
 	if (s.objective < OBJECTIVES.length - 1) return false;
 	if (!s.order) {
 		s.order = { target: nextOrder(s), met: 0 };
-		fileEntry(s, orderEntry(s.order.target));
 		return false;
 	}
 	if (s.paused || statsPower(s) < s.order.target) return false;
 	s.order = { target: nextOrder(s), met: s.order.met + 1 };
-	fileEntry(s, orderEntry(s.order.target));
 	return true;
 }
 

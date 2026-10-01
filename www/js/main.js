@@ -5,8 +5,8 @@ import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades, UPGRADE_BY_ID } from "./upgrades.js";
 import { checkObjectives, checkOrder, goalAt, orderTitle, OBJECTIVES } from "./objectives.js";
 import { buildUI, render, ask, inspect, flash, toast, goalMet, goalRevised, authorised, rebootDialog, refillCost } from "./ui.js";
-import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES, fileEntry } from "./records.js";
-import { isComplete, COMPLETE_ENTRY } from "./complete.js";
+import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES } from "./records.js";
+import { isComplete } from "./complete.js";
 import { checkLetters } from "./letters.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
@@ -417,11 +417,8 @@ setInterval(() => {
 	// The goal that is about to be met, captured before the counter moves on.
 	const done = goalAt(s);
 	const revised = s.revised.length;
-	// Everything done, noticed once: a line in the log book, and the valley lit.
-	if (!s.planner && !s.records.complete && isComplete(s)) {
-		s.records.complete = { ticks: s.runTicks };
-		fileEntry(s, COMPLETE_ENTRY);
-	}
+	// Everything done, noticed once: a notice in the log, and the valley lit.
+	if (!s.planner && !s.records.complete && isComplete(s)) s.records.complete = { ticks: s.runTicks };
 	if (!s.planner && checkObjectives(s)) {
 		goalMet(dom, done.title);
 		// A save state for the job just done, to come back to from the log.
