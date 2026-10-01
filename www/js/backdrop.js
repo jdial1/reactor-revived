@@ -12,3 +12,10 @@ export function backdropFor(date) {
 	const night = hour < 7 || hour >= 19;
 	return { src: `backdrops/${SEASONS[date.getMonth()]}${night ? "-night" : ""}.webp`, night };
 }
+
+/**
+ * Whether the desk runs at night: set so by its Day / Night switch, or by the
+ * clock when the switch is on Auto, as the valley behind the board is.
+ */
+export const deskNight = (s, now = new Date()) =>
+	s.panelLight === "night" || (s.panelLight !== "day" && backdropFor(now).night);

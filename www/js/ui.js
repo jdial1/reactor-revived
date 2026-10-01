@@ -10,7 +10,7 @@ import { play, press, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
 import { span } from "./flux.js";
-import { buildVerdict, renderVerdict, flowItems, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
+import { buildVerdict, renderVerdict, replaceDialog, snapshotDialog, lessonDialog, ledgerSheet } from "./tools-ui.js";
 import { guideDialog, familyOf as guideFamily, FAMILIES } from "./guide.js";
 import { snapshotFor } from "./snapshots.js";
 import { LESSON_AT, BENCHES } from "./lessons.js";
@@ -22,6 +22,8 @@ import { docket, standingByline, storyFile } from "./story.js";
 import { COMPLETE_ENTRY } from "./complete.js";
 import { buildPrinter, tickPrinter } from "./printer-ui.js";
 import { claimNote } from "./notes.js";
+import { strip, buildDeskHardware, renderDeskHardware, lampTest, tag, buildMimic, renderMimic } from "./desk-ui.js";
+import { plantCode, DESK_CODES } from "./codes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 // The tap that opens a sheet is followed, on a phone, by the browser's own
@@ -166,6 +168,10 @@ function roller(className) {
 }
 
 /** A row of buttons where exactly one is lit: the page tabs and the dock's. */
+/** A zone of the desk, named white on black, with its zone number. */
+const zonePlate = (name, code) => h("div", { className: "zone-plate" },
+	h("b", { textContent: name }), h("span", { textContent: code }));
+
 function tabStrip(id, items, onPick) {
 	// A bank of lit keys, square, centred: each a lens with its icon behind the
 	// glass and its name printed on it. Backlit, it can be pressed; dark, it
@@ -249,9 +255,10 @@ export function buildUI(game) {
 	const gauge = (id, label, onclick, title) => {
 		const fill = h("i", {});
 		const text = h("b", {});
-		const name = h("small", { textContent: label });
+		// The name on a label strip slid into the desk, with its plant code.
+		const name = h("span", { textContent: label });
 		const el = h("button", { className: `gauge ${id}`, onclick, title },
-			h("span", {}, name, text),
+			h("span", {}, strip(name, DESK_CODES[id]), text),
 			h("span", { className: "track" }, fill));
 		el.setAttribute("aria-label", title);
 		dom[id] = { el, fill, text, name };
@@ -390,6 +397,8 @@ export function buildUI(game) {
 					game.startTutorial();
 				} })),
 			plate("Control room", sound,
+				// Every lamp and lit key burns at once: a dead bulb never passes for a dark one.
+				h("button", { className: "key wide", textContent: "Lamp test", onclick: lampTest }),
 				h("button", { className: "key wide danger", textContent: "Wipe save and restart", onclick: game.wipe })),
 			h("section", { className: "card record-card" },
 				h("h3", { className: "credit-head", textContent: "Records" }),
@@ -438,10 +447,13 @@ export function buildUI(game) {
 
 	// dock and tabs
 	// Money between the bar that makes it and the bar that threatens it.
+	// Under them, the desk's counters, the heat meter and the Day / Night switch.
+	const hardware = buildDeskHardware(dom);
 	dom.actions = h("div", { id: "actions" },
 		gauge("power", "Power", game.sellAll, "Sell all power"),
 		dom.purse,
-		gauge("heat", "Heat", game.ventHeat, "Vent heat"));
+		gauge("heat", "Heat", game.ventHeat, "Vent heat"),
+		hardware.row);
 	dom.dock = h("div", { id: "dock", tabIndex: -1 });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => showPage(dom, id));
 	dom.pips = {};
@@ -459,7 +471,9 @@ export function buildUI(game) {
 	// One strip, not two: the switches sit on the verdict line, between what the
 	// board does and the tools that change it.
 	dom.verdictText.after(dom.panel);
-	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, dom.tabs));
+	// The page keys' zone, named on an inverse plate, as a desk's zones are.
+	const pagesZone = zonePlate("Station", "Z3");
+	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, pagesZone, dom.tabs));
 
 	dom.game = game;
 	buildPrinter(dom);
@@ -522,7 +536,7 @@ function buildDock(dom, game) {
 		}
 	}
 
-	dom.dock.append(dom.dockTabs, body);
+	dom.dock.append(zonePlate("Parts issue", "Z2"), dom.dockTabs, body);
 	showDock(dom, DOCK_TABS[0][0]);
 }
 
@@ -709,7 +723,8 @@ export function inspect(s, t, sell) {
 	];
 
 	const dialog = h("dialog", { className: "sheet", ariaLabel: p.title },
-		h("h2", { textContent: p.title }),
+		// Named twice: the part, and its plant code on the plate beside it.
+		h("h2", {}, p.title, h("span", { className: "code", textContent: plantCode(p) })),
 		h("i", { textContent: p.desc ?? "" }),
 		...notesFor(s, p).map((text) => h("p", { className: "field-note", textContent: text })),
 		p.category === "module" ? h("div", { className: "mod-grid mini" }, ...p.module.layout.map((id) => {
@@ -948,14 +963,13 @@ function buildGrid(dom, s) {
 		const fan = h("i", { className: "fan" });
 		// A light mask over the art: what the part is doing, rather than a number.
 		const glow = h("i", { className: "glow" });
-		const flow = h("i", { className: "flow" });
-		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, glow, fan, heat, life, flow);
+		const cell = h("button", { className: "tile", dataset: { r: t.r, c: t.c } }, glow, fan, heat, life);
 		cell.setAttribute("role", "gridcell");
 		cell.setAttribute("aria-label", `row ${t.r + 1} column ${t.c + 1}, empty`);
 		// Ninety-six tab stops is not navigation. One way in, arrows to move.
 		cell.tabIndex = t.r === 0 && t.c === 0 ? 0 : -1;
 		dom.grid.append(cell);
-		dom.tiles.push({ t, cell, heat, life, fan, glow, flow, sig: "", lit: "" });
+		dom.tiles.push({ t, cell, heat, life, fan, glow, sig: "", lit: "" });
 	}
 	// animationend bubbles, so one listener covers every tile.
 	dom.grid.onanimationend = (e) => e.target.classList.remove("exploding");
@@ -970,6 +984,7 @@ function buildGrid(dom, s) {
 		next.focus();
 		e.preventDefault();
 	};
+	buildMimic(dom, s);
 }
 
 const pct = (n, d) => (d > 0 ? Math.min(100, (n / d) * 100) : 0);
@@ -1058,7 +1073,11 @@ export function render(dom, s, game) {
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
 	// Dark in the planner, and Modules dark until casings are authorised.
-	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner) || b.dataset.locked === "true";
+	for (const b of dom.tabs.children) {
+		if (b.dataset.value === "reactor") continue;
+		b.disabled = Boolean(s.planner) || b.dataset.locked === "true";
+		tag(b, s.planner ? "Planner" : b.dataset.locked === "true" ? "Unissued" : null);
+	}
 	dom.goalBar.style.setProperty("--p", awaiting ? 0 : met ? 1 : order ? orderProgress(s) : step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
@@ -1091,6 +1110,8 @@ export function render(dom, s, game) {
 	renderVerdict(dom, s);
 	renderSecrets(dom, s);
 	dom.flowOn = document.body.classList.contains("flow");
+	renderMimic(dom, s, dom.flowOn && dom.page === "reactor");
+	renderDeskHardware(dom, s);
 	renderLesson(dom, s);
 
 	if (dom.page !== "reactor") {
@@ -1121,15 +1142,7 @@ export function render(dom, s, game) {
 		const heat = p?.category === "module" ? quant(heatFill(s, t) * 100)
 			: p?.containment ? quant(pct(t.heatContained, p.containment)) : 0;
 		const life = p?.ticks ? quant(pct(t.ticks, p.ticks)) : 0;
-		if (dom.flowOn) {
-			const items = flowItems(t, p).map(([k, v]) => [k, compact(v)]);
-			const sig = items.join("|");
-			if (row.flowSig !== sig) {
-				row.flowSig = sig;
-				row.flow.replaceChildren(...items.map(([k, v]) =>
-					h("span", { className: `f-${k}` }, icon(k, "icon"), v)));
-			}
-		}
+		// Flow is lit track between the parts now (desk-ui.js), not figures on them.
 		const venting = Boolean(p?.vent) && t.vented > 0;
 		row.fan.classList.toggle("spinning", venting);
 		const lit = !p || !t.activated ? ""
@@ -1488,6 +1501,9 @@ function renderLocks(dom, s) {
 			const was = b.disabled;
 			b.disabled = !tabs.includes(b.dataset.value);
 			if (!first && was && !b.disabled) warmUp(b);
+			// A tag hung on a dark key says why it is dark.
+			tag(b, !b.disabled ? null
+				: b.dataset.value === "Transfer" && s.restriction === "direct" ? "Direct run" : "Unissued");
 		}
 		if (!tabs.includes(dom.dockTab)) showDock(dom, DOCK_TABS[0][0]);
 	}

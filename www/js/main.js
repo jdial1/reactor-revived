@@ -187,6 +187,7 @@ const game = {
 		s.money += s.power * s.sellMul;
 		s.power = 0;
 		s.soldPower = true;
+		if (!s.planner) s.counts.sell++;
 		press("coin");
 	},
 
@@ -203,6 +204,7 @@ const game = {
 		if (s.heat === 0) s.soldHeat = true;
 		// Only a tap that took heat off counts as venting by hand (goal 2).
 		s.handVents = (s.handVents ?? 0) + 1;
+		if (!s.planner) s.counts.vent++;
 		press("vent");
 	},
 

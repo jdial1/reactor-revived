@@ -1,0 +1,85 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { newState, serialize, deserialize } from "../www/js/state.js";
+import { compile, tick, tileAt } from "../www/js/sim.js";
+import { PARTS } from "../www/js/parts.js";
+import { applyUpgrades, reboot } from "../www/js/upgrades.js";
+import { plantCode, DESK_CODES } from "../www/js/codes.js";
+import { deskNight } from "../www/js/backdrop.js";
+
+const fresh = () => newState(() => 1);
+const put = (s, r, c, id) => Object.assign(tileAt(s, r, c), { id, activated: true, ticks: s.stats.get(id).ticks ?? 0 });
+
+test("every part and every instrument has its own plant code", () => {
+	const codes = PARTS.map(plantCode);
+	assert.equal(new Set(codes).size, PARTS.length, "no two parts share a code");
+	for (const c of codes) assert.match(c, /^(CL|PW|CO|TR|EX|MD)-[A-Z]{1,2}\d+$/, c);
+	assert.equal(plantCode(PARTS.find((p) => p.id === "vent1")), "CO-V1");
+	assert.equal(plantCode(PARTS.find((p) => p.id === "uranium3")), "CL-UR4");
+	const desk = Object.values(DESK_CODES);
+	assert.equal(new Set(desk).size, desk.length);
+	for (const c of desk) assert.match(c, /^[A-Z]{2}\d{2}$/);
+});
+
+test("the counters count operations, never reset, and keep through a save", () => {
+	const s = fresh();
+	s.money = 1e12;
+	s.levels.improved_power_lines = 1;
+	applyUpgrades(s);
+	put(s, 0, 0, "uranium1");
+	compile(s);
+	for (let i = 0; i < 5; i++) tick(s);
+	assert.ok(s.counts.autoSell > 0, "auto-sell counted each time it sold");
+	const sold = s.counts.autoSell;
+	s.counts.sell = 7;
+	reboot(s);
+	assert.equal(s.counts.autoSell, sold, "a reboot does not reset the drums");
+	assert.equal(s.counts.sell, 7);
+	const back = deserialize(JSON.parse(JSON.stringify(serialize(s))), () => 1);
+	assert.deepEqual(back.counts, s.counts);
+	// An old save without counters starts them at nought.
+	const old = serialize(fresh());
+	delete old.counts;
+	assert.deepEqual(deserialize(old, () => 1).counts, { sell: 0, vent: 0, autoSell: 0, rebuy: 0, operator: 0 });
+});
+
+test("the planner counts nothing", () => {
+	const s = fresh();
+	s.levels.improved_power_lines = 1;
+	applyUpgrades(s);
+	s.planner = true;
+	put(s, 0, 0, "uranium1");
+	compile(s);
+	for (let i = 0; i < 5; i++) tick(s);
+	assert.equal(s.counts.autoSell, 0);
+});
+
+test("Flow traces heat along each join only while it is on", () => {
+	const s = fresh();
+	put(s, 1, 1, "uranium1");
+	put(s, 1, 2, "vent1");
+	put(s, 0, 1, "vent1");
+	compile(s);
+	tick(s);
+	assert.equal(s.edges, null, "nothing is traced with Flow off");
+	s.traceFlow = true;
+	tick(s);
+	const at = (r, c) => r * s.cols + c;
+	assert.ok(s.edges.get(`${at(1, 1)}>${at(1, 2)}`) > 0, "the cell's heat runs to the vent beside it");
+	assert.ok(s.edges.get(`${at(1, 1)}>${at(0, 1)}`) > 0);
+	for (const key of s.edges.keys()) {
+		const [a, b] = key.split(">").map(Number);
+		const d = Math.abs(a - b);
+		assert.ok(d === 1 || d === s.cols, `${key} joins neighbours`);
+	}
+});
+
+test("the desk runs at night by its switch, or by the clock on Auto", () => {
+	const noon = new Date(2026, 6, 1, 12), late = new Date(2026, 6, 1, 22);
+	assert.equal(deskNight({ panelLight: "auto" }, noon), false);
+	assert.equal(deskNight({ panelLight: "auto" }, late), true);
+	assert.equal(deskNight({}, late), true, "an old save is on Auto");
+	assert.equal(deskNight({ panelLight: "day" }, late), false);
+	assert.equal(deskNight({ panelLight: "night" }, noon), true);
+	assert.equal(fresh().panelLight, "auto");
+});

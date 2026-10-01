@@ -245,28 +245,6 @@ function capacity(s, total) {
 	];
 }
 
-// ---- the heat-flow overlay ------------------------------------------------
-
-/**
- * What a tile did with heat this tick, as the overlay shows it: up to three
- * rows of [icon, compact number], using the rate line's own icons - heat made,
- * taken in, passed on, vented. Short enough to fit a tile at any tier.
- */
-export function flowItems(t, p) {
-	if (!p || !t.activated) return [];
-	const items = [];
-	if (t.made) items.push(["heat", t.made]);
-	if (p.category !== "cell") {
-		if (t.heatIn) items.push(["inlet", t.heatIn]);
-		if (t.heatOut) items.push(["outlet", t.heatOut]);
-		if (t.vented) items.push(["vent", t.vented]);
-	}
-	// A part that takes in, passes on and vents keeps its in and its vent: the
-	// ledger sheet has the rest.
-	if (items.length > 3) items.splice(items.findIndex(([k]) => k === "outlet"), 1);
-	return items;
-}
-
 // ---- replace or upgrade all -----------------------------------------------
 
 /** The stats a part row shows, with how the new part reads beside the old. */

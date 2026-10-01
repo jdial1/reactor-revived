@@ -344,9 +344,14 @@ of this line loved, what broke, and what they asked for. What came of it:
   reactor's, or any part's) on to where it gives out. A lab that changed more
   would forecast one board and run another; a test runs every example both
   ways and requires them to agree. Forecasts live only in the planner.
-- **Flow**, beside the verdict: an overlay of what each tile did with heat this
-  tick - made, taken in, passed on and vented, each as the rate line's own icon and a compact number (1.8K, 22M), at most three rows a tile so nothing runs off it at any tier. Players
-  of this line kept calculators for exchangers and outlets; this is that, live.
+- **Flow**, beside the verdict: the board drawn as a mimic diagram, the way a
+  signal box draws its track. Every part that moves heat is joined to the
+  parts it moves it to by a length of dark track, and while Flow is on the
+  track lights where heat moved this tick - from a cell into its vents, through
+  an exchanger, out of an outlet - warmer and brighter the more it carries, its
+  lamps running the way the heat goes. Players of this line kept calculators
+  for exchangers and outlets; this is that, live, as a route rather than a
+  column of numbers. The sim traces each join only while Flow is on.
 - **Heat made** on the rate line is what the cells make. It used to be what was
   left after the vents beside them took their share, which rounds below zero -
   the line the tutorial points at said two uranium cells made -2 heat. The line
@@ -477,6 +482,24 @@ Incremental and Knockoff showed them - and the bar is the button that sells or
 vents. The heat bar reddens past 60%; a full power bar brightens and dims,
 because output going nowhere is worth noticing. Money rolls on digit drums
 behind a single recessed slot, with Exotic Particles as plain text under it.
+
+Under them is a row of desk hardware, after the modular control panels in
+[docs/reference-control-panels.md](docs/reference-control-panels.md):
+
+- **Counters.** Six-digit drums counting operations, never reset, not even by
+  a reboot: *Sold* and *Vented* (the hand sells and vents) from the first, and
+  *Auto-sell*, *Rebuy* and *Operator* fitted when those systems are bought. The
+  drum that turns rolls into place. The planner counts nothing.
+- **Heat meter.** A square moving-coil meter from 0 to 200% of rated heat - the
+  reactor melts at 200 - its needle easing and its scale red past 100.
+- **Day / Night.** A rotary switch (*Auto*, *Day*, *Night*). At night the lit
+  keys, the lamps and the desk run lower; on Auto it follows the clock, as the
+  valley behind the board does.
+
+Every instrument is named twice, on a white label strip slid into the panel:
+its name and its plant code (*Power JA01*, *Sold KC01*). Every part has a code
+too, shown on its sheet (*Basic Heat Vent CO-V1*, *Quad Uranium Cell CL-UR4*);
+`www/js/codes.js` makes them and a test keeps them unique.
 
 Parts wear light masks, six white alpha PNGs in `www/fx/` (5.7 KB), tinted by
 CSS (`mask-image` over a `background-color`). A cell's glow is the fuel inside
@@ -639,7 +662,19 @@ family not reached, Modules before casings are authorised, every page but the
 reactor in the planner - and its icon is only a ghost through the glass. The
 chosen one latches in and burns full; the others glow a little lower. When a key
 unlocks mid-game, its bulb catches the way a filament does - a few uneven
-flickers over a second - before it holds. Never an underline or a segmented
+flickers over a second - before it holds. A dark key wears an enamel tag on a
+hook saying why: *Unissued* (not reached yet), *Direct run* (Transfer in a
+direct run), *Planner* (the pages while planning). The tray and the page bank
+each sit under an inverse zone plate, white on black: *Parts issue Z2*,
+*Station Z3*.
+
+The desk, the tray and the page bank are laid in a square tile module, its
+seams and the clips at its corners showing, like a mosaic signal-box desk.
+They carry a little wear, faint and fixed: a few chips in the enamel and a
+strip of aluminium tape over a split in the desk's corner. Never on the board.
+**Lamp test**, on the Control room plate in Options, burns every lamp and lit
+key for two seconds, dark ones included, so a dead bulb never passes for an
+unlit one. Never an underline or a segmented
 control. A key is a quiet click, no
 clack, since nothing on the board moves. What a page has waiting is a lamp on
 its key - amber on Upgrades, violet on Experiments, heat-coloured on Reactor when
@@ -649,7 +684,8 @@ its section counts say how many, and a screen reader still hears the number.
 ### Components
 
 All of the above is built from ten components - key, lit key, switch, lamp, nameplate,
-panel, card, stamp, bin, frame - and seven templates made from them: printer, file,
+panel, card, stamp, bin, frame - with the desk's hardware (label strip, tag, zone
+plate, counter, meter, rotary switch, mimic track) and seven templates made from them: printer, file,
 sheet, terminal, plates, strip, tray. Each component's look is set once, from tokens in `:root`,
 in the *Components* section at the end of `www/css/app.css`; a screen's rules
 only place and size them. [docs/ui-components.md](docs/ui-components.md) lists
