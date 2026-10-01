@@ -8,10 +8,11 @@
 // in the game - was clunky: it rattled into four or five uneven, boomy hits
 // after the key's click, and on a phone it was bright and loud. The Soul
 // Interview asks for presses that are "tactile mechanical double click
-// industrial slow": a click, then one clack, in metal. The sell bar's clack is
-// now a contactor pulling in, and the plant computer's a lever latching home
-// (tools/synth_sounds.py): one clean, damped hit each, with weight, nothing left
-// ringing, and their metal where a phone speaker plays (README, Sound).
+// industrial slow": a click, then one clack, in metal. Both the sell bar's and
+// the plant computer's clack are now a lever latching home, chosen by the
+// designer from four candidates (tools/synth_sounds.py): one clean, damped hit,
+// with weight, nothing left ringing, its metal where a phone speaker plays
+// (README, Sound).
 //
 // A cue is one file or a family. A family is cycled - every variant once, in a
 // shuffled order, never the same one twice running - and every play is nudged
@@ -24,12 +25,12 @@ const family = (name, n) => Array.from({ length: n }, (_, i) => `${name}-${i + 1
 const CUES = {
 	place: ["place.ogg", 1, 0.55],
 	sell: ["sell.ogg", 1, 0.5],
-	// The sell bar, and an order signed off: a contactor pulling in, after the
+	// The sell bar, and an order signed off: a lever latching home, after the
 	// key's click. Five presses of it, each a little different.
-	coin: [family("clack", 5), 1, 0.32],
+	coin: [family("latch", 5), 1, 0.42],
 	vent: ["vent.ogg", 0.92, 0.5],
-	// The plant computer's clack: a lever latching home, heavier. Four presses.
-	buy: [family("latch", 4), 1, 0.42],
+	// The plant computer's clack: the same latch, cycled on its own.
+	buy: [family("latch", 5), 1, 0.42],
 	boom: ["boom.ogg", 0.8, 0.9],
 	// The first stage of a key on the plant computer: the place impact, played
 	// fast and quiet, is a short click before the clack (Soul Interview 5.5).

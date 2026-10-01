@@ -11,7 +11,7 @@ the strike, and nothing left ringing. Each is written several times with a
 little jitter, the way no two presses of one switch sound quite alike, and the
 game cycles through them (www/js/audio.js).
 
-    python3 tools/synth_sounds.py                    # the game's clack-* and latch-*
+    python3 tools/synth_sounds.py                    # the game's latch-*
     python3 tools/synth_sounds.py --candidates DIR   # every candidate, for listening
 
 Deterministic: the same seed writes the same files.
@@ -97,9 +97,7 @@ if __name__ == "__main__":
                 write(f"{name}-{k}", clack(**spec, jitter=0.04))
         write("bakelite-click", bakelite_click())
         sys.exit()
-    # The game's: the sell bar's clack, five presses of one contactor.
+    # The game's, chosen by the designer from the candidates: a lever latching
+    # home, for the sell bar and the plant computer both. Five presses of it.
     for k in range(1, 6):
-        write(f"clack-{k}", clack(**CANDIDATES["contactor"], jitter=0.04))
-    # The plant computer's: a lever latching home, heavier, four presses.
-    for k in range(1, 5):
         write(f"latch-{k}", clack(**CANDIDATES["latch"], jitter=0.04))

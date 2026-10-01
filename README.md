@@ -491,8 +491,8 @@ puffs steam while its fan turns, and an exploding part throws a spark.
 ## Sound
 
 Four impacts in `www/audio/` from **Kenney's Impact Sounds** (CC0), and two
-families of synthesised clacks - five presses of a contactor for the sell bar,
-four of a lever latch for the plant computer - made by `tools/synth_sounds.py`. One `<audio>` element per voice, two
+one synthesised clack - five presses of a lever latching home, for the sell bar
+and the plant computer both - made by `tools/synth_sounds.py`. One `<audio>` element per voice, two
 per file so a fast row of parts sounds like a row of parts.
 
 Every hand control is heard in two stages, a click and then its impact (Soul
@@ -532,21 +532,23 @@ after the hit, the peak, and the length. A soft, short, dark hit scores 100.
 
 | Cue | Heard on | Was | Grade | Now | Grade |
 | --- | --- | --- | --- | --- | --- |
-| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: clunky - rattling into five uneven hits with the click ahead of it - and on a phone 1.1 kHz, 16% over 2 kHz, 12 dB louder than anything else | F (37) | `clack-1` to `-5`: a contactor pulling in; with the click, two clean hits; nothing over 2 kHz or ringing, level with the rest | B (77) |
-| `buy` | an upgrade or research authorised, a doctrine | Kenney `buy`: 1 kHz, 15% over 2 kHz, the longest ring | F (34) | `latch-1` to `-4`: a lever latching home, lower and heavier | A (88) |
+| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: clunky - rattling into five uneven hits with the click ahead of it - and on a phone 1.1 kHz, 16% over 2 kHz, 12 dB louder than anything else | F (37) | `latch-1` to `-5`: a lever latching home; with the click, two clean hits; nothing over 2 kHz or ringing, level with the rest | A (88) |
+| `buy` | an upgrade or research authorised, a doctrine | Kenney `buy`: 1 kHz, 15% over 2 kHz, the longest ring | F (34) | the same latch, cycled on its own | A (88) |
 | `place`, `sell`, `vent`, `boom`, `click`, `print` | | deep impacts: soft on a phone | A (86-100) | unchanged | |
 
 The sell bar is the most-pressed control in the game, and the coin was clunky:
 it rattled into four or five uneven, boomy hits every tap. The Soul Interview
 asks for presses that are "tactile mechanical double click industrial slow" - a
 click, then a clack, with weight, in metal (5.4, 5.5) - so its replacement keeps
-the click and is one clean clack after it: a contactor pulling in, synthesised
-as a short body for weight (180 Hz, 35 ms), four damped metal modes (780 to
-2,870 Hz, the highest gone in 9 ms), and the knock of the strike. Measured as
-heard: click then clack, two hits, not five, and nothing left ringing. The plant
-computer's latch is the same build, lower and heavier (a 120 Hz body, modes from
-520 Hz). A first attempt - wooden mallet notes on a pentatonic scale - measured
-well and did not fit: musical where the plant is mechanical.
+the click and is one clean clack after it: a lever latching home, synthesised
+as a short body for weight (120 Hz, 60 ms), three damped metal modes (520 to
+1,310 Hz), and the knock of the strike. Measured as heard: click then clack, two
+hits, not five, and nothing left ringing. The plant computer's authorise is the
+same latch. It was chosen by the designer from four candidates written by
+`tools/synth_sounds.py --candidates` - a contactor, a counter drum, a Bakelite
+toggle and the latch - after a first attempt, wooden mallet notes on a
+pentatonic scale, measured well and did not fit: musical where the plant is
+mechanical.
 
 **Variance.** A family is cycled - every variant once, in a shuffled order, and
 never the same one twice running, even across rounds - and every play of every
@@ -556,7 +558,7 @@ Each variant of a family is the same switch, written with a little jitter in its
 modes, not a different note. `test/audio.test.js` holds the cycle, and that the
 synthesised files stay dark (under 2% of their energy over 2 kHz) and unclipped.
 
-Eight cues: the impacts and the two families, each at its own playback rate - a lower rate is a
+Eight cues: the impacts and the latch, each at its own playback rate - a lower rate is a
 bigger, longer version of the same impact, so a meltdown is a punch at 0.8 - and
 the hum. Nothing filed silently in the log makes a sound. Nothing in `www/js/sim.js` knows any of this exists -
 audio is dispatched from the renderer and from `main.js`, and a test still
