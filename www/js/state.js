@@ -104,6 +104,14 @@ export function newState(random = Math.random) {
 		// Letters received and letters opened (letters.js). Both outlive a reboot.
 		letters: [],
 		lettersRead: [],
+		// The printer (story.js): the last order printed, whether the current one
+		// is met and waiting to be signed off, and field notes seen but not yet
+		// printed, printed but not yet signed off (each with the job it was
+		// filed under). `notes` above are the ones signed off.
+		shown: 0,
+		met: false,
+		notesDue: [],
+		fieldNotes: [],
 	};
 	for (const u of UPGRADES) s.levels[u.id] = 0;
 	applyUpgrades(s);
@@ -154,6 +162,10 @@ export function serialize(s) {
 		order: s.order ?? undefined,
 		letters: s.letters.length ? s.letters : undefined,
 		lettersRead: s.lettersRead.length ? s.lettersRead : undefined,
+		shown: s.shown,
+		met: s.met || undefined,
+		notesDue: s.notesDue.length ? s.notesDue : undefined,
+		fieldNotes: s.fieldNotes.length ? s.fieldNotes : undefined,
 		tiles: [...s.tiles].map((t) =>
 			t.id ? { i: t.r * COLS + t.c, id: t.id, ticks: t.ticks, activated: t.activated, heatContained: t.heatContained, age: t.age || undefined, inner: innerSave(t) } : null,
 		).filter(Boolean),
@@ -202,6 +214,11 @@ export function deserialize(saved, random = Math.random) {
 	s.order = saved.order ?? null;
 	s.letters = saved.letters ?? [];
 	s.lettersRead = saved.lettersRead ?? [];
+	// A save from before the printer has its current order in hand already.
+	s.shown = saved.shown ?? s.objective;
+	s.met = Boolean(saved.met);
+	s.notesDue = saved.notesDue ?? [];
+	s.fieldNotes = saved.fieldNotes ?? [];
 	applyUpgrades(s);
 
 	for (const t of saved.tiles ?? []) {

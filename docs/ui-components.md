@@ -1,6 +1,6 @@
 # UI components and templates
 
-The interface is built from nine components and six templates. A component's
+The interface is built from nine components and seven templates. A component's
 look (colour, edge, shadow, how it moves when pressed) is set **once**, in the
 *Components* section at the end of `www/css/app.css`, from tokens in `:root`. A
 screen's own rules above that section only say where a component sits and how
@@ -33,13 +33,16 @@ Every colour a component uses is a token: `--key-face`, `--key-face-in`,
 `--lamp-off`, `--plating`, `--plating-hi`, `--plating-lo`, `--tray`, `--plate`,
 `--plate-ink`, `--plate-ink-dim`, `--card-ink`, `--card-rule`, `--bin-face`,
 `--frame-face`, `--flux-ink`, `--danger-ink`, and for the station file's papers
-`--manila`, `--slip`, `--envelope`, `--stamp-ink`, `--cash-ink`, `--seal`. Signal colours stay what they were:
+`--manila`, `--slip`, `--envelope`, `--stamp-ink`, `--cash-ink`, `--seal`,
+`--greenbar`, and `--feed` (the punched margin every paper has: sprocket holes
+down both edges, drawn by the card's `::before`). Signal colours stay what they were:
 `--power`, `--heat`, `--cash`, `--ep`.
 
 ## Templates
 
 | Template | Made of | Used by |
 |---|---|---|
+| **printer** | a slot at the top of the screen over a `.printout` (tractor-feed paper in green bars, the type masked to dots), fed a character at a time, then animated into the goal line | `printer-ui.js`: orders, letters and field notes arriving |
 | **file** | a sheet holding papers (`.file`): dockets and letters oldest first, the past folded into one line | the operator's log (`renderFile()` in `ui.js`, ordered by `storyFile()` in `story.js`) |
 | **sheet** | a frame, named on a nameplate, its actions a bank of keys (`.row`, or `.sheet-actions` two to a row with a lone last action spanning) | every dialog; the tutorial's card |
 | **terminal** | a panel housing, a nameplate with a lamp, a phosphor screen whose rows are lines, not cards | Upgrades, Experiments (the plant computer, `terminal()` in `ui.js`) |

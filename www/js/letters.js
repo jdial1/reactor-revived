@@ -104,14 +104,27 @@ export const LETTERS = [
 
 export const LETTER_BY_ID = new Map(LETTERS.map((l) => [l.id, l]));
 
-const due = (l, s) => (l.job === undefined ? l.at(s) : s.objective >= l.job);
+// A letter comes with its order once that order is off the printer.
+const due = (l, s) => (l.job === undefined ? l.at(s) : s.shown >= l.job);
 
-/** File every letter now due, in order, each once. */
-export function checkLetters(s) {
+/** Every letter now due and not yet filed, in the order written. */
+export function dueLetters(s) {
 	if (s.planner || s.sealed) return [];
-	const come = LETTERS.filter((l) => !s.letters.includes(l.id) && due(l, s));
-	for (const l of come) s.letters.push(l.id);
-	return come;
+	return LETTERS.filter((l) => !s.letters.includes(l.id) && due(l, s));
+}
+
+/**
+ * The next letter for the printer: the first one due, and only once every
+ * letter already filed has been opened. One letter waits at a time.
+ */
+export function letterWaiting(s) {
+	if (s.letters.some((id) => !s.lettersRead.includes(id))) return null;
+	return dueLetters(s)[0] ?? null;
+}
+
+/** Off the printer and into the log, unopened. */
+export function fileLetter(s, id) {
+	if (LETTER_BY_ID.has(id) && !s.letters.includes(id)) s.letters.push(id);
 }
 
 /** Opened in the log: read from then on. */

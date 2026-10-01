@@ -174,25 +174,36 @@ export function goalAt(s, i = s.objective) {
 }
 
 /**
- * Pay out every objective the state now satisfies, in order. A job with a
- * revision is not paid the first time it is met: it is cancelled and asked
- * again higher, once; the log shows the first ask struck through.
+ * Notice the current order met. Nothing is paid here: a met order waits on the
+ * goal line, held, until the operator signs it off (claimObjective), and an
+ * order not yet off the printer cannot be met at all. A job with a revision is
+ * not held the first time it is met: it is cancelled and asked again higher,
+ * once. True when the order has just been met.
  */
 export function checkObjectives(s) {
-	let paid = false;
-	while (s.objective < OBJECTIVES.length && goalAt(s).check(s)) {
-		const first = OBJECTIVES[s.objective];
-		if (first.revision && !s.revised.includes(s.objective)) {
-			s.revised.push(s.objective);
-			break;
-		}
-		const o = goalAt(s);
-		if (o.reward) s.money += o.reward;
-		if (o.epReward) s.currentExoticParticles += o.epReward;
-		s.objective++;
-		paid = true;
+	if (s.met || s.shown < s.objective || s.objective >= OBJECTIVES.length) return false;
+	if (!goalAt(s).check(s)) return false;
+	const first = OBJECTIVES[s.objective];
+	if (first.revision && !s.revised.includes(s.objective)) {
+		s.revised.push(s.objective);
+		return false;
 	}
-	return paid;
+	s.met = true;
+	return true;
+}
+
+/**
+ * Sign off the met order: pay it, and move the log on. The next order is not
+ * in hand until the printer has printed it. Returns the order signed off.
+ */
+export function claimObjective(s) {
+	if (!s.met) return null;
+	const o = goalAt(s);
+	if (o.reward) s.money += o.reward;
+	if (o.epReward) s.currentExoticParticles += o.epReward;
+	s.met = false;
+	s.objective++;
+	return o;
 }
 
 // ---- the standing order ------------------------------------------------------
@@ -218,7 +229,7 @@ export const orderEntry = (target) => `Increase output: ${fmt(target)} per tick.
  * reactor, running, meets it. True when an order was met.
  */
 export function checkOrder(s) {
-	if (s.objective < OBJECTIVES.length - 1) return false;
+	if (s.objective < OBJECTIVES.length - 1 || s.shown < s.objective) return false;
 	if (!s.order) {
 		s.order = { target: nextOrder(s), met: 0 };
 		return false;

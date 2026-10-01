@@ -7,8 +7,10 @@
 // orders from the valley for the next ten, then demands nobody signs. The
 // standing order is unsigned too, until the `works` letter says who it is for.
 // Pure: no DOM.
-import { OBJECTIVES } from "./objectives.js";
-import { LETTERS } from "./letters.js";
+import { OBJECTIVES, goalAt } from "./objectives.js";
+import { LETTERS, LETTER_BY_ID, letterWaiting, fileLetter } from "./letters.js";
+import { NOTES } from "./notes.js";
+import { fmt } from "./fmt.js";
 
 const LAST = OBJECTIVES.length - 1;
 const NOT_STATED = "From: not stated";
@@ -54,8 +56,12 @@ export function storyFile(s) {
 	const now = Math.min(s.objective, LAST);
 	const got = s.letters ?? [];
 	const items = [];
-	for (let i = 0; i <= now; i++) {
+	const notes = s.fieldNotes ?? [];
+	// Only orders off the printer are in the file.
+	const last = Math.min(s.shown ?? now, now);
+	for (let i = 0; i <= last; i++) {
 		for (const l of LETTERS) if (l.job === i && got.includes(l.id)) items.push({ key: `letter:${l.id}`, at: i });
+		for (const n of notes) if (Math.min(n.at, last) === i) items.push({ key: `note:${n.id}`, at: i });
 		items.push({ key: `job:${i}`, at: i });
 	}
 	if (s.order) items.push({ key: "standing", at: LAST });
@@ -66,4 +72,49 @@ export function storyFile(s) {
 	}
 	if (s.records?.complete && !late.includes("courier")) items.push({ key: "complete", at: LAST });
 	return items;
+}
+
+// ---- the printer --------------------------------------------------------------
+// Everything new reaches the log through the station's printer: the next order
+// once the last is signed off, the next letter once the last is opened, the
+// next field note once the last is signed off. One thing waits at a time on
+// each, orders first; the delay and the printing itself are the interface's
+// (printer-ui.js). Nothing prints in the planner.
+
+/** What the printer has waiting, orders first. */
+export function waiting(s) {
+	if (s.planner || s.sealed) return [];
+	const out = [];
+	if (s.shown < s.objective && s.objective <= LAST) out.push({ channel: "order", id: s.objective });
+	const letter = letterWaiting(s);
+	if (letter) out.push({ channel: "letter", id: letter.id });
+	const notes = s.fieldNotes ?? [];
+	if (s.notesDue?.length && notes.every((n) => n.claimed)) out.push({ channel: "note", id: s.notesDue[0] });
+	return out;
+}
+
+/** Off the printer and into the log. */
+export function fileItem(s, { channel, id }) {
+	if (channel === "order") s.shown = Math.max(s.shown, id);
+	else if (channel === "letter") fileLetter(s, id);
+	else if (channel === "note" && s.notesDue.includes(id)) {
+		s.notesDue = s.notesDue.filter((x) => x !== id);
+		s.fieldNotes.push({ id, at: Math.min(s.objective, LAST) });
+	}
+}
+
+/** What the printer prints: a heading, the line under it, and the body. */
+export function printout(s, { channel, id }) {
+	if (channel === "order") {
+		const d = docket(id);
+		const o = goalAt(s, id);
+		const pay = o.reward ? `Payment: $${fmt(o.reward)}` : o.epReward ? `Payment: ${fmt(o.epReward)} EP` : "";
+		return { head: d.head, byline: d.byline, lines: [o.title, o.note, pay].filter(Boolean) };
+	}
+	if (channel === "letter") {
+		const l = LETTER_BY_ID.get(id);
+		return { head: "Letter", byline: `From: ${l.from}`, lines: [l.found, l.mark, ...l.lines].filter(Boolean) };
+	}
+	const [who, , text] = NOTES[id];
+	return { head: "Field note", byline: who, lines: [text] };
 }

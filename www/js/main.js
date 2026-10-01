@@ -3,11 +3,10 @@ import { load, save, newState, place, exportSave as saveText, deserialize, seria
 import { compile, tick, tileAt, remove, spill, activeTiles, sellValue, movePart, refillByHand } from "./sim.js";
 import { isPartVisible } from "./parts.js";
 import { buy as buyUpgrade, reboot as rebootState, applyUpgrades, UPGRADE_BY_ID } from "./upgrades.js";
-import { checkObjectives, checkOrder, goalAt, orderTitle, OBJECTIVES } from "./objectives.js";
-import { buildUI, render, ask, inspect, flash, toast, goalMet, goalRevised, authorised, rebootDialog, refillCost } from "./ui.js";
+import { checkObjectives, claimObjective, checkOrder, goalAt, orderTitle, OBJECTIVES } from "./objectives.js";
+import { buildUI, render, ask, inspect, flash, toast, goalMet, goalClaimed, goalRevised, authorised, rebootDialog, refillCost } from "./ui.js";
 import { toolsAllowed, award, TROPHIES, restrictionLabel, markLine, perCell, SWITCHES } from "./records.js";
 import { isComplete } from "./complete.js";
-import { checkLetters } from "./letters.js";
 import { fmt } from "./fmt.js";
 import { attachInput } from "./input.js";
 import { saveModule, deleteModule, modId, isAncestor } from "./module.js";
@@ -75,6 +74,24 @@ function endMove() {
 
 const game = {
 	selected: "uranium1",
+
+	/**
+	 * Sign off the met order: paid now, and the next one goes to the printer.
+	 * A save state is kept for the job just done, to come back to from the log.
+	 */
+	claim() {
+		if (s.planner) return false;
+		const o = claimObjective(s);
+		if (!o) return false;
+		press("coin");
+		goalClaimed(dom, o.title);
+		takeSnapshot(s, s.objective - 1);
+		// The last job done: the log is finished, and the next run is offered.
+		if (s.objective === OBJECTIVES.length - 1 && award(s, "done")) {
+			ask("The log is finished. Reboot, and pick a rule for the next run?", () => game.reboot(false), "Reboot", true);
+		}
+		return true;
+	},
 
 	/**
 	 * Empty a condensator by hand: pay for what it holds, and that heat is gone.
@@ -419,22 +436,13 @@ setInterval(() => {
 	const revised = s.revised.length;
 	// Everything done, noticed once: a notice in the log, and the valley lit.
 	if (!s.planner && !s.records.complete && isComplete(s)) s.records.complete = { ticks: s.runTicks };
-	if (!s.planner && checkObjectives(s)) {
-		goalMet(dom, done.title);
-		// A save state for the job just done, to come back to from the log.
-		takeSnapshot(s, s.objective - 1);
-		// The last job done: the log is finished, and the next run is offered.
-		if (s.objective === OBJECTIVES.length - 1 && award(s, "done")) {
-			ask("The log is finished. Reboot, and pick a rule for the next run?", () => game.reboot(false), "Reboot", true);
-		}
-	}
+	// Met: held on the goal line until the operator signs it off.
+	if (!s.planner && checkObjectives(s)) goalMet(dom, done.title);
 	// The job was met as first asked, and asked again higher.
 	if (s.revised.length > revised) goalRevised(dom, goalAt(s).title);
 	// Past the log, the standing order: met, and raised.
 	const standing = s.order?.target;
 	if (!s.planner && checkOrder(s)) goalMet(dom, orderTitle(standing));
-	// Letters come as the station climbs: filed, never announced.
-	checkLetters(s);
 }, OBJECTIVE_MS);
 setInterval(() => save(theGame()), SAVE_MS);
 

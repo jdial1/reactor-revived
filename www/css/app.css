@@ -59,6 +59,10 @@
 	--stamp-ink: #2f5f8a;
 	--cash-ink: #6e5412;
 	--seal: #9a7424;
+	/* The printer's paper: pale, with the green bars of a line printer. */
+	--greenbar: #d8e2cc;
+	/* Tractor-feed paper: the width of the punched margin each side. */
+	--feed: 20px;
 	--gap: 1px;
 	--part-h: 63px;   /* one dock tier; the dock's height is derived from it */
 	--peek-h: 22px;   /* the strip under it: the next tier, not yet earned */
@@ -900,6 +904,26 @@ body.melting { animation: melting 500ms ease-out; }
 	color: var(--cash);
 	animation: met 1.6s ease-out forwards;
 }
+/* Signed off: said at the start of the goal line, then gone. */
+#goal .objective.signed::before {
+	content: "Signed\00a0";
+	color: var(--power);
+	animation: met 1.6s ease-out forwards;
+}
+/* Met, and held until it is signed off: the line in the price's colour, on a
+   faint wash of it. Steady, never blinking: it waits. */
+#goal .objective.claim { color: var(--cash); background-color: #d8c15a14; }
+/* Signed off, and the next order not yet off the printer. */
+#goal .objective.awaiting { color: var(--dim); font-style: italic; }
+/* Something new filed in the log and not yet seen: a lamp lit on the goal
+   line, until the log is opened. */
+#goal .objective.alert {
+	padding-right: 24px;
+	background-image: radial-gradient(circle, var(--cash) 0 3.5px, #d8c15a66 4.5px, #0000 7.5px);
+	background-position: right 8px center;
+	background-size: 16px 16px;
+	background-repeat: no-repeat;
+}
 
 /* Modules. A casing is the icon its designer chose, framed in its colour. */
 .tile.module {
@@ -1554,14 +1578,14 @@ dialog h2,
    came from), the order, what it pays, and a stamp once done. Its paper says
    how far the log has drifted: a printed manual page, a work order on manila,
    a bare slip nobody signed. */
-.card.docket { position: relative; padding: 5px 10px 8px; border-left-width: 0; }
+.card.docket { position: relative; padding: 5px var(--feed) 8px; border-left-width: 0; }
 .docket > header {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
 	gap: 0 8px;
-	margin: 0 -10px 6px;
-	padding: 0 10px 4px;
+	margin: 0 calc(-1 * var(--feed)) 6px;
+	padding: 0 var(--feed) 4px;
 	font-size: 10px;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
@@ -1608,7 +1632,8 @@ dialog h2,
    It says where it came from, a postmark how it came, and an unread one is
    still under its seal. */
 .card.letter {
-	padding: 6px 10px;
+	position: relative;
+	padding: 6px var(--feed);
 	border-left-width: 0;
 	background:
 		linear-gradient(to bottom right, transparent calc(50% - 1px), #0002 50%, transparent calc(50% + 1px)) left top / 50% 16px no-repeat,
@@ -1628,7 +1653,7 @@ dialog h2,
 	color: var(--plate-ink);
 }
 .letter summary::-webkit-details-marker { display: none; }
-.letter[open] summary { margin: 0 -10px 8px; padding: 0 10px 5px; border-bottom: 3px double var(--card-rule); }
+.letter[open] summary { margin: 0 calc(-1 * var(--feed)) 8px; padding: 0 var(--feed) 5px; border-bottom: 3px double var(--card-rule); }
 .letter .from { flex: 1; }
 .postmark {
 	flex: none;
@@ -1651,6 +1676,67 @@ dialog h2,
 .letter p { margin: 0 0 6px; font-size: 12.5px; line-height: 1.45; }
 .letter small { display: block; margin: 0 0 8px; font-size: 11px; font-style: italic; color: var(--plate-ink-dim); }
 .letter .mark { color: var(--stamp-ink); transform: rotate(-1deg); }
+
+/* Tractor-feed paper: every paper in the station file came off the printer,
+   so each has its punched margins, a row of sprocket holes down both edges
+   and the perforation that would tear them off. */
+.card.docket::before,
+.card.letter::before,
+.printout::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background:
+		radial-gradient(circle, var(--frame-face) 2.3px, #0000 2.8px) left 2px top 0 / 16px 12px repeat-y,
+		radial-gradient(circle, var(--frame-face) 2.3px, #0000 2.8px) right 2px top 0 / 16px 12px repeat-y,
+		linear-gradient(#0003 50%, #0000 50%) left calc(var(--feed) - 2px) top 0 / 1px 4px repeat-y,
+		linear-gradient(#0003 50%, #0000 50%) right calc(var(--feed) - 2px) top 0 / 1px 4px repeat-y;
+}
+.docket.fieldnote { background: var(--slip); }
+/* Room under the last line for the stamp, where nothing else sits there. */
+.docket.fieldnote:has(> .stamp:not([hidden])) { padding-bottom: 30px; }
+.docket .sign-off { display: block; width: 100%; margin-top: 8px; }
+
+/* The printer: a slot at the top of the screen, and what comes out of it,
+   printed in dots (a mask of 2px dots over the type) with the head running
+   along the line. */
+#printer {
+	position: fixed;
+	left: 0;
+	right: 0;
+	z-index: 40;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	pointer-events: none;
+}
+#printer .slot {
+	position: relative;
+	z-index: 1;
+	width: min(94vw, 360px);
+	height: 9px;
+	background: #050607;
+	border-radius: 0 0 3px 3px;
+	box-shadow: inset 0 3px 4px #000, 0 1px 0 var(--plating-hi);
+}
+#printer .feed { width: min(86vw, 330px); margin-top: -4px; }
+.printout {
+	position: relative;
+	padding: 10px var(--feed) 14px;
+	color: var(--card-ink);
+	background: repeating-linear-gradient(var(--greenbar) 0 22px, var(--slip) 22px 44px);
+	box-shadow: 0 10px 20px #000b;
+}
+.printout .type {
+	-webkit-mask: radial-gradient(circle, #000 0.85px, #0000 1.1px) 0 0 / 2px 2px;
+	mask: radial-gradient(circle, #000 0.85px, #0000 1.1px) 0 0 / 2px 2px;
+}
+.printout p { margin: 0 0 4px; font-size: 13px; font-weight: bold; line-height: 1.5; }
+.printout .head { letter-spacing: 0.12em; }
+.printout .by { font-weight: normal; color: var(--plate-ink-dim); }
+.printout .rule { height: 0; margin: 2px 0 8px; border-bottom: 2px dashed var(--plate-ink-dim); }
+.print-head { display: inline-block; width: 8px; height: 13px; margin-left: 1px; vertical-align: -2px; background: var(--card-ink); }
 
 /* ---- bin ---- */
 .bin {

@@ -19,6 +19,9 @@ const CUES = {
 	// The first stage of a key on the plant computer: the place impact, played
 	// fast and quiet, is a short click before the clack (Soul Interview 5.5).
 	click: ["place", 1.9, 0.22],
+	// The printer's head: the same impact, very fast and very quiet, over and
+	// over, is a dot-matrix chatter.
+	print: ["place", 3.4, 0.07],
 };
 
 export const FILES = [...new Set(Object.values(CUES).map(([file]) => file))];

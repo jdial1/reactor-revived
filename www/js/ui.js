@@ -6,7 +6,7 @@ import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, ne
 import { OBJECTIVES, goalAt, orderTitle, orderEntry, orderProgress } from "./objectives.js";
 import { artFor } from "./art.js";
 import { icon } from "./icons.js";
-import { play, setHeat } from "./audio.js";
+import { play, press, setHeat } from "./audio.js";
 import { ROWS, COLS, activeTiles, sellValue } from "./sim.js";
 import { modId, heatFill } from "./module.js";
 import { span } from "./flux.js";
@@ -20,6 +20,8 @@ import { NOTES, notesFor } from "./notes.js";
 import { LETTERS, readLetter } from "./letters.js";
 import { docket, standingByline, storyFile } from "./story.js";
 import { COMPLETE_ENTRY } from "./complete.js";
+import { buildPrinter, tickPrinter } from "./printer-ui.js";
+import { claimNote } from "./notes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
 export function h(tag, { dataset, ...props } = {}, ...kids) {
@@ -252,10 +254,12 @@ export function buildUI(game) {
 	dom.goalText = h("span", {});
 	dom.runTag = h("b", { className: "run-tag", hidden: true });
 	dom.goalBar = h("i", { className: "goal-bar" });
+	// The goal line: tapped, it opens the log - or, when the order is met,
+	// signs it off and is paid.
 	dom.objective = h("button", {
 		className: "objective",
 		title: "Show every goal",
-		onclick: () => showGoals(dom),
+		onclick: () => (dom.game.state.met && !dom.game.state.planner ? dom.game.claim() : showGoals(dom)),
 	});
 	dom.objective.setAttribute("aria-haspopup", "dialog");
 	dom.objective.setAttribute("aria-expanded", "false");
@@ -430,6 +434,7 @@ export function buildUI(game) {
 	root.append(h("footer", {}, verdict, dom.rateBar, dom.actions, dom.dock, dom.tabs));
 
 	dom.game = game;
+	buildPrinter(dom);
 	buildDock(dom, game);
 	buildUpgrades(dom, game);
 	buildModulesPage(dom, game);
@@ -522,7 +527,13 @@ export function say(text) {
 /** A goal met is a tick on the goal line, not a toast. */
 export function goalMet(dom, title) {
 	flash(dom.objective, "met");
-	say(`Goal met - ${title}`);
+	say(`Met - ${title}. Sign off on the goal line.`);
+}
+
+/** Signed off and paid; the next order goes to the printer. */
+export function goalClaimed(dom, title) {
+	flash(dom.objective, "signed");
+	say(`Signed off - ${title}`);
 }
 
 /** The job was met as first asked, and has been asked again higher. */
@@ -854,6 +865,15 @@ function buildFile(dom) {
 	dom.standing.append(dom.standing.heading = h("b", {}), dom.standing.note = h("p", {}), dom.standing.met = h("small", { className: "pay" }));
 	dom.file.set("standing", dom.standing);
 	dom.file.set("complete", paper("notice", "Notice", "From: not stated", h("p", { textContent: COMPLETE_ENTRY })));
+	// Signing off: one key, on whichever order is met.
+	dom.signOff = h("button", { className: "key wide sign-off", hidden: true, onclick: () => dom.game.claim() });
+	// A field note, printed: signed off, it is written into its parts' sheets.
+	for (const [id, [who, , text]] of Object.entries(NOTES)) {
+		const sign = h("button", { className: "key wide sign-off", textContent: "Sign off: enter in the parts guide",
+			onclick: () => { if (claimNote(dom.game.state, id)) press("click"); } });
+		const el = paper("fieldnote", "Field note", who, h("p", { textContent: text }), sign);
+		dom.file.set(`note:${id}`, Object.assign(el, { sign }));
+	}
 	for (const l of LETTERS) dom.file.set(`letter:${l.id}`, letterSlip(dom, l));
 }
 
@@ -974,15 +994,26 @@ export function render(dom, s, game) {
 	const goal = goalAt(s);
 	// Past the last job, the goal line carries the standing order.
 	const order = s.order && s.objective === OBJECTIVES.length - 1 && !s.planner;
+	// Signed off, and the next order not yet off the printer.
+	const awaiting = !s.planner && s.shown < s.objective;
+	const met = !s.planner && s.met;
 	const step = goal?.progress?.(s);
 	const prize = goal && (goal.reward ? `  $${fmt(goal.reward)}` : goal.epReward ? `  ${fmt(goal.epReward)} EP` : "");
 	dom.goalText.textContent = s.planner
 		? "Planner: free, not real"
+		: awaiting
+			? "Awaiting the next order."
+		: met
+			? `Sign off: ${goal.title}${prize}`
 		: order
 			? orderTitle(s.order.target)
 		: goal
 			? `${goal.title}${step ? `  ${step[0]}/${step[1]}` : ""}${prize}`
 			: "Every goal met.";
+	dom.objective.classList.toggle("claim", met);
+	dom.objective.classList.toggle("awaiting", awaiting);
+	dom.objective.title = met ? "Sign off this order and be paid" : "Show the operator's log";
+	tickPrinter(dom, s);
 	document.body.classList.toggle("planning", Boolean(s.planner));
 	dom.plan.hidden = Boolean(s.planner) || !toolsAllowed(s);
 	dom.runTag.hidden = !(s.restriction || s.restored) || Boolean(s.planner);
@@ -996,7 +1027,7 @@ export function render(dom, s, game) {
 	dom.planBuild.hidden = !s.planner;
 	dom.planDiscard.hidden = !s.planner;
 	for (const b of dom.tabs.children) if (b.dataset.value !== "reactor") b.disabled = Boolean(s.planner);
-	dom.goalBar.style.setProperty("--p", order ? orderProgress(s) : step ? step[0] / step[1] : 0);
+	dom.goalBar.style.setProperty("--p", awaiting ? 0 : met ? 1 : order ? orderProgress(s) : step ? step[0] / step[1] : 0);
 	dom.tabs.firstElementChild.classList.toggle("paused", s.paused);
 	// Heat is something you see and hear, not read: the board warms, the
 	// feedback goes quiet, and the hum climbs.
@@ -1313,7 +1344,8 @@ function renderSwitches(dom, s) {
 }
 
 function renderFile(dom, s) {
-	const now = Math.min(s.objective, OBJECTIVES.length - 1);
+	// The order in hand: while the next is on the printer, the one just signed.
+	const now = Math.min(s.objective, s.shown, OBJECTIVES.length - 1);
 	dom.dockets.forEach((row, i) => {
 		const o = OBJECTIVES[i];
 		const done = i < s.objective;
@@ -1333,6 +1365,21 @@ function renderFile(dom, s) {
 		row.stamp.textContent = stamp;
 		row.stamp.hidden = !stamp;
 	});
+	const met = s.met && !s.planner && dom.dockets[s.objective];
+	if (met) {
+		const o = goalAt(s);
+		dom.signOff.textContent = `Sign off${o.reward ? `: $${fmt(o.reward)}` : o.epReward ? `: ${fmt(o.epReward)} EP` : ""}`;
+		if (dom.signOff.parentElement !== met) met.append(dom.signOff);
+	}
+	dom.signOff.hidden = !met;
+	for (const n of s.fieldNotes ?? []) {
+		const el = dom.file.get(`note:${n.id}`);
+		if (!el) continue;
+		el.sign.hidden = Boolean(n.claimed);
+		el.stamp.textContent = n.claimed ? "Entered" : "";
+		el.stamp.hidden = !n.claimed;
+		el.classList.toggle("current", !n.claimed);
+	}
 	dom.standing.classList.toggle("current", Boolean(s.order));
 	if (s.order) {
 		dom.standing.by.textContent = standingByline(s);
@@ -1344,32 +1391,38 @@ function renderFile(dom, s) {
 	// kept on its slip, so redrawing never closes one the player has open.
 	const items = storyFile(s);
 	const read = s.lettersRead ?? [];
-	const sig = `${items.map((it) => it.key).join()}|${read.join()}`;
+	const claimed = (s.fieldNotes ?? []).filter((n) => n.claimed).map((n) => n.id);
+	const sig = `${items.map((it) => it.key).join()}|${read.join()}|${claimed.join()}|${now}`;
 	if (sig === dom.fileSig) return;
 	dom.fileSig = sig;
 	let past = 0;
 	let letters = 0;
+	let notes = 0;
 	const top = dom.fileList.scrollTop;
 	dom.fileList.replaceChildren(...items.map(({ key, at }) => {
 		const el = dom.file.get(key);
 		const id = key.startsWith("letter:") && key.slice(7);
-		const unread = id && !read.includes(id);
+		// A letter not opened, or a field note not signed off, is still open.
+		const unread = (id && !read.includes(id)) || (key.startsWith("note:") && !claimed.includes(key.slice(5)));
 		el.classList.toggle("unread", Boolean(unread));
 		el.classList.toggle("now", at === now);
 		// A letter not yet read stays out of the fold, wherever it was filed.
-		const folded = at < now && !unread && !dom.keepOut.has(id);
+		const folded = at < now && !unread && !dom.keepOut.has(id || key);
 		el.classList.toggle("past", folded);
-		if (folded) key.startsWith("letter:") ? letters++ : past++;
+		if (folded) key.startsWith("job:") ? past++ : key.startsWith("note:") ? notes++ : letters++;
 		return el;
 	}));
 	dom.fileList.scrollTop = top;
-	dom.doneToggle.hidden = !(past + letters);
-	dom.doneToggle.textContent = `Filed: ${past} ${past === 1 ? "order" : "orders"}${letters ? `, ${letters} ${letters === 1 ? "letter" : "letters"}` : ""}`;
+	dom.doneToggle.hidden = !(past + letters + notes);
+	const count = (n, one, many) => (n ? `, ${n} ${n === 1 ? one : many}` : "");
+	dom.doneToggle.textContent = `Filed: ${past} ${past === 1 ? "order" : "orders"}${count(letters, "letter", "letters")}${count(notes, "field note", "field notes")}`;
 }
 
 function showGoals(dom) {
 	dom.goalSheet.showModal();
 	dom.objective.setAttribute("aria-expanded", "true");
+	// Seen: the goal line's lamp goes out.
+	dom.objective.classList.remove("alert");
 	dom.goalSheet.addEventListener("close", () => {
 		dom.objective.setAttribute("aria-expanded", "false");
 		// What was read while it was open folds away next time.

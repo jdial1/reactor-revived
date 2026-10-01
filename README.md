@@ -602,8 +602,8 @@ its section counts say how many, and a screen reader still hears the number.
 ### Components
 
 All of the above is built from nine components - key, switch, lamp, nameplate,
-panel, card, stamp, bin, frame - and six templates made from them: file, sheet,
-terminal, plates, strip, tray. Each component's look is set once, from tokens in `:root`,
+panel, card, stamp, bin, frame - and seven templates made from them: printer, file,
+sheet, terminal, plates, strip, tray. Each component's look is set once, from tokens in `:root`,
 in the *Components* section at the end of `www/css/app.css`; a screen's rules
 only place and size them. [docs/ui-components.md](docs/ui-components.md) lists
 them, their states and how to add a control, and `test/components.test.js`
@@ -768,6 +768,31 @@ Everything before the current order folds into one line (*Filed: 14 orders, 3
 letters*), except a letter not yet read, which stays out of the fold until it
 is opened, and the log opens on it. The old silent log book is gone: what it
 said, the dock, the Modules key and Records already say.
+
+### The printer
+
+Nothing reaches the file on its own. A met order is held on the goal line -
+*Sign off: Buy an upgrade $100*, in the price's colour - until it is tapped,
+which pays it. The next order is then on the station's printer, and the goal line
+reads *Awaiting the next order.* Five to ten seconds later it comes out of a slot
+at the top of the screen on tractor-feed paper in green bars, printed in dots a
+character at a time with the head ticking across, is torn off, and goes into the
+log behind the goal line; a lamp on the goal line stays lit until the log is
+opened. It cannot be met until it has printed.
+
+Letters and field notes come the same way, one at a time each. The next letter
+prints once every letter filed has been opened - opening is the claim, and
+reading stays optional: an unopened letter only holds back the letters after it.
+A field note seen on the board is printed and filed under the current order,
+and only written into its parts' sheets once it is signed off; the next one
+waits on it. The printer takes no taps, prints one thing at a time with orders
+first, and prints nothing in the planner or while the game is in the background.
+`www/js/story.js` decides what is waiting and where it files;
+`www/js/printer-ui.js` is the waiting and the printing.
+
+Every paper in the log came off that printer, so every paper has its punched
+margins: sprocket holes down both edges and the perforation that would tear them
+off.
 
 They hint before they answer, and by the end each of the world's open questions
 has an answer (why the plant closed, why nobody else could run it, what the

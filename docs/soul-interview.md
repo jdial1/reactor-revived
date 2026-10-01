@@ -1244,6 +1244,49 @@ drift.
 | Past job 30 | "Standing order" | "From: not stated", then "From: Harrow Works" once the `works` letter has said what the demand is for (2.4: never explained before the climb reaches it) | none | Drafted |
 | Everything complete | "Notice", the complete state's line | "From: not stated" | none | Drafted |
 | A revised order | its first ask struck through over the new one | | "Revised" while open | Drafted |
+| A field note | "Field note", on a bare slip | the parts it is about ("Neutron reflectors") | "Entered" | Drafted |
+
+**The printer and signing off** (asked for by the designer: "require manually
+claiming objectives and notes … a delay before the next appears, 5-10 seconds,
+with a dot matrix printer slow print from top of screen before hiding in
+objective modal with alert"), built; its strings are **drafted, awaiting the
+designer**. Nothing reaches the file on its own any more:
+
+- **Orders.** A met order is held, not paid: the goal line reads *Sign off:
+  \<order\> \<payment\>* in the price's colour, and a tap on it (or the order's
+  *Sign off* key in the log) pays it. The next order is then on the printer:
+  the goal line reads *Awaiting the next order.*, and it cannot be met until it
+  is printed. A revision still cancels and re-asks at once, unsigned.
+- **Letters.** One waits at a time: the next is printed only once every letter
+  filed has been opened. Opening is the claim. Reading stays optional (6.3):
+  an unopened letter holds back only the letters after it, never an order.
+- **Field notes.** Seen on the board, a quirk is not yet written: it is printed,
+  filed in the log under the current order, and written into its parts'
+  sheets only when signed off (*Sign off: enter in the parts guide*). The next
+  note waits on the last.
+- **The printer.** What is waiting prints five to ten seconds after it comes
+  due, one thing at a time, orders first: a slot at the top of the screen,
+  tractor-feed paper in green bars, the type in dots a character at a time with
+  the head heard ticking. Torn off, it goes into the log behind the goal line,
+  with two quiet clicks and a lamp lit on the goal line until the log is opened.
+  It takes no taps, and prints nothing in the planner or a hidden tab.
+- **The paper.** Every paper in the file came off the printer, so each has its
+  punched margins: sprocket holes down both edges, and the perforation.
+
+The One Request pillar holds: the printer is the demand arriving, one line at a
+time, and the lamp sits on the one request's own line, like the example dot (the
+pillar's self-test, item 1). Nothing is timed against the player: the delay runs
+only while the game is open, and nothing is lost by leaving an order unsigned.
+
+| Where | Drafted |
+| --- | --- |
+| The goal line, met | "Sign off: \<order\> \<payment\>" |
+| The goal line, while the next prints | "Awaiting the next order." |
+| The goal line, signed | "Signed", then gone |
+| An order's key in the log | "Sign off: \<payment\>" |
+| A field note's key | "Sign off: enter in the parts guide" |
+| A letter on the printer | headed "Letter", "From: \<sender\>" |
+| The tutorial's last card | "When a job is done the line says Sign off: tap it to be paid. The next order comes off the printer a few seconds later, and the lamp on the line says something new is in the log." |
 
 | Letter | From | Arrives | Text | Hints and answers | Verdict |
 | --- | --- | --- | --- | --- | --- |
