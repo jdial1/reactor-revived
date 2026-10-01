@@ -5,17 +5,18 @@
 // energy survives a 220Hz low-pass - and on a desk speaker they are deep. A
 // phone plays next to nothing under 300 Hz, so on a phone what is left of an
 // impact is its edge. The old coin, on the sell bar - the most-pressed control
-// in the game - was clunky: nine-tenths of its weight under 250 Hz, four or five
-// hits in a row with the key's click ahead of it, and bright and loud on a phone.
-// It is now one light mallet note (tools/synth_sounds.py), a single round hit
-// where a phone speaker plays, and the buy clack a drier wooden tok. Graded
-// through a model of a phone's speaker, both were an F and are an A (README,
-// Sound).
+// in the game - was clunky: it rattled into four or five uneven, boomy hits
+// after the key's click, and on a phone it was bright and loud. The Soul
+// Interview asks for presses that are "tactile mechanical double click
+// industrial slow": a click, then one clack, in metal. The sell bar's clack is
+// now a contactor pulling in, and the plant computer's a lever latching home
+// (tools/synth_sounds.py): one clean, damped hit each, with weight, nothing left
+// ringing, and their metal where a phone speaker plays (README, Sound).
 //
 // A cue is one file or a family. A family is cycled - every variant once, in a
 // shuffled order, never the same one twice running - and every play is nudged
-// a little in pitch and level, so a run of taps is a run of different toks
-// rather than one sound repeated. A cue can play slower: a lower rate is a
+// a little in pitch and level, the way no two presses of one switch are quite
+// alike, so a run of taps is not one sound repeated. A cue can play slower: a lower rate is a
 // bigger, longer version of the same impact. Nothing that is only filed in the
 // log makes a sound.
 const family = (name, n) => Array.from({ length: n }, (_, i) => `${name}-${i + 1}.wav`);
@@ -23,12 +24,12 @@ const family = (name, n) => Array.from({ length: n }, (_, i) => `${name}-${i + 1
 const CUES = {
 	place: ["place.ogg", 1, 0.55],
 	sell: ["sell.ogg", 1, 0.5],
-	// The sell bar, and an order signed off: one light mallet note on a wooden
-	// bar, six of them on a pentatonic scale.
-	coin: [family("tally", 6), 1, 0.3],
+	// The sell bar, and an order signed off: a contactor pulling in, after the
+	// key's click. Five presses of it, each a little different.
+	coin: [family("clack", 5), 1, 0.32],
 	vent: ["vent.ogg", 0.92, 0.5],
-	// The plant computer's clack: a heavier key going home, four of them.
-	buy: [family("key", 4), 1, 0.5],
+	// The plant computer's clack: a lever latching home, heavier. Four presses.
+	buy: [family("latch", 4), 1, 0.42],
 	boom: ["boom.ogg", 0.8, 0.9],
 	// The first stage of a key on the plant computer: the place impact, played
 	// fast and quiet, is a short click before the clack (Soul Interview 5.5).

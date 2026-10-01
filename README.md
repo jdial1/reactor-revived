@@ -491,16 +491,14 @@ puffs steam while its fan turns, and an exploding part throws a spark.
 ## Sound
 
 Four impacts in `www/audio/` from **Kenney's Impact Sounds** (CC0), and two
-families of synthesised toks - six for the sell bar, four for the plant
-computer - made by `tools/synth_sounds.py`. One `<audio>` element per voice, two
+families of synthesised clacks - five presses of a contactor for the sell bar,
+four of a lever latch for the plant computer - made by `tools/synth_sounds.py`. One `<audio>` element per voice, two
 per file so a fast row of parts sounds like a row of parts.
 
 Every hand control is heard in two stages, a click and then its impact (Soul
 Interview 5.4, 5.5): placing or moving a part is the click and clank of it going
 into place, and the sell and vent bars, the reactor switch, the automation
-switches, a doctrine side and an upgrade are keys pressed through. The sell bar
-is the exception: the most-pressed control in the game, it is one light note
-with no click ahead of it (below, Graded on a phone). The click is
+switches, a doctrine side and an upgrade are keys pressed through. The click is
 no new file - it is the place impact at 1.9x and a fifth of the loudness, 70 ms
 ahead of the clack - and it has its own voices, so it never cuts off the clack
 before it. Bulk actions (a plan or a layout built) stay one sound. Nothing takes
@@ -530,30 +528,33 @@ plays next to nothing under 300 Hz, so on a phone what is left of a deep impact
 is its edge. Every cue was rendered as the game plays it and graded through a
 model of a phone speaker (`tools/render_cues.mjs`, `tools/grade_sounds.py`):
 sharpness on the Bark scale, energy over 2 kHz, the ring still sounding 60 ms
-after the hit, the peak, and the length. A soft, warm, short tok scores 100.
+after the hit, the peak, and the length. A soft, short, dark hit scores 100.
 
 | Cue | Heard on | Was | Grade | Now | Grade |
 | --- | --- | --- | --- | --- | --- |
-| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: clunky - 90% of its weight under 250 Hz, five hits with the click ahead of it - and on a phone 1.1 kHz, 16% over 2 kHz, 12 dB louder than anything else | F (37) | `tally-1` to `-6`: one light mallet note, 330-660 Hz, one hit, nothing under 250 Hz or over 2 kHz, level with the rest | A/B (84-100) |
-| `buy` | an upgrade or research authorised, a doctrine | Kenney `buy`: 1 kHz, 15% over 2 kHz, the longest ring | F (34) | `key-1` to `-4`: lower and drier, about 300 Hz | A (100) |
+| `coin` | the sell bar, an order signed off, the money drums | Kenney `coin`: clunky - rattling into five uneven hits with the click ahead of it - and on a phone 1.1 kHz, 16% over 2 kHz, 12 dB louder than anything else | F (37) | `clack-1` to `-5`: a contactor pulling in; with the click, two clean hits; nothing over 2 kHz or ringing, level with the rest | B (77) |
+| `buy` | an upgrade or research authorised, a doctrine | Kenney `buy`: 1 kHz, 15% over 2 kHz, the longest ring | F (34) | `latch-1` to `-4`: a lever latching home, lower and heavier | A (88) |
 | `place`, `sell`, `vent`, `boom`, `click`, `print` | | deep impacts: soft on a phone | A (86-100) | unchanged | |
 
 The sell bar is the most-pressed control in the game, and the coin was clunky:
-heavy, and with the key's click 70 ms ahead of it, heard as four or five hits
-every tap. The tally that replaced it is one light mallet note on a wooden bar -
-a marimba's three modes (1 : 3.93 : 9.2), the upper two gone in a few tens of
-milliseconds, a three-millisecond attack, no low thump and no second hit - and
-the sell bar plays it alone, without the click ahead of it. Six notes on a
-pentatonic scale (E4 to E5), written quieter as they climb so a phone plays them
-level, so any two in a row agree. Measured as heard: one hit, not five; nothing
-under 250 Hz, against nine-tenths.
+it rattled into four or five uneven, boomy hits every tap. The Soul Interview
+asks for presses that are "tactile mechanical double click industrial slow" - a
+click, then a clack, with weight, in metal (5.4, 5.5) - so its replacement keeps
+the click and is one clean clack after it: a contactor pulling in, synthesised
+as a short body for weight (180 Hz, 35 ms), four damped metal modes (780 to
+2,870 Hz, the highest gone in 9 ms), and the knock of the strike. Measured as
+heard: click then clack, two hits, not five, and nothing left ringing. The plant
+computer's latch is the same build, lower and heavier (a 120 Hz body, modes from
+520 Hz). A first attempt - wooden mallet notes on a pentatonic scale - measured
+well and did not fit: musical where the plant is mechanical.
 
 **Variance.** A family is cycled - every variant once, in a shuffled order, and
 never the same one twice running, even across rounds - and every play of every
-cue drifts up to 3% in pitch and 1.5 dB in level, so a run of taps is a run of
-different sounds rather than one repeated. `test/audio.test.js` holds the cycle,
-and that the synthesised files stay warm (under 2% of their energy over 2 kHz)
-and unclipped.
+cue drifts up to 3% in pitch and 1.5 dB in level - the way no two presses of
+one switch sound quite alike - so a run of taps is not one sound repeated.
+Each variant of a family is the same switch, written with a little jitter in its
+modes, not a different note. `test/audio.test.js` holds the cycle, and that the
+synthesised files stay dark (under 2% of their energy over 2 kHz) and unclipped.
 
 Eight cues: the impacts and the two families, each at its own playback rate - a lower rate is a
 bigger, longer version of the same impact, so a meltdown is a punch at 0.8 - and

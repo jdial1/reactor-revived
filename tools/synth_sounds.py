@@ -1,17 +1,18 @@
-"""Synthesise the sell bar's and the plant computer's sounds.
+"""Synthesise the sell bar's and the plant computer's clacks.
 
-The old sell sound was clunky: nine-tenths of its weight under 250 Hz, and with
-the key's click ahead of it, four or five hits in a row on the most-pressed
-control in the game - and on a phone, which plays next to nothing under 300 Hz,
-all that was left of it was its edge. The sell bar's tally is one soft mallet
-note on a wooden bar instead: its body between 390 and 800 Hz, where a phone
-speaker lives, a three-millisecond attack, no low thump and no second hit. The
-plant computer's key is a heavier wooden tok, a clack on purpose. Each family is
-a set of variants on a pentatonic scale, cycled at play time (www/js/audio.js),
-so a run of taps is a run of different notes that agree rather than one sound
-repeated.
+The Soul Interview asks for presses that are "tactile mechanical double click
+industrial slow": two stages, a click and then a clack, with weight, in metal
+("clanking", beside the teal and orange plating). The old sell sound had the
+weight but rattled into four or five uneven, boomy hits, which made it clunky
+on the most-pressed control in the game; and a phone, which plays next to
+nothing under 300 Hz, kept only its edge. These are single clacks: a short body
+for weight, a few damped metal modes where a phone speaker plays, the knock of
+the strike, and nothing left ringing. Each is written several times with a
+little jitter, the way no two presses of one switch sound quite alike, and the
+game cycles through them (www/js/audio.js).
 
-    python3 tools/synth_sounds.py    # writes www/audio/tally-*.wav and key-*.wav
+    python3 tools/synth_sounds.py                    # the game's clack-* and latch-*
+    python3 tools/synth_sounds.py --candidates DIR   # every candidate, for listening
 
 Deterministic: the same seed writes the same files.
 """
@@ -20,11 +21,6 @@ import numpy as np, wave, os
 SR = 22050
 OUT = os.path.join(os.path.dirname(__file__), "..", "www", "audio")
 rng = np.random.default_rng(1983)
-
-# Pentatonic, so any two in a row agree with each other.
-NOTE = {"G3": 196.0, "A3": 220.0, "C4": 261.6, "D4": 293.7, "E4": 329.6,
-        "G4": 392.0, "A4": 440.0, "C5": 523.3, "D5": 587.3, "E5": 659.3, "G5": 784.0}
-
 
 def lowpass(x, fc):
     a = np.exp(-2 * np.pi * fc / SR)
@@ -36,40 +32,45 @@ def lowpass(x, fc):
     return y
 
 
-def tok(f0, length=0.28, decay=0.05, bright=1.0, thump=0.45, grit=0.12):
-    """One wooden tok: three inharmonic modes, a soft attack, a low thump."""
+def clack(body, modes, noise=0.3, length=0.2, jitter=0.0):
+    """One mechanical clack: a short body for weight, a few damped metal modes,
+    and the knock of the strike. Each mode is (frequency, amplitude, decay in s).
+    `jitter` nudges every frequency and decay a little, the way no two presses
+    of one switch are quite the same."""
     t = np.arange(int(SR * length)) / SR
-    y = np.zeros_like(t)
-    # A wood block's modes sit at roughly 1 : 2.57 : 4.2, each dying faster.
-    for ratio, amp, d in ((1.0, 1.0, decay), (2.57, 0.32 * bright, decay * 0.42), (4.18, 0.10 * bright, decay * 0.22)):
-        if f0 * ratio > SR / 2.2:
-            continue
-        y += amp * np.sin(2 * np.pi * f0 * ratio * t + rng.uniform(0, 0.4)) * np.exp(-t / d)
-    # The knock itself: a breath of noise, low-passed so it is felt not heard.
-    y += grit * lowpass(rng.standard_normal(len(t)), 2200) * np.exp(-t / 0.004)
-    # Under it, for a desk speaker or headphones: the drum turning.
-    y += thump * np.sin(2 * np.pi * 140 * t) * np.exp(-t / 0.045)
-    attack = int(SR * 0.002)
-    y[:attack] *= 0.5 - 0.5 * np.cos(np.linspace(0, np.pi, attack))
-    return lowpass(y, 3200)
+    j = lambda v, k=1.0: v * (1 + rng.uniform(-jitter, jitter) * k)
+    f, a, d = body
+    y = a * np.sin(2 * np.pi * j(f) * t) * np.exp(-t / j(d, 2))
+    for f, a, d in modes:
+        y += a * np.sin(2 * np.pi * j(f) * t + rng.uniform(0, 0.5)) * np.exp(-t / j(d, 2))
+    y += noise * lowpass(rng.standard_normal(len(t)), 4000) * np.exp(-t / 0.0025)
+    attack = int(SR * 0.001)
+    y[:attack] *= np.linspace(0, 1, attack)
+    return lowpass(y, 5000)
 
 
-def mallet(f0, length=0.26, decay=0.085):
-    """One soft mallet on a wooden bar: light and round, a single hit.
+# Candidates for the sell bar's clack, after the key's click. Industrial, one
+# clean hit, damped so nothing rings: the old coin rattled into four or five
+# uneven, boomy hits, and that was what made it clunky.
+CANDIDATES = {
+    # A contactor pulling in: a solid metal chunk with a short body.
+    "contactor": dict(body=(180, 0.8, 0.035), modes=[(780, 0.5, 0.045), (1240, 0.35, 0.030), (1910, 0.18, 0.018), (2870, 0.07, 0.009)]),
+    # The money drums: a counter wheel's pawl dropping into its detent.
+    "counter": dict(body=(240, 0.5, 0.020), modes=[(1050, 0.45, 0.022), (1620, 0.30, 0.015), (2480, 0.12, 0.008)], noise=0.35),
+    # A heavy Bakelite toggle snapping over: drier, less metal.
+    "toggle": dict(body=(300, 0.4, 0.015), modes=[(1400, 0.40, 0.012), (2200, 0.20, 0.008)], noise=0.5),
+    # A lever latching home: lower and heavier, with the metal on top.
+    "latch": dict(body=(120, 1.0, 0.060), modes=[(520, 0.5, 0.060), (830, 0.35, 0.040), (1310, 0.20, 0.025)]),
+}
 
-    A marimba bar's modes sit at 1 : 3.93 : 9.2; the upper two die within a
-    few tens of milliseconds, so what stays is a short, warm note.
-    """
-    t = np.arange(int(SR * length)) / SR
-    y = np.zeros_like(t)
-    for ratio, amp, d in ((1.0, 1.0, decay), (3.93, 0.22, decay * 0.28), (9.2, 0.05, decay * 0.09)):
-        if f0 * ratio < SR / 2.2:
-            y += amp * np.sin(2 * np.pi * f0 * ratio * t) * np.exp(-t / d)
-    # The mallet touching the bar: a breath of noise, gone in two milliseconds.
-    y += 0.05 * lowpass(rng.standard_normal(len(t)), 3000) * np.exp(-t / 0.002)
-    attack = int(SR * 0.003)
-    y[:attack] *= 0.5 - 0.5 * np.cos(np.linspace(0, np.pi, attack))
-    return lowpass(y, 4000)
+
+def bakelite_click():
+    """The first stage: a key going down, a small dry tick of plastic."""
+    t = np.arange(int(SR * 0.04)) / SR
+    hiss = lowpass(rng.standard_normal(len(t)), 3500) - lowpass(rng.standard_normal(len(t)), 900)
+    y = 0.6 * hiss * np.exp(-t / 0.0012)
+    y += 0.3 * np.sin(2 * np.pi * 1700 * t) * np.exp(-t / 0.005) + 0.15 * np.sin(2 * np.pi * 2900 * t) * np.exp(-t / 0.003)
+    return y
 
 
 def write(name, y, level=1.0):
@@ -85,12 +86,20 @@ def write(name, y, level=1.0):
         w.writeframes(pcm.tobytes())
 
 
-# The sell bar: one light mallet note, six of them on a pentatonic scale. A
-# phone is louder the higher the note, about 4.5 dB an octave here, so the
-# higher notes are written quieter to come out level.
-for k, n in enumerate(["E4", "G4", "A4", "C5", "D5", "E5"], 1):
-    write(f"tally-{k}", mallet(NOTE[n]), level=(NOTE["E4"] / NOTE[n]) ** 0.75)
-
-# The plant computer's clack: one heavier key going home, lower and drier.
-for k, n in enumerate(["C4", "D4", "E4", "A3"], 1):
-    write(f"key-{k}", tok(NOTE[n], decay=0.06, bright=0.6, thump=0.6, grit=0.18, length=0.3))
+if __name__ == "__main__":
+    import sys
+    if sys.argv[1:2] == ["--candidates"]:
+        # Every candidate, five presses each, for the sound board.
+        OUT = sys.argv[2]
+        os.makedirs(OUT, exist_ok=True)
+        for name, spec in CANDIDATES.items():
+            for k in range(1, 6):
+                write(f"{name}-{k}", clack(**spec, jitter=0.04))
+        write("bakelite-click", bakelite_click())
+        sys.exit()
+    # The game's: the sell bar's clack, five presses of one contactor.
+    for k in range(1, 6):
+        write(f"clack-{k}", clack(**CANDIDATES["contactor"], jitter=0.04))
+    # The plant computer's: a lever latching home, heavier, four presses.
+    for k in range(1, 5):
+        write(f"latch-{k}", clack(**CANDIDATES["latch"], jitter=0.04))

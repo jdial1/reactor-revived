@@ -7,9 +7,9 @@ test("a family is cycled: every variant once a round, never the same twice runni
 	let seed = 7;
 	const random = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 	const plays = Array.from({ length: 60 }, () => nextVariant("coin", random));
-	const family = FILES.filter((f) => f.startsWith("tally-"));
-	assert.equal(family.length, 6);
-	for (let i = 0; i < 60; i += 6) assert.deepEqual([...plays.slice(i, i + 6)].sort(), [...family].sort(), `round ${i / 6}`);
+	const family = FILES.filter((f) => f.startsWith("clack-"));
+	assert.equal(family.length, 5);
+	for (let i = 0; i < 60; i += 5) assert.deepEqual([...plays.slice(i, i + 5)].sort(), [...family].sort(), `round ${i / 5}`);
 	for (let i = 1; i < plays.length; i++) assert.notEqual(plays[i], plays[i - 1], `repeat at ${i}`);
 	assert.equal(nextVariant("place"), "place.ogg", "a single file is just itself");
 });
@@ -53,7 +53,7 @@ function above(x, rate, hz) {
 	return high / all;
 }
 
-test("the synthesised toks stay warm: next to nothing over 2 kHz, never clipped", () => {
+test("the synthesised clacks stay dark and short: next to nothing over 2 kHz, never clipped", () => {
 	for (const f of FILES.filter((f) => f.endsWith(".wav"))) {
 		const { rate, x } = wav(f);
 		assert.ok(above(x, rate, 2000) < 0.02, `${f} is bright`);
