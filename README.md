@@ -478,13 +478,13 @@ step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 
 Power, money and heat sit in one panel, each marked by its icon - the bolt,
 the coins, the flame - rather than a word. There are no progress bars: power
-and heat are each an instrument, and beside it the icon and the figure now,
-with the most it can be under it, smaller (*100* over */ 100*), the reading
-fitted to the instrument's height. The whole gauge is the button that sells
+and heat are each an instrument with its icon printed in the top left of its
+face, and beside it the figure now, with the most it can be under it, smaller
+(*100* over */ 100*), the reading fitted to the instrument's height. The whole gauge is the button that sells
 or vents. Money is an odometer like the desk's counters - ten black drums with
 cream figures in a recessed frame, the figure on the right and blank drums to
-its left, so it never changes width - with the coins at its head and Exotic
-Particles under it.
+its left, so it never changes width - its first drum carrying the coins, and
+Exotic Particles under it.
 
 The desk is one row and stays one row: the board is the screen's first claim,
 and everything on the desk earns its height. The desk's hardware, after the

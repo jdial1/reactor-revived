@@ -254,15 +254,17 @@ export function buildUI(game) {
 	// The desk's instruments, counters and Day / Night switch (desk-ui.js).
 	const hardware = buildDeskHardware(dom);
 
-	// A gauge is an instrument, and beside it its icon and reading: the figure
-	// now, and under it, smaller, the most it can be. No bar: the instrument is
-	// the picture, the reading the figure. The whole gauge is the button.
+	// A gauge is an instrument with its icon in the top left of its face, and
+	// beside it its reading: the figure now, and under it, smaller, the most it
+	// can be. No bar: the instrument is the picture, the reading the figure.
+	// The whole gauge is the button.
 	const gauge = (id, onclick, title, instrument) => {
 		const now = h("b", {});
 		const max = h("small", { className: "max" });
+		instrument.querySelector(".face").append(icon(id, "icon mark"));
 		const el = h("button", { className: `gauge ${id}`, onclick, title: `${title} (${DESK_CODES[id]})` },
 			instrument,
-			h("span", { className: "reading" }, h("span", { className: "now" }, icon(id), now), max));
+			h("span", { className: "reading" }, now, max));
 		el.setAttribute("aria-label", title);
 		dom[id] = { el, now, max };
 		return el;
@@ -271,10 +273,10 @@ export function buildUI(game) {
 	dom.money = roller("cash");
 	dom.ep = roller("");
 	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
-	// The money on its drums with the cash icon at their head, and the
+	// The money on its drums, the cash icon on the first drum, and the
 	// particles under them: on one line they read as one long number.
 	dom.purse = h("div", { className: "purse", title: `Money (${DESK_CODES.money})` },
-		h("span", { className: "till" }, icon("cash"), dom.money.el), dom.epBox);
+		h("span", { className: "till" }, h("i", { className: "mark" }, icon("cash")), dom.money.el), dom.epBox);
 	// Ten quick taps on the money and the drums wind back to zero, then flip up
 	// to the real figure, like an odometer someone tried to wind back.
 	let taps = [];
