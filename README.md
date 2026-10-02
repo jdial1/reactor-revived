@@ -482,7 +482,8 @@ and heat are each an instrument with its icon printed in the top left of its
 face, and beside it the figure now, with the most it can be under it, smaller
 (*100* over */ 100*), the reading fitted to the instrument's height. The whole gauge is the button that sells
 or vents. Money is an odometer like the desk's counters - ten black drums with
-cream figures in a recessed frame, the figure on the right and blank drums to
+cream figures in a recessed frame, its drums as tall as the instruments beside
+it, the figure on the right and blank drums to
 its left, so it never changes width - its first drum carrying the coins, and
 Exotic Particles under it.
 

@@ -67,6 +67,10 @@ export function h(tag, { dataset, ...props } = {}, ...kids) {
  */
 const DIGITS = [...Array(20).keys()].map((i) => i % 10).join(String.fromCharCode(10));
 
+/** A drum turned to a position: one step per digit, a step being one line of
+ * the drum (--step, 1em unless the drum is set taller). */
+const turn = (pos) => `translateY(calc(${-pos} * var(--step, 1em)))`;
+
 /** The money odometer's drums: enough for $999.999Qa. */
 const MONEY_DRUMS = 10;
 function roller(className) {
@@ -94,7 +98,7 @@ function roller(className) {
 				if (w.pos >= 10) {
 					w.face.style.transition = "none";
 					w.pos -= 10;
-					w.face.style.transform = `translateY(${-w.pos}em)`;
+					w.face.style.transform = turn(w.pos);
 					void w.face.offsetHeight;
 				}
 				// From the last digit back, so it reads as a counter running down.
@@ -107,7 +111,7 @@ function roller(className) {
 				drums.forEach((w, i) => {
 					w.face.style.transition = `transform 320ms steps(3) ${i * 90}ms`;
 					w.pos = Number(w.digit);
-					w.face.style.transform = `translateY(${-w.pos}em)`;
+					w.face.style.transform = turn(w.pos);
 				});
 				setTimeout(() => {
 					for (const w of drums) w.face.style.transition = "";
@@ -156,12 +160,12 @@ function roller(className) {
 				if (w.pos >= 10) {
 					w.face.style.transition = "none";
 					w.pos -= 10;
-					w.face.style.transform = `translateY(${-w.pos}em)`;
+					w.face.style.transform = turn(w.pos);
 					void w.face.offsetHeight;
 					w.face.style.transition = "";
 				}
 				w.pos = want > w.pos ? want : want + 10;
-				w.face.style.transform = `translateY(${-w.pos}em)`;
+				w.face.style.transform = turn(w.pos);
 				w.digit = ch;
 			});
 		},
