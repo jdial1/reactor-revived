@@ -83,6 +83,9 @@
 	--drum-ink: #e9e6de;
 	--meter-face: #f5f2e8;
 	--meter-red: #a8322a;
+	/* A gauge's empty bar, and the heat bar's red zone past rated heat. */
+	--track: #15191c;
+	--track-hot: #3d1612;
 	--tag-face: #f3f1ea;
 	--tag-rule: #b23a2c;
 	--zone-face: #0b0d0e;
@@ -490,8 +493,7 @@ footer {
    showed power, money and heat as a label, a number and a plain bar. */
 #actions {
 	display: grid;
-	/* The heat side a little wider: it carries the meter too. */
-	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.3fr);
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 	align-items: center;
 	margin: 4px;
 	/* The desk's pale painted panel (Soul Interview 5.6), framed in plating, with
@@ -530,14 +532,16 @@ footer {
 /* On a phone the gauges keep their names and readings; their codes are for the
    wider desk. */
 @media (max-width: 479px) { .gauge .strip .code { display: none; } }
-/* The heat meter at the gauge's side, beside its reading and its bar. */
-.gauge:has(> .meter) { grid-template-columns: auto minmax(0, 1fr); column-gap: 6px; }
-.gauge > .meter { grid-row: span 2; align-self: center; }
+/* A gauge's instrument at its side, beside its reading and its bar. */
+.gauge:has(> .instrument) { grid-template-columns: auto minmax(0, 1fr); column-gap: 6px; }
+.gauge > .instrument { grid-row: span 2; align-self: center; }
 .gauge b { color: var(--card-ink); font-weight: normal; font-size: 11px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
-.gauge .track { display: block; height: 6px; background: #15191c; box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
+.gauge .track { display: block; height: 6px; background: var(--track); box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
 .gauge .track i { display: block; height: 100%; width: 0; transition: width 120ms linear; }
 .gauge.power .track i { background: var(--power); }
 /* Heat reddens as it nears the limit; the board says the rest. */
+/* The heat bar runs to meltdown: its right half, past rated heat, is the red zone. */
+.gauge.heat .track { background: linear-gradient(to right, var(--track) 0 calc(50% - 0.5px), var(--key-ink) 0 calc(50% + 0.5px), var(--track-hot) 0); }
 .gauge.heat .track i { background: color-mix(in srgb, var(--heat), #ff3b2f clamp(0%, (var(--hot, 0) - 0.6) * 250%, 100%)); }
 /* Power is capped: what the reactor makes now goes nowhere until it is sold. */
 .gauge.full .track i { animation: brim 1.4s ease-in-out infinite; }
@@ -1788,10 +1792,34 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .meter .arc { fill: none; stroke: var(--plate-ink); stroke-width: 0.6; }
 .meter .red { fill: none; stroke: var(--meter-red); stroke-width: 1.6; }
 .meter line { stroke: var(--plate-ink); stroke-width: 0.5; }
-.meter .needle { transform-box: view-box; transform-origin: 20px 24px; transform: rotate(-50deg); transition: transform 700ms cubic-bezier(0.3, 1.45, 0.5, 1); }
+.meter .needle { transform-box: view-box; transform-origin: 20px 22px; transform: rotate(-50deg); transition: transform 700ms cubic-bezier(0.3, 1.45, 0.5, 1); }
 .meter .needle line { stroke: var(--card-ink); stroke-width: 0.8; }
 .meter .pivot { fill: var(--key-face); }
 .meter.over .needle line { stroke: var(--meter-red); }
+
+/* ---- bargraph ----
+   A rising row of lamps behind dark glass, the power store's level: each lamp a
+   tenth, the top two amber; full, the top one blinks. */
+.bargraph { display: inline-grid; }
+.bargraph .face {
+	display: flex;
+	align-items: flex-end;
+	gap: 1px;
+	width: 34px;
+	height: 24px;
+	padding: 3px;
+	background: var(--drum-face);
+	border: 1.5px solid var(--key-face);
+	border-radius: 2px;
+	box-shadow: inset 0 1px 3px #000, 0 1px 0 #ffffff80;
+}
+.bargraph i { flex: 1; height: calc(28% + var(--i) * 8%); background: var(--lamp-off); border-radius: 0.5px; }
+.bargraph i.on { background: var(--power); box-shadow: 0 0 3px var(--power); }
+.bargraph i:nth-child(n + 9).on { background: var(--bulb); box-shadow: 0 0 3px var(--bulb); }
+.bargraph.full i:last-child { animation: blink 0.9s steps(1) infinite; }
+@keyframes blink { 50% { background: var(--lamp-off); box-shadow: none; } }
+.lamp-test .bargraph i { background: var(--power) !important; }
+.desk-night .bargraph i.on { filter: brightness(0.7); }
 
 /* ---- rotary ----
    A rotary switch on a yellow plate, as the day and night switch on the
@@ -2102,11 +2130,14 @@ dialog,
 	.purse .cash { font-size: 14px; min-width: calc(10ch + 30px); }
 	/* The heat gauge's meter a size smaller, so its reading keeps its figures. */
 	.gauge { padding-inline: 4px; }
-	.gauge:has(> .meter) { column-gap: 4px; }
-	.gauge > .meter .face { width: 28px; height: 20px; }
+	.gauge:has(> .instrument) { column-gap: 4px; }
+	.gauge > .instrument .face { width: 28px; height: 20px; }
 	.gauge b { font-size: 10px; }
 }
 /* The narrowest phones: the money's drums a size smaller again. */
 @media (max-width: 340px) {
 	.purse .cash { font-size: 12px; }
+	.purse { padding-inline: 5px; }
+	.gauge > .instrument .face { width: 24px; height: 18px; padding: 2px; }
+	.gauge b { letter-spacing: -0.03em; }
 }

@@ -479,8 +479,11 @@ step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 Power, money and heat sit in one panel with nothing framed inside it. Power
 and heat are a small label, a reading and one plain bar each - how Reactor
 Incremental and Knockoff showed them - and the bar is the button that sells or
-vents. The heat bar reddens past 60%; a full power bar brightens and dims,
-because output going nowhere is worth noticing. Money rolls on digit drums
+vents. The heat bar runs to meltdown, not to the rating: half full is rated
+heat (100 / 100), and its right half, past rated, is a dark red zone - the
+reactor melts past twice its rating, so a full bar is the end. It reddens past
+60% of rated. A full power bar brightens and dims, because output going
+nowhere is worth noticing. Money rolls on digit drums
 behind a single recessed slot, with Exotic Particles as plain text under it.
 
 The desk is one row and stays one row: the board is the screen's first claim,
@@ -490,9 +493,14 @@ modular control panels in
 placed to keep it so:
 
 - **Heat meter.** A small square moving-coil meter in the heat gauge itself,
-  beside its reading and bar: 0 to 200% of rated heat - the reactor melts at
-  200 - its needle easing and its scale red past 100. The reading drops under
-  the gauge's name when the two will not share a line.
+  beside its reading and bar, on the bar's scale: cold at the left stop, rated
+  heat (100 / 100) with the needle upright, meltdown at the right stop. Its
+  scale is red from upright on, and its needle eases.
+- **Power bargraph.** Power is stored, not swung, so its instrument is not a
+  needle but a bargraph in the power gauge: ten lamps rising behind dark glass,
+  a tenth of the store each, the top two amber. When the store is full the top
+  lamp blinks. A gauge's reading drops under its name when the two will not
+  share a line.
 - **Counters**, on their own plate in Options. Six-digit drums counting
   operations, never reset, not even by a reboot: *Sold* and *Vented* (the hand
   sells and vents) from the first, and *Auto-sell*, *Rebuy* and *Operator*

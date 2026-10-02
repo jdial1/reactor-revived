@@ -1,5 +1,6 @@
 // The DOM layer. Built once, then patched: a tile is touched only when its
 // signature changes.
+import { heatScale } from "./instruments.js";
 import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
 import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel, TILE_ROW_LABEL } from "./upgrades.js";
@@ -457,7 +458,7 @@ export function buildUI(game) {
 	// Money between the bar that makes it and the bar that threatens it: one
 	// row, so the board keeps its room. The heat meter sits in the heat gauge.
 	dom.actions = h("div", { id: "actions" },
-		gauge("power", "Power", game.sellAll, "Sell all power"),
+		gauge("power", "Power", game.sellAll, "Sell all power", hardware.bargraph),
 		dom.purse,
 		gauge("heat", "Heat", game.ventHeat, "Vent heat", hardware.meter));
 	dom.dock = h("div", { id: "dock", tabIndex: -1 });
@@ -1020,7 +1021,8 @@ export function render(dom, s, game) {
 	dom.power.fill.style.width = `${pct(s.power, s.maxPower)}%`;
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
-	dom.heat.fill.style.width = `${pct(s.heat, s.maxHeat)}%`;
+	// The heat bar runs to meltdown: half full is rated heat, 100 / 100.
+	dom.heat.fill.style.width = `${heatScale(s) * 100}%`;
 	if (dom.pauseLabel.textContent !== (s.paused ? "Off" : "On")) {
 		dom.pauseLabel.textContent = s.paused ? "Off" : "On";
 		dom.pause.classList.toggle("on", !s.paused);

@@ -83,3 +83,31 @@ test("the desk runs at night by its switch, or by the clock on Auto", () => {
 	assert.equal(deskNight({ panelLight: "night" }, noon), true);
 	assert.equal(fresh().panelLight, "auto");
 });
+
+test("the heat bar and meter run to meltdown: rated heat is half way", async () => {
+	const { heatScale, powerLamps, LAMPS } = await import("../www/js/instruments.js");
+	const at = (heat, maxHeat = 1000) => heatScale({ heat, maxHeat });
+	assert.equal(at(0), 0);
+	assert.equal(at(1000), 0.5, "100 / 100 is the middle of the scale");
+	assert.equal(at(2000), 1, "twice the rating is meltdown, the stop");
+	assert.equal(at(5000), 1);
+	assert.equal(at(-5), 0);
+	assert.equal(heatScale({ heat: 10, maxHeat: 0 }), 0);
+	// The sim melts the reactor past twice its rating: the stop is the end.
+	const s = fresh();
+	put(s, 0, 0, "uranium1");
+	compile(s);
+	s.heat = 2 * s.maxHeat + 1;
+	tick(s);
+	assert.ok(s.hasMeltedDown);
+
+	const lamps = (power, maxPower = 100) => powerLamps({ power, maxPower });
+	assert.equal(LAMPS, 10);
+	assert.equal(lamps(0), 0);
+	assert.equal(lamps(1), 1, "any power lights the first lamp");
+	assert.equal(lamps(30), 3);
+	assert.equal(lamps(31), 4);
+	assert.equal(lamps(100), 10);
+	assert.equal(lamps(500), 10);
+	assert.equal(lamps(5, 0), 0);
+});
