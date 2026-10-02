@@ -111,3 +111,24 @@ test("the heat meter runs to meltdown: rated heat is half way", async () => {
 	assert.equal(lamps(500), 10);
 	assert.equal(lamps(5, 0), 0);
 });
+
+test("the LED readouts place figures in fixed positions, points on their digits", async () => {
+	const { ledCells, SEGMENTS, LED_DIGITS } = await import("../www/js/instruments.js");
+	const { compact } = await import("../www/js/fmt.js");
+	const show = (t) => ledCells(t).cells.map((c) => c.ch + (c.dp ? "." : "")).join("|");
+	assert.equal(LED_DIGITS, 4);
+	assert.equal(show("1.5K"), " | |1.|5");
+	assert.equal(ledCells("1.5K").unit, "K");
+	assert.equal(show("960"), " |9|6|0");
+	assert.equal(ledCells("960").unit, "");
+	assert.equal(show("0"), " | | |0");
+	assert.equal(ledCells("2.7Qa").unit, "Qa");
+	// Every figure compact() gives fits the four positions, and every character
+	// in it has segments.
+	for (const n of [0, 4.8, 75, 999, 1234, 29040, 166400, 2748000, 1.5e15, 9.99e32]) {
+		const { cells } = ledCells(compact(n));
+		assert.equal(cells.length, LED_DIGITS);
+		assert.ok(compact(n).replace(/[.A-Za-z]/g, "").length <= LED_DIGITS, compact(n));
+		for (const c of cells) assert.ok(c.ch in SEGMENTS, `${compact(n)}: ${c.ch}`);
+	}
+});

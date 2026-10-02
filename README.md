@@ -481,10 +481,14 @@ the coins, the flame - rather than a word. There are no progress bars: power
 and heat are each an instrument with its icon printed in the top left of its
 face, the two instruments flanking the money - power's bargraph on its left,
 heat's meter on its right, each up to twice as wide as it is tall and narrower
-when the desk has less room - and on each one's outer side its reading as a
-fraction: the figure now over a rule, and
-under it, smaller, the most it can be, both left-aligned, the reading fitted
-to the instrument's height. The whole gauge is the button that sells
+when the desk has less room - and on each one's outer side its reading on
+seven-segment LEDs, as on the mimic board in the Soul Interview's control room:
+the figure now, and under it, in a smaller window, the most it can be. Both
+are one style, inked in the gauge's colour - green for power, red for heat
+(cyan in cold fusion) - four digit positions with the unlit segments faintly
+there, each decimal point lit on its digit, the unit beside them, so a
+window never changes width. The figures are the compact ones (1.5K, 2.7M);
+the sheets and the ledger keep the rest. The whole gauge is the button that sells
 or vents. Money is an odometer like the desk's counters - ten black drums with
 cream figures in a recessed frame, its drums as tall as the instruments beside
 it, the figure on the right and blank drums to

@@ -7,7 +7,7 @@ import { press } from "./audio.js";
 import { SWITCHES } from "./records.js";
 import { deskNight } from "./backdrop.js";
 import { DESK_CODES } from "./codes.js";
-import { heatScale, powerLamps, LAMPS } from "./instruments.js";
+import { heatScale, powerLamps, LAMPS, SEGMENTS, LED_DIGITS, ledCells } from "./instruments.js";
 
 // ---- label strips ------------------------------------------------------------
 
@@ -83,6 +83,50 @@ function bargraph() {
 	const el = h("span", { className: "bargraph instrument", title: `Power store ${DESK_CODES.store}: a lamp a tenth` },
 		h("span", { className: "face" }, ...lamps));
 	return Object.assign(el, { lamps, lit: -1 });
+}
+
+// ---- LED readouts -----------------------------------------------------------------
+// The figures beside each instrument, on seven-segment LEDs in a dark window
+// (instruments.js says which segments). A gauge's two readouts - the figure now
+// and, smaller, the most it can be - are one style, inked in the gauge's own
+// colour.
+
+// Each segment in a 10 x 18 cell, and the decimal point at its foot.
+const SEGMENT_SHAPE = {
+	a: "2,1 8,1 7,2 3,2", b: "8,1.5 9,2.5 9,8 8,8.5 7.4,8 7.4,3", c: "8,9.5 9,10 9,15.5 8,16.5 7.4,15 7.4,10",
+	d: "3,16 7,16 8,17 2,17", e: "2,9.5 2.6,10 2.6,15 2,16.5 1,15.5 1,10", f: "2,1.5 2.6,3 2.6,8 2,8.5 1,8 1,2.5",
+	g: "2.6,8.5 7.4,8.5 8,9 7.4,9.5 2.6,9.5 2,9",
+};
+
+function ledDigit() {
+	const el = svg("svg", { viewBox: "0 0 11.2 18", "aria-hidden": "true" });
+	const segs = {};
+	for (const [k, points] of Object.entries(SEGMENT_SHAPE)) el.append(segs[k] = svg("polygon", { points }));
+	const dp = svg("circle", { cx: 10.2, cy: 16.6, r: 0.85 });
+	el.append(dp);
+	return { el, segs, dp };
+}
+
+/** A readout of LED_DIGITS digits and a unit; set() it to a short figure. */
+export function ledReadout(className) {
+	const digits = Array.from({ length: LED_DIGITS }, ledDigit);
+	const unit = h("b", { className: "unit" });
+	const el = h("span", { className: `led ${className}` }, ...digits.map((d) => d.el), unit);
+	let shown = null;
+	return {
+		el,
+		set(text) {
+			if (text === shown) return;
+			shown = text;
+			const { cells, unit: u } = ledCells(text);
+			cells.forEach(({ ch, dp }, i) => {
+				const lit = SEGMENTS[ch] ?? "";
+				for (const [k, seg] of Object.entries(digits[i].segs)) seg.classList.toggle("on", lit.includes(k));
+				digits[i].dp.classList.toggle("on", dp);
+			});
+			unit.textContent = u;
+		},
+	};
 }
 
 // ---- the Day / Night switch ---------------------------------------------------

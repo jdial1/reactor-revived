@@ -83,6 +83,14 @@
 	--drum-ink: #e9e6de;
 	--meter-face: #f5f2e8;
 	--meter-red: #a8322a;
+	/* Seven-segment LEDs: a dark window, each gauge's lit and unlit segments. */
+	--led-face: #0b0807;
+	--led-power: #58ff7a;
+	--led-power-ghost: #11261a;
+	--led-heat: #ff3b2f;
+	--led-heat-ghost: #2b0e0c;
+	--led-cold: #6fd0e8;
+	--led-cold-ghost: #0b2229;
 	/* The particles' figures on their drums: the EP violet, lit for the dark. */
 	--ep-drum: #cfa3f0;
 	--tag-face: #f3f1ea;
@@ -539,14 +547,15 @@ footer {
 .gauge > .instrument .face { width: 100%; }
 /* The reading is a fraction, both figures left-aligned: the figure now, a rule
    as wide as the wider figure, and the most it can be. */
-.gauge > .reading { display: grid; justify-self: start; min-width: 0; max-width: 100%; white-space: nowrap; }
+/* The two readouts stacked, one width, their units aligned on the right. */
+.gauge > .reading { display: grid; gap: 2px; min-width: 0; }
+.gauge .led.now { --led-h: 15px; }
+.gauge .led.max { --led-h: 9px; justify-content: flex-end; }
+.gauge.power { --led-ink: var(--led-power); --led-ghost: var(--led-power-ghost); }
+.gauge.heat { --led-ink: var(--led-heat); --led-ghost: var(--led-heat-ghost); }
 /* The gauge's icon, printed in the top left of its instrument's face. */
 .instrument .face { position: relative; }
 .instrument .mark { position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; pointer-events: none; }
-.gauge b,
-.gauge .max { max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; background: var(--plate); }
-.gauge b { color: var(--card-ink); font-weight: normal; font-size: 15px; line-height: 1.1; }
-.gauge .max { margin-top: 1px; padding-top: 1px; border-top: 1.5px solid var(--card-ink); color: var(--plate-ink-dim); font-size: 10px; line-height: 1.2; }
 .purse { padding: 0 3px; }
 /* The instruments sit close against the money: the gauges' padding is on
    their outer sides only. */
@@ -1350,9 +1359,7 @@ details.module-row .row { margin-top: 8px; }
 /* Critical mass: the block breathes as one, quicker than a lone cell. */
 .tile.critical-mass .glow:is(.bar1, .bar2, .bar4) { animation: breathe 0.6s ease-in-out infinite alternate; animation-delay: 0s; }
 /* Cold fusion: the heat gauge knows. */
-body.cold-fusion .gauge.heat b { color: #2f8fa8; }
-body.cold-fusion .gauge.heat .max { font-size: 0; }
-body.cold-fusion .gauge.heat .max::after { content: "cold fusion"; font-size: 9px; color: #2f8fa8; letter-spacing: 0.12em; text-transform: uppercase; }
+body.cold-fusion .gauge.heat { --led-ink: var(--led-cold); --led-ghost: var(--led-cold-ghost); }
 
 /* The trophy case. */
 .trophies { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: 11px; }
@@ -1806,6 +1813,28 @@ body.cold-fusion .gauge.heat .max::after { content: "cold fusion"; font-size: 9p
 .meter .needle line { stroke: var(--card-ink); stroke-width: 1.2px; }
 .meter.over .needle line { stroke: var(--meter-red); }
 
+/* ---- led ----
+   A seven-segment readout in a dark window: fixed digit positions, the unlit
+   segments faintly there, the lit ones glowing in --led-ink, the unit beside.
+   --led-h sets its size. */
+.led {
+	display: flex;
+	align-items: center;
+	gap: calc(var(--led-h) * 0.08);
+	padding: calc(var(--led-h) * 0.18) calc(var(--led-h) * 0.25);
+	background: var(--led-face);
+	border-radius: 1px;
+	box-shadow: inset 0 1px 3px #000, 0 1px 0 #ffffff80;
+}
+.led svg { flex: none; width: auto; height: var(--led-h); overflow: visible; }
+.led polygon,
+.led circle { fill: var(--led-ghost); }
+.led .on { fill: var(--led-ink); filter: drop-shadow(0 0 1px var(--led-ink)); }
+.led .unit { min-width: 0.8em; font-size: calc(var(--led-h) * 0.72); font-weight: 600; line-height: 1; color: var(--led-ink); text-shadow: 0 0 3px var(--led-ink); }
+.lamp-test .led polygon,
+.lamp-test .led circle { fill: var(--led-ink) !important; }
+.desk-night .led { filter: brightness(0.75); }
+
 /* ---- bargraph ----
    A rising row of lamps behind dark glass, the power store's level: each lamp a
    tenth, the top two amber; full, the top one blinks. */
@@ -2154,8 +2183,8 @@ dialog,
 	.gauge.power { grid-template-columns: max-content minmax(36px, 84px); }
 	.gauge.heat { grid-template-columns: minmax(36px, 84px) max-content; }
 	.gauge > .instrument .face { height: 30px; }
-	.gauge b { font-size: 13px; }
-	.gauge .max { font-size: 9px; }
+	.gauge .led.now { --led-h: 12px; }
+	.gauge .led.max { --led-h: 7.5px; }
 }
 /* The narrowest phones: the money's drums a size smaller again. */
 @media (max-width: 340px) {
@@ -2170,5 +2199,6 @@ dialog,
 	.gauge.power { grid-template-columns: max-content minmax(32px, 72px); }
 	.gauge.heat { grid-template-columns: minmax(32px, 72px) max-content; }
 	.gauge > .instrument .face { height: 27px; padding: 3px; }
-	.gauge b { font-size: 12px; letter-spacing: -0.03em; }
+	.gauge .led.now { --led-h: 11px; }
+	.gauge .led.max { --led-h: 7px; }
 }

@@ -22,7 +22,7 @@ import { docket, standingByline, storyFile } from "./story.js";
 import { COMPLETE_ENTRY } from "./complete.js";
 import { buildPrinter, tickPrinter } from "./printer-ui.js";
 import { claimNote } from "./notes.js";
-import { buildDeskHardware, renderDeskHardware, lampTest, tag, buildMimic, renderMimic } from "./desk-ui.js";
+import { buildDeskHardware, renderDeskHardware, ledReadout, lampTest, tag, buildMimic, renderMimic } from "./desk-ui.js";
 import { plantCode, DESK_CODES } from "./codes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
@@ -259,14 +259,14 @@ export function buildUI(game) {
 	const hardware = buildDeskHardware(dom);
 
 	// A gauge is an instrument with its icon in the top left of its face, and
-	// beside it its reading as a fraction: the figure now over a rule, and
-	// under it, smaller, the most it can be. No bar: the instrument is the picture, the reading the figure.
-	// The whole gauge is the button.
+	// beside it its reading on two LED readouts in one style: the figure now,
+	// and under it, smaller, the most it can be. No bar: the instrument is the
+	// picture, the readouts the figures. The whole gauge is the button.
 	const gauge = (id, onclick, title, instrument, readingFirst = false) => {
-		const now = h("b", {});
-		const max = h("small", { className: "max" });
+		const now = ledReadout("now");
+		const max = ledReadout("max");
 		instrument.querySelector(".face").append(icon(id, "icon mark"));
-		const reading = h("span", { className: "reading" }, now, max);
+		const reading = h("span", { className: "reading" }, now.el, max.el);
 		const el = h("button", { className: `gauge ${id}`, onclick, title: `${title} (${DESK_CODES[id]})` },
 			...(readingFirst ? [reading, instrument] : [instrument, reading]));
 		el.setAttribute("aria-label", title);
@@ -1030,11 +1030,12 @@ export function render(dom, s, game) {
 			: fmt(s.currentExoticParticles)).padStart(MONEY_DRUMS, " "));
 	}
 
-	dom.power.now.textContent = fmt(s.power);
-	dom.power.max.textContent = fmt(s.maxPower);
+	// The LEDs show four figures at most; the sheets and the ledger keep the rest.
+	dom.power.now.set(compact(s.power));
+	dom.power.max.set(compact(s.maxPower));
 	dom.power.el.setAttribute("aria-label", `Sell all power, ${fmt(s.power)} of ${fmt(s.maxPower)}`);
-	dom.heat.now.textContent = fmt(s.heat);
-	dom.heat.max.textContent = fmt(s.maxHeat);
+	dom.heat.now.set(compact(s.heat));
+	dom.heat.max.set(compact(s.maxHeat));
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
 	if (dom.pauseLabel.textContent !== (s.paused ? "Off" : "On")) {
 		dom.pauseLabel.textContent = s.paused ? "Off" : "On";
