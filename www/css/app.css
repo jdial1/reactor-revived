@@ -522,14 +522,18 @@ footer {
 	border: 0;
 	border-radius: 0;
 }
-/* A gauge: its instrument, and beside it its name over its reading. */
+/* A gauge: its instrument, and beside it its icon and the figure now, and
+   under them, smaller, the most it can be - the reading fitted to the
+   instrument's height. The reading sits on the plate's colour, so the tile
+   seams never cut through it. */
 .gauge { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 6px; }
-.gauge > .reading { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; white-space: nowrap; }
-.gauge .strip { font-size: 8px; }
-/* On a phone the gauges keep their names and readings; their codes are for the
-   wider desk. */
-@media (max-width: 479px) { .gauge .strip .code { display: none; } }
-.gauge b { max-width: 100%; padding: 0 2px; background: var(--plate); color: var(--card-ink); font-weight: normal; font-size: 12px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+.gauge > .reading { display: grid; justify-items: start; gap: 1px; min-width: 0; white-space: nowrap; }
+.gauge .now { display: flex; align-items: center; gap: 3px; max-width: 100%; }
+.gauge .now .icon { width: 13px; height: 13px; flex: none; }
+.gauge b,
+.gauge .max { max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; background: var(--plate); }
+.gauge b { color: var(--card-ink); font-weight: normal; font-size: 15px; line-height: 1.1; }
+.gauge .max { margin-left: 16px; color: var(--plate-ink-dim); font-size: 10px; line-height: 1.2; }
 .purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
 /* Violet on cream: a darker particle ink, the same signal. */
 #actions .ep { color: #6f3a99; }
@@ -907,9 +911,9 @@ body.melting { animation: melting 500ms ease-out; }
 }
 /* Each drum its own face, round, so its figure falls into shadow top and bottom. */
 .roll.cash .wheel { padding: 0 1px; background: linear-gradient(#000a, #0000 30% 70%, #000a), var(--drum-face); }
-/* Under the money, its label strip, and the particles beside it. */
-.purse .purse-label { display: flex; align-items: center; gap: 6px; }
-@media (max-width: 479px) { .purse .strip .code { display: none; } }
+/* The cash icon at the head of the money's drums. */
+.purse .till { display: flex; align-items: center; gap: 4px; }
+.purse .till .icon { width: 15px; height: 15px; flex: none; }
 
 /* Tutorial. The overlay takes no taps - the game underneath has to stay playable
    for the steps that wait on it - except on the card itself. */
@@ -1318,7 +1322,9 @@ details.module-row .row { margin-top: 8px; }
 /* Critical mass: the block breathes as one, quicker than a lone cell. */
 .tile.critical-mass .glow:is(.bar1, .bar2, .bar4) { animation: breathe 0.6s ease-in-out infinite alternate; animation-delay: 0s; }
 /* Cold fusion: the heat gauge knows. */
-body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
+body.cold-fusion .gauge.heat b { color: #2f8fa8; }
+body.cold-fusion .gauge.heat .max { font-size: 0; }
+body.cold-fusion .gauge.heat .max::after { content: "cold fusion"; font-size: 9px; color: #2f8fa8; letter-spacing: 0.12em; text-transform: uppercase; }
 
 /* The trophy case. */
 .trophies { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: 11px; }
@@ -1755,8 +1761,8 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .meter { display: inline-grid; justify-items: center; gap: 2px; }
 .meter .face {
 	display: block;
-	width: 34px;
-	height: 24px;
+	width: 51px;
+	height: 36px;
 	background: var(--meter-face);
 	border: 1.5px solid var(--key-face);
 	border-radius: 2px;
@@ -1779,9 +1785,9 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 	display: flex;
 	align-items: flex-end;
 	gap: 1px;
-	width: 34px;
-	height: 24px;
-	padding: 3px;
+	width: 51px;
+	height: 36px;
+	padding: 4px;
 	background: var(--drum-face);
 	border: 1.5px solid var(--key-face);
 	border-radius: 2px;
@@ -2108,13 +2114,16 @@ dialog,
 	.purse .cash { font-size: 13px; }
 	.roll.cash .wheel { padding-inline: 0.5px; }
 	.gauge { padding-inline: 4px; column-gap: 4px; }
-	.gauge > .instrument .face { width: 28px; height: 20px; }
-	.gauge b { font-size: 10.5px; }
+	.gauge > .instrument .face { width: 42px; height: 30px; }
+	.gauge b { font-size: 13px; }
+	.gauge .max { font-size: 9px; }
 }
 /* The narrowest phones: the money's drums a size smaller again. */
 @media (max-width: 340px) {
 	.purse .cash { font-size: 11.5px; }
 	.purse { padding-inline: 5px; }
-	.gauge > .instrument .face { width: 24px; height: 18px; padding: 2px; }
-	.gauge b { letter-spacing: -0.03em; }
+	.gauge > .instrument .face { width: 36px; height: 27px; padding: 3px; }
+	.gauge b { font-size: 12px; letter-spacing: -0.03em; }
+	.gauge .now .icon { width: 11px; height: 11px; }
+	.gauge .max { margin-left: 14px; }
 }

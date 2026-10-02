@@ -28,7 +28,7 @@ recessed bins, paper, and a phosphor screen. Red only for danger.
 | **stamp** | `.stamp` | A rubber stamp on paper, inked a little crooked: *Confirmed*, *Supplied*, *Revised*. | |
 | **bin** | `.bin` | A recessed well in the tray, for a part or a saved module. | `.on` (on `.part`): lit from inside. |
 | **frame** | `dialog`, `.tut-card` | A sheet's housing: dark face, plating border. | |
-| **label strip** | `.strip`, from `strip(name, code)` | A white strip slid into the panel: a plain name and its plant code (`.code`, dim). On the gauges the code stacks under the name. | |
+| **label strip** | `.strip`, from `strip(name, code)` | A white strip slid into the panel: a plain name and its plant code (`.code`, dim). On the counters; the desk's gauges are marked by icons instead. | |
 | **tag** | `.key.lit[data-tag]`, set by `tag(key, reason)` | An enamel tag on a hook, hung over a dark key, saying why it cannot be pressed. | |
 | **zone plate** | `.zone-plate` | An inverse header plate over a zone: its name in white on black, its zone code at the right. | |
 | **counter** | `.counter` | Six drums in a black window over a label strip. | A drum that turned `.roll-in`. |

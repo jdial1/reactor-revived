@@ -476,13 +476,15 @@ step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 
 ## Gauges
 
-Power, money and heat sit in one panel. There are no progress bars: power and
-heat are each an instrument with its name on a label strip and its reading
-beside it, and the whole gauge is the button that sells or vents. Money is an
-odometer like the desk's counters - ten black drums with cream figures in a
-recessed frame, the figure on the right and blank drums to its left, so it
-never changes width - over its label strip, with Exotic Particles beside the
-strip.
+Power, money and heat sit in one panel, each marked by its icon - the bolt,
+the coins, the flame - rather than a word. There are no progress bars: power
+and heat are each an instrument, and beside it the icon and the figure now,
+with the most it can be under it, smaller (*100* over */ 100*), the reading
+fitted to the instrument's height. The whole gauge is the button that sells
+or vents. Money is an odometer like the desk's counters - ten black drums with
+cream figures in a recessed frame, the figure on the right and blank drums to
+its left, so it never changes width - with the coins at its head and Exotic
+Particles under it.
 
 The desk is one row and stays one row: the board is the screen's first claim,
 and everything on the desk earns its height. The desk's hardware, after the
@@ -509,9 +511,9 @@ placed to keep it so:
   lamps and the desk run lower; on Auto it follows the clock, as the valley
   behind the board does.
 
-Every instrument is named twice, on a white label strip slid into the panel:
-its name and its plant code (*Power JA01*, *Sold KC01*); on a phone the
-gauges keep just their names. Every part has a code
+Every counter is named twice, on a white label strip slid into the panel: its
+name and its plant code (*Sold KC01*); the desk's gauges carry their codes in
+their tooltips (*Sell all power (JA01)*). Every part has a code
 too, shown on its sheet (*Basic Heat Vent CO-V1*, *Quad Uranium Cell CL-UR4*);
 `www/js/codes.js` makes them and a test keeps them unique.
 

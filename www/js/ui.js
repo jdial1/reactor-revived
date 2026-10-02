@@ -22,7 +22,7 @@ import { docket, standingByline, storyFile } from "./story.js";
 import { COMPLETE_ENTRY } from "./complete.js";
 import { buildPrinter, tickPrinter } from "./printer-ui.js";
 import { claimNote } from "./notes.js";
-import { strip, buildDeskHardware, renderDeskHardware, lampTest, tag, buildMimic, renderMimic } from "./desk-ui.js";
+import { buildDeskHardware, renderDeskHardware, lampTest, tag, buildMimic, renderMimic } from "./desk-ui.js";
 import { plantCode, DESK_CODES } from "./codes.js";
 import { buildModulesPage, renderModules, face } from "./modules-ui.js";
 
@@ -254,28 +254,27 @@ export function buildUI(game) {
 	// The desk's instruments, counters and Day / Night switch (desk-ui.js).
 	const hardware = buildDeskHardware(dom);
 
-	// A gauge is an instrument with its name and its reading beside it, and no
-	// bar: the instrument is the picture, the reading the figure. The whole
-	// gauge is the button.
-	const gauge = (id, label, onclick, title, instrument) => {
-		const text = h("b", {});
-		// The name on a label strip slid into the desk, with its plant code.
-		const name = h("span", { textContent: label });
-		const el = h("button", { className: `gauge ${id}`, onclick, title },
+	// A gauge is an instrument, and beside it its icon and reading: the figure
+	// now, and under it, smaller, the most it can be. No bar: the instrument is
+	// the picture, the reading the figure. The whole gauge is the button.
+	const gauge = (id, onclick, title, instrument) => {
+		const now = h("b", {});
+		const max = h("small", { className: "max" });
+		const el = h("button", { className: `gauge ${id}`, onclick, title: `${title} (${DESK_CODES[id]})` },
 			instrument,
-			h("span", { className: "reading" }, strip(name, DESK_CODES[id]), text));
+			h("span", { className: "reading" }, h("span", { className: "now" }, icon(id), now), max));
 		el.setAttribute("aria-label", title);
-		dom[id] = { el, text, name };
+		dom[id] = { el, now, max };
 		return el;
 	};
 
 	dom.money = roller("cash");
 	dom.ep = roller("");
 	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
-	// Money on its drums, and under them its label strip with the particles
-	// beside it: on one line with the money they read as one long number.
-	dom.purse = h("div", { className: "purse" }, dom.money.el,
-		h("span", { className: "purse-label" }, strip("Money", DESK_CODES.money), dom.epBox));
+	// The money on its drums with the cash icon at their head, and the
+	// particles under them: on one line they read as one long number.
+	dom.purse = h("div", { className: "purse", title: `Money (${DESK_CODES.money})` },
+		h("span", { className: "till" }, icon("cash"), dom.money.el), dom.epBox);
 	// Ten quick taps on the money and the drums wind back to zero, then flip up
 	// to the real figure, like an odometer someone tried to wind back.
 	let taps = [];
@@ -459,9 +458,9 @@ export function buildUI(game) {
 	// Money between the gauge that makes it and the gauge that threatens it:
 	// one row, so the board keeps its room. The heat meter sits in the heat gauge.
 	dom.actions = h("div", { id: "actions" },
-		gauge("power", "Power", game.sellAll, "Sell all power", hardware.bargraph),
+		gauge("power", game.sellAll, "Sell all power", hardware.bargraph),
 		dom.purse,
-		gauge("heat", "Heat", game.ventHeat, "Vent heat", hardware.meter));
+		gauge("heat", game.ventHeat, "Vent heat", hardware.meter));
 	dom.dock = h("div", { id: "dock", tabIndex: -1 });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => showPage(dom, id));
 	dom.pips = {};
@@ -1017,9 +1016,11 @@ export function render(dom, s, game) {
 		: `${fmt(s.currentExoticParticles)} EP`);
 	dom.epBox.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
 
-	dom.power.text.textContent = `${fmt(s.power)} / ${fmt(s.maxPower)}`;
+	dom.power.now.textContent = fmt(s.power);
+	dom.power.max.textContent = `/ ${fmt(s.maxPower)}`;
 	dom.power.el.setAttribute("aria-label", `Sell all power, ${fmt(s.power)} of ${fmt(s.maxPower)}`);
-	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
+	dom.heat.now.textContent = fmt(s.heat);
+	dom.heat.max.textContent = `/ ${fmt(s.maxHeat)}`;
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
 	if (dom.pauseLabel.textContent !== (s.paused ? "Off" : "On")) {
 		dom.pauseLabel.textContent = s.paused ? "Off" : "On";
@@ -1694,7 +1695,7 @@ function renderSecrets(dom, s) {
 	if (fusion !== dom.fusion) {
 		dom.fusion = fusion;
 		document.body.classList.toggle("cold-fusion", fusion);
-		dom.heat.name.textContent = fusion ? "Cold fusion" : "Heat";
+		dom.heat.el.setAttribute("aria-label", fusion ? "Vent heat. Cold fusion" : "Vent heat");
 	}
 
 	const sig = s.tiles.map((t) => (t.id && t.ticks ? t.id : "")).join();
