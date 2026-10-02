@@ -1797,11 +1797,13 @@ body.cold-fusion .gauge.heat .max::after { content: "cold fusion"; font-size: 9p
 	box-shadow: inset 0 1px 3px #0007, 0 1px 0 #ffffff80;
 }
 .meter svg { display: block; width: 100%; height: 100%; }
-.meter .arc { fill: none; stroke: var(--plate-ink); stroke-width: 0.6; }
-.meter .red { fill: none; stroke: var(--meter-red); stroke-width: 1.6; }
-.meter line { stroke: var(--plate-ink); stroke-width: 0.5; }
+.meter path,
+.meter line { vector-effect: non-scaling-stroke; }
+.meter .arc { fill: none; stroke: var(--plate-ink); stroke-width: 0.9px; }
+.meter .red { fill: none; stroke: var(--meter-red); stroke-width: 2.2px; }
+.meter line { stroke: var(--plate-ink); stroke-width: 0.8px; }
 .meter .needle { transform-box: view-box; transform-origin: 40px 42px; transform: rotate(-50deg); transition: transform 700ms cubic-bezier(0.3, 1.45, 0.5, 1); }
-.meter .needle line { stroke: var(--card-ink); stroke-width: 0.8; }
+.meter .needle line { stroke: var(--card-ink); stroke-width: 1.2px; }
 .meter.over .needle line { stroke: var(--meter-red); }
 
 /* ---- bargraph ----

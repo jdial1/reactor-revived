@@ -43,6 +43,7 @@ function counter(key, name) {
 // right stop - the reactor melts past twice its rating. It is red from upright
 // on. It is the heat gauge's instrument, beside its reading, so the desk stays
 // one row and the board keeps its room. Its needle eases, as a needle does.
+// The scale is drawn to fill the window edge to edge at any width.
 
 const SWEEP = 50; // degrees either side of upright
 const PIVOT = [40, 42]; // below the window
@@ -51,7 +52,9 @@ const at = (v, r) => {
 	const a = ((v * 2 - 1) * SWEEP * Math.PI) / 180;
 	return [(PIVOT[0] + r * Math.sin(a)).toFixed(2), (PIVOT[1] - r * Math.cos(a)).toFixed(2)];
 };
-const METER_FACE = `<svg viewBox="0 0 80 30" aria-hidden="true">
+// The scale fills the face whatever its shape: the drawing stretches to the
+// window, and its lines keep their weight (non-scaling strokes).
+const METER_FACE = `<svg viewBox="11 5 58 21" preserveAspectRatio="none" aria-hidden="true">
 	<path class="arc" d="M${at(0, R)} A${R} ${R} 0 0 1 ${at(1, R)}" />
 	<path class="red" d="M${at(0.5, R)} A${R} ${R} 0 0 1 ${at(1, R)}" />
 	${[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1].map((v) => {
