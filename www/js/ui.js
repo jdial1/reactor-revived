@@ -259,8 +259,8 @@ export function buildUI(game) {
 	const hardware = buildDeskHardware(dom);
 
 	// A gauge is an instrument with its icon in the top left of its face, and
-	// beside it its reading: the figure now, and under it, smaller, the most it
-	// can be. No bar: the instrument is the picture, the reading the figure.
+	// beside it its reading as a fraction: the figure now over a rule, and
+	// under it, smaller, the most it can be. No bar: the instrument is the picture, the reading the figure.
 	// The whole gauge is the button.
 	const gauge = (id, onclick, title, instrument) => {
 		const now = h("b", {});
@@ -1030,10 +1030,10 @@ export function render(dom, s, game) {
 	}
 
 	dom.power.now.textContent = fmt(s.power);
-	dom.power.max.textContent = `/ ${fmt(s.maxPower)}`;
+	dom.power.max.textContent = fmt(s.maxPower);
 	dom.power.el.setAttribute("aria-label", `Sell all power, ${fmt(s.power)} of ${fmt(s.maxPower)}`);
 	dom.heat.now.textContent = fmt(s.heat);
-	dom.heat.max.textContent = `/ ${fmt(s.maxHeat)}`;
+	dom.heat.max.textContent = fmt(s.maxHeat);
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
 	if (dom.pauseLabel.textContent !== (s.paused ? "Off" : "On")) {
 		dom.pauseLabel.textContent = s.paused ? "Off" : "On";

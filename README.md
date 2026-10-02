@@ -479,8 +479,9 @@ step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 Power, money and heat sit in one panel, each marked by its icon - the bolt,
 the coins, the flame - rather than a word. There are no progress bars: power
 and heat are each an instrument with its icon printed in the top left of its
-face, and beside it the figure now, with the most it can be under it, smaller
-(*100* over */ 100*), the reading fitted to the instrument's height. The whole gauge is the button that sells
+face, and beside it its reading as a fraction: the figure now over a rule, and
+under it, smaller, the most it can be, both left-aligned, the reading fitted
+to the instrument's height. The whole gauge is the button that sells
 or vents. Money is an odometer like the desk's counters - ten black drums with
 cream figures in a recessed frame, its drums as tall as the instruments beside
 it, the figure on the right and blank drums to

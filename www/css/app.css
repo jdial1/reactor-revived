@@ -529,14 +529,16 @@ footer {
    instrument's height. The reading sits on the plate's colour, so the tile
    seams never cut through it. */
 .gauge { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 6px; }
-.gauge > .reading { display: grid; justify-items: start; gap: 1px; min-width: 0; white-space: nowrap; }
+/* The reading is a fraction, both figures left-aligned: the figure now, a rule
+   as wide as the wider figure, and the most it can be. */
+.gauge > .reading { display: grid; justify-self: start; min-width: 0; max-width: 100%; white-space: nowrap; }
 /* The gauge's icon, printed in the top left of its instrument's face. */
 .instrument .face { position: relative; }
 .instrument .mark { position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; pointer-events: none; }
 .gauge b,
 .gauge .max { max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; background: var(--plate); }
 .gauge b { color: var(--card-ink); font-weight: normal; font-size: 15px; line-height: 1.1; }
-.gauge .max { color: var(--plate-ink-dim); font-size: 10px; line-height: 1.2; }
+.gauge .max { margin-top: 1px; padding-top: 1px; border-top: 1.5px solid var(--card-ink); color: var(--plate-ink-dim); font-size: 10px; line-height: 1.2; }
 .purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
 /* The counters on their plate in Options. */
 .options .counters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px; padding: 8px 6px 10px; }
