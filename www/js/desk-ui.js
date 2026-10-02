@@ -37,24 +37,29 @@ function counter(key, name) {
 }
 
 // ---- the needle meter ------------------------------------------------------------
-// A small square moving-coil meter for heat, on a scale that runs to meltdown:
-// from cold at the left stop, through rated heat (100 / 100) upright, to
-// meltdown at the right stop - the reactor melts past twice its rating. It is
-// red from upright on. It is the heat gauge's instrument, beside its reading,
-// so the desk stays one row and the board keeps its room. Its needle
-// eases, as a needle does.
+// A wide-scale moving-coil meter for heat, its pivot hidden below the window
+// as on a long-scale panel meter, on a scale that runs to meltdown: from cold
+// at the left stop, through rated heat (100 / 100) upright, to meltdown at the
+// right stop - the reactor melts past twice its rating. It is red from upright
+// on. It is the heat gauge's instrument, beside its reading, so the desk stays
+// one row and the board keeps its room. Its needle eases, as a needle does.
 
 const SWEEP = 50; // degrees either side of upright
-const METER_FACE = `<svg viewBox="0 2 40 26" aria-hidden="true">
-	<path class="arc" d="M5.5 24 A17 17 0 0 1 34.5 24" />
-	<path class="red" d="M20 7 A17 17 0 0 1 34.5 24" />
+const PIVOT = [40, 42]; // below the window
+const R = 34;
+const at = (v, r) => {
+	const a = ((v * 2 - 1) * SWEEP * Math.PI) / 180;
+	return [(PIVOT[0] + r * Math.sin(a)).toFixed(2), (PIVOT[1] - r * Math.cos(a)).toFixed(2)];
+};
+const METER_FACE = `<svg viewBox="0 0 80 30" aria-hidden="true">
+	<path class="arc" d="M${at(0, R)} A${R} ${R} 0 0 1 ${at(1, R)}" />
+	<path class="red" d="M${at(0.5, R)} A${R} ${R} 0 0 1 ${at(1, R)}" />
 	${[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1].map((v) => {
-		const a = ((v * 2 - 1) * SWEEP * Math.PI) / 180;
-		const r1 = v % 0.5 ? 15.5 : 14;
-		return `<line x1="${(20 + 17 * Math.sin(a)).toFixed(2)}" y1="${(24 - 17 * Math.cos(a)).toFixed(2)}" x2="${(20 + r1 * Math.sin(a)).toFixed(2)}" y2="${(24 - r1 * Math.cos(a)).toFixed(2)}" />`;
+		const [x1, y1] = at(v, R);
+		const [x2, y2] = at(v, v % 0.5 ? R - 2.5 : R - 4.5);
+		return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" />`;
 	}).join("")}
-	<g class="needle"><line x1="20" y1="24" x2="20" y2="8" /></g>
-	<circle class="pivot" cx="20" cy="24" r="1.8" />
+	<g class="needle"><line x1="${PIVOT[0]}" y1="${PIVOT[1]}" x2="${PIVOT[0]}" y2="${PIVOT[1] - R + 1}" /></g>
 </svg>`;
 
 function meter() {

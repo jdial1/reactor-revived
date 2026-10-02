@@ -479,7 +479,10 @@ step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 Power, money and heat sit in one panel, each marked by its icon - the bolt,
 the coins, the flame - rather than a word. There are no progress bars: power
 and heat are each an instrument with its icon printed in the top left of its
-face, and beside it its reading as a fraction: the figure now over a rule, and
+face, the two instruments flanking the money - power's bargraph on its left,
+heat's meter on its right, each up to twice as wide as it is tall and narrower
+when the desk has less room - and on each one's outer side its reading as a
+fraction: the figure now over a rule, and
 under it, smaller, the most it can be, both left-aligned, the reading fitted
 to the instrument's height. The whole gauge is the button that sells
 or vents. Money is an odometer like the desk's counters - ten black drums with
@@ -497,7 +500,8 @@ modular control panels in
 [docs/reference-control-panels.md](docs/reference-control-panels.md), is
 placed to keep it so:
 
-- **Heat meter.** A small square moving-coil meter in the heat gauge itself,
+- **Heat meter.** A wide-scale moving-coil meter in the heat gauge itself, its
+  pivot hidden below the window as on a long-scale panel meter,
   beside its reading. Its scale runs to meltdown, not to the rating: cold at
   the left stop, rated heat (100 / 100) with the needle upright, meltdown -
   twice the rating, where the reactor melts - at the right stop. Its scale is

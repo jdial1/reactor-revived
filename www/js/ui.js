@@ -262,13 +262,13 @@ export function buildUI(game) {
 	// beside it its reading as a fraction: the figure now over a rule, and
 	// under it, smaller, the most it can be. No bar: the instrument is the picture, the reading the figure.
 	// The whole gauge is the button.
-	const gauge = (id, onclick, title, instrument) => {
+	const gauge = (id, onclick, title, instrument, readingFirst = false) => {
 		const now = h("b", {});
 		const max = h("small", { className: "max" });
 		instrument.querySelector(".face").append(icon(id, "icon mark"));
+		const reading = h("span", { className: "reading" }, now, max);
 		const el = h("button", { className: `gauge ${id}`, onclick, title: `${title} (${DESK_CODES[id]})` },
-			instrument,
-			h("span", { className: "reading" }, now, max));
+			...(readingFirst ? [reading, instrument] : [instrument, reading]));
 		el.setAttribute("aria-label", title);
 		dom[id] = { el, now, max };
 		return el;
@@ -467,7 +467,8 @@ export function buildUI(game) {
 	// Money between the gauge that makes it and the gauge that threatens it:
 	// one row, so the board keeps its room. The heat meter sits in the heat gauge.
 	dom.actions = h("div", { id: "actions" },
-		gauge("power", game.sellAll, "Sell all power", hardware.bargraph),
+		// The instruments flank the money: power's reading on its outer side.
+		gauge("power", game.sellAll, "Sell all power", hardware.bargraph, true),
 		dom.purse,
 		gauge("heat", game.ventHeat, "Vent heat", hardware.meter));
 	dom.dock = h("div", { id: "dock", tabIndex: -1 });
