@@ -249,16 +249,20 @@ export function buildUI(game) {
 	const dom = {};
 	const root = document.getElementById("app");
 	root.replaceChildren();
+	// The desk's instruments, counters and Day / Night switch (desk-ui.js).
+	const hardware = buildDeskHardware(dom);
 
 	// A gauge is a label, a reading and one plain bar - the way Incremental and
-	// Knockoff showed them. The bar is the button.
-	const gauge = (id, label, onclick, title) => {
+	// Knockoff showed them. The bar is the button. An instrument, if it has one,
+	// sits at its side.
+	const gauge = (id, label, onclick, title, instrument = null) => {
 		const fill = h("i", {});
 		const text = h("b", {});
 		// The name on a label strip slid into the desk, with its plant code.
 		const name = h("span", { textContent: label });
 		const el = h("button", { className: `gauge ${id}`, onclick, title },
-			h("span", {}, strip(name, DESK_CODES[id]), text),
+			...(instrument ? [instrument] : []),
+			h("span", { className: "reading" }, strip(name, DESK_CODES[id]), text),
 			h("span", { className: "track" }, fill));
 		el.setAttribute("aria-label", title);
 		dom[id] = { el, fill, text, name };
@@ -396,9 +400,13 @@ export function buildUI(game) {
 					showPage(dom, "reactor");
 					game.startTutorial();
 				} })),
+			// Every operation on the desk, counted on drums and never reset.
+			h("section", { className: "panel plate-group" },
+				h("h4", { className: "nameplate plate-label", textContent: "Counters" }), hardware.counters),
 			plate("Control room", sound,
 				// Every lamp and lit key burns at once: a dead bulb never passes for a dark one.
 				h("button", { className: "key wide", textContent: "Lamp test", onclick: lampTest }),
+				hardware.rotary,
 				h("button", { className: "key wide danger", textContent: "Wipe save and restart", onclick: game.wipe })),
 			h("section", { className: "card record-card" },
 				h("h3", { className: "credit-head", textContent: "Records" }),
@@ -446,14 +454,12 @@ export function buildUI(game) {
 		rateCell("held", "held", "Heat the board held this tick: made, less vented and turned to power"));
 
 	// dock and tabs
-	// Money between the bar that makes it and the bar that threatens it.
-	// Under them, the desk's counters, the heat meter and the Day / Night switch.
-	const hardware = buildDeskHardware(dom);
+	// Money between the bar that makes it and the bar that threatens it: one
+	// row, so the board keeps its room. The heat meter sits in the heat gauge.
 	dom.actions = h("div", { id: "actions" },
 		gauge("power", "Power", game.sellAll, "Sell all power"),
 		dom.purse,
-		gauge("heat", "Heat", game.ventHeat, "Vent heat"),
-		hardware.row);
+		gauge("heat", "Heat", game.ventHeat, "Vent heat", hardware.meter));
 	dom.dock = h("div", { id: "dock", tabIndex: -1 });
 	dom.tabs = tabStrip("tabs", PAGES, (id) => showPage(dom, id));
 	dom.pips = {};

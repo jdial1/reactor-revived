@@ -32,8 +32,8 @@ recessed bins, paper, and a phosphor screen. Red only for danger.
 | **tag** | `.key.lit[data-tag]`, set by `tag(key, reason)` | An enamel tag on a hook, hung over a dark key, saying why it cannot be pressed. | |
 | **zone plate** | `.zone-plate` | An inverse header plate over a zone: its name in white on black, its zone code at the right. | |
 | **counter** | `.counter` | Six drums in a black window over a label strip. | A drum that turned `.roll-in`. |
-| **meter** | `.meter` | A square moving-coil meter, 0-200%, red past 100, its needle eased. | `.over`: past rated. |
-| **rotary** | `.rotary` | A rotary switch: a yellow dial with a black knob. | `data-mode` auto / day / night turns the knob. |
+| **meter** | `.meter` | A small square moving-coil meter, 0-200%, red past 100, its needle eased. Sits at a gauge's side (`gauge(..., instrument)`). | `.over`: past rated. |
+| **rotary** | `.rotary` | A rotary switch: a yellow dial with a black knob, set into a key (`.light-key`) beside its setting. | `data-mode` auto / day / night turns the knob. |
 | **mimic** | `.mimic` (an SVG in `#grid`) | Track drawn between parts (`.track`), lit where heat moves (`.lit`), its lamps running. | Hidden unless Flow is on. |
 
 Two states run across every component: `body.lamp-test` (every lamp and lens

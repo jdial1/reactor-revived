@@ -483,21 +483,29 @@ vents. The heat bar reddens past 60%; a full power bar brightens and dims,
 because output going nowhere is worth noticing. Money rolls on digit drums
 behind a single recessed slot, with Exotic Particles as plain text under it.
 
-Under them is a row of desk hardware, after the modular control panels in
-[docs/reference-control-panels.md](docs/reference-control-panels.md):
+The desk is one row and stays one row: the board is the screen's first claim,
+and everything on the desk earns its height. The desk's hardware, after the
+modular control panels in
+[docs/reference-control-panels.md](docs/reference-control-panels.md), is
+placed to keep it so:
 
-- **Counters.** Six-digit drums counting operations, never reset, not even by
-  a reboot: *Sold* and *Vented* (the hand sells and vents) from the first, and
-  *Auto-sell*, *Rebuy* and *Operator* fitted when those systems are bought. The
-  drum that turns rolls into place. The planner counts nothing.
-- **Heat meter.** A square moving-coil meter from 0 to 200% of rated heat - the
-  reactor melts at 200 - its needle easing and its scale red past 100.
-- **Day / Night.** A rotary switch (*Auto*, *Day*, *Night*). At night the lit
-  keys, the lamps and the desk run lower; on Auto it follows the clock, as the
-  valley behind the board does.
+- **Heat meter.** A small square moving-coil meter in the heat gauge itself,
+  beside its reading and bar: 0 to 200% of rated heat - the reactor melts at
+  200 - its needle easing and its scale red past 100. The reading drops under
+  the gauge's name when the two will not share a line.
+- **Counters**, on their own plate in Options. Six-digit drums counting
+  operations, never reset, not even by a reboot: *Sold* and *Vented* (the hand
+  sells and vents) from the first, and *Auto-sell*, *Rebuy* and *Operator*
+  fitted when those systems are bought. The drum that turns rolls into place.
+  The planner counts nothing.
+- **Day / Night**, a key with a rotary dial on the Control room plate in
+  Options (*Panel lights: Auto*, *Day*, *Night*). At night the lit keys, the
+  lamps and the desk run lower; on Auto it follows the clock, as the valley
+  behind the board does.
 
 Every instrument is named twice, on a white label strip slid into the panel:
-its name and its plant code (*Power JA01*, *Sold KC01*). Every part has a code
+its name and its plant code (*Power JA01*, *Sold KC01*); on a phone the
+gauges keep just their names. Every part has a code
 too, shown on its sheet (*Basic Heat Vent CO-V1*, *Quad Uranium Cell CL-UR4*);
 `www/js/codes.js` makes them and a test keeps them unique.
 

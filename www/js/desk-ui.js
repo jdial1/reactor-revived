@@ -36,11 +36,13 @@ function counter(key, name) {
 }
 
 // ---- the needle meter ------------------------------------------------------------
-// A square moving-coil meter for heat, 0 to 200% of rated: the reactor melts at
-// 200. Its needle eases, as a needle does; past 100 it is over the red.
+// A small square moving-coil meter for heat, 0 to 200% of rated: the reactor
+// melts at 200. It sits in the heat gauge itself, beside its reading, so the
+// desk stays one row and the board keeps its room. Its needle eases, as a
+// needle does; past 100 it is over the red.
 
 const SWEEP = 50; // degrees either side of upright
-const METER_FACE = `<svg viewBox="0 0 40 30" aria-hidden="true">
+const METER_FACE = `<svg viewBox="0 2 40 26" aria-hidden="true">
 	<path class="arc" d="M5.5 24 A17 17 0 0 1 34.5 24" />
 	<path class="red" d="M20 7 A17 17 0 0 1 34.5 24" />
 	${[0, 25, 50, 75, 100, 125, 150, 175, 200].map((v) => {
@@ -48,7 +50,6 @@ const METER_FACE = `<svg viewBox="0 0 40 30" aria-hidden="true">
 		const r1 = v % 100 ? 15.5 : 14;
 		return `<line x1="${(20 + 17 * Math.sin(a)).toFixed(2)}" y1="${(24 - 17 * Math.cos(a)).toFixed(2)}" x2="${(20 + r1 * Math.sin(a)).toFixed(2)}" y2="${(24 - r1 * Math.cos(a)).toFixed(2)}" />`;
 	}).join("")}
-	<text x="5" y="29">0</text><text x="20" y="29" text-anchor="middle">%</text><text x="35" y="29" text-anchor="end">200</text>
 	<g class="needle"><line x1="20" y1="24" x2="20" y2="8" /></g>
 	<circle class="pivot" cx="20" cy="24" r="1.8" />
 </svg>`;
@@ -56,38 +57,42 @@ const METER_FACE = `<svg viewBox="0 0 40 30" aria-hidden="true">
 function meter() {
 	const face = h("span", { className: "face" });
 	face.innerHTML = METER_FACE;
-	const el = h("span", { className: "meter", role: "img", ariaLabel: "Heat meter" }, face, strip("Heat", DESK_CODES.meter));
+	const el = h("span", { className: "meter", title: `Heat meter ${DESK_CODES.meter}: 0 to 200% of rated` }, face);
 	return Object.assign(el, { needle: face.querySelector(".needle") });
 }
 
 // ---- the Day / Night switch ---------------------------------------------------
-// A rotary switch, as on the Polish desk's "Dzień / Noc": Day, Auto, Night.
-// Auto follows the clock, as the valley behind the board does. At night the
-// lamps and lit keys run lower.
+// A rotary switch, as on the Polish desk's "Dzień / Noc": Day, Auto, Night,
+// on the Control room plate in Options. Auto follows the clock, as the valley
+// behind the board does. At night the lamps and lit keys run lower.
 
 const LIGHT = ["auto", "day", "night"];
 const LIGHT_NAME = { auto: "Auto", day: "Day", night: "Night" };
 
 function rotary(dom) {
-	const knob = h("i", { className: "knob" });
+	const dial = h("span", { className: "rotary" }, h("span", { className: "dial" }, h("i", { className: "knob" })));
 	const label = h("span", { className: "setting" });
-	const el = h("button", { className: "rotary", title: "Panel lights: Day, Auto or Night", onclick: () => {
+	const el = h("button", { className: "key wide light-key", title: `Panel lights ${DESK_CODES.light}: Auto, Day or Night`, onclick: () => {
 		const s = dom.game.state;
 		s.panelLight = LIGHT[(LIGHT.indexOf(s.panelLight ?? "auto") + 1) % LIGHT.length];
 		press("place");
-	} }, h("span", { className: "dial" }, knob), h("small", { className: "strip" }, label, h("span", { className: "code", textContent: DESK_CODES.light })));
-	return Object.assign(el, { label });
+	} }, dial, label);
+	return Object.assign(el, { dial, label });
 }
 
 // ---- building and drawing ----------------------------------------------------------
 
-/** The row under the gauges: the counters, the heat meter and the Day / Night switch. */
+/**
+ * The desk's hardware: the heat meter, for the heat gauge; and for the Options
+ * page, the counters on their own plate and the Day / Night switch, a key on
+ * the Control room plate. Only the meter is on the reactor screen: the board
+ * comes first.
+ */
 export function buildDeskHardware(dom) {
 	dom.counters = Object.fromEntries(COUNTERS.map(([key, name]) => [key, counter(key, name)]));
 	dom.rotary = rotary(dom);
 	dom.meter = meter();
-	dom.counterRow = h("div", { className: "counters" }, ...Object.values(dom.counters), dom.meter, dom.rotary);
-	return { row: dom.counterRow };
+	return { meter: dom.meter, counters: h("div", { className: "counters" }, ...Object.values(dom.counters)), rotary: dom.rotary };
 }
 
 export function renderDeskHardware(dom, s) {
@@ -96,7 +101,13 @@ export function renderDeskHardware(dom, s) {
 		c.hidden = !owned(s);
 		const text = drums(s.counts?.[key] ?? 0);
 		if (text === c.shown) continue;
-		// The drum that turned rolls; the others stay put.
+		// The drum that turned rolls; the others stay put. The first reading
+		// is set, not rolled.
+		if (!c.shown) {
+			[...text].forEach((d, i) => { c.digits[i].textContent = d; });
+			c.shown = text;
+			continue;
+		}
 		[...text].forEach((d, i) => {
 			if (c.digits[i].textContent === d) return;
 			c.digits[i].textContent = d;
@@ -107,8 +118,8 @@ export function renderDeskHardware(dom, s) {
 		c.shown = text;
 	}
 	const mode = s.panelLight ?? "auto";
-	dom.rotary.dataset.mode = mode;
-	dom.rotary.label.textContent = LIGHT_NAME[mode];
+	dom.rotary.dial.dataset.mode = mode;
+	dom.rotary.label.textContent = `Panel lights: ${LIGHT_NAME[mode]}`;
 	document.body.classList.toggle("desk-night", deskNight(s));
 	const f = Math.max(0, Math.min(2, s.maxHeat ? s.heat / s.maxHeat : 0));
 	const angle = (f - 1) * SWEEP;
