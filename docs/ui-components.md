@@ -1,6 +1,6 @@
 # UI components and templates
 
-The interface is built from eighteen components and seven templates. A component's
+The interface is built from nineteen components and seven templates. A component's
 look (colour, edge, shadow, how it moves when pressed) is set **once**, in the
 *Components* section at the end of `www/css/app.css`, from tokens in `:root`. A
 screen's own rules above that section only say where a component sits and how
@@ -32,6 +32,7 @@ recessed bins, paper, and a phosphor screen. Red only for danger.
 | **tag** | `.key.lit[data-tag]`, set by `tag(key, reason)` | An enamel tag on a hook, hung over a dark key, saying why it cannot be pressed. | |
 | **zone plate** | `.zone-plate` | An inverse header plate over a zone: its name in white on black, its zone code at the right. | |
 | **counter** | `.counter` | Six drums in a black window over a label strip. | A drum that turned `.roll-in`. |
+| **odometer** | `.roll.cash` (from `roller()`) | The money: ten drums in the counters' frame and colours, the figure turning on the right, blank drums to its left. | |
 | **meter** | `.meter.instrument` | A small square moving-coil meter on the heat bar's scale: cold at the left stop, rated upright, meltdown at the right stop, red from upright on, its needle eased. Sits at a gauge's side (`gauge(..., instrument)`). | `.over`: past rated. |
 | **bargraph** | `.bargraph.instrument` | Ten lamps rising behind dark glass, a tenth each, the top two amber: the power store's level. Sits at a gauge's side. | `i.on`: lit. `.full`: the top lamp blinks. |
 | **rotary** | `.rotary` | A rotary switch: a yellow dial with a black knob, set into a key (`.light-key`) beside its setting. | `data-mode` auto / day / night turns the knob. |
@@ -49,7 +50,7 @@ Every colour a component uses is a token: `--key-face`, `--key-face-in`,
 `--manila`, `--slip`, `--envelope`, `--stamp-ink`, `--cash-ink`, `--seal`,
 `--greenbar`, the lit keys' `--bulb-hot`, `--bulb`, `--bulb-dim`, `--lens-off`, `--legend-off`, `--legend-lit`, and `--feed` (the punched margin every paper has: sprocket holes
 down both edges, drawn by the card's `::before`), and for the desk's hardware
-`--track`, `--track-hot`, `--strip-face`, `--drum-face`, `--drum-ink`, `--meter-face`, `--meter-red`,
+`--strip-face`, `--drum-face`, `--drum-ink`, `--meter-face`, `--meter-red`,
 `--tag-face`, `--tag-rule`, `--zone-face`, `--zone-ink`, `--zone-ink-dim`, with
 the tile module `--mod` and its seams `--mosaic-pale` / `--mosaic-dark`. Signal colours stay what they were:
 `--power`, `--heat`, `--cash`, `--ep`.

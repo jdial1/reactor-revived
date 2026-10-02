@@ -737,7 +737,7 @@ steel body and a black outline.
 > blinking lights , manual overrides"
 >
 > *On record:* the build has two mechanical controls already: the money rolls on
-> digit drums behind a recessed slot, and the power and heat bars are the
+> digit drums behind a recessed slot, and the power and heat gauges are the
 > buttons that sell and vent by hand, which are manual overrides in all but
 > name.
 >
@@ -1390,8 +1390,8 @@ New lines, from 1.5, 3.6, 6.1 and 6.2:
 | Job | Title | Accepted |
 | --- | --- | --- |
 | 0 | Place your first part in the reactor | Accepted: "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years." |
-| 1 | Sell power: tap the power bar | Accepted: "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power bar." |
-| 2 | Vent by hand: tap the heat bar 10 times | Accepted: "Section 1.3. Heat gauge. The gauge is known to stick. Vent by hand and confirm the reading falls." |
+| 1 | Sell power: tap the power gauge | Accepted: "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power gauge." |
+| 2 | Vent by hand: tap the heat gauge 10 times | Accepted: "Section 1.3. Heat gauge. The gauge is known to stick. Vent by hand and confirm the reading falls." |
 | 3 | Cool a cell with a Heat Vent | Accepted: "Section 2.4. Excess heat should be vented before the reactor is left unattended. Operators are advised not to remain at the valve overnight." |
 | 4 | Buy an upgrade | Accepted: "Section 2.6. Maintenance budget. The town's first payment has cleared. It is to be spent on the plant." |
 | 5 | Place a Dual cell | Accepted: "Section 3.1. Deliveries. Supply sent Dual cells by mistake. Install one and record the result." |

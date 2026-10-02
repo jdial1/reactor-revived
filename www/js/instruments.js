@@ -1,7 +1,7 @@
 // What the desk's instruments read, apart from how they are drawn. Pure: no DOM.
 
 /**
- * Heat on the meltdown scale the heat bar and meter share: 0 is cold, 0.5 is
+ * Heat on the heat meter's meltdown scale: 0 is cold, 0.5 is
  * rated heat (100 / 100), 1 is meltdown - the reactor melts past twice its
  * rating (sim.js).
  */

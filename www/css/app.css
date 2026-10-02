@@ -83,9 +83,6 @@
 	--drum-ink: #e9e6de;
 	--meter-face: #f5f2e8;
 	--meter-red: #a8322a;
-	/* A gauge's empty bar, and the heat bar's red zone past rated heat. */
-	--track: #15191c;
-	--track-hot: #3d1612;
 	--tag-face: #f3f1ea;
 	--tag-rule: #b23a2c;
 	--zone-face: #0b0d0e;
@@ -525,27 +522,14 @@ footer {
 	border: 0;
 	border-radius: 0;
 }
-/* A reading that will not fit beside its name goes under it. */
-.gauge > .reading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1px 6px; min-width: 0; white-space: nowrap; }
+/* A gauge: its instrument, and beside it its name over its reading. */
+.gauge { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 6px; }
+.gauge > .reading { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; white-space: nowrap; }
 .gauge .strip { font-size: 8px; }
-.gauge b { margin-left: auto; }
 /* On a phone the gauges keep their names and readings; their codes are for the
    wider desk. */
 @media (max-width: 479px) { .gauge .strip .code { display: none; } }
-/* A gauge's instrument at its side, beside its reading and its bar. */
-.gauge:has(> .instrument) { grid-template-columns: auto minmax(0, 1fr); column-gap: 6px; }
-.gauge > .instrument { grid-row: span 2; align-self: center; }
-.gauge b { color: var(--card-ink); font-weight: normal; font-size: 11px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
-.gauge .track { display: block; height: 6px; background: var(--track); box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
-.gauge .track i { display: block; height: 100%; width: 0; transition: width 120ms linear; }
-.gauge.power .track i { background: var(--power); }
-/* Heat reddens as it nears the limit; the board says the rest. */
-/* The heat bar runs to meltdown: its right half, past rated heat, is the red zone. */
-.gauge.heat .track { background: linear-gradient(to right, var(--track) 0 calc(50% - 0.5px), var(--key-ink) 0 calc(50% + 0.5px), var(--track-hot) 0); }
-.gauge.heat .track i { background: color-mix(in srgb, var(--heat), #ff3b2f clamp(0%, (var(--hot, 0) - 0.6) * 250%, 100%)); }
-/* Power is capped: what the reactor makes now goes nowhere until it is sold. */
-.gauge.full .track i { animation: brim 1.4s ease-in-out infinite; }
-@keyframes brim { 50% { filter: brightness(1.6); } }
+.gauge b { max-width: 100%; padding: 0 2px; background: var(--plate); color: var(--card-ink); font-weight: normal; font-size: 12px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
 .purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
 /* Violet on cream: a darker particle ink, the same signal. */
 #actions .ep { color: #6f3a99; }
@@ -902,21 +886,13 @@ body.melting { animation: melting 500ms ease-out; }
 	overflow: hidden;
 	font-style: normal;
 }
-/* The money reads through one recessed strip, the way a counter's drums show
-   through a slot in the plate - one frame, not one per digit. */
+/* The money is an odometer like the desk's counters: black drums with cream
+   figures in a recessed frame, the 1px gaps between them its partitions. */
 .roll.cash {
-	position: relative;
-	padding: 3px 5px;
-	background: #07090c;
-	box-shadow: inset 0 0 0 1px var(--edge);
-}
-/* The drums are round, so the digits fall into shadow top and bottom. */
-.roll.cash::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	background: linear-gradient(#000b, #0000 35%, #0000 65%, #000b);
+	padding: 1px;
+	background: var(--key-edge);
+	border-radius: 1px;
+	box-shadow: inset 0 1px 2px #000, 0 1px 0 #ffffff80;
 }
 .roll .wheel b {
 	display: block;
@@ -926,16 +902,14 @@ body.melting { animation: melting 500ms ease-out; }
 	transition: transform 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 .purse .cash {
-	font-size: 17px;
-	color: var(--cash);
-	/* One width for $0 and $999.999Qa alike - ten characters and their gaps -
-	   so the gauges beside it never shift as the money grows. */
-	min-width: calc(10ch + 39px);
-	justify-content: center;
+	font-size: 15px;
+	color: var(--drum-ink);
 }
-/* Each drum its own face, so the 1px gaps between them read as the dark
-   partitions of a counter's slot. */
-.roll.cash .wheel { padding: 0 1px; background: #19212c; }
+/* Each drum its own face, round, so its figure falls into shadow top and bottom. */
+.roll.cash .wheel { padding: 0 1px; background: linear-gradient(#000a, #0000 30% 70%, #000a), var(--drum-face); }
+/* Under the money, its label strip, and the particles beside it. */
+.purse .purse-label { display: flex; align-items: center; gap: 6px; }
+@media (max-width: 479px) { .purse .strip .code { display: none; } }
 
 /* Tutorial. The overlay takes no taps - the game underneath has to stay playable
    for the steps that wait on it - except on the card itself. */
@@ -2127,16 +2101,19 @@ dialog,
 	#verdict .tool .label { display: none; }
 	#verdict .tool { padding: 3px 6px; }
 	#verdict .tool .icon { width: 12px; height: 12px; }
-	.purse .cash { font-size: 14px; min-width: calc(10ch + 30px); }
-	/* The heat gauge's meter a size smaller, so its reading keeps its figures. */
-	.gauge { padding-inline: 4px; }
-	.gauge:has(> .instrument) { column-gap: 4px; }
+}
+/* A phone's desk: the money's drums and the instruments a size smaller, so
+   each reading keeps its figures beside its instrument. */
+@media (max-width: 430px) {
+	.purse .cash { font-size: 13px; }
+	.roll.cash .wheel { padding-inline: 0.5px; }
+	.gauge { padding-inline: 4px; column-gap: 4px; }
 	.gauge > .instrument .face { width: 28px; height: 20px; }
-	.gauge b { font-size: 10px; }
+	.gauge b { font-size: 10.5px; }
 }
 /* The narrowest phones: the money's drums a size smaller again. */
 @media (max-width: 340px) {
-	.purse .cash { font-size: 12px; }
+	.purse .cash { font-size: 11.5px; }
 	.purse { padding-inline: 5px; }
 	.gauge > .instrument .face { width: 24px; height: 18px; padding: 2px; }
 	.gauge b { letter-spacing: -0.03em; }

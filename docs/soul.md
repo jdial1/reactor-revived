@@ -31,7 +31,7 @@ remember designs, and post them.
 | Inspect, then sell or move | Tap a placed part for its sheet, where selling, moving, replacing and refilling all live | Not real-time: instant; selling refunds the price less fuel used |
 | Buy | Buy an upgrade, a doctrine side, or research | Not real-time: a menu choice |
 
-Early on the player also taps the power bar to sell and the heat bar to vent.
+Early on the player also taps the power gauge to sell and the heat gauge to vent.
 That is the manual tax, which the first upgrades retire.
 
 ## Fact sheet

@@ -61,12 +61,12 @@ export const OBJECTIVES = [
 	{ title: "Place your first part in the reactor",
 	  note: "Section 1.1. Start-up. Confirm the operator key is present and turns freely. Harrow Station has been idle for eleven years.", reward: 10,
 	  check: (s) => some(s, () => true) },
-	{ title: "Sell power: tap the power bar",
-	  note: "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power bar.", reward: 10,
+	{ title: "Sell power: tap the power gauge",
+	  note: "Section 1.2. Sale of output. The town has been on candles since the station closed. Output is sold at the power gauge.", reward: 10,
 	  check: (s) => s.soldPower },
 	// Ten taps that take heat off, not "down to 0": heat builds while a new
 	// player reads, so a zero got harder the longer they waited.
-	{ title: `Vent by hand: tap the heat bar ${HAND_VENTS} times`,
+	{ title: `Vent by hand: tap the heat gauge ${HAND_VENTS} times`,
 	  note: "Section 1.3. Heat gauge. The gauge is known to stick. Vent by hand and confirm the reading falls.", reward: 10,
 	  check: (s) => (s.handVents ?? 0) >= HAND_VENTS,
 	  progress: (s) => [Math.min(s.handVents ?? 0, HAND_VENTS), HAND_VENTS] },

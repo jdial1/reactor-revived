@@ -1,6 +1,5 @@
 // The DOM layer. Built once, then patched: a tile is touched only when its
 // signature changes.
-import { heatScale } from "./instruments.js";
 import { fmt, compact } from "./fmt.js";
 import { PARTS, PART_BY_ID, isPartVisible, unlockProgress, modulesOpen, categoryOpen } from "./parts.js";
 import { UPGRADES, SECTIONS, sectionOf, costOf, isUnlocked, kindOf, maxLevel, nextLevel, TILE_ROW_LABEL } from "./upgrades.js";
@@ -68,6 +67,8 @@ export function h(tag, { dataset, ...props } = {}, ...kids) {
  */
 const DIGITS = [...Array(20).keys()].map((i) => i % 10).join(String.fromCharCode(10));
 
+/** The money odometer's drums: enough for $999.999Qa. */
+const MONEY_DRUMS = 10;
 function roller(className) {
 	const el = h("span", { className: `roll ${className}` });
 	const wheels = [];
@@ -253,28 +254,28 @@ export function buildUI(game) {
 	// The desk's instruments, counters and Day / Night switch (desk-ui.js).
 	const hardware = buildDeskHardware(dom);
 
-	// A gauge is a label, a reading and one plain bar - the way Incremental and
-	// Knockoff showed them. The bar is the button. An instrument, if it has one,
-	// sits at its side.
-	const gauge = (id, label, onclick, title, instrument = null) => {
-		const fill = h("i", {});
+	// A gauge is an instrument with its name and its reading beside it, and no
+	// bar: the instrument is the picture, the reading the figure. The whole
+	// gauge is the button.
+	const gauge = (id, label, onclick, title, instrument) => {
 		const text = h("b", {});
 		// The name on a label strip slid into the desk, with its plant code.
 		const name = h("span", { textContent: label });
 		const el = h("button", { className: `gauge ${id}`, onclick, title },
-			...(instrument ? [instrument] : []),
-			h("span", { className: "reading" }, strip(name, DESK_CODES[id]), text),
-			h("span", { className: "track" }, fill));
+			instrument,
+			h("span", { className: "reading" }, strip(name, DESK_CODES[id]), text));
 		el.setAttribute("aria-label", title);
-		dom[id] = { el, fill, text, name };
+		dom[id] = { el, text, name };
 		return el;
 	};
 
 	dom.money = roller("cash");
 	dom.ep = roller("");
 	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
-	// Money on top, particles under: on one line they read as one long number.
-	dom.purse = h("div", { className: "purse" }, dom.money.el, dom.epBox);
+	// Money on its drums, and under them its label strip with the particles
+	// beside it: on one line with the money they read as one long number.
+	dom.purse = h("div", { className: "purse" }, dom.money.el,
+		h("span", { className: "purse-label" }, strip("Money", DESK_CODES.money), dom.epBox));
 	// Ten quick taps on the money and the drums wind back to zero, then flip up
 	// to the real figure, like an odometer someone tried to wind back.
 	let taps = [];
@@ -350,7 +351,7 @@ export function buildUI(game) {
 
 	dom.upgradeList = h("div", { className: "upgrades" });
 	dom.upgradeEmpty = h("p", { className: "empty", textContent:
-		"Nothing you can afford yet. Sell power by tapping the power bar." });
+		"Nothing you can afford yet. Sell power by tapping the power gauge." });
 	// Upgrades and research are authorised on the plant computer, a terminal in
 	// the control room, not bought from a shop (Soul Interview 4.3, 5.5).
 	dom.terminals = {
@@ -455,8 +456,8 @@ export function buildUI(game) {
 		rateCell("held", "held", "Heat the board held this tick: made, less vented and turned to power"));
 
 	// dock and tabs
-	// Money between the bar that makes it and the bar that threatens it: one
-	// row, so the board keeps its room. The heat meter sits in the heat gauge.
+	// Money between the gauge that makes it and the gauge that threatens it:
+	// one row, so the board keeps its room. The heat meter sits in the heat gauge.
 	dom.actions = h("div", { id: "actions" },
 		gauge("power", "Power", game.sellAll, "Sell all power", hardware.bargraph),
 		dom.purse,
@@ -1007,7 +1008,9 @@ export function render(dom, s, game) {
 	dom.shownMoney = gap < 0 || gap < Math.max(1, s.money * 0.01)
 		? s.money
 		: dom.shownMoney + gap * 0.55;
-	dom.money.set(s.planner ? "PLAN" : `$${fmt(dom.shownMoney)}`);
+	// Ten drums, always: the figure turns on the right, blank drums to its left,
+	// so the odometer never changes width as the money grows.
+	dom.money.set((s.planner ? "PLAN" : `$${fmt(dom.shownMoney)}`).padStart(MONEY_DRUMS, " "));
 	// Pending particles are only worth anything once a reboot banks them.
 	dom.ep.set(s.exoticParticles
 		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
@@ -1016,13 +1019,8 @@ export function render(dom, s, game) {
 
 	dom.power.text.textContent = `${fmt(s.power)} / ${fmt(s.maxPower)}`;
 	dom.power.el.setAttribute("aria-label", `Sell all power, ${fmt(s.power)} of ${fmt(s.maxPower)}`);
-	// Power stops accumulating at the cap, so a full bar is output going nowhere.
-	dom.power.el.classList.toggle("full", s.power >= s.maxPower && s.maxPower > 0);
-	dom.power.fill.style.width = `${pct(s.power, s.maxPower)}%`;
 	dom.heat.text.textContent = `${fmt(s.heat)} / ${fmt(s.maxHeat)}`;
 	dom.heat.el.setAttribute("aria-label", `Vent heat, ${fmt(s.heat)} of ${fmt(s.maxHeat)}`);
-	// The heat bar runs to meltdown: half full is rated heat, 100 / 100.
-	dom.heat.fill.style.width = `${heatScale(s) * 100}%`;
 	if (dom.pauseLabel.textContent !== (s.paused ? "Off" : "On")) {
 		dom.pauseLabel.textContent = s.paused ? "Off" : "On";
 		dom.pause.classList.toggle("on", !s.paused);

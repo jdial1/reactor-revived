@@ -37,11 +37,11 @@ function counter(key, name) {
 }
 
 // ---- the needle meter ------------------------------------------------------------
-// A small square moving-coil meter for heat, on the same scale as the heat bar:
+// A small square moving-coil meter for heat, on a scale that runs to meltdown:
 // from cold at the left stop, through rated heat (100 / 100) upright, to
 // meltdown at the right stop - the reactor melts past twice its rating. It is
-// red from upright on. It sits in the heat gauge itself, beside its reading
-// and bar, so the desk stays one row and the board keeps its room. Its needle
+// red from upright on. It is the heat gauge's instrument, beside its reading,
+// so the desk stays one row and the board keeps its room. Its needle
 // eases, as a needle does.
 
 const SWEEP = 50; // degrees either side of upright

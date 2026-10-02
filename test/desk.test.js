@@ -84,7 +84,7 @@ test("the desk runs at night by its switch, or by the clock on Auto", () => {
 	assert.equal(fresh().panelLight, "auto");
 });
 
-test("the heat bar and meter run to meltdown: rated heat is half way", async () => {
+test("the heat meter runs to meltdown: rated heat is half way", async () => {
 	const { heatScale, powerLamps, LAMPS } = await import("../www/js/instruments.js");
 	const at = (heat, maxHeat = 1000) => heatScale({ heat, maxHeat });
 	assert.equal(at(0), 0);

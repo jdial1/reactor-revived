@@ -417,7 +417,7 @@ of this line loved, what broke, and what they asked for. What came of it:
 
 ## Heat you can see
 
-Heat is shown on the board as well as in the bar:
+Heat is shown on the board as well as on the meter:
 
 - Each tile carries `--warm`, its own containment as a fraction, drawn as an
   inset ember at its edges. A part about to fail glows before it goes.
@@ -476,15 +476,13 @@ step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 
 ## Gauges
 
-Power, money and heat sit in one panel with nothing framed inside it. Power
-and heat are a small label, a reading and one plain bar each - how Reactor
-Incremental and Knockoff showed them - and the bar is the button that sells or
-vents. The heat bar runs to meltdown, not to the rating: half full is rated
-heat (100 / 100), and its right half, past rated, is a dark red zone - the
-reactor melts past twice its rating, so a full bar is the end. It reddens past
-60% of rated. A full power bar brightens and dims, because output going
-nowhere is worth noticing. Money rolls on digit drums
-behind a single recessed slot, with Exotic Particles as plain text under it.
+Power, money and heat sit in one panel. There are no progress bars: power and
+heat are each an instrument with its name on a label strip and its reading
+beside it, and the whole gauge is the button that sells or vents. Money is an
+odometer like the desk's counters - ten black drums with cream figures in a
+recessed frame, the figure on the right and blank drums to its left, so it
+never changes width - over its label strip, with Exotic Particles beside the
+strip.
 
 The desk is one row and stays one row: the board is the screen's first claim,
 and everything on the desk earns its height. The desk's hardware, after the
@@ -493,14 +491,14 @@ modular control panels in
 placed to keep it so:
 
 - **Heat meter.** A small square moving-coil meter in the heat gauge itself,
-  beside its reading and bar, on the bar's scale: cold at the left stop, rated
-  heat (100 / 100) with the needle upright, meltdown at the right stop. Its
-  scale is red from upright on, and its needle eases.
+  beside its reading. Its scale runs to meltdown, not to the rating: cold at
+  the left stop, rated heat (100 / 100) with the needle upright, meltdown -
+  twice the rating, where the reactor melts - at the right stop. Its scale is
+  red from upright on, and its needle eases.
 - **Power bargraph.** Power is stored, not swung, so its instrument is not a
   needle but a bargraph in the power gauge: ten lamps rising behind dark glass,
   a tenth of the store each, the top two amber. When the store is full the top
-  lamp blinks. A gauge's reading drops under its name when the two will not
-  share a line.
+  lamp blinks, because output going nowhere is worth noticing.
 - **Counters**, on their own plate in Options. Six-digit drums counting
   operations, never reset, not even by a reboot: *Sold* and *Vented* (the hand
   sells and vents) from the first, and *Auto-sell*, *Rebuy* and *Operator*
