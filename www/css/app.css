@@ -547,10 +547,10 @@ footer {
 .gauge > .instrument .face { width: 100%; }
 /* The reading is a fraction, both figures left-aligned: the figure now, a rule
    as wide as the wider figure, and the most it can be. */
-/* The two readouts stacked, one width, their units aligned on the right. */
+/* The two readouts stacked, one size and one width, so their digit
+   positions and units line up: together as tall as the instrument. */
 .gauge > .reading { display: grid; gap: 2px; min-width: 0; }
-.gauge .led.now { --led-h: 15px; }
-.gauge .led.max { --led-h: 9px; justify-content: flex-end; }
+.gauge .led { --led-h: 12.5px; }
 .gauge.power { --led-ink: var(--led-power); --led-ghost: var(--led-power-ghost); }
 .gauge.heat { --led-ink: var(--led-heat); --led-ghost: var(--led-heat-ghost); }
 /* The gauge's icon, printed in the top left of its instrument's face. */
@@ -2183,8 +2183,7 @@ dialog,
 	.gauge.power { grid-template-columns: max-content minmax(36px, 84px); }
 	.gauge.heat { grid-template-columns: minmax(36px, 84px) max-content; }
 	.gauge > .instrument .face { height: 30px; }
-	.gauge .led.now { --led-h: 12px; }
-	.gauge .led.max { --led-h: 7.5px; }
+	.gauge .led { --led-h: 10px; }
 }
 /* The narrowest phones: the money's drums a size smaller again. */
 @media (max-width: 340px) {
@@ -2199,6 +2198,5 @@ dialog,
 	.gauge.power { grid-template-columns: max-content minmax(32px, 72px); }
 	.gauge.heat { grid-template-columns: minmax(32px, 72px) max-content; }
 	.gauge > .instrument .face { height: 27px; padding: 3px; }
-	.gauge .led.now { --led-h: 11px; }
-	.gauge .led.max { --led-h: 7px; }
+	.gauge .led { --led-h: 9px; }
 }

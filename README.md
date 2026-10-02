@@ -483,8 +483,8 @@ face, the two instruments flanking the money - power's bargraph on its left,
 heat's meter on its right, each up to twice as wide as it is tall and narrower
 when the desk has less room - and on each one's outer side its reading on
 seven-segment LEDs, as on the mimic board in the Soul Interview's control room:
-the figure now, and under it, in a smaller window, the most it can be. Both
-are one style, inked in the gauge's colour - green for power, red for heat
+the figure now, and under it, in a window the same size, the most it can be.
+Both are one style and one size, their digit positions lined up, inked in the gauge's colour - green for power, red for heat
 (cyan in cold fusion) - four digit positions with the unlit segments faintly
 there, each decimal point lit on its digit, the unit beside them, so a
 window never changes width. The figures are the compact ones (1.5K, 2.7M);
