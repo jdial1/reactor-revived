@@ -275,10 +275,13 @@ export function buildUI(game) {
 	};
 
 	dom.money = roller("cash");
-	dom.ep = roller("");
-	dom.epBox = h("span", { className: "ep" }, dom.ep.el);
-	// The money on its drums, the cash icon on the first drum, and the
-	// particles under them: on one line they read as one long number.
+	// The particles on a second odometer, the same as the money's but inked
+	// violet, with the experiments' flask on its first drum.
+	dom.ep = roller("cash particles");
+	dom.epBox = h("span", { className: "till", title: "Exotic Particles" }, h("i", { className: "mark" }, icon("experiments")), dom.ep.el);
+	// The money on its drums, the cash icon on the first drum. With particles
+	// to show, their odometer sits under it and the two share the
+	// instruments' height, half each; without, the money has it all.
 	dom.purse = h("div", { className: "purse", title: `Money (${DESK_CODES.money})` },
 		h("span", { className: "till" }, h("i", { className: "mark" }, icon("cash")), dom.money.el), dom.epBox);
 	// Ten quick taps on the money and the drums wind back to zero, then flip up
@@ -1017,10 +1020,14 @@ export function render(dom, s, game) {
 	// so the odometer never changes width as the money grows.
 	dom.money.set((s.planner ? "PLAN" : `$${fmt(dom.shownMoney)}`).padStart(MONEY_DRUMS, " "));
 	// Pending particles are only worth anything once a reboot banks them.
-	dom.ep.set(s.exoticParticles
-		? `${fmt(s.currentExoticParticles)} EP +${fmt(s.exoticParticles)}`
-		: `${fmt(s.currentExoticParticles)} EP`);
-	dom.epBox.hidden = !s.currentExoticParticles && !s.exoticParticles && !s.totalExoticParticles;
+	const particles = s.currentExoticParticles > 0 || s.exoticParticles > 0;
+	dom.epBox.hidden = !particles;
+	dom.purse.classList.toggle("two", particles);
+	if (particles) {
+		dom.ep.set((s.exoticParticles
+			? `${fmt(s.currentExoticParticles)}+${fmt(s.exoticParticles)}`
+			: fmt(s.currentExoticParticles)).padStart(MONEY_DRUMS, " "));
+	}
 
 	dom.power.now.textContent = fmt(s.power);
 	dom.power.max.textContent = `/ ${fmt(s.maxPower)}`;

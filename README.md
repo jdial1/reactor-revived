@@ -484,8 +484,11 @@ face, and beside it the figure now, with the most it can be under it, smaller
 or vents. Money is an odometer like the desk's counters - ten black drums with
 cream figures in a recessed frame, its drums as tall as the instruments beside
 it, the figure on the right and blank drums to
-its left, so it never changes width - its first drum carrying the coins, and
-Exotic Particles under it.
+its left, so it never changes width - its first drum carrying the coins. Once
+there are Exotic Particles, a second odometer sits under it, the same but
+inked violet with the experiments' flask on its first drum (*170+20*: banked,
+and pending until a reboot), and the two share the instruments' height, half
+each.
 
 The desk is one row and stays one row: the board is the screen's first claim,
 and everything on the desk earns its height. The desk's hardware, after the
