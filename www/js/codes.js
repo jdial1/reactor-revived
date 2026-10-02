@@ -29,7 +29,7 @@ export function plantCode(p) {
 
 /** The desk's instruments and counters, each with its code. */
 export const DESK_CODES = {
-	power: "JA01", heat: "JB01", meter: "JB02",
+	power: "JA01", store: "JA02", money: "JC01", heat: "JB01", meter: "JB02",
 	sell: "KC01", vent: "KC02", autoSell: "KC03", rebuy: "KC04", operator: "KC05",
 	light: "LX01",
 };

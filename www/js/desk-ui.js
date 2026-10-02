@@ -7,6 +7,7 @@ import { press } from "./audio.js";
 import { SWITCHES } from "./records.js";
 import { deskNight } from "./backdrop.js";
 import { DESK_CODES } from "./codes.js";
+import { heatScale, powerLamps, LAMPS, SEGMENTS, LED_DIGITS, ledCells } from "./instruments.js";
 
 // ---- label strips ------------------------------------------------------------
 
@@ -36,58 +37,132 @@ function counter(key, name) {
 }
 
 // ---- the needle meter ------------------------------------------------------------
-// A square moving-coil meter for heat, 0 to 200% of rated: the reactor melts at
-// 200. Its needle eases, as a needle does; past 100 it is over the red.
+// A wide-scale moving-coil meter for heat, its pivot hidden below the window
+// as on a long-scale panel meter, on a scale that runs to meltdown: from cold
+// at the left stop, through rated heat (100 / 100) upright, to meltdown at the
+// right stop - the reactor melts past twice its rating. It is red from upright
+// on. It is the heat gauge's instrument, beside its reading, so the desk stays
+// one row and the board keeps its room. Its needle eases, as a needle does.
+// The scale is drawn to fill the window edge to edge at any width.
 
 const SWEEP = 50; // degrees either side of upright
-const METER_FACE = `<svg viewBox="0 0 40 30" aria-hidden="true">
-	<path class="arc" d="M5.5 24 A17 17 0 0 1 34.5 24" />
-	<path class="red" d="M20 7 A17 17 0 0 1 34.5 24" />
-	${[0, 25, 50, 75, 100, 125, 150, 175, 200].map((v) => {
-		const a = ((v / 100 - 1) * SWEEP * Math.PI) / 180;
-		const r1 = v % 100 ? 15.5 : 14;
-		return `<line x1="${(20 + 17 * Math.sin(a)).toFixed(2)}" y1="${(24 - 17 * Math.cos(a)).toFixed(2)}" x2="${(20 + r1 * Math.sin(a)).toFixed(2)}" y2="${(24 - r1 * Math.cos(a)).toFixed(2)}" />`;
+const PIVOT = [40, 42]; // below the window
+const R = 34;
+const at = (v, r) => {
+	const a = ((v * 2 - 1) * SWEEP * Math.PI) / 180;
+	return [(PIVOT[0] + r * Math.sin(a)).toFixed(2), (PIVOT[1] - r * Math.cos(a)).toFixed(2)];
+};
+// The scale fills the face whatever its shape: the drawing stretches to the
+// window, and its lines keep their weight (non-scaling strokes).
+const METER_FACE = `<svg viewBox="11 5 58 21" preserveAspectRatio="none" aria-hidden="true">
+	<path class="arc" d="M${at(0, R)} A${R} ${R} 0 0 1 ${at(1, R)}" />
+	<path class="red" d="M${at(0.5, R)} A${R} ${R} 0 0 1 ${at(1, R)}" />
+	${[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1].map((v) => {
+		const [x1, y1] = at(v, R);
+		const [x2, y2] = at(v, v % 0.5 ? R - 2.5 : R - 4.5);
+		return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" />`;
 	}).join("")}
-	<text x="5" y="29">0</text><text x="20" y="29" text-anchor="middle">%</text><text x="35" y="29" text-anchor="end">200</text>
-	<g class="needle"><line x1="20" y1="24" x2="20" y2="8" /></g>
-	<circle class="pivot" cx="20" cy="24" r="1.8" />
+	<g class="needle"><line x1="${PIVOT[0]}" y1="${PIVOT[1]}" x2="${PIVOT[0]}" y2="${PIVOT[1] - R + 1}" /></g>
 </svg>`;
 
 function meter() {
 	const face = h("span", { className: "face" });
 	face.innerHTML = METER_FACE;
-	const el = h("span", { className: "meter", role: "img", ariaLabel: "Heat meter" }, face, strip("Heat", DESK_CODES.meter));
+	const el = h("span", { className: "meter instrument", title: `Heat meter ${DESK_CODES.meter}: rated heat upright, meltdown at the stop` }, face);
 	return Object.assign(el, { needle: face.querySelector(".needle") });
 }
 
+// ---- the power bargraph ----------------------------------------------------------
+// Power is stored, not swung: its instrument is a bargraph, a rising row of
+// lamps behind dark glass, as a charge indicator shows its level. Each lamp is
+// a tenth of the capacitors; the last two are amber, and when the store is full
+// the top one blinks - output going nowhere.
+
+function bargraph() {
+	const lamps = Array.from({ length: LAMPS }, (_, i) => h("i", { style: `--i: ${i}` }));
+	const el = h("span", { className: "bargraph instrument", title: `Power store ${DESK_CODES.store}: a lamp a tenth` },
+		h("span", { className: "face" }, ...lamps));
+	return Object.assign(el, { lamps, lit: -1 });
+}
+
+// ---- LED readouts -----------------------------------------------------------------
+// The figures beside each instrument, on seven-segment LEDs in a dark window
+// (instruments.js says which segments). A gauge's two readouts - the figure now
+// and, smaller, the most it can be - are one style, inked in the gauge's own
+// colour.
+
+// Each segment in a 10 x 18 cell, and the decimal point at its foot.
+const SEGMENT_SHAPE = {
+	a: "2,1 8,1 7,2 3,2", b: "8,1.5 9,2.5 9,8 8,8.5 7.4,8 7.4,3", c: "8,9.5 9,10 9,15.5 8,16.5 7.4,15 7.4,10",
+	d: "3,16 7,16 8,17 2,17", e: "2,9.5 2.6,10 2.6,15 2,16.5 1,15.5 1,10", f: "2,1.5 2.6,3 2.6,8 2,8.5 1,8 1,2.5",
+	g: "2.6,8.5 7.4,8.5 8,9 7.4,9.5 2.6,9.5 2,9",
+};
+
+function ledDigit() {
+	const el = svg("svg", { viewBox: "0 0 11.2 18", "aria-hidden": "true" });
+	const segs = {};
+	for (const [k, points] of Object.entries(SEGMENT_SHAPE)) el.append(segs[k] = svg("polygon", { points }));
+	const dp = svg("circle", { cx: 10.2, cy: 16.6, r: 0.85 });
+	el.append(dp);
+	return { el, segs, dp };
+}
+
+/** A readout of LED_DIGITS digits and a unit; set() it to a short figure. */
+export function ledReadout(className) {
+	const digits = Array.from({ length: LED_DIGITS }, ledDigit);
+	const unit = h("b", { className: "unit" });
+	const el = h("span", { className: `led ${className}` }, ...digits.map((d) => d.el), unit);
+	let shown = null;
+	return {
+		el,
+		set(text) {
+			if (text === shown) return;
+			shown = text;
+			const { cells, unit: u } = ledCells(text);
+			cells.forEach(({ ch, dp }, i) => {
+				const lit = SEGMENTS[ch] ?? "";
+				for (const [k, seg] of Object.entries(digits[i].segs)) seg.classList.toggle("on", lit.includes(k));
+				digits[i].dp.classList.toggle("on", dp);
+			});
+			unit.textContent = u;
+		},
+	};
+}
+
 // ---- the Day / Night switch ---------------------------------------------------
-// A rotary switch, as on the Polish desk's "Dzień / Noc": Day, Auto, Night.
-// Auto follows the clock, as the valley behind the board does. At night the
-// lamps and lit keys run lower.
+// A rotary switch, as on the Polish desk's "Dzień / Noc": Day, Auto, Night,
+// on the Control room plate in Options. Auto follows the clock, as the valley
+// behind the board does. At night the lamps and lit keys run lower.
 
 const LIGHT = ["auto", "day", "night"];
 const LIGHT_NAME = { auto: "Auto", day: "Day", night: "Night" };
 
 function rotary(dom) {
-	const knob = h("i", { className: "knob" });
+	const dial = h("span", { className: "rotary" }, h("span", { className: "dial" }, h("i", { className: "knob" })));
 	const label = h("span", { className: "setting" });
-	const el = h("button", { className: "rotary", title: "Panel lights: Day, Auto or Night", onclick: () => {
+	const el = h("button", { className: "key wide light-key", title: `Panel lights ${DESK_CODES.light}: Auto, Day or Night`, onclick: () => {
 		const s = dom.game.state;
 		s.panelLight = LIGHT[(LIGHT.indexOf(s.panelLight ?? "auto") + 1) % LIGHT.length];
 		press("place");
-	} }, h("span", { className: "dial" }, knob), h("small", { className: "strip" }, label, h("span", { className: "code", textContent: DESK_CODES.light })));
-	return Object.assign(el, { label });
+	} }, dial, label);
+	return Object.assign(el, { dial, label });
 }
 
 // ---- building and drawing ----------------------------------------------------------
 
-/** The row under the gauges: the counters, the heat meter and the Day / Night switch. */
+/**
+ * The desk's hardware: the power bargraph and the heat meter, for the gauges;
+ * and for the Options
+ * page, the counters on their own plate and the Day / Night switch, a key on
+ * the Control room plate. Only the instruments are on the reactor screen: the board
+ * comes first.
+ */
 export function buildDeskHardware(dom) {
 	dom.counters = Object.fromEntries(COUNTERS.map(([key, name]) => [key, counter(key, name)]));
 	dom.rotary = rotary(dom);
 	dom.meter = meter();
-	dom.counterRow = h("div", { className: "counters" }, ...Object.values(dom.counters), dom.meter, dom.rotary);
-	return { row: dom.counterRow };
+	dom.bargraph = bargraph();
+	return { meter: dom.meter, bargraph: dom.bargraph, counters: h("div", { className: "counters" }, ...Object.values(dom.counters)), rotary: dom.rotary };
 }
 
 export function renderDeskHardware(dom, s) {
@@ -96,7 +171,13 @@ export function renderDeskHardware(dom, s) {
 		c.hidden = !owned(s);
 		const text = drums(s.counts?.[key] ?? 0);
 		if (text === c.shown) continue;
-		// The drum that turned rolls; the others stay put.
+		// The drum that turned rolls; the others stay put. The first reading
+		// is set, not rolled.
+		if (!c.shown) {
+			[...text].forEach((d, i) => { c.digits[i].textContent = d; });
+			c.shown = text;
+			continue;
+		}
 		[...text].forEach((d, i) => {
 			if (c.digits[i].textContent === d) return;
 			c.digits[i].textContent = d;
@@ -107,16 +188,22 @@ export function renderDeskHardware(dom, s) {
 		c.shown = text;
 	}
 	const mode = s.panelLight ?? "auto";
-	dom.rotary.dataset.mode = mode;
-	dom.rotary.label.textContent = LIGHT_NAME[mode];
+	dom.rotary.dial.dataset.mode = mode;
+	dom.rotary.label.textContent = `Panel lights: ${LIGHT_NAME[mode]}`;
 	document.body.classList.toggle("desk-night", deskNight(s));
-	const f = Math.max(0, Math.min(2, s.maxHeat ? s.heat / s.maxHeat : 0));
-	const angle = (f - 1) * SWEEP;
+	const f = heatScale(s);
+	const angle = (f * 2 - 1) * SWEEP;
 	if (dom.meterAngle !== angle) {
 		dom.meterAngle = angle;
 		dom.meter.needle.style.transform = `rotate(${angle.toFixed(1)}deg)`;
-		dom.meter.classList.toggle("over", f > 1);
+		dom.meter.classList.toggle("over", f > 0.5);
 	}
+	const lit = powerLamps(s);
+	if (dom.bargraph.lit !== lit) {
+		dom.bargraph.lit = lit;
+		dom.bargraph.lamps.forEach((lamp, i) => lamp.classList.toggle("on", i < lit));
+	}
+	dom.bargraph.classList.toggle("full", s.maxPower > 0 && s.power >= s.maxPower);
 }
 
 // ---- the lamp test ---------------------------------------------------------------

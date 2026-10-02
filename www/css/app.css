@@ -83,6 +83,16 @@
 	--drum-ink: #e9e6de;
 	--meter-face: #f5f2e8;
 	--meter-red: #a8322a;
+	/* Seven-segment LEDs: a dark window, each gauge's lit and unlit segments. */
+	--led-face: #0b0807;
+	--led-power: #58ff7a;
+	--led-power-ghost: #11261a;
+	--led-heat: #ff3b2f;
+	--led-heat-ghost: #2b0e0c;
+	--led-cold: #6fd0e8;
+	--led-cold-ghost: #0b2229;
+	/* The particles' figures on their drums: the EP violet, lit for the dark. */
+	--ep-drum: #cfa3f0;
 	--tag-face: #f3f1ea;
 	--tag-rule: #b23a2c;
 	--zone-face: #0b0d0e;
@@ -490,7 +500,7 @@ footer {
    showed power, money and heat as a label, a number and a plain bar. */
 #actions {
 	display: grid;
-	grid-template-columns: 1fr auto 1fr;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 	align-items: center;
 	margin: 4px;
 	/* The desk's pale painted panel (Soul Interview 5.6), framed in plating, with
@@ -522,44 +532,48 @@ footer {
 	border: 0;
 	border-radius: 0;
 }
-.gauge > span:first-child { display: flex; justify-content: space-between; align-items: center; gap: 6px; white-space: nowrap; }
-/* The gauge's strip is short and tall: its name over its code, so the
-   reading beside it keeps its room. */
-.gauge .strip { flex-direction: column; align-items: flex-start; gap: 0; font-size: 8.5px; line-height: 1.2; }
-.gauge .strip .code { font-size: 7px; }
-.gauge b { color: var(--card-ink); font-weight: normal; font-size: 11px; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
-.gauge .track { display: block; height: 6px; background: #15191c; box-shadow: inset 0 1px 0 #000, 0 1px 0 #fff8; }
-.gauge .track i { display: block; height: 100%; width: 0; transition: width 120ms linear; }
-.gauge.power .track i { background: var(--power); }
-/* Heat reddens as it nears the limit; the board says the rest. */
-.gauge.heat .track i { background: color-mix(in srgb, var(--heat), #ff3b2f clamp(0%, (var(--hot, 0) - 0.6) * 250%, 100%)); }
-/* Power is capped: what the reactor makes now goes nowhere until it is sold. */
-.gauge.full .track i { animation: brim 1.4s ease-in-out infinite; }
-@keyframes brim { 50% { filter: brightness(1.6); } }
-.purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
-/* Violet on cream: a darker particle ink, the same signal. */
-#actions .ep { color: #6f3a99; }
-/* Under the gauges, the desk's counters, its heat meter and its Day / Night
-   switch. */
-#actions .counters {
-	grid-column: 1 / -1;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: flex-end;
-	gap: 3px 10px;
-	padding: 3px 6px 2px;
-	border-top: 1px solid var(--card-rule);
-}
+/* A gauge: its instrument, and beside it its icon and the figure now, and
+   under them, smaller, the most it can be - the reading fitted to the
+   instrument's height. The reading sits on the plate's colour, so the tile
+   seams never cut through it. */
+.gauge { align-items: center; column-gap: 6px; }
+/* The instruments flank the money, each up to twice as wide as it is tall and
+   narrower when the desk has less room: power's reading on its left, its
+   bargraph against the money; heat's meter against the money, its reading on
+   its right. */
+.gauge.power { grid-template-columns: max-content minmax(40px, 102px); justify-content: end; }
+.gauge.heat { grid-template-columns: minmax(40px, 102px) max-content; justify-content: start; }
+.gauge > .instrument { display: block; min-width: 0; }
+.gauge > .instrument .face { width: 100%; }
+/* The reading is a fraction, both figures left-aligned: the figure now, a rule
+   as wide as the wider figure, and the most it can be. */
+/* The two readouts stacked, one size and one width, so their digit
+   positions and units line up: together as tall as the instrument. */
+.gauge > .reading { display: grid; gap: 2px; min-width: 0; }
+.gauge .led { --led-h: 12.5px; }
+.gauge.power { --led-ink: var(--led-power); --led-ghost: var(--led-power-ghost); }
+.gauge.heat { --led-ink: var(--led-heat); --led-ghost: var(--led-heat-ghost); }
+/* The gauge's icon, printed in the top left of its instrument's face. */
+.instrument .face { position: relative; }
+.instrument .mark { position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; pointer-events: none; }
+.purse { padding: 0 3px; }
+/* The instruments sit close against the money: the gauges' padding is on
+   their outer sides only. */
+.gauge.power { padding-right: 0; }
+.gauge.heat { padding-left: 0; }
+/* The counters on their plate in Options. */
+.options .counters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px; padding: 8px 6px 10px; }
+/* The Day / Night switch is a key on the Control room plate, its dial beside its setting. */
+.light-key { display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-/* Wear: a strip of aluminium tape over a split in the desk's corner. */
+/* Wear: a strip of aluminium tape over a split in the desk's top edge. */
 #actions::after {
 	content: "";
 	position: absolute;
-	left: 5px;
-	bottom: 9px;
-	width: 28px;
-	height: 7px;
+	left: 31%;
+	top: -1px;
+	width: 26px;
+	height: 6px;
 	pointer-events: none;
 	opacity: 0.5;
 	transform: rotate(-3deg);
@@ -900,21 +914,16 @@ body.melting { animation: melting 500ms ease-out; }
 	overflow: hidden;
 	font-style: normal;
 }
-/* The money reads through one recessed strip, the way a counter's drums show
-   through a slot in the plate - one frame, not one per digit. */
-.roll.cash {
-	position: relative;
-	padding: 3px 5px;
-	background: #07090c;
-	box-shadow: inset 0 0 0 1px var(--edge);
-}
-/* The drums are round, so the digits fall into shadow top and bottom. */
-.roll.cash::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	background: linear-gradient(#000b, #0000 35%, #0000 65%, #000b);
+/* The money is an odometer like the desk's counters: black drums with cream
+   figures in a recessed frame, the 1px gaps between them its partitions, the
+   cash icon on its first drum. */
+.purse .till {
+	display: flex;
+	gap: 1px;
+	padding: 1px;
+	background: var(--key-edge);
+	border-radius: 1px;
+	box-shadow: inset 0 1px 2px #000, 0 1px 0 #ffffff80;
 }
 .roll .wheel b {
 	display: block;
@@ -924,16 +933,24 @@ body.melting { animation: melting 500ms ease-out; }
 	transition: transform 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 .purse .cash {
-	font-size: 17px;
-	color: var(--cash);
-	/* One width for $0 and $999.999Qa alike - ten characters and their gaps -
-	   so the gauges beside it never shift as the money grows. */
-	min-width: calc(10ch + 39px);
-	justify-content: center;
+	font-size: 19px;
+	color: var(--drum-ink);
 }
-/* Each drum its own face, so the 1px gaps between them read as the dark
-   partitions of a counter's slot. */
-.roll.cash .wheel { padding: 0 1px; background: #19212c; }
+/* The particles' odometer: the money's, inked violet. */
+.purse .cash.particles { color: var(--ep-drum); }
+/* With particles showing, the two odometers share the instruments' height. */
+.purse.two .roll.cash { --step: 15.5px; }
+.purse.two .cash,
+.purse.two .till .mark { font-size: 13px; }
+/* Each drum its own face, round, so its figure falls into shadow top and bottom. */
+.roll.cash .wheel { padding: 0 1px; background: linear-gradient(#000a, #0000 30% 70%, #000a), var(--drum-face); }
+/* The odometer's drums are as tall as the instruments beside it: each figure
+   sits in the middle of a tall drum, and turns a whole drum's height. */
+.roll.cash { --step: 34px; }
+.roll.cash .wheel { height: var(--step); }
+.roll.cash .wheel b { line-height: var(--step); }
+.purse .till .mark { display: flex; align-items: center; justify-content: center; height: auto; padding: 0 2px; font-size: 19px; background: linear-gradient(#000a, #0000 30% 70%, #000a), var(--drum-face); }
+.purse .till .mark .icon { width: 1.1em; height: 1.1em; }
 
 /* Tutorial. The overlay takes no taps - the game underneath has to stay playable
    for the steps that wait on it - except on the card itself. */
@@ -1342,7 +1359,7 @@ details.module-row .row { margin-top: 8px; }
 /* Critical mass: the block breathes as one, quicker than a lone cell. */
 .tile.critical-mass .glow:is(.bar1, .bar2, .bar4) { animation: breathe 0.6s ease-in-out infinite alternate; animation-delay: 0s; }
 /* Cold fusion: the heat gauge knows. */
-body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
+body.cold-fusion .gauge.heat { --led-ink: var(--led-cold); --led-ghost: var(--led-cold-ghost); }
 
 /* The trophy case. */
 .trophies { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: 11px; }
@@ -1779,28 +1796,75 @@ body.cold-fusion .gauge.heat small { color: #6fd0e8; letter-spacing: 0.12em; }
 .meter { display: inline-grid; justify-items: center; gap: 2px; }
 .meter .face {
 	display: block;
-	width: 44px;
-	height: 33px;
+	width: 51px;
+	height: 36px;
 	background: var(--meter-face);
-	border: 2px solid var(--key-face);
+	border: 1.5px solid var(--key-face);
 	border-radius: 2px;
 	box-shadow: inset 0 1px 3px #0007, 0 1px 0 #ffffff80;
 }
 .meter svg { display: block; width: 100%; height: 100%; }
-.meter .arc { fill: none; stroke: var(--plate-ink); stroke-width: 0.6; }
-.meter .red { fill: none; stroke: var(--meter-red); stroke-width: 1.6; }
-.meter line { stroke: var(--plate-ink); stroke-width: 0.5; }
-.meter text { font-size: 3.6px; fill: var(--plate-ink-dim); }
-.meter .needle { transform-box: view-box; transform-origin: 20px 24px; transform: rotate(-50deg); transition: transform 700ms cubic-bezier(0.3, 1.45, 0.5, 1); }
-.meter .needle line { stroke: var(--card-ink); stroke-width: 0.8; }
-.meter .pivot { fill: var(--key-face); }
+.meter path,
+.meter line { vector-effect: non-scaling-stroke; }
+.meter .arc { fill: none; stroke: var(--plate-ink); stroke-width: 0.9px; }
+.meter .red { fill: none; stroke: var(--meter-red); stroke-width: 2.2px; }
+.meter line { stroke: var(--plate-ink); stroke-width: 0.8px; }
+.meter .needle { transform-box: view-box; transform-origin: 40px 42px; transform: rotate(-50deg); transition: transform 700ms cubic-bezier(0.3, 1.45, 0.5, 1); }
+.meter .needle line { stroke: var(--card-ink); stroke-width: 1.2px; }
 .meter.over .needle line { stroke: var(--meter-red); }
+
+/* ---- led ----
+   A seven-segment readout in a dark window: fixed digit positions, the unlit
+   segments faintly there, the lit ones glowing in --led-ink, the unit beside.
+   --led-h sets its size. */
+.led {
+	display: flex;
+	align-items: center;
+	gap: calc(var(--led-h) * 0.08);
+	padding: calc(var(--led-h) * 0.18) calc(var(--led-h) * 0.25);
+	background: var(--led-face);
+	border-radius: 1px;
+	box-shadow: inset 0 1px 3px #000, 0 1px 0 #ffffff80;
+}
+.led svg { flex: none; width: auto; height: var(--led-h); overflow: visible; }
+.led polygon,
+.led circle { fill: var(--led-ghost); }
+.led .on { fill: var(--led-ink); filter: drop-shadow(0 0 1px var(--led-ink)); }
+.led .unit { min-width: 0.8em; font-size: calc(var(--led-h) * 0.72); font-weight: 600; line-height: 1; color: var(--led-ink); text-shadow: 0 0 3px var(--led-ink); }
+.lamp-test .led polygon,
+.lamp-test .led circle { fill: var(--led-ink) !important; }
+.desk-night .led { filter: brightness(0.75); }
+
+/* ---- bargraph ----
+   A rising row of lamps behind dark glass, the power store's level: each lamp a
+   tenth, the top two amber; full, the top one blinks. */
+.bargraph { display: inline-grid; }
+.bargraph .face {
+	display: flex;
+	align-items: flex-end;
+	gap: 1px;
+	width: 51px;
+	height: 36px;
+	padding: 4px;
+	background: var(--drum-face);
+	border: 1.5px solid var(--key-face);
+	border-radius: 2px;
+	box-shadow: inset 0 1px 3px #000, 0 1px 0 #ffffff80;
+}
+.bargraph i { flex: 1; height: calc(28% + var(--i) * 8%); background: var(--lamp-off); border-radius: 0.5px; }
+.bargraph i.on { background: var(--power); box-shadow: 0 0 3px var(--power); }
+.bargraph i:nth-child(n + 9).on { background: var(--bulb); box-shadow: 0 0 3px var(--bulb); }
+.bargraph.full i:last-child { animation: blink 0.9s steps(1) infinite; }
+@keyframes blink { 50% { background: var(--lamp-off); box-shadow: none; } }
+.lamp-test .bargraph i { background: var(--power) !important; }
+.desk-night .bargraph i.on { filter: brightness(0.7); }
 
 /* ---- rotary ----
    A rotary switch on a yellow plate, as the day and night switch on the
    Polish desk: Day, Auto, Night. */
-.rotary { display: inline-grid; justify-items: center; gap: 2px; padding: 0; background: none; border: 0; color: inherit; }
+.rotary { display: inline-block; flex: none; }
 .rotary .dial {
+	display: block;
 	position: relative;
 	width: 22px;
 	height: 22px;
@@ -2101,13 +2165,38 @@ dialog,
 	#verdict .tool .label { display: none; }
 	#verdict .tool { padding: 3px 6px; }
 	#verdict .tool .icon { width: 12px; height: 12px; }
-	.purse .cash { font-size: 14px; min-width: calc(10ch + 30px); }
-	/* The desk's strips stack their codes under their names, so the counters,
-	   the meter and the switch keep to one row. */
-	#actions .counters { gap: 3px 6px; padding-inline: 2px; }
-	#actions .counters .strip { flex-direction: column; align-items: center; gap: 0; line-height: 1.2; }
-	#actions .counters .strip .code { font-size: 6.5px; }
-	/* A reading that will not fit beside its strip goes under it. */
-	.gauge > span:first-child { flex-wrap: wrap; row-gap: 1px; }
-	.gauge b { margin-left: auto; }
+}
+/* A phone's desk: the money's drums and the instruments a size smaller, so
+   each reading keeps its figures beside its instrument. */
+@media (max-width: 430px) {
+	.roll.cash { --step: 28px; }
+	.purse .cash,
+	.purse .till .mark { font-size: 15px; }
+	.purse.two .roll.cash { --step: 12.5px; }
+	.purse.two .cash,
+	.purse.two .till .mark { font-size: 11.5px; }
+	.roll.cash .wheel { padding-inline: 0.5px; }
+	.instrument .mark { width: 9px; height: 9px; }
+	.gauge { padding-inline: 4px; column-gap: 4px; }
+	.gauge.power { padding-right: 0; }
+	.gauge.heat { padding-left: 0; }
+	.gauge.power { grid-template-columns: max-content minmax(36px, 84px); }
+	.gauge.heat { grid-template-columns: minmax(36px, 84px) max-content; }
+	.gauge > .instrument .face { height: 30px; }
+	.gauge .led { --led-h: 10px; }
+}
+/* The narrowest phones: the money's drums a size smaller again. */
+@media (max-width: 340px) {
+	.roll.cash { --step: 25px; }
+	.purse .cash,
+	.purse .till .mark { font-size: 13px; }
+	.purse.two .roll.cash { --step: 11px; }
+	.purse.two .cash,
+	.purse.two .till .mark { font-size: 10px; }
+	.instrument .mark { top: 1px; left: 1px; width: 8px; height: 8px; }
+	.purse { padding-inline: 2px; }
+	.gauge.power { grid-template-columns: max-content minmax(32px, 72px); }
+	.gauge.heat { grid-template-columns: minmax(32px, 72px) max-content; }
+	.gauge > .instrument .face { height: 27px; padding: 3px; }
+	.gauge .led { --led-h: 9px; }
 }

@@ -83,3 +83,52 @@ test("the desk runs at night by its switch, or by the clock on Auto", () => {
 	assert.equal(deskNight({ panelLight: "night" }, noon), true);
 	assert.equal(fresh().panelLight, "auto");
 });
+
+test("the heat meter runs to meltdown: rated heat is half way", async () => {
+	const { heatScale, powerLamps, LAMPS } = await import("../www/js/instruments.js");
+	const at = (heat, maxHeat = 1000) => heatScale({ heat, maxHeat });
+	assert.equal(at(0), 0);
+	assert.equal(at(1000), 0.5, "100 / 100 is the middle of the scale");
+	assert.equal(at(2000), 1, "twice the rating is meltdown, the stop");
+	assert.equal(at(5000), 1);
+	assert.equal(at(-5), 0);
+	assert.equal(heatScale({ heat: 10, maxHeat: 0 }), 0);
+	// The sim melts the reactor past twice its rating: the stop is the end.
+	const s = fresh();
+	put(s, 0, 0, "uranium1");
+	compile(s);
+	s.heat = 2 * s.maxHeat + 1;
+	tick(s);
+	assert.ok(s.hasMeltedDown);
+
+	const lamps = (power, maxPower = 100) => powerLamps({ power, maxPower });
+	assert.equal(LAMPS, 10);
+	assert.equal(lamps(0), 0);
+	assert.equal(lamps(1), 1, "any power lights the first lamp");
+	assert.equal(lamps(30), 3);
+	assert.equal(lamps(31), 4);
+	assert.equal(lamps(100), 10);
+	assert.equal(lamps(500), 10);
+	assert.equal(lamps(5, 0), 0);
+});
+
+test("the LED readouts place figures in fixed positions, points on their digits", async () => {
+	const { ledCells, SEGMENTS, LED_DIGITS } = await import("../www/js/instruments.js");
+	const { compact } = await import("../www/js/fmt.js");
+	const show = (t) => ledCells(t).cells.map((c) => c.ch + (c.dp ? "." : "")).join("|");
+	assert.equal(LED_DIGITS, 4);
+	assert.equal(show("1.5K"), " | |1.|5");
+	assert.equal(ledCells("1.5K").unit, "K");
+	assert.equal(show("960"), " |9|6|0");
+	assert.equal(ledCells("960").unit, "");
+	assert.equal(show("0"), " | | |0");
+	assert.equal(ledCells("2.7Qa").unit, "Qa");
+	// Every figure compact() gives fits the four positions, and every character
+	// in it has segments.
+	for (const n of [0, 4.8, 75, 999, 1234, 29040, 166400, 2748000, 1.5e15, 9.99e32]) {
+		const { cells } = ledCells(compact(n));
+		assert.equal(cells.length, LED_DIGITS);
+		assert.ok(compact(n).replace(/[.A-Za-z]/g, "").length <= LED_DIGITS, compact(n));
+		for (const c of cells) assert.ok(c.ch in SEGMENTS, `${compact(n)}: ${c.ch}`);
+	}
+});

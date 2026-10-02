@@ -417,7 +417,7 @@ of this line loved, what broke, and what they asked for. What came of it:
 
 ## Heat you can see
 
-Heat is shown on the board as well as in the bar:
+Heat is shown on the board as well as on the meter:
 
 - Each tile carries `--warm`, its own containment as a fraction, drawn as an
   inset ember at its edges. A part about to fail glows before it goes.
@@ -476,28 +476,57 @@ step. `www/js/backdrop.js` picks one; a test holds the four under 200 KB.
 
 ## Gauges
 
-Power, money and heat sit in one panel with nothing framed inside it. Power
-and heat are a small label, a reading and one plain bar each - how Reactor
-Incremental and Knockoff showed them - and the bar is the button that sells or
-vents. The heat bar reddens past 60%; a full power bar brightens and dims,
-because output going nowhere is worth noticing. Money rolls on digit drums
-behind a single recessed slot, with Exotic Particles as plain text under it.
+Power, money and heat sit in one panel, each marked by its icon - the bolt,
+the coins, the flame - rather than a word. There are no progress bars: power
+and heat are each an instrument with its icon printed in the top left of its
+face, the two instruments flanking the money - power's bargraph on its left,
+heat's meter on its right, each up to twice as wide as it is tall and narrower
+when the desk has less room - and on each one's outer side its reading on
+seven-segment LEDs, as on the mimic board in the Soul Interview's control room:
+the figure now, and under it, in a window the same size, the most it can be.
+Both are one style and one size, their digit positions lined up, inked in the gauge's colour - green for power, red for heat
+(cyan in cold fusion) - four digit positions with the unlit segments faintly
+there, each decimal point lit on its digit, the unit beside them, so a
+window never changes width. The figures are the compact ones (1.5K, 2.7M);
+the sheets and the ledger keep the rest. The whole gauge is the button that sells
+or vents. Money is an odometer like the desk's counters - ten black drums with
+cream figures in a recessed frame, its drums as tall as the instruments beside
+it, the figure on the right and blank drums to
+its left, so it never changes width - its first drum carrying the coins. Once
+there are Exotic Particles, a second odometer sits under it, the same but
+inked violet with the experiments' flask on its first drum (*170+20*: banked,
+and pending until a reboot), and the two share the instruments' height, half
+each.
 
-Under them is a row of desk hardware, after the modular control panels in
-[docs/reference-control-panels.md](docs/reference-control-panels.md):
+The desk is one row and stays one row: the board is the screen's first claim,
+and everything on the desk earns its height. The desk's hardware, after the
+modular control panels in
+[docs/reference-control-panels.md](docs/reference-control-panels.md), is
+placed to keep it so:
 
-- **Counters.** Six-digit drums counting operations, never reset, not even by
-  a reboot: *Sold* and *Vented* (the hand sells and vents) from the first, and
-  *Auto-sell*, *Rebuy* and *Operator* fitted when those systems are bought. The
-  drum that turns rolls into place. The planner counts nothing.
-- **Heat meter.** A square moving-coil meter from 0 to 200% of rated heat - the
-  reactor melts at 200 - its needle easing and its scale red past 100.
-- **Day / Night.** A rotary switch (*Auto*, *Day*, *Night*). At night the lit
-  keys, the lamps and the desk run lower; on Auto it follows the clock, as the
-  valley behind the board does.
+- **Heat meter.** A wide-scale moving-coil meter in the heat gauge itself, its
+  pivot hidden below the window as on a long-scale panel meter,
+  beside its reading. Its scale runs to meltdown, not to the rating: cold at
+  the left stop, rated heat (100 / 100) with the needle upright, meltdown -
+  twice the rating, where the reactor melts - at the right stop. Its scale is
+  red from upright on, and its needle eases.
+- **Power bargraph.** Power is stored, not swung, so its instrument is not a
+  needle but a bargraph in the power gauge: ten lamps rising behind dark glass,
+  a tenth of the store each, the top two amber. When the store is full the top
+  lamp blinks, because output going nowhere is worth noticing.
+- **Counters**, on their own plate in Options. Six-digit drums counting
+  operations, never reset, not even by a reboot: *Sold* and *Vented* (the hand
+  sells and vents) from the first, and *Auto-sell*, *Rebuy* and *Operator*
+  fitted when those systems are bought. The drum that turns rolls into place.
+  The planner counts nothing.
+- **Day / Night**, a key with a rotary dial on the Control room plate in
+  Options (*Panel lights: Auto*, *Day*, *Night*). At night the lit keys, the
+  lamps and the desk run lower; on Auto it follows the clock, as the valley
+  behind the board does.
 
-Every instrument is named twice, on a white label strip slid into the panel:
-its name and its plant code (*Power JA01*, *Sold KC01*). Every part has a code
+Every counter is named twice, on a white label strip slid into the panel: its
+name and its plant code (*Sold KC01*); the desk's gauges carry their codes in
+their tooltips (*Sell all power (JA01)*). Every part has a code
 too, shown on its sheet (*Basic Heat Vent CO-V1*, *Quad Uranium Cell CL-UR4*);
 `www/js/codes.js` makes them and a test keeps them unique.
 

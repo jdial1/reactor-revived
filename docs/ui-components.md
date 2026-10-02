@@ -1,6 +1,6 @@
 # UI components and templates
 
-The interface is built from seventeen components and seven templates. A component's
+The interface is built from twenty components and seven templates. A component's
 look (colour, edge, shadow, how it moves when pressed) is set **once**, in the
 *Components* section at the end of `www/css/app.css`, from tokens in `:root`. A
 screen's own rules above that section only say where a component sits and how
@@ -28,12 +28,15 @@ recessed bins, paper, and a phosphor screen. Red only for danger.
 | **stamp** | `.stamp` | A rubber stamp on paper, inked a little crooked: *Confirmed*, *Supplied*, *Revised*. | |
 | **bin** | `.bin` | A recessed well in the tray, for a part or a saved module. | `.on` (on `.part`): lit from inside. |
 | **frame** | `dialog`, `.tut-card` | A sheet's housing: dark face, plating border. | |
-| **label strip** | `.strip`, from `strip(name, code)` | A white strip slid into the panel: a plain name and its plant code (`.code`, dim). On the gauges the code stacks under the name. | |
+| **label strip** | `.strip`, from `strip(name, code)` | A white strip slid into the panel: a plain name and its plant code (`.code`, dim). On the counters; the desk's gauges are marked by icons instead. | |
 | **tag** | `.key.lit[data-tag]`, set by `tag(key, reason)` | An enamel tag on a hook, hung over a dark key, saying why it cannot be pressed. | |
 | **zone plate** | `.zone-plate` | An inverse header plate over a zone: its name in white on black, its zone code at the right. | |
 | **counter** | `.counter` | Six drums in a black window over a label strip. | A drum that turned `.roll-in`. |
-| **meter** | `.meter` | A square moving-coil meter, 0-200%, red past 100, its needle eased. | `.over`: past rated. |
-| **rotary** | `.rotary` | A rotary switch: a yellow dial with a black knob. | `data-mode` auto / day / night turns the knob. |
+| **odometer** | `.till` holding a `.mark` and a `.roll.cash` (from `roller()`) | The money: ten drums in the counters' frame and colours, as tall as the instruments, the figure turning on the right, blank drums to its left, its icon on the first drum. `.particles`: the Exotic Particles' twin, inked `--ep-drum`. | `.purse.two`: both shown, each half height. |
+| **meter** | `.meter.instrument` | A wide-scale moving-coil meter, its pivot hidden below the window, on a meltdown scale: cold at the left stop, rated upright, meltdown at the right stop, red from upright on, its needle eased. Sits at a gauge's side (`gauge(..., instrument)`). | `.over`: past rated. |
+| **led** | `.led`, from `ledReadout()` | A seven-segment readout in a dark window: four digit positions with their unlit segments showing, points lit on their digits, the unit beside (`ledCells()` in `instruments.js`). `--led-h` sets its size; `--led-ink` / `--led-ghost` its colour. | Lamp test lights every segment. |
+| **bargraph** | `.bargraph.instrument` | Ten lamps rising behind dark glass, a tenth each, the top two amber: the power store's level. Sits at a gauge's side. | `i.on`: lit. `.full`: the top lamp blinks. |
+| **rotary** | `.rotary` | A rotary switch: a yellow dial with a black knob, set into a key (`.light-key`) beside its setting. | `data-mode` auto / day / night turns the knob. |
 | **mimic** | `.mimic` (an SVG in `#grid`) | Track drawn between parts (`.track`), lit where heat moves (`.lit`), its lamps running. | Hidden unless Flow is on. |
 
 Two states run across every component: `body.lamp-test` (every lamp and lens
@@ -48,7 +51,7 @@ Every colour a component uses is a token: `--key-face`, `--key-face-in`,
 `--manila`, `--slip`, `--envelope`, `--stamp-ink`, `--cash-ink`, `--seal`,
 `--greenbar`, the lit keys' `--bulb-hot`, `--bulb`, `--bulb-dim`, `--lens-off`, `--legend-off`, `--legend-lit`, and `--feed` (the punched margin every paper has: sprocket holes
 down both edges, drawn by the card's `::before`), and for the desk's hardware
-`--strip-face`, `--drum-face`, `--drum-ink`, `--meter-face`, `--meter-red`,
+`--led-face`, `--led-power`, `--led-power-ghost`, `--led-heat`, `--led-heat-ghost`, `--led-cold`, `--led-cold-ghost`, `--strip-face`, `--drum-face`, `--drum-ink`, `--meter-face`, `--meter-red`,
 `--tag-face`, `--tag-rule`, `--zone-face`, `--zone-ink`, `--zone-ink-dim`, with
 the tile module `--mod` and its seams `--mosaic-pale` / `--mosaic-dark`. Signal colours stay what they were:
 `--power`, `--heat`, `--cash`, `--ep`.
