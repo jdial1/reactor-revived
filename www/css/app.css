@@ -547,7 +547,11 @@ footer {
 .gauge .max { max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; background: var(--plate); }
 .gauge b { color: var(--card-ink); font-weight: normal; font-size: 15px; line-height: 1.1; }
 .gauge .max { margin-top: 1px; padding-top: 1px; border-top: 1.5px solid var(--card-ink); color: var(--plate-ink-dim); font-size: 10px; line-height: 1.2; }
-.purse { padding: 0 8px; border-inline: 1px solid var(--card-rule); }
+.purse { padding: 0 3px; }
+/* The instruments sit close against the money: the gauges' padding is on
+   their outer sides only. */
+.gauge.power { padding-right: 0; }
+.gauge.heat { padding-left: 0; }
 /* The counters on their plate in Options. */
 .options .counters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px; padding: 8px 6px 10px; }
 /* The Day / Night switch is a key on the Control room plate, its dial beside its setting. */
@@ -2143,6 +2147,8 @@ dialog,
 	.roll.cash .wheel { padding-inline: 0.5px; }
 	.instrument .mark { width: 9px; height: 9px; }
 	.gauge { padding-inline: 4px; column-gap: 4px; }
+	.gauge.power { padding-right: 0; }
+	.gauge.heat { padding-left: 0; }
 	.gauge.power { grid-template-columns: max-content minmax(36px, 84px); }
 	.gauge.heat { grid-template-columns: minmax(36px, 84px) max-content; }
 	.gauge > .instrument .face { height: 30px; }
@@ -2158,7 +2164,7 @@ dialog,
 	.purse.two .cash,
 	.purse.two .till .mark { font-size: 10px; }
 	.instrument .mark { top: 1px; left: 1px; width: 8px; height: 8px; }
-	.purse { padding-inline: 5px; }
+	.purse { padding-inline: 2px; }
 	.gauge.power { grid-template-columns: max-content minmax(32px, 72px); }
 	.gauge.heat { grid-template-columns: minmax(32px, 72px) max-content; }
 	.gauge > .instrument .face { height: 27px; padding: 3px; }
